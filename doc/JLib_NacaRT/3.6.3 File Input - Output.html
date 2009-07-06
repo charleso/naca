@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.6.3 File Input - Output</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.6.3 File Input - Output
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 20 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>Batch derivated programs can manipulate flat files.</p>
+
+<p>After declaration within the FileSection, the program can manipulate records. </p>
+
+<p>The following i/o operations can be done on a file:</p>
+<ul class="alternate" type="square">
+	<li>Open</li>
+	<li>Close</li>
+	<li>Read</li>
+	<li>Write</li>
+	<li>Rewrite</li>
+</ul>
+
+
+<p>What's more a file file can be operated in different modes:</p>
+<ul class="alternate" type="square">
+	<li>Input</li>
+	<li>Output with append</li>
+	<li>Output without append</li>
+	<li>InputOutput</li>
+</ul>
+
+
+<p>These operations are detailed here.</p>
+
+<h2><a name="3.6.3FileInput-Output-Exampleused"></a>Example used</h2>
+
+<p>The following file definition is used for next verbs explanations:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestBatch <span class="code-keyword">extends</span> BatchProgram                                             
+{ 
+    DataSection workingstoragesection = declare.workingStorageSection(); 
+
+    Var enreg2 = declare.level(1).<span class="code-keyword">var</span>(); 
+        Var Name2 = declare.level(5).picX(10).<span class="code-keyword">var</span>(); 
+        Var Date2 = declare.level(5).pic9(8).comp3().<span class="code-keyword">var</span>(); 
+        Var Number2 = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>(); 
+        Var Length2 = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>(); 
+        Var Text2 = declare.level(5).variableLength().picX(1000).<span class="code-keyword">var</span>() ; 
+    ... 
+    DataSection filesection = declare.fileSection(); 
+    FileDescriptor fileIn = declare.file(<span class="code-quote">"FileTestIn"</span>); 
+    Var enreg = declare.level(1).<span class="code-keyword">var</span>(); 
+        Var Name = declare.level(5).picX(10).<span class="code-keyword">var</span>(); 
+        Var Date = declare.level(5).pic9(8).comp3().<span class="code-keyword">var</span>(); 
+        Var <span class="code-object">Number</span> = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>(); 
+        Var Length = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>(); 
+        Var Text = declare.level(5).variableLength().picX(1000).<span class="code-keyword">var</span>() ; 
+    ... 
+    FileDescriptorDepending fileIn$dependency = declare.fileDescriptorDepending(fileIn, Length); 
+    ... 
+    <span class="code-keyword">public</span> void procedureDivision() 
+    { 
+        ...</pre>
+</div></div>
+
+<h2><a name="3.6.3FileInput-Output-Fileopen"></a>File open</h2>
+
+<p>The file open call identifies an open mode, and the writability of the file.</p>
+
+<p>Int he following code, the FileDescriptor_variable_name is the variable declared in the FileSection by </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">FileDescriptor FileDescriptor_variable_name = declare.file(&lt;file descriptor logcial name string&gt;);</pre>
+</div></div>
+
+<p>A program should not open a given file twice. This generates a non-fatal log error.</p>
+
+<h3><a name="3.6.3FileInput-Output-Openreadonlyfile"></a>Open read-only file</h3>
+<p>To open a file in input only:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;FileDescriptor_variable_name&gt;.openInput();</pre>
+</div></div>
+<p>The physical file must exists. If it's not the case, then an excpetion is thrown, the process exits, and a status code 8 is returned by the JVM.<br/>
+The physical file name may be dummy. </p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">fileIn.openInput();</pre>
+</div></div>
+
+<h3><a name="3.6.3FileInput-Output-Openwriteonlyfile"></a>Open write only file</h3>
+<p>To open a file in output only:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;FileDescriptor_variable_name&gt;.openOutput();</pre>
+</div></div>
+
+<p>If the file doesn't exists, then it's created.<br/>
+If the file exists and is declared in extended mode, then write operations will append records.<br/>
+If the file exists and is not in extended mode, then the 1st write operation after open will erase the file.<br/>
+When the file is opened, it's locked: This forbid another thread or process to write in this file.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">fileIn.openOutput();</pre>
+</div></div>
+
+<h3><a name="3.6.3FileInput-Output-Openwriteonlyfileforcedinextendedmode"></a>Open write only file forced in extended mode</h3>
+
+<p>To open a file in output only, file record appending only:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;FileDescriptor_variable_name&gt;.openExtend();</pre>
+</div></div>
+
+<p>If the file doesn't exists, then it's created.<br/>
+If the file exists, then write operations will append records.<br/>
+When a file is open in that mode, the file definition's flag <tt>,ext</tt> is ignored.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">fileIn.openExtend();</pre>
+</div></div>
+
+<h3><a name="3.6.3FileInput-Output-Toopenafileininputandoutput"></a>To open a file in input and output</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;FileDescriptor_variable_name&gt;.openInputOutput();</pre>
+</div></div>
+
+<p>If the file doesn't exists, then it's created.<br/>
+If the file exists, then it's file position is set at the beginnig of file, and records may be read or re-write as required by the program.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">fileIn.openInputOutput();</pre>
+</div></div>
+
+<h2><a name="3.6.3FileInput-Output-Fileclose"></a>File close</h2>
+
+<p>When a program doesn't need a file resource anymore, it must close it.<br/>
+The syntax is</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;FileDescriptor_variable_name&gt;.close();</pre>
+</div></div>
+
+<p>If a program forgets to close a file, then an auto-close mecanism will be used to close the still open files. A log error will be issued. The program execution won't be affected.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">fileIn.close();</pre>
+</div></div>
+
+<h2><a name="3.6.3FileInput-Output-Fileread"></a>File read</h2>
+
+<p>A file is read one record at a time.</p>
+
+<p>There is 2 methods for reading a record form a file:</p>
+<ul class="alternate" type="square">
+	<li>read(&lt;FileDescriptor_variable_name&gt;); : Reads the current record data.
+	<ul class="alternate" type="square">
+		<li>the data are set into the variable group at level 01 that immediatly follows the <tt>FileDescriptor_variable_name</tt>.</li>
+	</ul>
+	</li>
+	<li>readInto(&lt;FileDescriptor_variable_name&gt;, &lt;group_variable_name&gt;); Reads the current record data. The data is set in 2 variables groups:
+	<ul class="alternate" type="square">
+		<li>the variable group at level 01 that immediatly follows the <tt>FileDescriptor_variable_name</tt></li>
+		<li>the variable named <tt>group_variable_name</tt></li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>Data are converted in ascii if the file is encoded in ebcdic. In fact, only alphanumeric fields are converted. These fields are identified by using the type of the children of the variable group at level 01. So, only picX, pic9 comp0 or picS9 comp0 typed children are converted from ebcdic to ascii. <br/>
+pic9 comp3 (packed decimal) and pic9 comp (binary encoded) are not converted, as nacaRT internal representation is the same as maineframe internal representation.</p>
+
+<p>If a file is variable length, the variable groups are filled only with the number of bytes indicated by the record length header. The variable indentified by the <tt>declare.fileDescriptorDepending</tt> statement.</p>
+
+<p>It is possibleto test for end of file condition by appending and texting the return value of a <tt>.atEnd()</tt> method call after a <tt>read</tt> or <tt>readInto</tt> call.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+    fileIn.openInput();
+    ...
+    <span class="code-keyword">if</span>(!read(fileIn).atEnd())  <span class="code-comment">// variable group enreg is filled. We check <span class="code-keyword">for</span> end of file condition
+</span>    {
+        ... <span class="code-comment">// We are not at end of file. 
+</span>        <span class="code-keyword">while</span>(!readInto(fileIn, enreg2).atEnd())  <span class="code-comment">// read next record; variable group enreg is filled; variable group enreg2 is also filled
+</span>        { 
+            .... <span class="code-comment">// handle records read
+</span>        }
+    }
+    <span class="code-comment">// we have read all records form the input file
+</span>    fileIn.close();
+    ...</pre>
+</div></div>
+
+
+<h2><a name="3.6.3FileInput-Output-Filewrite"></a>File write</h2>
+
+<p>There is 2 methods for writing a record into a file:</p>
+<ul class="alternate" type="square">
+	<li>write(&lt;FileDescriptor_variable_name&gt;); : Write the record given by level 01 following
+	<ul class="alternate" type="square">
+		<li>the data are set into the variable group at level 01 that immediatly follows the <tt>FileDescriptor_variable_name</tt>.</li>
+	</ul>
+	</li>
+	<li>readInto(&lt;FileDescriptor_variable_name&gt;, &lt;group_variable_name&gt;); Reads the current record data. The data is set in 2 variables groups:
+	<ul class="alternate" type="square">
+		<li>the variable group at level 01 that immediatly follows the <tt>FileDescriptor_variable_name</tt></li>
+		<li>the variable named <tt>group_variable_name</tt></li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>If the file encoding is declared in ecbdic, then alphanumeric fields are converted from ascii to ebcdic and then written in ebcdic. The fields are identified by the types of the chidren of the varioable group. Only fields typed picX, pic9 coomp0 or picS9 comp0 are convertible form ascii to ebcdic.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+    fileIn.openOutput();
+    move(29, Length);
+    move(..., enreg);
+    write(fileIn);   <span class="code-comment">// write a record of 29 bytes <span class="code-object">long</span>; the data are provided by enreg children; the fixed part is 19 bytes <span class="code-object">long</span>, and the variable part is only 10 bytes <span class="code-object">long</span>
+</span>    inc(Length);
+    move(..., enreg2);
+    writeFrom(fileIn, enreg2); <span class="code-comment">// write a record of 30 bytes <span class="code-object">long</span>; ; the data are provided by enreg2 children; the fixed part is 19 bytes <span class="code-object">long</span>, and the variable part is only 11 bytes <span class="code-object">long</span>
+</span>    fileIn.close();
+    ...</pre>
+</div></div>
+
+<h2><a name="3.6.3FileInput-Output-Filerewrite"></a>File rewrite</h2>
+
+<p>This method enable to update a record of a given file. The file must have been open in input output mode. The record must have previously been read.</p>
+
+<p>Example:</p>
+
+<p>All records that have 0 in field <tt>Number</tt> are updated:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+    fileIn.openInputOuput();
+    ...
+    <span class="code-keyword">while</span>(!read(fileIn).atEnd())  <span class="code-comment">// variable group enreg is filled. We check <span class="code-keyword">for</span> end of file condition
+</span>    {
+        <span class="code-keyword">if</span>(isEqual(<span class="code-object">Number</span>, 0))  <span class="code-comment">// record have a 0 in field <span class="code-object">Number</span> must be updated
+</span>        {           
+            ... <span class="code-comment">// 
+</span>            move(1, <span class="code-object">Number</span>);
+            rewrite(fileIn);
+        }
+    }
+    fileIn.close();
+    ...</pre>
+</div></div>
+
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

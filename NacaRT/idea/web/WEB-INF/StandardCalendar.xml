@@ -1,0 +1,25 @@
+<Settings>
+	<Day Value="Mon">
+		<Open Min="06:00:00" Max="20:00:00"/>
+	</Day>
+	<Day Value="Tue">
+		<Open Min="06:00:00" Max="20:00:00"/>
+	</Day>
+	<Day Value="Wed">
+		<Open Min="06:00:00" Max="20:00:00"/>
+	</Day>
+	<Day Value="Thu">
+		<Open Min="06:00:00" Max="20:00:00"/>
+	</Day>
+	<Day Value="Fri">
+		<Open Min="06:00:00" Max="20:00:00"/>
+	</Day>
+	<Day Value="Sat">
+		<Open Min="06:00:00" Max="16:00:00"/>
+	</Day>
+	<!--
+	<Date Value="05/05/2006">
+		<Open Min="07:00:00" Max="17:30:00"/>
+	</Date>
+	-->
+</Settings>

@@ -1,0 +1,116 @@
+<ItemCount>
+<Category Name="GeneralProperties">
+<Item Count="16" Max="39" Name="CommentLines" Total="168"/>
+<Item Count="1" Name="BMSFiles"/>
+<Item Count="16" Max="205" Min="3" Name="CodeLines" Total="766"/>
+<Item Count="16" Max="244" Min="3" Name="Lines" Total="934"/>
+<Item Count="8" Name="CobolFiles"/>
+</Category>
+<Category Name="CobolVerbs">
+<Item Count="5" Name="COPY"/>
+<Item Count="8" Name="PROCEDURE"/>
+<Item Count="1" Name="READ"/>
+<Item Count="1" Name="CONTINUE"/>
+<Item Count="2" Name="SELECT"/>
+<Item Count="1" Name="CLOSE"/>
+<Item Count="1" Name="PERFORM_UNTIL"/>
+<Item Count="1" Name="CALL"/>
+<Item Count="1" Name="STOP_RUN"/>
+<Item Count="1" Name="ACCEPT"/>
+<Item Count="2" Name="EVALUATE"/>
+<Item Count="11" Name="IF"/>
+<Item Count="2" Name="FD"/>
+<Item Count="1" Name="WRITE"/>
+<Item Count="58" Name="WORKING_ENTRY"/>
+<Item Count="17" Name="PERFORM"/>
+<Item Count="16" Name="WORKING_VARIABLE"/>
+<Item Count="2" Name="ADD"/>
+<Item Count="5" Name="DISPLAY"/>
+<Item Count="2" Name="GOBACK"/>
+<Item Count="1" Name="OPEN"/>
+<Item Count="44" Name="MOVE"/>
+</Category>
+<Category Name="CICSCommands">
+<Item Count="1" Name="LINK"/>
+<Item Count="2" Name="SEND">
+<SubItem Count="2" Name="MAP"/>
+</Item>
+<Item Count="1" Name="ABEND"/>
+<Item Count="1" Name="RECEIVE">
+<SubItem Count="1" Name="MAP"/>
+</Item>
+<Item Count="2" Name="RETURN"/>
+<Item Count="1" Name="ADDRESS">
+<SubItem Count="1" Name="TCTUA"/>
+</Item>
+<Item Count="1" Name="SYNCPOINT"/>
+<Item Count="1" Name="XCTL"/>
+</Category>
+<Category Name="SQLCommands">
+<Item Count="1" Name="DECLARE_TABLE"/>
+<Item Count="1" Name="WHENEVER"/>
+<Item Count="1" Name="SELECT"/>
+</Category>
+<Category Name="SQLTableAccess">
+<Item CURSOR="0" DELETE="0" INSERT="0" Name="TBMSG" SELECT="1" UPDATE="0">
+<Program CURSOR="0" DELETE="0" INSERT="0" Name="ONLINE1" SELECT="1" UPDATE="0"/>
+</Item>
+</Category>
+<CopyForPrograms>
+<Copy Name="VTBMSGA">
+<Program Name="ONLINE1"/>
+</Copy>
+<Copy Name="ONLINM1S">
+<Program Name="ONLINE1"/>
+</Copy>
+<Copy Name="MSGZONE">
+<Program Name="ONLINE1"/>
+<Program Name="BATCH1"/>
+<Program Name="CALLMSG"/>
+</Copy>
+<Copy Name="DFHAID">
+<Program Name="ONLINE1"/>
+</Copy>
+<Copy Name="SQLCA">
+<Program Name="ONLINE1"/>
+</Copy>
+<Copy Name="TUAZONE">
+<Program Name="ONLINE1"/>
+</Copy>
+<Copy Name="ONLINM1">
+<Program Name="ONLINE1"/>
+</Copy>
+</CopyForPrograms>
+<MissingCopy/>
+<ProgramUsingCopy>
+<Program Name="ONLINE1">
+<Copy Name="ONLINM1"/>
+<Copy Name="ONLINM1S"/>
+<Copy Name="MSGZONE"/>
+<Copy Name="SQLCA"/>
+<Copy Name="VTBMSGA"/>
+<Copy Name="DFHAID"/>
+<Copy Name="TUAZONE"/>
+</Program>
+<Program Name="CALLMSG">
+<Copy Name="MSGZONE"/>
+</Program>
+<Program Name="BATCH1">
+<Copy Name="MSGZONE"/>
+</Program>
+</ProgramUsingCopy>
+<SubProgramCalls>
+<Program Name="BATCH1">
+<SubProgram Name="CALLMSG"/>
+</Program>
+</SubProgramCalls>
+<ProgramCalled>
+<SubProgram Name="CALLMSG">
+<Program Name="BATCH1"/>
+</SubProgram>
+</ProgramCalled>
+<MissingCalls/>
+<ProgramsToRewrite>
+<Program Line="0" Name="ONLINE1" Reason="Missing table declaration : VTBMSGA"/>
+</ProgramsToRewrite>
+</ItemCount>

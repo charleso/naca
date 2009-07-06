@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : SQL Connections and connection pooling</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : SQL Connections and connection pooling
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 02 Apr 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>SQL connections are pooled for performance reasons.<br/>
+There can be a connection pool by program.</p>
+
+<p>The DB connection parameters are described in tag &lt;SQLConfig&gt;, inside tag &lt;SequencerConfig&gt;, itself inside tag &lt;conf&gt;.<br/>
+The connection pools are described within a tag &lt;Pools&gt;.<br/>
+These application pools must not be confused with the accounting pool.</p>
+
+<h1><a name="SQLConnectionsandconnectionpooling-DBConnection"></a>DB Connection</h1>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2Fdburl%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/dburl</tt></h4>
+<p>String value.<br/>
+Gives the jdbc url identifying the database holding the application tables.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2Fdbuser%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/dbuser</tt></h4>
+<p>String value.<br/>
+Database user able to access application tables.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7Bconf%2FSequencerConfig%2FSQLConfig%2FCryptedDbpass..."></a><tt>conf/SequencerConfig/SQLConfig/CryptedDbpassword</tt></h4>
+<p>String value.<br/>
+Password associated with the provided user. It's in encrypted hexadecimal form. A separate crypting utility can generate this password.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2FCryptKey%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/CryptKey</tt></h4>
+<p>String value.<br/>
+Key used to decrypt the crypted password. It must match the key given to the separate crypting utility that has generated the crypted password.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7Bconf%2FSequencerConfig%2FSQLConfig%2FdbConnectionU..."></a><tt>conf/SequencerConfig/SQLConfig/dbConnectionUrlOptionalParams</tt></h4>
+<p>Optional parameter string appended to dburl. It is must be set to "currentPackageSet=NACA;keepDynamic=yes;clientProgramName=$FoundPoolName;"<br/>
+The $ placeholders are used to identify the pool within DB2 administration console.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2Fdbenvironment%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/dbenvironment</tt></h4>
+<p>Database environment. This is a table prefix that must exists within database.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2FdriverClass%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/driverClass</tt></h4>
+<p>JDBC driver class name used to connect to the db. Set it to "com.ibm.db2.jcc.DB2Driver" for DB2 or UDB support.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7Bconf%2FSequencerConfig%2FSQLConfig%2FCloseCursorOn..."></a><tt>conf/SequencerConfig/SQLConfig/CloseCursorOnCommit</tt></h4>
+<p>Boolean value.<br/>
+Set to true to close cursor when a commit is issued.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2FAutoCommit%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/AutoCommit</tt></h4>
+<p>Boolean value.<br/>
+Set to true to open connection in autocommit mode. Should be set to "false".</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2FvalidationQuery%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/validationQuery</tt></h4>
+<p>SQL clause that must always succeed, used to check the connection validity. Used to validate the DB connection after opening it.<br/>
+Typically set to "select * from SYSIBM.SYSDUMMY1".</p>
+
+
+<h1><a name="SQLConnectionsandconnectionpooling-Connectionpooling"></a>Connection pooling</h1>
+
+<p>Connection pooling parameters are described in tag &lt;Pool&gt; of &lt;Pools&gt; of &lt;SQLConfig&gt;, inside tag &lt;SequencerConfig&gt;, itself inside tag &lt;conf&gt;.<br/>
+These pools are defined as accounting connections pools, but are not mixed.</p>
+
+<p>All nacaRT DB connections are pooled internally. This includes the accounting connections.<br/>
+The pooling supports multiple pools. In the case of accounting, there is only one pool.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FSequencerConfig%2FSQLConfig%2FPools%2FPool%2FName%7D%7D"></a><tt>conf/SequencerConfig/SQLConfig/Pools/Pool/Name</tt></h4>
+<p>Gives the name of the db connection pool.<br/>
+If the name is <tt>Generic</tt>, then this pool is used by all programs that are not defining their own pool. There must only one pool with name "Generic".<br/>
+If the name is not "Generic", then this pool wil be reserved for the program whose is given in value "ProgramId".</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FProgramId%7D%7D"></a><tt>conf/Accounting/Pools/Pool/ProgramId</tt></h4>
+<p>Gives the name of the program that can use this connection pool.<br/>
+If the pool's name is "Generic", then this value to "", as there is not program restriction to use this pool.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FMaxConnection%7D%7D"></a><tt>conf/Accounting/Pools/Pool/MaxConnection</tt></h4>
+<p>Integer value. Maximum number of connections that this pool can hold. <br/>
+When a transaction is launched, a connection is taken from the pool associated with the transaction's first program, or (if no specific definition found) from the generic pool.<br/>
+The connection is returned to the pool when the transaction finishes. There can be no more than MaxConnection taken simultaneously from a pool. If all connections are obtained by running programs, then the next program requesting an unused connection has to wait until one is returned to the pool (that is it becoms free).</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7Bconf%2FAccounting%2FPools%2FPool%2FTimeBeforeRemoveC..."></a><tt>conf/Accounting/Pools/Pool/TimeBeforeRemoveConnection_ms</tt></h4>
+<p>Time in milliseconds during which a connection can stay open without being used. Each time a connection is used by a running program, it's last usage time is resetted. When the elapsed time between now and the last usage time is higher than this quantiy of milliseconds, then the connection and all it's prepared statements are closed and removed, as the connection is considered obsolete. This is done by the GC thread.<br/>
+This value must not be longer than the corresponding database parameter. In fact, the db engine can pro-activelly close an obsolete connection, and nacaRT won't be informed of this event. It's best to close the connection before the db engine.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7Bconf%2FAccounting%2FPools%2FPool%2FMaxStatementLiveT..."></a><tt>conf/Accounting/Pools/Pool/MaxStatementLiveTime_ms</tt></h4>
+<p>Time in milliseconds during which a prepared statement can stay open without being used. If a statement is unused for too long, the DB engine may close it aggressivelly, and nacaRT has no way to be informed of that fact. Thus, it's best to pro-activelly close an unsued statement before the db engine. This cleanup is done by the GC Thread and when a connection is returned to it's pool. </p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FUseExplain%7D%7D"></a><tt>conf/Accounting/Pools/Pool/UseExplain</tt></h4>
+<p>Boolean value. Set to false.</p>
+
+<h1><a name="SQLConnectionsandconnectionpooling-SpecialSQLcodehandling"></a>Special SQL code handling</h1>
+<p>Some SQL special code may indicate that the db connection is corrupted. This tga defins a list of such code. Getting one of these code generates an Abort excption which termintaes program and transacton execution. An email report is also generated.</p>
+
+<h4><a name="SQLConnectionsandconnectionpooling-%7B%7Bconf%2FAccounting%2FConnectionKillerSQLCodes%2FValue%7D%7D"></a><tt>conf/Accounting/ConnectionKillerSQLCodes/Value</tt></h4>
+<p>Negaive Integer number ranging form -1 to -32767. Set the code very carefully, as the transaction is terminated when this code is received.</p>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Program Author="XXXXXXXXX" Date_Written="2008" Line="1" Program_ID="CALLMSG">
+<WorkingStorageSection Line="18"/>
+<LinkageSection Line="21">
+<Copy Line="23" Reference="MSGZONE"/>
+</LinkageSection>
+<ProcedureDivision Line="25">
+<Using Identifier="MSG-ZONE"/>
+<Procedure Line="25">
+<Evaluate Line="28">
+<When Line="29">
+<Condition>
+<Equals>
+<Value Identifier="MSG-NO"/>
+<Value String="0001"/>
+</Equals>
+</Condition>
+<Move Line="30">
+<From String="Problem BATCH"/>
+<To Identifier="MSG-TEXT"/>
+</Move>
+</When>
+<When Line="31">
+<Condition>
+<Equals>
+<Value Identifier="MSG-NO"/>
+<Value String="0002"/>
+</Equals>
+</Condition>
+<Move Line="32">
+<From String="Forbidden PFKey"/>
+<To Identifier="MSG-TEXT"/>
+</Move>
+</When>
+<When Line="33">
+<Condition>
+<Equals>
+<Value Identifier="MSG-NO"/>
+<Value String="0003"/>
+</Equals>
+</Condition>
+<Move Line="34">
+<From String="Record not found"/>
+<To Identifier="MSG-TEXT"/>
+</Move>
+</When>
+<When Line="35">
+<Condition>
+<Equals>
+<Value Identifier="MSG-NO"/>
+<Value String="0004"/>
+</Equals>
+</Condition>
+<Move Line="36">
+<From String="Mandatory field"/>
+<To Identifier="MSG-TEXT"/>
+</Move>
+</When>
+</Evaluate>
+<GoBack Line="39"/>
+</Procedure>
+</ProcedureDivision>
+</Program>

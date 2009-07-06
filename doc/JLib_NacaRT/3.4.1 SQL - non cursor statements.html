@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.4.1 SQL - non cursor statements</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.4.1 SQL - non cursor statements
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 15 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>These statement acts only on a resultset of 0 or 1 record</p>
+
+<h2><a name="3.4.1SQL-noncursorstatements-Select"></a>Select</h2>
+<p>The select statement specifies ate least one table and must return 0 or 1 record. A selection of coulumns is provided. It can be *, or a mix of * and column names from a separe table.</p>
+
+<p>It can specify where parameters that act as a filter to find the matching record.</p>
+
+<h3><a name="3.4.1SQL-noncursorstatements-Example"></a>Example</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql("SELECT count(*) FROM Customer)
+    .into(wQty);</pre>
+</div></div>
+
+<p>This clause returns the number of records of table Customer in colbol-like variable wQty. No error handling is done.</p>
+
+<h3><a name="3.4.1SQL-noncursorstatements-Example2%3A"></a>Example 2:</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql("SELECT PhoneNumber, Name FROM Customer WHERE Id = #1)
+    .into(wPhoneNumber)
+    .into(wName)
+    .param(1, wId)
+    .onErrorGoto(paragraphSQLErrorHandler);</pre>
+</div></div>
+
+<p>This clause select 1 record matching a given customer id. the cobol-like variables wPhoneNumber and wName are filled on return.<br/>
+If no customer having an id wId, then a goto to paragraph paragraphSQLErrorHandler is done.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">h3. Example 3:
+{code:java}
+sql("SELECT count(*) FROM Customer WHERE Id = #1)
+    .into(wPhoneNumber)
+    .into(wName)
+    .param(1, wId)
+    .onErrorGoto(paragraphSQLErrorHandler);</pre>
+</div></div>
+
+<p>This clause select 1 record matching a given customer id. the cobol-like variables wPhoneNumber and wName are filled on return.<br/>
+If no customer having an id wId, then a goto to paragraph paragraphSQLErrorHandler is done.</p>
+
+<h3><a name="3.4.1SQL-noncursorstatements-Example4%3A"></a>Example 4:</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(<span class="code-quote">"SELECT * FROM RS0501  WHERE CDSTE = #1 AND CDCENPR = #2 AND CDNIVRG = #3 AND CDRGRP ^= #4"</span>)
+    .into(vrs0501b.dvrs0501b)
+    .param(1, vrs0501b.cdste)
+    .param(2, vrs0501b.cdcenpr)
+    .param(3, rs05a01s.sutirgrn)
+    .param(4, rs05a01s.sutirgr01)
+    .onErrorGoto(paragraphSQLErrorHandler);</pre>
+</div></div>
+
+<p>In that sample, there is 4 parameters that will be used for filtering:</p>
+<ul class="alternate" type="square">
+	<li>vrs0501b.cdste is set as a filter of column CDSTE.</li>
+	<li>vrs0501b.cdcenpr is set as a filter of column CDCENPR.</li>
+	<li>rs05a01s.sutirgrn is set as a filter of column CDNIVRG.</li>
+	<li>rs05a01s.sutirgr01 is set as a filter of column CDRGRP.<br/>
+The type of the parameters-variable must be consistent with the type of the underlying table's column. NacaRT and JDBC does resonable conversions if required, but with some limitations</li>
+</ul>
+
+
+<p>As it's a select statement, only 0 or 1 record can be returned. </p>
+
+<p>After execution of the statement, we get a result sert of 0 or 1 record. Getting more than 1 record generates an error, as such a select statement is limited to a single record return. This error can be catched by onErrorGoto() method call.</p>
+
+<p>If we get 1 record in the resultset, then cobol-like variables of the group <tt>vrs0501b.dvrs0501b</tt> will be filled.<br/>
+As we have a "select *" statement , then the resultset's table column name is used to find variables of the same name within the group <tt>vrs0501b.dvrs0501b</tt>. Only variables of the same name as the column's name are filled. </p>
+
+<h3><a name="3.4.1SQL-noncursorstatements-Example5%3A"></a>Example 5:</h3>
+<p>It is possible to have both * and column names as for example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(<span class="code-quote">"SELECT X.*, Y.NMCOLL FROM RS0104 X, RS0103 Y WHERE X.CDPROJ = Y.CDPROJ"</span>)
+    .into(dvrs0104a)
+    .into(vnm)</pre>
+</div></div>
+<p>Where :</p>
+<ul class="alternate" type="square">
+	<li><tt>dvrs0104a</tt> is a group whose some (or all) children have the same name as the columns of table RS0104. Only the children that have a column with the same name will be filled. Name comporarison is case insensitive.</li>
+	<li><tt>vnm</tt> is a variable that will be filled by the value of the column NMCOLL. As it's not a group, there is no name matching done.</li>
+</ul>
+
+
+
+<h2><a name="3.4.1SQL-noncursorstatements-Insertstatement"></a>Insert statement</h2>
+
+<p>The statement is simple:</p>
+
+<h3><a name="3.4.1SQL-noncursorstatements-Example%3A"></a>Example:</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(<span class="code-quote">"INSERT INTO RS7A00(UTISTE, UTIENTO, CDENUM, CORNUM)  VALUES (#1, #2, #3, #4)"</span>)
+    .value(1, vrs7a000.utiste)
+    .value(2, vrs7a000.utiento)
+    .value(3, vrs7a000.cdenum)
+    .value(4, vrs7a000.cornum)
+    .onErrorGoto(erreur_Db2);</pre>
+</div></div>
+
+<p>All column values are passed as parameter by cahined value() method calls. The number obvioulsy refers to the #number of the sql statement.</p>
+
+<h2><a name="3.4.1SQL-noncursorstatements-Update"></a>Update</h2>
+
+<p>This statement must give 2 kinds of informations:</p>
+<ul class="alternate" type="square">
+	<li>column's values: it's given by value() calls.</li>
+	<li>where parameters: it's given by param() calls.</li>
+</ul>
+
+
+<h3><a name="3.4.1SQL-noncursorstatements-Example%3A"></a>Example:</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(<span class="code-quote">"UPDATE FUF101 SET OFEVAPR = #1, OFEVAFR = #2, OFEUMS = #3, MUTDAT = #4 WHERE UTISTE = #5 AND UTIENTJ = #6"</span>)
+    .value(1, vfuf101d.ofevapr)
+    .value(2, vfuf101d.ofevafr)
+    .value(3, vfuf101d.ofeums)
+    .value(4, vfuf101d.mutdat)
+    .param(5, vfuf101d.utiste)
+    .param(6, vfuf101d.utientj)
+    .onErrorGoto(db2_Fehler);</pre>
+</div></div>
+
+<h2><a name="3.4.1SQL-noncursorstatements-Delete"></a>Delete</h2>
+
+<p>There is only where param to provide.</p>
+<h3><a name="3.4.1SQL-noncursorstatements-Example%3A"></a>Example:</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(<span class="code-quote">"DELETE FROM FUF104 WHERE UTISTE = #1 AND UTIENTJ = #2 AND EDIDAT = #3 AND JNLCOD = #4 AND EDIGRCD = #5 AND OFEUTYP = #6"</span>)
+    .param(1, vfuf104a.utiste)
+    .param(2, vfuf104a.utientj)
+    .param(3, w_Edidat)
+    .param(4, vfuf104a.jnlcod)
+    .param(5, vfuf104a.edigrcd)
+    .param(6, vfuf104a.ofeutyp)
+    .onErrorGoto(db2_Fehler) ;</pre>
+</div></div>
+
+
+
+
+
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

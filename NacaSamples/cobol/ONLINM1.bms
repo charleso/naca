@@ -1,0 +1,80 @@
+ONLINM1 DFHMSD TYPE=MAP,                                               *DVD00010
+               MODE=INOUT,LANG=COBOL                                    DVD00020
+ONLINEF DFHMDI SIZE=(024,080),LINE=NEXT,COLUMN=SAME,                   *DVD00040
+               CTRL=(HONEOM,FREEKB),TIOAPFX=YES,                       *DVD00050
+               MAPATTS=(COLOR,PS,HILIGHT,VALIDN),                      *DVD00060
+               DSATTS=(COLOR,PS,HILIGHT,VALIDN),                       *DVD00070
+               DATA=FIELD,JUSTIFY=(LEFT),                              *DVD00080
+               OBFMT=NO                                                 DVD00090
+* NOM DU MASQUE                                                         DVD00100
+NMMASQ  DFHMDF POS=(001,001),LENGTH=006,                               *DVD00110
+               ATTRB=(ASKIP,NORM),                                     *DVD00120
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD00130
+               JUSTIFY=(LEFT,BLANK),                                   *DVD00140
+               INITIAL='INIT01'                                         DVD00150
+        DFHMDF POS=(001,008),LENGTH=030,                               *DVD00160
+               ATTRB=(ASKIP,NORM),                                     *DVD00170
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD00180
+               INITIAL='        DEMO ONLINE           '                 DVD00190
+* DATE D'EXECUTION                                                      DVD00200
+DTEXEC  DFHMDF POS=(001,039),LENGTH=008,                               *DVD00210
+               ATTRB=(ASKIP,NORM),                                     *DVD00220
+               COLOR=TURQUOISE,HILIGHT=OFF,                            *DVD00230
+               JUSTIFY=(LEFT,BLANK)                                     DVD00240
+* HEURE D'EXECUTION                                                     DVD00250
+HREXEC  DFHMDF POS=(001,048),LENGTH=008,                               *DVD00260
+               ATTRB=(ASKIP,NORM),                                     *DVD00270
+               COLOR=TURQUOISE,HILIGHT=OFF,                            *DVD00280
+               JUSTIFY=(LEFT,BLANK)                                     DVD00290
+        DFHMDF POS=(010,001),LENGTH=032,                               *DVD01020
+               ATTRB=(ASKIP,NORM),                                     *DVD01030
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD01040
+               INITIAL='REFERENCE / REFERENZ / REFERENZA'               DVD01050
+        DFHMDF POS=(010,034),LENGTH=000,                               *DVD01060
+               ATTRB=(ASKIP,NORM),                                     *DVD01070
+               COLOR=GREEN,HILIGHT=OFF                                  DVD01080
+        DFHMDF POS=(010,037),LENGTH=001,                               *DVD01090
+               ATTRB=(ASKIP,NORM),                                     *DVD01100
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD01110
+               INITIAL='='                                              DVD01120
+* REFERENCE COLLABORATEUR                                               DVD01130
+RECOLL  DFHMDF POS=(010,039),LENGTH=003,                               *DVD01140
+               ATTRB=(UNPROT,NORM),                                    *DVD01150
+               COLOR=YELLOW,HILIGHT=UNDERLINE,                         *DVD01160
+               JUSTIFY=(LEFT,BLANK)                                     DVD01170
+        DFHMDF POS=(010,043),LENGTH=000,                               *DVD01180
+               ATTRB=(ASKIP,NORM),                                     *DVD01190
+               COLOR=GREEN,HILIGHT=OFF                                  DVD01200
+        DFHMDF POS=(012,001),LENGTH=008,                               *DVD01210
+               ATTRB=(ASKIP,NORM),                                     *DVD01220
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD01230
+               INITIAL='PASSWORD'                                       DVD01240
+        DFHMDF POS=(012,010),LENGTH=028,                               *DVD01250
+               ATTRB=(ASKIP,NORM),                                     *DVD01260
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD01270
+               INITIAL='                           ='                   DVD01280
+* PASSWORD COLLABORATEUR                                                DVD01290
+PASSCOL DFHMDF POS=(012,039),LENGTH=008,                               *DVD01300
+               ATTRB=(UNPROT,DRK),                                     *DVD01310
+               COLOR=DEFAULT,HILIGHT=OFF,                              *DVD01320
+               JUSTIFY=(LEFT,BLANK)                                     DVD01330
+        DFHMDF POS=(014,001),LENGTH=012,                               *DVD01420
+               ATTRB=(ASKIP,NORM),                                     *DVD01430
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD01440
+               INITIAL='NEW PASSWORD'                                   DVD01450
+        DFHMDF POS=(014,014),LENGTH=024,                               *DVD01460
+               ATTRB=(ASKIP,NORM),                                     *DVD01470
+               COLOR=GREEN,HILIGHT=OFF,                                *DVD01480
+               INITIAL='                       ='                       DVD01490
+* NOUVEAU PASSWORD COLLABORATEUR                                        DVD01500
+NEWPASS DFHMDF POS=(014,039),LENGTH=008,                               *DVD01510
+               ATTRB=(UNPROT,DRK),                                     *DVD01520
+               COLOR=DEFAULT,HILIGHT=OFF,                              *DVD01530
+               JUSTIFY=(LEFT,BLANK)                                     DVD01540
+* MESSAGE ERREUR                                                        DVD01630
+LIERR   DFHMDF POS=(024,001),LENGTH=079,                               *DVD01640
+               ATTRB=(ASKIP,BRT),                                      *DVD01650
+               COLOR=RED,HILIGHT=OFF,                                  *DVD01660
+               JUSTIFY=(LEFT,BLANK)                                     DVD01670
+        DFHMSD TYPE=FINAL                                               DVD01690
+        END                                                             DVD01700

@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.1.5 Supported cobol-like verbs</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.1.5 Supported cobol-like verbs
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 20 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>As nacaRT purpose is to work in a similar manner as Cobol, there is a full emulation compatibility layer. Cobol is a very verbose language, and some given verbs have a very complex syntax. NacaRT supports a subset of all these verbs that is sufficient to cover the Pub2000 application (batch and online) requirements. As this is a fairly large application, it is supposed that the coverage of the Cobol language is sufficient&nbsp;in most cases. If it's not the case, then some new methods in BaseProgram class will have to be added.</p>
+
+<p>This layer is implemented in the <tt>BaseProgram.java</tt> source code of nacaRT, and in some other source files.</p>
+
+<p>&nbsp;A lot of these methods exists with different parameters. For example, the move method exists in many flavors:<br/>
+&#45; protected void move(int n, Var varDest)<br/>
+&#45; protected void move(boolean b, Var varDest)<br/>
+&#45; protected void move(Var varSource, Edit varDest)<br/>
+&#45; protected void move(Edit varSource, Edit varDest)<br/>
+&#45; protected void move(Edit varSource,&nbsp;Var varDest)<br/>
+&#45; protected void move(CobolConstantSpace constant, VarAndEdit varDest)<br/>
+&#45; protected void move(CobolConstantZero constant, VarAndEdit varDest)<br/>
+&#45; protected void move(double d, Var varDest)<br/>
+&#45; protected void move(String cs, Var varDest)<br/>
+&#45; ... Many more of them exists.The eclipse editor proposes clearly the correct move method, taking in account the type of the provided paramters</p>
+
+<h1><a name="3.1.5Supportedcobol-likeverbs-Categoriesofmethodsupported"></a>Categories of method supported</h1>
+
+
+<h2><a name="3.1.5Supportedcobol-likeverbs-Verbsandconstructscommontoallexecutionmode%3AOnlineProgram%2CBatchProgram%2CCalledProgram%2CFPacProgram"></a>Verbs and constructs common to all execution mode: OnlineProgram, BatchProgram, CalledProgram, FPacProgram</h2>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Entrypointdeclaration"></a>Entry point declaration</h3>
+
+<ul class="alternate" type="square">
+	<li>procedureDivision</li>
+	<li>paragraphe declaration</li>
+	<li>section declaration</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Programcallandargumentpassing"></a>Program call and argument passing</h3>
+
+<ul class="alternate" type="square">
+	<li>call</li>
+	<li>getCommAreaLength</li>
+	<li>setCommAreaLength</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Comparisons"></a>Comparisons</h3>
+
+<ul class="alternate" type="square">
+	<li>isEqual</li>
+	<li>isDifferent</li>
+	<li>isLess</li>
+	<li>isLessOrEqual</li>
+	<li>isGreater</li>
+	<li>isGreaterOrEqual</li>
+	<li>isLessInEbcdic</li>
+	<li>isLessOrEqualInEbcdic</li>
+	<li>isGreaterInEbcdic</li>
+	<li>isGreaterOrEqualInEbcdic</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Comparisonagainscobolconstantvalue%3A"></a>Comparison agains cobol constant value:</h3>
+
+<ul class="alternate" type="square">
+	<li>isLowValue</li>
+	<li>isNotLowValue</li>
+	<li>isHighValue</li>
+	<li>isNotHighValue</li>
+	<li>isSpace</li>
+	<li>isNotSpace</li>
+	<li>isZero</li>
+	<li>isNotZero</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Miscellaneous"></a>Miscellaneous</h3>
+
+<ul class="alternate" type="square">
+	<li>isAll</li>
+	<li>isNotAll</li>
+	<li>isNumeric</li>
+	<li>isNotNumeric</li>
+	<li>isAlphabetic</li>
+	<li>isNotAlphabetic</li>
+	<li>lengthOf</li>
+	<li>val</li>
+	<li>digits</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Date%2Ftimemanagement"></a>Date / time management</h3>
+
+<ul class="alternate" type="square">
+	<li>currentDate</li>
+	<li>getDate</li>
+	<li>getTime</li>
+	<li>setTime</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Pointermanagement"></a>Pointer management</h3>
+
+<ul class="alternate" type="square">
+	<li>moveReferenceTo</li>
+	<li>addressOf</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Initizations"></a>Initizations</h3>
+
+<ul class="alternate" type="square">
+	<li>initialize</li>
+	<li>initializeReplacingNum</li>
+	<li>initializeReplacingNumEdited</li>
+	<li>initializeReplacingAlphaNum</li>
+	<li>initializeReplacingAlphaNumEdited</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Stringconcatenation"></a>String concatenation</h3>
+
+<ul class="alternate" type="square">
+	<li>concat</li>
+	<li>concatDelimitedBy</li>
+	<li>concatDelimitedBySpaces</li>
+	<li>concatDelimitedBySize</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Stringsplitting"></a>String splitting</h3>
+
+<ul class="alternate" type="square">
+	<li>unstring</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-SubStringmanagement"></a>SubString management</h3>
+
+<ul class="alternate" type="square">
+	<li>moveSubStringZero</li>
+	<li>moveSubStringSpace</li>
+	<li>moveSubStringLowValue</li>
+	<li>moveSubStringHighValue</li>
+	<li>setSubString</li>
+	<li>setSubStringAll</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Stringinspection"></a>String inspection</h3>
+
+<ul class="alternate" type="square">
+	<li>inspectReplacing</li>
+	<li>inspectTallying</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Conditionsupport%28level66inCobolapplication%29"></a>Condition support (level 66 in Cobol application)</h3>
+
+<ul class="alternate" type="square">
+	<li>is</li>
+	<li>isNot</li>
+	<li>moveTrue</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Math"></a>Math</h3>
+
+<ul class="alternate" type="square">
+	<li>add</li>
+	<li>opposite</li>
+	<li>subtract</li>
+	<li>divide</li>
+	<li>multiply</li>
+	<li>compute</li>
+	<li>computeRounded</li>
+	<li>inc</li>
+	<li>dec</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-moves"></a>moves</h3>
+
+<ul class="alternate" type="square">
+	<li>move</li>
+	<li>moveAll</li>
+	<li>moveCorresponding</li>
+	<li>moveSpace</li>
+	<li>moveLowValue</li>
+	<li>moveHighValue</li>
+	<li>moveZero</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Programflowmanagement"></a>Program flow management</h3>
+
+<ul class="alternate" type="square">
+	<li>perform</li>
+	<li>performThrough</li>
+	<li>goTo</li>
+	<li>goBack</li>
+	<li>exitProgram</li>
+	<li>exit</li>
+	<li>stopRun</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-SQL"></a>SQL</h3>
+
+<ul class="alternate" type="square">
+	<li>sqlCall</li>
+	<li>sql</li>
+	<li>cursorDefine</li>
+	<li>cursorOpen</li>
+	<li>cursorClose</li>
+	<li>cursorUpdateCurrent</li>
+	<li>cursorDeleteCurrent</li>
+	<li>cursorFetch</li>
+	<li>isSQLCode</li>
+	<li>isNotSQLCode</li>
+	<li>resetSQLCode</li>
+	<li>sqlRollback</li>
+	<li>sqlCommit</li>
+</ul>
+
+
+<h2><a name="3.1.5Supportedcobol-likeverbs-VerbsreservedforBatchProgramandFPacProgramderivated"></a>Verbs reserved for BatchProgram and FPacProgram derivated</h2>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Filehandling"></a>File handling</h3>
+
+<ul class="alternate" type="square">
+	<li>openOutput</li>
+	<li>openInputOutput</li>
+	<li>openInput</li>
+	<li>openExtend</li>
+	<li>close</li>
+	<li>write</li>
+	<li>writeFrom</li>
+	<li>rewrite</li>
+	<li>rewriteFrom</li>
+	<li>read</li>
+	<li>readInto</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Internalsorting"></a>Internal sorting</h3>
+
+<ul class="alternate" type="square">
+	<li>sort</li>
+	<li>release</li>
+	<li>returnSort</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Returncode"></a>Return code</h3>
+
+<ul class="alternate" type="square">
+	<li>getReturnCode</li>
+	<li>setReturnCode</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Consoleinput%2Foutput"></a>Console input/output</h3>
+
+<ul class="alternate" type="square">
+	<li>display</li>
+	<li>console</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Timemanagement"></a>Time management</h3>
+
+<ul class="alternate" type="square">
+	<li>getDateBatch</li>
+	<li>getTimeBatch</li>
+	<li>getDayBatch</li>
+</ul>
+
+
+<h2><a name="3.1.5Supportedcobol-likeverbs-DirectlyaccessibleverbsreservedforOnlineProgramsonly"></a>Directly accessible verbs reserved for OnlinePrograms only</h2>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-CICSCondition"></a>CICS Condition</h3>
+
+<ul class="alternate" type="square">
+	<li>getConditionOccured()</li>
+	<li>setConditionOccured</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Terminalidentification"></a>Terminal identification</h3>
+
+<ul class="alternate" type="square">
+	<li>getTerminalID</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Transactionidentification"></a>Transaction identification</h3>
+
+<ul class="alternate" type="square">
+	<li>getTransID</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Keypresshandling"></a>Keypress handling</h3>
+
+<ul class="alternate" type="square">
+	<li>isKeyPressed</li>
+	<li>isNotKeyPressed</li>
+	<li>resetKeyPressed</li>
+	<li>setKeyPressed</li>
+	<li>getKeyPressed</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-LastCICScommandcode"></a>Last CICS command code</h3>
+
+<ul class="alternate" type="square">
+	<li>getLastCICSCommandExecutedCode</li>
+</ul>
+
+
+<h2><a name="3.1.5Supportedcobol-likeverbs-CICSextension%3AverbsreservedforOnlineProgramsonlythatareindirectlyaccessible"></a>CICS extension: verbs reserved for OnlinePrograms only that are indirectly accessible</h2>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Endoftransaction"></a>End of transaction</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.returnTrans</li>
+	<li>CESM.abend()</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Specialvariableaccess"></a>Special variable access</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.getAddressOfTCTUA</li>
+	<li>CESM.getAddressOfTWA</li>
+	<li>CESM.getAddressOfCWA</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Conditions"></a>Conditions</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.ignoreCondition</li>
+	<li>CESM.unhandleCondition</li>
+	<li>CESM.handleCondition</li>
+	<li>CESM.getConditionOccured</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Timewait"></a>Time wait</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.delayInterval</li>
+	<li>CESM.delaySeconds</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Variousidentifications"></a>Various identifications</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.getDeclaredUserId</li>
+	<li>CESM.getDeclaredCompany</li>
+	<li>CESM.getDeclaredAgency</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Currentdate"></a>Current date</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.getCurrentDate</li>
+	<li>CESM.getCurrentDay</li>
+	<li>CESM.getCurrentMonth</li>
+	<li>CESM.getCurrentYear</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Time"></a>Time</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.askTime</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Temporaryqueues"></a>Temporary queues</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.readTempQueue</li>
+	<li>CESM.deleteTempQueue</li>
+	<li>CESM.writeTempQueue</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Asynchronoustransaction"></a>Asynchronous transaction</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.start</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-SQLcommit%2Frollback"></a>SQL commit / rollback</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.syncPointCommit</li>
+	<li>CESM.syncPointRollback</li>
+</ul>
+
+
+<h3><a name="3.1.5Supportedcobol-likeverbs-Programlinking"></a>Program linking</h3>
+
+<ul class="alternate" type="square">
+	<li>CESM.link</li>
+	<li>CESM.xctl</li>
+</ul>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

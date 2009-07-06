@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page lang="RS0110F">
+	<grid>
+		<row>
+			<col>
+				<image ref="images/logo.gif">
+				</image>
+			</col>
+			<col>
+				<vbox>
+					<hbox>
+						<pfkey name="enter" logo="images/ico_enter_lo.gif" display="Enter" ignore="false"/>
+						<blank length="1" text=" "/>
+						<pfkey name="pf1" logo="images/ico_f1_lo.gif" display="F1" ignore="true"/>
+						<pfkey name="pf2" logo="images/ico_f2_lo.gif" display="F2" ignore="false"/>
+						<pfkey name="pf3" logo="images/ico_f3_lo.gif" display="F3" ignore="true"/>
+						<pfkey name="pf4" logo="images/ico_f4_lo.gif" display="F4" ignore="false"/>
+						<pfkey name="pf5" logo="images/ico_f5_lo.gif" display="F5" ignore="true"/>
+						<pfkey name="pf6" logo="images/ico_f6_lo.gif" display="F6" ignore="true"/>
+						<pfkey name="pf7" logo="images/ico_f7_lo.gif" display="F7" ignore="true"/>
+						<pfkey name="pf8" logo="images/ico_f8_lo.gif" display="F8" ignore="true"/>
+						<pfkey name="pf9" logo="images/ico_f9_lo.gif" display="F9" ignore="true"/>
+						<pfkey name="pf10" logo="images/ico_f10_lo.gif" display="F10" ignore="true"/>
+						<pfkey name="pf11" logo="images/ico_f11_lo.gif" display="F11" ignore="true"/>
+						<pfkey name="pf12" logo="images/ico_f12_lo.gif" display="F12" ignore="false"/>
+						<blank length="1" text=" "/>
+						<pfkey name="logout" logo="images/ico_f1_lo.gif" display="Log out" ignore="false"/>
+					</hbox>
+				</vbox>
+			</col>
+		</row>
+		<row>
+			<col>
+				<vbox>
+					<label>
+						<texts>
+							<text lang="RS7803D">identification</text>
+							<text lang="RS7803F">identification</text>
+							<text lang="RS7803I">identification</text>
+						</texts>
+					</label>
+				</vbox>
+			</col>
+			<col>
+				
+			<form name="rs01a10" title="rs01a10" cursor="recoll">
+<pfkeydefine clear="true" pf1="false" pf2="true" pf3="false" pf4="true" pf5="false" pf6="false" pf7="false" pf8="false" pf9="false" pf10="false" pf11="false" pf12="true" enter="true"/>
+<formbody>
+<vbox>
+<hbox>
+<edit length="6" line="1" col="1" linkedvalue="nmmasq" name="nmmasq" color="green" highlighting="off" intensity="normal" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<label length="30" line="1" col="8" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">    INITIALISATION            </text>
+</texts>
+</label>
+<blank length="1"/>
+<edit length="8" line="1" col="39" linkedvalue="dtexec" name="dtexec" color="turquoise" highlighting="off" intensity="normal" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="17.01.05" modified="false"/>
+<blank length="1"/>
+<edit length="8" line="1" col="48" linkedvalue="hrexec" name="hrexec" color="turquoise" highlighting="off" intensity="normal" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="15:55:43" modified="false"/>
+<blank length="1"/>
+<label length="0" line="1" col="57" color="TURQUOISE" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox>
+<edit length="6" line="2" col="1" linkedvalue="cdtrans" name="cdtrans" color="neutral" highlighting="off" intensity="dark" protection="autoskip" justifyfill="BLANK" justify="LEFT" modified="true" value=""/>
+<blank length="1"/>
+<label length="0" line="2" col="8" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+<blank length="31"/>
+<label length="5" line="2" col="39" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">0110 </text>
+</texts>
+</label>
+<blank length="1"/>
+<label length="0" line="2" col="45" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox>
+<label length="32" line="6" col="1" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">SOCIETE / GESELLSCHAFT / SOCIETA</text>
+</texts>
+</label>
+<blank length="1"/>
+<label length="0" line="6" col="34" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+<blank length="3"/>
+<label length="1" line="6" col="37" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">:</text>
+</texts>
+</label>
+<blank length="1"/>
+<edit length="3" line="6" col="39" linkedvalue="cdstini" name="cdstini" color="turquoise" highlighting="off" intensity="normal" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<label length="0" line="6" col="43" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+<blank length="5"/>
+<edit length="20" line="6" col="48" linkedvalue="siste" name="siste" color="turquoise" highlighting="off" intensity="normal" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<label length="0" line="6" col="69" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox/>
+<hbox>
+<label length="32" line="8" col="1" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">CENTRE DE PROFIT / PROFIT-CENTER</text>
+</texts>
+</label>
+<blank length="1"/>
+<label length="0" line="8" col="34" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+<blank length="3"/>
+<label length="1" line="8" col="37" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">:</text>
+</texts>
+</label>
+<blank length="1"/>
+<edit length="3" line="8" col="39" linkedvalue="cdcenpi" name="cdcenpi" color="yellow" highlighting="underline" intensity="normal" protection="unprotected" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<label length="0" line="8" col="43" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+<blank length="5"/>
+<edit length="13" line="8" col="48" linkedvalue="destecr" name="destecr" color="turquoise" highlighting="off" intensity="normal" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<label length="0" line="8" col="62" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox/>
+<hbox>
+<label length="32" line="10" col="1" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">REFERENCE / REFERENZ / REFERENZA</text>
+</texts>
+</label>
+<blank length="1"/>
+<label length="0" line="10" col="34" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+<blank length="3"/>
+<label length="1" line="10" col="37" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">=</text>
+</texts>
+</label>
+<blank length="1"/>
+<edit length="3" line="10" col="39" linkedvalue="recoll" name="recoll" color="yellow" highlighting="underline" intensity="normal" protection="unprotected" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<label length="0" line="10" col="43" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox/>
+<hbox>
+<label length="8" line="12" col="1" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">PASSWORD</text>
+</texts>
+</label>
+<blank length="1"/>
+<label length="28" line="12" col="10" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">                           =</text>
+</texts>
+</label>
+<blank length="1"/>
+<edit length="8" line="12" col="39" linkedvalue="passcol" name="passcol" color="neutral" highlighting="off" intensity="dark" protection="unprotected" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<edit length="1" line="12" col="48" linkedvalue="finpas1" name="finpas1" color="neutral" highlighting="off" intensity="dark" justifyfill="BLANK" justify="LEFT" value="" protection="autoskip" modified="false"/>
+<blank length="1"/>
+<label length="0" line="12" col="50" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox/>
+<hbox>
+<label length="12" line="14" col="1" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">NEW PASSWORD</text>
+</texts>
+</label>
+<blank length="1"/>
+<label length="24" line="14" col="14" color="GREEN" highLighting="OFF" brightness="NORMAL">
+<texts>
+<text lang="RS0110F">                       =</text>
+</texts>
+</label>
+<blank length="1"/>
+<edit length="8" line="14" col="39" linkedvalue="newpass" name="newpass" color="neutral" highlighting="off" intensity="dark" protection="unprotected" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+<blank length="1"/>
+<edit length="1" line="14" col="48" linkedvalue="finpas2" name="finpas2" color="neutral" highlighting="off" intensity="dark" justifyfill="BLANK" justify="LEFT" value="" protection="autoskip" modified="false"/>
+<blank length="1"/>
+<label length="0" line="14" col="50" color="GREEN" highLighting="OFF" brightness="NORMAL"/>
+</hbox>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox/>
+<hbox>
+<edit length="79" line="24" col="1" linkedvalue="lierr" name="lierr" color="red" highlighting="off" intensity="bright" protection="autoskip" justifyfill="BLANK" justify="LEFT" value="" modified="false"/>
+</hbox>
+</vbox>
+</formbody>
+</form>
+</col>
+		</row>
+	</grid>
+</page>

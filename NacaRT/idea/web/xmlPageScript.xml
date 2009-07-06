@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page>
+	<pfkeylist>
+		<pfkey name="enter" jsKey="13" jsValue="0" action="doSubmit();"/>
+		<pfkey name="chguser" jsKey="0" jsValue="chguser"/>
+		<pfkey name="logout" jsKey="0" jsValue="logout"/>
+		<pfkey name="pf1" jsKey="112" jsValue="" action="topOpen('help.do?sessionId=H&amp;field=' + topFieldFocus + '&amp;currentPage='+document.form.idPage.value, 'help', 40, 300, 570, 400);"/>
+		<pfkey name="pf2" jsKey="113" jsValue="2"/>
+		<pfkey name="pf3" jsKey="114" jsValue="3"/>
+		<pfkey name="pf4" jsKey="115" jsValue="4"/>
+		<pfkey name="pf5" jsKey="116" jsValue="5"/>
+		<pfkey name="pf6" jsKey="117" jsValue="6"/>
+		<pfkey name="pf7" jsKey="118" jsValue="7"/>
+		<pfkey name="pf8" jsKey="119" jsValue="8"/>
+		<pfkey name="pf9" jsKey="120" jsValue="9"/>
+		<pfkey name="pf10" jsKey="121" jsValue="A"/>
+		<pfkey name="pf11" jsKey="122" jsValue="B"/>
+		<pfkey name="pf12" jsKey="123" jsValue="C"/>
+		<pfkey name="pf13" jsKey="124" jsValue="D"/>
+		<pfkey name="pf14" jsKey="125" jsValue="E"/>
+		<pfkey name="pf15" jsKey="126" jsValue="F"/>
+		<pfkey name="pf16" jsKey="127" jsValue="G"/>
+		<pfkey name="pf17" jsKey="128" jsValue="H"/>
+		<pfkey name="pf18" jsKey="129" jsValue="I"/>
+		<pfkey name="pf19" jsKey="130" jsValue="J"/>
+		<pfkey name="pf20" jsKey="131" jsValue="K"/>
+		<pfkey name="pf21" jsKey="132" jsValue="L"/>
+		<pfkey name="pf22" jsKey="133" jsValue="M"/>
+		<pfkey name="pf23" jsKey="134" jsValue="N"/>
+		<pfkey name="pf24" jsKey="135" jsValue="O"/>
+	</pfkeylist>
+	<replaceTitle/>
+	<pageform/>
+</page>

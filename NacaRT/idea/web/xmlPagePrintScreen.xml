@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page>
+	<vbox>
+		<hbox>
+			<image ref="images/empty.gif" width="300" height="0"/>
+			<pageinfo/>
+			<image ref="images/empty.gif" width="50" height="0"/>
+			<pagelogo/>
+		</hbox>
+		<replaceTitle/>
+		<pageform/>
+	</vbox>
+</page>

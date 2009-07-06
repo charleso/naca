@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : Garbage Collection thread tuning</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : Garbage Collection thread tuning
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 30 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>These parameters are given in a tag &lt;GCThread&gt; within main &lt;conf&gt; tag.<br/>
+NacaRT uses an internal thread that periodically do internal cache cleanup.</p>
+
+<h4><a name="GarbageCollectionthreadtuning-%7Bconf%2FGCThread%2FActivateThreadGarbageCollector..."></a><tt>conf/GCThread/ActivateThreadGarbageCollectorStatement</tt></h4>
+<p>Must be set to "true" to activate this cleanup thread. If set to false, then the other paraneters are ignored.</p>
+
+<h4><a name="GarbageCollectionthreadtuning-%7B%7Bconf%2FGCThread%2FGarbageCollectorStatementms%7D%7D"></a><tt>conf/GCThread/GarbageCollectorStatement_ms</tt></h4>
+<p>Number of milliseconds, defining a period of wait time. When this period has elapsed, the thread is activated.<br/>
+This value is typically set to 5 minutes (300000 milliseconds).</p>
+
+<h4><a name="GarbageCollectionthreadtuning-%7B%7Bconf%2FGCThread%2FMaxPermanentHeapMo%7D%7D"></a><tt>conf/GCThread/MaxPermanentHeap_Mo</tt></h4>
+<p>Defines a threshold in mega-bytes for the JVM permanent heap size. When the permanent heap size if higher than this value, then the cleanup processing is activated.<br/>
+It size must be consistent with the JVM memory space allocated.</p>
+
+<h4><a name="GarbageCollectionthreadtuning-%7B%7Bconf%2FGCThread%2FNbStatementForcedRemoved%7D%7D"></a><tt>conf/GCThread/NbStatementForcedRemoved</tt></h4>
+<p>Defines the quantity of SQL prepared statements to force remove when the permanent heap size is too large. The prepared statements that were executed the longest time ago (and then are currently unused) are removed first. The sum of prepared statements removed if kept and is compared to the value of <tt>conf/GCThread/NbStatementsToRemoveBeforeGC</tt>. Only this quantity of prepared statements can be removed in one run of the GC thread<br/>
+Removing this prepared statements happens only when the GC threads is activated. It's purpose it to lower the permanent heap size where prepared statements are holded, thus preventing a memory overflow. Ideally, prepared statement should never be removed in such a way. Thus, when memory is correctly tuned, this parameter must be set to "0". </p>
+
+<h4><a name="GarbageCollectionthreadtuning-%7B%7Bconf%2FGCThread%2FNbStatementsToRemoveBeforeGC%7D%7D"></a><tt>conf/GCThread/NbStatementsToRemoveBeforeGC</tt></h4>
+<p>The number of statements removed is cumulated. When it reaches <tt>NbStatementsToRemoveBeforeGC</tt>'s value, then a garbage collector is forced.<br/>
+This helps avoiding memory overflow.</p>
+
+<h4><a name="GarbageCollectionthreadtuning-%7B%7Bconf%2FGCThread%2FNbSystemGCCall%7D%7D"></a><tt>conf/GCThread/NbSystemGCCall</tt></h4>
+<p>Number of System.GC() call to do when garbage collector must be forced.</p>
+
+
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

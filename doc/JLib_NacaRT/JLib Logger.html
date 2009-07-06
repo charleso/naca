@@ -1,0 +1,615 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : JLib Logger</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : JLib Logger
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 16 May 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="JLibLogger-Logger"></a>Logger</h1>
+
+<p>The logger uses a XML configuration file to set the various supported output and their options.<br/>
+There is also some java methods to call for generating log events.</p>
+
+<h2><a name="JLibLogger-Loggerusage%3A"></a>Logger usage:</h2>
+
+<h3><a name="JLibLogger-Programoperations"></a>Program operations</h3>
+
+<ul class="alternate" type="square">
+	<li>Create a configuration file as described below</li>
+	<li>Initialize the global log object, by specifying it's configuration file:<br/>
+<tt>Log.open("Test", "D:/Dev/JLogWriterTest/src/net/publigroupe/config/Logging.ini", "RunId", "ProductId");</tt></li>
+</ul>
+
+
+<p>Comments:<br/>
+The Field having value <tt>"Test"</tt> identifies the channel.<br/>
+The field <tt>RunId</tt> identifies the current run; Its optional. if not provided, it will be replaced by a unique value generated at run time, BUT ONLY If USING a DBFLAT LogCenter.<br/>
+The field <tt>ProductId</tt> identifies the products. It may be null if not required.</p>
+
+<p>These 2 last fields are optionals, but can be used to have results' filtering after process execution.</p>
+
+<ul class="alternate" type="square">
+	<li>Do all applications operations, including sending log events:
+	<ul class="alternate" type="square">
+		<li>Create a custom log class. You can use STModuleGen application to generate your custom log object</li>
+		<li>Send the log to all available log writers:<br/>
+Example: LogEventEndCrawl.log(www.microsoft.com, nNbMilliseconds, "Crawling over");</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>The event will by dispatched synchronously to all enabled log writer. <br/>
+A log writer is enable if all the following conditions are met:</p>
+<ul class="alternate" type="square">
+	<li>Its parameter "Enable" in configuration file is set to true, or if it's status has been dynamically set to true (to be done)</li>
+	<li>It's channel must matches log event channel. In previous sample, the channel is "Test". It is provided in the static log method, at the line Log.log(&lt;Channel&gt;, event, Message);</li>
+	<li>It's flow must be either "any" or exactly match the flow indicated in the log event constructor.</li>
+	<li>It's level must be lower or equal than the level declared by log event constructor; the valid levels are given in descending order:
+	<ul class="alternate" type="square">
+		<li>Critical</li>
+		<li>Important</li>
+		<li>Normal</li>
+		<li>Verbose</li>
+		<li>Debug</li>
+		<li>FineDebug</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>At program end, close logger: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Log.close();</pre>
+</div></div>
+
+<h2><a name="JLibLogger-JLIBLoggerconfigurationfileformatsettings"></a>JLIB Logger configuration file format settings</h2>
+
+<h3><a name="JLibLogger-Sample"></a>Sample</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"ISO-8859-1"</span>?&gt;</span>
+<span class="code-tag">&lt;Organisation Id=<span class="code-quote">"Sample"</span>&gt;</span>
+	<span class="code-tag">&lt;Settings GetCallerLocation=<span class="code-quote">"true|false"</span>&gt;</span>
+		<span class="code-tag">&lt;CallLocation Exclude=<span class="code-quote">"jlib"</span>/&gt;</span>
+		<span class="code-tag">&lt;CallLocation Exclude=<span class="code-quote">"nacaLib"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Settings&gt;</span>
+	<span class="code-tag">&lt;LogCenters&gt;</span>
+		&lt;LogCenter
+			Channel= <span class="code-quote">"Test"</span>
+			Enable=<span class="code-quote">"True"</span>
+			Mode=<span class="code-quote">"Console"</span> 
+			Level=<span class="code-quote">"Normal"</span> 
+			Flow=<span class="code-quote">"Any"</span>
+Format=<span class="code-quote">"App&gt;%Timestamp (%ThreadName): %Message%CR"</span>/&gt;
+		&lt;LogCenter
+			Channel= <span class="code-quote">"Test"</span>
+			Enable=<span class="code-quote">"True"</span>
+			Mode=<span class="code-quote">"FileST6"</span> 
+			FilePath=<span class="code-quote">"D:/Dev/JLogWriterTest/LogOuput/LogFile/"</span>
+			FileName=<span class="code-quote">"Log.log"</span>
+			FileStrategy=<span class="code-quote">"BackupOnstart"</span>
+			Level=<span class="code-quote">"Debug"</span>
+			Flow=<span class="code-quote">"Trace"</span>&gt;
+			&lt;Backup
+				BackupPath=<span class="code-quote">"./LogBackup"</span>
+				BackupFileFormat=<span class="code-quote">"[BackupDateTime]_Log.NacaRuntime.BakLog"</span>
+				MaxBackupFileCount=<span class="code-quote">"20"</span>
+			/&gt;
+		<span class="code-tag">&lt;/LogCenter&gt;</span>			
+		&lt;LogCenter 
+			Channel= <span class="code-quote">"Test"</span>
+			Enable=<span class="code-quote">"True"</span>
+			Mode=<span class="code-quote">"FileRawLine"</span> 
+			FilePath=<span class="code-quote">"D:/Dev/JLogWriterTest/LogOuput/LogRawLine/"</span>
+			FileName=<span class="code-quote">"RawLine.txt"</span>
+			FileStrategy=<span class="code-quote">"BackupOnstart"</span>
+			Level=<span class="code-quote">"Debug"</span> 
+			Flow=<span class="code-quote">"Any"</span>&gt;
+			&lt;Backup
+				BackupPath=<span class="code-quote">"./RawLineBackup"</span>
+				BackupFileFormat=<span class="code-quote">"[BackupDateTime]_Log.NacaRuntime.BakLog"</span>
+				MaxBackupFileCount=<span class="code-quote">"20"</span>
+			/&gt;
+		<span class="code-tag">&lt;/LogCenter&gt;</span>
+		&lt;LogCenter 
+			Enable=<span class="code-quote">"true"</span>
+			Channel=<span class="code-quote">"Test"</span>
+			Mode=<span class="code-quote">"Db"</span> 
+			Level=<span class="code-quote">"Debug"</span> 
+			Flow=<span class="code-quote">"Any"</span>			
+			DbUser=<span class="code-quote">"dblog"</span>
+			DbPassword=<span class="code-quote">"pwd4dblog"</span>
+			DbUrl=<span class="code-quote">"jdbc:mysql://127.0.0.1/dblog"</span>
+			DbProvider=<span class="code-quote">"MySQL"</span>
+			MasterTable=<span class="code-quote">"LogMaster"</span>
+			DetailsTable=<span class="code-quote">"LogDetails"</span>
+			/&gt;
+		&lt;LogCenter 
+			Enable=<span class="code-quote">"true"</span>
+			Channel=<span class="code-quote">"Test"</span>
+			Mode=<span class="code-quote">"DbFlat"</span> 
+			Level=<span class="code-quote">"Debug"</span> 
+			Flow=<span class="code-quote">"Any"</span>			
+			DbUser=<span class="code-quote">"dblog"</span>
+			DbPassword=<span class="code-quote">"pwd4dblog"</span>
+			DbUrl=<span class="code-quote">"jdbc:mysql://127.0.0.1/dblog"</span>
+			DbProvider=<span class="code-quote">"MySQL"</span>
+			Table=<span class="code-quote">"Log_Events"</span>
+			TableRunId=<span class="code-quote">"Log_RunId"</span>
+                        Machine=<span class="code-quote">"C930SRV5"</span>
+                        Process=<span class="code-quote">"CRAWLER"</span>
+                        RunMode=<span class="code-quote">"TLOG"</span>
+                        LogEventDefinitionTable=<span class="code-quote">"Log_Definitions"</span>
+                        NbRequestBufferSize=<span class="code-quote">"10"</span>
+			/&gt;
+	<span class="code-tag">&lt;/LogCenters&gt;</span>
+<span class="code-tag">&lt;/Organisation&gt;</span></pre>
+</div></div>
+
+<h3><a name="JLibLogger-Syntax%3A"></a>Syntax:</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"ISO-8859-1"</span>?&gt;</span>
+<span class="code-tag">&lt;Organisation Id=String&gt;</span>
+	<span class="code-tag">&lt;Settings GetCallerLocation=<span class="code-quote">"true|false"</span>&gt;</span>
+		[<span class="code-tag">&lt;CallLocation Exclude=String/&gt;</span>]*
+	<span class="code-tag">&lt;/Settings&gt;</span>
+	<span class="code-tag">&lt;LogCenters&gt;</span>
+		[&lt;LogCenter
+			Channel= String
+			Enable=Boolean
+                        NbRequestBufferSize=Integer
+                        Asynchronous=Boolean
+                        Mode=<span class="code-quote">"Console"</span>  | <span class="code-quote">"FileST6"</span> | <span class="code-quote">"FileRawLine"</span> | <span class="code-quote">"FileSTCheck"</span> | <span class="code-quote">"FileChunk"</span> | <span class="code-quote">"Db"</span>
+                        Level=<span class="code-quote">"Critical"</span> | <span class="code-quote">"Important"</span> | <span class="code-quote">"Normal"</span> | <span class="code-quote">"Verbose"</span> | <span class="code-quote">"Debug"</span> | <span class="code-quote">"FineDebug"</span>
+			Flow=<span class="code-quote">"System"</span> | <span class="code-quote">"Monitoring"</span> | <span class="code-quote">"Trace"</span> | <span class="code-quote">"Any"</span> | <span class="code-quote">"None"</span>
+			[Only for Mode=Console or Mode=FileRawLine
+                        Format=<span class="code-quote">"Texte|%Message|%ThreadName|%ThreadId|%Timestamp|% StartTime|%CR|%LF"</span>]
+			[For File* modes
+				FilePath=String
+				FileName=String
+				FileStrategy=<span class="code-quote">"Append"</span> | <span class="code-quote">"BackupOnstart"</span>
+				&lt;Backup
+					BackupPath=<span class="code-quote">"./LogBackup"</span>
+					BackupFileFormat=String																	MaxBackupFileCount=Number
+			        /&gt;]
+                        [For Db Mode
+				DbUser=String
+				DbPassword=String
+				DbUrl=String
+				DbProvider=<span class="code-quote">"MySQL"</span>|<span class="code-quote">"Oracle"</span>|<span class="code-quote">"DB2"</span>
+				MasterTable=String
+				DetailsTable= String]
+                        [For DB Flat mode
+			        Mode=<span class="code-quote">"DbFlat"</span> 
+                  		DbUser=String
+			        DbPassword=String
+			        DbUrl=String
+			        DbProvider=<span class="code-quote">"MySQL"</span>|<span class="code-quote">"Oracle"</span>|<span class="code-quote">"DB2"</span>
+			        Table=String
+			        TableRunId=String	
+                                Machine=String
+                                Process=String
+                                RunMode=String
+                                LogEventDefinitionTable=String
+			/&gt;
+		<span class="code-tag">&lt;/LogCenter&gt;</span>]*
+	<span class="code-tag">&lt;/LogCenters&gt;</span>
+<span class="code-tag">&lt;/Organisation&gt;</span></pre>
+</div></div>
+
+<h3><a name="JLibLogger-Tagexplanations%3A"></a>Tag explanations:</h3>
+
+<ul class="alternate" type="square">
+	<li>Settings/GetCallerLocation: True if tack call must be logged; false otherwise</li>
+	<li>Settings/CallLocation/Exclude: The value give the name of a java package that must be ignored form stack call. Multiple tags may be specified</li>
+	<li>LogCenters/ LogCenter: There may be multiple tags, each with it's own particularities</li>
+	<li>LogCenters/ LogCenter / Enable: Boolean that indicates whether the log channel is enable or not</li>
+	<li>LogCenters/ LogCenter / NbRequestBufferSize: Integer that defines how many requests will be grouped befors being flush on output writers</li>
+	<li>LogCenters/ LogCenter / Asynchronous: Boolean that defines if the writing operation is done asynchronously or not.</li>
+	<li>LogCenters/ LogCenter / Channel: Identifies the channel that can be used to send data to this log center. Only log event belonging to the correct channel can be sent by this log writer.</li>
+	<li>LogCenters/ LogCenter / Mode: Identifies 2 things:</li>
+	<li>The destination (Console, File or Database)</li>
+	<li>The formatting for file output<br/>
+Value must belong to: "Console" |"FileST6"|"FileRawLine"|"FileSTCheck" |"FileChunk"|"Db"</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li>LogCenters/ LogCenter / Level: Identifies the minimum level value acceptable for a log line to be written.<br/>
+Value must belong to: "Critical" | "Important" | "Normal" | "Verbose" | "Debug" | "FineDebug"</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li>LogCenters/ LogCenter / Flow: Identifes which flow can be catch by current LogCenter.<br/>
+Value must belong to: "System" | "Monitoring" | "Trace" | "Any" | "None"<br/>
+"Any" indicates that no restriction on flow is done<br/>
+"None" desactivate the current LogCenter: it will never receive any log.</li>
+</ul>
+
+
+<p>Specifics items depending on Mode</p>
+<ul class="alternate" type="square">
+	<li>For Console Mode or RawLine Mode:</li>
+	<li>LogCenters/ LogCenter / Format: format is currently used only by mode="Console".<br/>
+A formatting string can be specified; it can contains embedded variable placeholders:</li>
+	<li>%Message: Replace by the log message</li>
+	<li>%ThreadName: Replaced the thread name</li>
+	<li>%ThreadId: Relaced by the thread id</li>
+	<li>%Timestamp: Replaced by the time stamp at which log was called; it is different form current time</li>
+	<li>% StartTime: Number of milliseconds that elapsed since process startup. Determined at log call time</li>
+	<li>%CR: Carriage return char</li>
+	<li>%LF: Line feed char</li>
+</ul>
+
+
+
+<ul class="alternate" type="square">
+	<li>For File Mode:
+	<ul class="alternate" type="square">
+		<li>LogCenters/ LogCenter / FilePath: String that give an absolute or relative path where logs files are stored; the path is created is necessary.</li>
+		<li>LogCenters/ LogCenter / FileName: String that gives the name of the log file; It is created as necessary</li>
+		<li>LogCenters/ LogCenter / FileStrategy: "Append" | "BackupOnstart"; Indicates what to do upon process startup with the current (if existing) log file.</li>
+		<li>LogCenters/ LogCenter / Backup / BackupPath: Path used if "BackupOnstart" Filestrategy is declared for current LogCenter. It is created as necessary</li>
+		<li>LogCenters/ LogCenter / Backup / BackupFileFormat: File name of the backup file within backup path. The name can contains the reserved keywords:</li>
+		<li>BackupDateTime: It is replaced at backup time by the current displayable date time in format YYYYMMDD_HHMMSS</li>
+		<li>LogCenters/ LogCenter / Backup / MaxBackupFileCount: Number of file to keep in backup directory. Only the most recent one are kept, old one are removed definitly.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li>For Database mode (Mode="Db")
+	<ul class="alternate" type="square">
+		<li>DbUser: String that gives the db connection user</li>
+		<li>DbPassword: String that gives the db connection password</li>
+		<li>DbUrl: String that gives the db connection url</li>
+		<li>DbProvider: Either "MySQL", "Oracle" or "DB2" depending on DB service used</li>
+		<li>MasterTable: Name of the table used as the log master. the table structure is described below</li>
+	</ul>
+	</li>
+</ul>
+
+
+
+<p>XML parameters:</p>
+<ul class="alternate" type="square">
+	<li>DbUser must give the name of the DB user to use</li>
+	<li>DbPassword must give the password of the DB user to use</li>
+	<li>DbUrl must give the URL of the DB instance to use</li>
+	<li>DbProvider: one of "MySQL"|"Oracle"|"DB2" (currently, only "MySQL" is supported, other are to be done)</li>
+	<li>Table: Gives the name of the table used for log event write</li>
+	<li>TableRunId: Gives the name of the table used to generate a RuntimeId, and a RunId if none are provided at Log.open() time</li>
+	<li>Machine: Gives the name of the machine execution the process to be logged</li>
+	<li>Process: Give the name of the process to be logged</li>
+	<li>RunMode: Gives a string identifying the run mode (TLog / Prod, ...)</li>
+	<li>LogEventDefinitionTable: Gives the name of the table used for event definition registration</li>
+</ul>
+
+
+
+
+
+
+<h3><a name="JLibLogger-Standardlogeventsandeventstype"></a>Standard log events and events type</h3>
+
+<p>There are various already built standard events. All these events must identify the channel they are using.</p>
+<ul class="alternate" type="square">
+	<li>LogEventStartProcess: Typed LogEventType.Start; Automatically sent when the logger is started. Nothing to do at the application level.</li>
+	<li>LogEventStopProcess: Typed LogEventType.Stop; Must be sent when application is being shutdown.</li>
+	<li>LogEventAbortProcess: Typed LogEventType.Abort; Must be sent when application is being aborted</li>
+	<li>LogEventProgress: Typed LogEventType.Progress; Must be sent when an item processing is being progressing, and we want to get a trace of the advancements. 3 parameters are to be provided: int nNbItemsProcessed, int nNbItemsToProcess, String csMessage.<br/>
+The message can be null.</li>
+	<li>LogEventReport: Typed LogEventType.Report; Must be sent when an item processing is finished. 3 parameters must be provided: int nNbItemsProcessed, int nNbItemsSucessfullyProcess, String csMessage; the message can be null.</li>
+	<li>LogEventLaunchProcess:  Typed LogEventType.Launch; Must be sent before launching another process. 2 other parameters must be provided: , LaunchedRunId, and and optinalMessage. The LaunchedRunId must match the parameter that will be given in the launched process as a RunId in the Log.open() method. This enables log viewers to chain logically the 2 processes</li>
+	<li>LogEventAliveProcess: Typed LogEventType.Process; Must be sent to report that the process is alive</li>
+</ul>
+
+
+<p>It is important to use these standard events as required, because they are intended in log viewer application for post execution analysis.</p>
+
+<p>All these standards events provides 2 different log() methods, with or without a String csProduct argument. If no csProduct is provided, then the default csProduct value given at log.open() time is used, otherwise it's the specified value that is used..</p>
+
+<h3><a name="JLibLogger-Samplecustomlogobject%3A"></a>Sample custom log object:</h3>
+
+<p>package net.publigroupe.logEvent;<br/>
+import jlib.log.*;</p>
+
+<p>public class LogEventEndCrawl extends LogEvent<br/>
+{<br/>
+	public LogEventEndCrawl(String csProduct)</p>
+	<div class="error"><span class="error">Unknown macro: {		super(LogEventType.Rem, LogFlow.Any, LogLevel.Normal, csProduct);	}</span> </div>
+
+<p>public static LogEvent log(String csUrl, int nNbMs, String csMessage)<br/>
+{<br/>
+	return LogEventEndCrawl.log(null, csUrl, nNbMs, csMessage);<br/>
+}</p>
+
+
+<p>		public static LogEvent log(String csProduct, String csUrl, int nNbMs, String csMessage)</p>
+		<div class="error"><span class="error">Unknown macro: {			LogEventEndCrawl event = new LogEventEndCrawl(csProduct);			event.fillMember(&quot;URL&quot;, csUrl);			event.fillMember(&quot;NbMs&quot;, nNbMs);			Log.log(&quot;Test&quot;, event, csMessage);			return event;		}</span> </div>
+<p>}</p>
+
+<p>Explanations: The constructor gives the event type, Flow restriction and minimal level that this log applies to.<br/>
+The first static method log(...) is the log event call using the default product, specified at log.open() time.<br/>
+The second static method log(...) is the log event call using a specific product, replacing the value specified at log.open() time.</p>
+
+
+<h2><a name="JLibLogger-Sampleapplication"></a>Sample application</h2>
+<p>The sample uses the custom event : LogEventEndCrawl </p>
+
+<p>Configuration file (D:/Dev/JLogWriterTest/src/net/publigroupe/config/Logging.ini), used to log on the Console and in DB in flat mode:<br/>
+&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;<br/>
+&lt;Organisation Id="JLogWriterTest" Version="1.0" InstanceMaxiCount="1"&gt;<br/>
+	&lt;Settings GetCallerLocation="true"&gt;<br/>
+		&lt;CallLocation Exclude="jlib"/&gt;<br/>
+	&lt;/Settings&gt;<br/>
+	&lt;LogCenters&gt;<br/>
+		&lt;LogCenter<br/>
+			Enable="True"<br/>
+			Channel="Test"<br/>
+			Mode="Console" <br/>
+			Level="Normal" <br/>
+			Flow="Any"<br/>
+			Format="Log: %Message"/&gt;<br/>
+		&lt;LogCenter <br/>
+			Enable="true"<br/>
+			Channel="Test"<br/>
+			Mode="DbFlat" <br/>
+			Level="Debug" <br/>
+			Flow="Any"			<br/>
+			DbUser="cwl"<br/>
+			DbPassword="pwd4cwl"<br/>
+			DbUrl="jdbc:mysql://mysqltest.consultas.ch/tcopcwl"<br/>
+			DbProvider="MySQL"<br/>
+			Table="Log_Events"<br/>
+			Machine="C930SRV5"<br/>
+			Process="CRAWLER"<br/>
+			RunMode="TLOG"<br/>
+			LogEventDefinitionTable="Log_Definitions"<br/>
+			NbRequestBufferSize="0"<br/>
+			/&gt;<br/>
+	&lt;/LogCenters&gt;<br/>
+&lt;/Organisation&gt;</p>
+
+
+<p>File Logging.java: Main file<br/>
+import jlib.log.*;<br/>
+public class Logging<br/>
+{<br/>
+	public static void main(String[] args)</p>
+	<div class="error"><span class="error">Unknown macro: {		Log.open(&quot;Test&quot;, &quot;D}</span> </div>
+<p>}</p>
+
+<p>File SampleCallLog.java:<br/>
+import net.publigroupe.logEvent.*;<br/>
+import jlib.log.*;<br/>
+import jlib.log.stdEvents.*;</p>
+
+<p>public class SampleCallLog<br/>
+{<br/>
+	SampleCallLog()<br/>
+	{	<br/>
+		int nNbItemToProcess = 15;<br/>
+		int nNbItemProcessed=0;<br/>
+		int nNbItemSuccessfullyProcessed = 0;<br/>
+		for(nNbItemProcessed=0; nNbItemProcessed&lt;nNbItemToProcess; nNbItemProcessed++)</p>
+		<div class="error"><span class="error">Unknown macro: {			LogEventProgress.log(&quot;Test&quot;, nNbItemProcessed, nNbItemToProcess, &quot;Processin in way ...&quot;);			if((nNbItemProcessed % 3) == 0)	// To simulate errors				nNbItemSuccessfullyProcessed++;		}</span> </div>
+<p>		LogEventReport.log("Test", nNbItemProcessed, nNbItemSuccessfullyProcessed, "Processing done");</p>
+
+<p>		// Lauching child process ...<br/>
+		try</p>
+		<div class="error"><span class="error">Unknown macro: {			LogEventLaunchProcess.log(&quot;Test&quot;, &quot;ChildRunId&quot;, &quot;Lauching analyser process&quot;);			Process procChild = Runtime.getRuntime().exec(&quot;Anaylser&quot;);		}</span> </div>
+<p>		catch (IOException e)</p>
+		<div class="error"><span class="error">Unknown macro: {			// TODO Auto-generated catch block			e.printStackTrace();		}</span> </div>		
+
+<p>LogEventEndCrawl.log("www.sun.com", 125, "");	// Custom log: No need to provide channel info; it's already specified<br/>
+// in the custom log event LogEventEndCrawl.</p>
+
+<p>		// End<br/>
+		LogEventStopProcess.log("Test");<br/>
+	}<br/>
+}</p>
+
+<h2><a name="JLibLogger-Comments%3A"></a>Comments:</h2>
+<p>Initilialisation: In main file: <br/>
+Log.open("Test", "D:/Dev/JLogWriterTest/src/net/publigroupe/config/Logging.ini", "Run1", "Crawler");</p>
+<ul class="alternate" type="square">
+	<li>Test is the channel; it must match items in ini configuation file.</li>
+	<li>D:/Dev/JLogWriterTest/src/net/publigroupe/config/Logging.ini: Is the path to the configuration file</li>
+	<li>Run1 identifies the run id; It is used to group chained processes</li>
+	<li>Crawler identifies the product.<br/>
+This call will result in a LogEventStartProcess event to be sent.</li>
+</ul>
+
+
+<p>If progress execution is to be logged, the following will be done:<br/>
+Log.LogEventProgress.log("Test", nNbItemProcessed, nNbItemToProcess, "Process in way ...");</p>
+
+<p>After processing of all items:<br/>
+Log.LogEventProgress.log("Test", nNbItemProcessed, nNbItemSuccessfullyProcessed, "Process done");</p>
+
+<p>To report the previously defined custom log event LogEventEndCrawl call:<br/>
+LogEventEndCrawl.log(csDomainUrl, nElpasedTimeInMilliseconds, "Domain crawled");<br/>
+There is no need to provide the channel id, as it is already specified in the LogEventEndCrawl log method.</p>
+
+<p>Before launching a child process, we identifies the child process name:<br/>
+LogEventLaunchProcess.log("Test", "ChildProcess", "Lauching analyser process");</p>
+
+<p>In the child process, we will find:<br/>
+Log.open("Test", "D:/Dev/JLogWriterTest/src/net/publigroupe/config/Logging.ini", "ChildRunId", "Crawler");<br/>
+The field "RunId" has the value "ChildRunId"; this will enable the logviewer to connect these 2 processes.</p>
+
+
+
+
+<h2><a name="JLibLogger-Variousloggertools"></a>Various logger tools</h2>
+
+<p>Some tools are available to support jlib logger :</p>
+
+<ul class="alternate" type="square">
+	<li>STModuleGen.exe is a wizard used to generate custom log event object. It's packaged as a MSI installable file on Windows. Its available on \\c930st3\SystoolsDeliveries\STTools\STModuleGen\Vxxx where vxxx identifies version.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li>STStudio.exe is a stand alone log viewer, specifically designed for displaying ST6 format. It is available on \\c930st3\SystoolsDeliveries\STTools\STStudio\vxxx where vxxx identifies version.</li>
+</ul>
+
+
+<h2><a name="JLibLogger-TablescreationSQLstatement%28forMySQLDB%29"></a>Tables creation SQL statement (for MySQL DB)</h2>
+
+<p>MySQL Syntax:</p>
+
+<p>CREATE TABLE 'logheader' (<br/>
+  'Id' int(10) unsigned NOT NULL auto_increment,<br/>
+  'Ins_Date' timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,<br/>
+  'Log_Type' int(10) unsigned NOT NULL default '0',<br/>
+  'File_Name' varchar(255) character set latin1 collate latin1_bin default NULL,<br/>
+  'Line' int(10) unsigned NOT NULL default '0',<br/>
+  'Thread' varchar(45) NOT NULL default '',<br/>
+  'Method' varchar(255) NOT NULL default '',<br/>
+  'StartTime' int(10) unsigned NOT NULL default '0',<br/>
+  'Event_Name' varchar(255) NOT NULL default '',<br/>
+  'Message' text NOT NULL,<br/>
+  PRIMARY KEY  ('Id')<br/>
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;</p>
+
+
+<p>?	Oracle syntax<br/>
+CREATE TABLE LOGHEADER<br/>
+(<br/>
+  ID          NUMBER                            NOT NULL,<br/>
+  INS_DATE    DATE                              DEFAULT sysdate               NOT NULL,<br/>
+  LOG_TYPE    VARCHAR2(40 BYTE)                 NOT NULL,<br/>
+  FILE_NAME   VARCHAR2(255 BYTE)                NOT NULL,<br/>
+  LINE        NUMBER                            NOT NULL,<br/>
+  THREAD      VARCHAR2(255 BYTE)                NOT NULL,<br/>
+  METHOD      VARCHAR2(255 BYTE)                NOT NULL,<br/>
+  START_TIME  NUMBER                            NOT NULL,<br/>
+  EVENT_NAME  VARCHAR2(255 BYTE)                NOT NULL,<br/>
+  MESSAGE     VARCHAR2(4000 BYTE)               NOT NULL<br/>
+) ;</p>
+
+<p>o	DetailsTable: Name of the table used as the log details<br/>
+?	MySQL Syntax:<br/>
+CREATE TABLE 'logdetails' (<br/>
+  'Id' int(10) unsigned NOT NULL default '0',<br/>
+  'DetailId' int(10) unsigned NOT NULL auto_increment,<br/>
+  'Name' varchar(255) NOT NULL default '',<br/>
+  'Value' text NOT NULL,<br/>
+  PRIMARY KEY  ('DetailId')<br/>
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;<br/>
+?	Oracle syntax:<br/>
+CREATE TABLE LOGDETAILS<br/>
+(<br/>
+  ID         NUMBER                             NOT NULL,<br/>
+  DETAIL_ID  NUMBER                             NOT NULL,<br/>
+  NAME       VARCHAR2(255 BYTE),<br/>
+  VALUE      VARCHAR2(4000 BYTE)<br/>
+) ;<br/>
+o	Sequences: Only for Oracle:<br/>
+CREATE SEQUENCE TSTJAVA.SEQ_LOGDETAIL_ID<br/>
+  START WITH 2<br/>
+  MAXVALUE 999999999999999999999999999<br/>
+  MINVALUE 0<br/>
+  NOCYCLE<br/>
+  NOCACHE<br/>
+                 NOORDER;</p>
+
+<p>CREATE SEQUENCE TSTJAVA.SEQ_LOG_ID<br/>
+  START WITH 10<br/>
+  MAXVALUE 999999999999999999999999999<br/>
+  MINVALUE 0<br/>
+  NOCYCLE<br/>
+  NOCACHE<br/>
+  NOORDER;</p>
+
+<p>?	For Flat Database mode (mode="DbFlat")</p>
+
+<p>DROP TABLE IF EXISTS `tcopcwl`.`Log_Definitions`;<br/>
+CREATE TABLE `Log_Definitions` (<br/>
+  `Event_Name` varchar(255) NOT NULL default '',<br/>
+  `Parameter_Name0` varchar(255) default NULL,<br/>
+  `Parameter_Name1` varchar(255) default NULL,<br/>
+  `Parameter_Name2` varchar(255) default NULL,<br/>
+  `Parameter_Name3` varchar(255) default NULL,<br/>
+  `Parameter_Name4` varchar(255) default NULL,<br/>
+  `Parameter_Name5` varchar(255) default NULL,<br/>
+  `Parameter_Name6` varchar(255) default NULL,<br/>
+  `Parameter_Name7` varchar(255) default NULL,<br/>
+  `Parameter_Name8` varchar(255) default NULL,<br/>
+  `Parameter_Name9` varchar(255) default NULL,<br/>
+  `Event_Id` int(11) default NULL,<br/>
+  `Short_Event_Name` varchar(255) NOT NULL default ''<br/>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;</p>
+
+<p>DROP TABLE IF EXISTS `tcopcwl`.`Log_Events`;<br/>
+CREATE TABLE  `tcopcwl`.`Log_Events` (<br/>
+  `Machine` varchar(255) NOT NULL default '',<br/>
+  `Process` varchar(255) NOT NULL default '',<br/>
+  `Run_Mode` varchar(45) NOT NULL default '',<br/>
+  `Ins_Date` datetime NOT NULL default '0000-00-00 00:00:00',<br/>
+  `Event_Message` text NOT NULL,<br/>
+  `Log_Type` varchar(45) NOT NULL default '',<br/>
+  `File_Name` varchar(255) NOT NULL default '',<br/>
+  `Line` int(10) unsigned NOT NULL default '0',<br/>
+  `Thread` varchar(255) NOT NULL default '',<br/>
+  `Method` varchar(255) NOT NULL default '',<br/>
+  `Start_Time` int(10) unsigned NOT NULL default '0',<br/>
+  `Parameter_Value0` varchar(255) default NULL,<br/>
+  `Parameter_Value1` varchar(255) default NULL,<br/>
+  `Parameter_Value2` varchar(255) default NULL,<br/>
+  `Parameter_Value3` varchar(255) default NULL,<br/>
+  `Parameter_Value4` varchar(255) default NULL,<br/>
+  `Parameter_Value5` varchar(255) default NULL,<br/>
+  `Parameter_Value6` varchar(255) default NULL,<br/>
+  `Parameter_Value7` varchar(255) default NULL,<br/>
+  `Parameter_Value8` varchar(255) default NULL,<br/>
+  `Parameter_Value9` varchar(255) default NULL,<br/>
+  `Message` text,<br/>
+  `Event_Id` int(11) NOT NULL default '0',<br/>
+  `Run_Id` varchar(45) default NULL,<br/>
+  `Product` varchar(45) default NULL,<br/>
+  `Runtime` varchar(45) default NULL<br/>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;</p>
+
+<p>DROP TABLE IF EXISTS 'tcopcwl'.'Log_RunId';<br/>
+CREATE TABLE  'tcopcwl'.'Log_RunId' (<br/>
+  'Channel' varchar(255) NOT NULL default '',<br/>
+  'RunId' int(10) unsigned NOT NULL default '0',<br/>
+  PRIMARY KEY  ('Channel','RunId')<br/>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;</p>
+
+<p>The column Event_Id is used to link an Event to it's definition. It's a hash code of the event name + number of arguments + names of parameters. Thus, it is sufficient to manage versioning.</p>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

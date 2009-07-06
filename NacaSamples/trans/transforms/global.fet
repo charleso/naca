@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transform name="global">
+	<nameLabel col="8" line="1" name="pageTitle"/>
+	<nameLabel col="9" line="1" name="pageTitle"/>
+	<nameEdit col="39" line="1" name="ExecDate"/>
+	<nameEdit col="48" line="1" name="ExecHour"/>
+	<nameEdit col="1" line="24" name="ErrorMessage"/>
+	
+	<setTitle label="pageTitle"/>
+	
+	<setDevelopable field="ErrorMessage" flag="./."/>
+    
+	<setReplayMutable field="ExecDate"/>
+	<setReplayMutable field="ExecHour"/>
+	<setReplayMutable field="ErrorMessage"/>
+</transform>

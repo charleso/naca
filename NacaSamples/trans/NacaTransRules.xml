@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rules>
+	<category id="renameSQLView">
+		<rule viewName="VTB8510B" tableName="VTB8510E"/>		
+	</category>
+	<category id="customSubProgram">
+		<rule subProgram="CALL1" ignore="false"/>
+		<rule subProgram="CALL2" ignore="true"/>
+	</category>
+	<category id="ignoredCopy">
+		<rule copyName="DFHAID"/>
+		<rule copyName="DFHCWADS"/>
+		<rule copyName="SQLCA"/>
+	</category>
+	<category id="keyPressed">
+		<rule keyName="CLEAR" CICSAlias="DFHCLEAR"/>
+		<rule keyName="ENTER" CICSAlias="DFHENTER"/>
+		<rule keyName="PF1" CICSAlias="DFHPF1"/>
+		<rule keyName="PF2" CICSAlias="DFHPF2"/>
+		<rule keyName="PF3" CICSAlias="DFHPF3"/>
+		<rule keyName="PF4" CICSAlias="DFHPF4"/>
+		<rule keyName="PF5" CICSAlias="DFHPF5"/>
+		<rule keyName="PF6" CICSAlias="DFHPF6"/>
+		<rule keyName="PF7" CICSAlias="DFHPF7"/>
+		<rule keyName="PF8" CICSAlias="DFHPF8"/>
+		<rule keyName="PF9" CICSAlias="DFHPF9"/>
+		<rule keyName="PF10" CICSAlias="DFHPF10"/>
+		<rule keyName="PF11" CICSAlias="DFHPF11"/>
+		<rule keyName="PF12" CICSAlias="DFHPF12"/>
+		<rule keyName="PF13" CICSAlias="DFHPF13"/>
+		<rule keyName="PF14" CICSAlias="DFHPF14"/>
+		<rule keyName="PF15" CICSAlias="DFHPF15"/>
+		<rule keyName="PF16" CICSAlias="DFHPF16"/>
+		<rule keyName="PF17" CICSAlias="DFHPF17"/>
+		<rule keyName="PF18" CICSAlias="DFHPF18"/>
+		<rule keyName="PF19" CICSAlias="DFHPF19"/>
+		<rule keyName="PF20" CICSAlias="DFHPF20"/>
+		<rule keyName="PF21" CICSAlias="DFHPF21"/>
+		<rule keyName="PF22" CICSAlias="DFHPF22"/>
+		<rule keyName="PF23" CICSAlias="DFHPF23"/>
+		<rule keyName="PF24" CICSAlias="DFHPF24"/>
+	</category>
+	<category id="renameCopy">
+		<rule name="COPY" rename="NEWCOPY"/>
+	</category>
+	<category id="routineEmulation">
+		<rule routine="DSNTIAR" method="tools.formatSQLCode"/>		
+		<rule routine="CALL" method=""/>
+		<rule routine="CALLUPP" method="tools.toUpper"/>
+	</category>
+	<category id="environmentVariable">
+		<rule name="COMMAREA-R" methodeRead="getCommareaR()"/>
+		<rule name="EIBFN" methodeRead="getLastCICSCommandExecutedCode()"/>
+		<rule name="EIBTRMID" methodeRead="getTerminalID()"/>
+		<rule name="EIBCALEN" methodeRead="getCommAreaLength()" methodeWrite="setCommAreaLength("/>
+		<rule name="EIBTIME" methodeRead="getTime()" methodeWrite="setTime("/>
+		<rule name="EIBDATE" methodeRead="getDate()" methodeWrite=""/>
+		<rule name="EIBTRNID" methodeRead="getTransID()" methodeWrite=""/>
+		<rule name="EIBTASKN" methodeRead="getTaskNumber()" methodeWrite=""/>
+		<rule name="EIBRESP" methodeRead="getConditionOccured()" methodeWrite="setConditionOccured("/>
+		<rule name="EIBRCODE" methodeRead="getLastCommandReturnCode()" methodeWrite=""/>
+		<rule name="EIBCPOSN" methodeRead="getCursorPosition()" methodeWrite="" Numeric="true"/>
+		<rule name="CIXJOUR" methodeRead="CESM.getCurrentDay()" methodeWrite=""/>
+		<rule name="CIXMOIS" methodeRead="CESM.getCurrentMonth()" methodeWrite=""/>
+		<rule name="CIXAN" methodeRead="CESM.getCurrentShortYear()" methodeWrite=""/>
+		<rule name="RETURN-CODE" methodeRead="getReturnCode()" methodeWrite="setReturnCode("/>
+		<rule name="SQLERRP" methodeRead="getSQLDiagnosticCode(0)" methodeWrite=""/>
+		<rule name="SQLERRMC" methodeRead="getSQLDiagnosticCode(0)" methodeWrite=""/>
+	</category>
+	<category id="environmentVariableFPac">
+		<rule name="RETCD" methodeRead="getReturnCode()" methodeWrite="setReturnCode(" Numeric="true"/>		
+	</category>
+	<category id="ignoreEntity">
+		<rule name="ZCTDXPR"/>
+		<rule name="SQLCA"/>
+		<rule name="DFHEIBLK"/>
+		<rule name="DFHPA1"/>
+		<rule name="DFHPA2"/>
+		<rule name="DFHPA3"/>
+		<rule name="DFHCWADS"/>
+		<rule_ name=""/>
+	</category>
+	<category id="subProgramRename">
+		<rule subProgramMask="CALL" action="nothing" param=""/>
+		<rule subProgramMask="RS7AS0C" action="nothing" param=""/>
+		<rule subProgramMask="\w*C" action="trunc" param="1"/>
+	</category>
+	<category id="SpecialConstantValue">
+		<rule value="0EDC" constant="CESMCommandCode.XCTL"/>
+		<rule value="0E9C" constant="CESMCommandCode.XCTL"/>
+		<rule value="0D" constant="SpecialCode.CARRIAGE_RETURN"/>
+		<rule value="D5" constant="SpecialCode.LINE_FEED"/>
+		<rule value="B2" constant="SpecialCode.TABULATOR"/>
+		<rule value="5D" constant="SpecialCode.AFP_5A"/>
+		<rule value="4CBFAD" constant="SpecialCode.AFP_PAGEFORMAT"/>
+		<rule value="4CBFF6" constant="SpecialCode.AFP_COPYGROUP"/>
+		<rule value="4CAE5E" constant="SpecialCode.AFP_SEGMENT"/>
+		<rule value="4CD3BA" constant="SpecialCode.AFP_LINE"/>
+	</category>
+	<rule id="RegenerateRes" active="true"/>
+	<rule id="ReduceMaps" active="false"/>
+</rules>

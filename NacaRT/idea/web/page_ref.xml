@@ -1,0 +1,31 @@
+<Root URL="toto">
+	<Form Name="Form1" Title="Hello">
+		<FormBody>
+			<VBox>
+				<HBox>
+					<Label>
+						<Text>Ton nom : </Text>
+					</Label>
+					<Edit>
+						<Name>Nom</Name>
+						<Value></Value>
+						<CharWidth>12</CharWidth>
+						<Enable>yes</Enable>
+					</Edit>
+				</HBox>
+				<HBox>
+					<Label>
+						<Text>Ton prenom : </Text>
+					</Label>
+					<Edit>
+						<Name>Prenom</Name>
+						<Value></Value>
+						<CharWidth>12</CharWidth>
+						<Enable>yes</Enable>
+					</Edit>
+				</HBox>
+			</VBox>
+		</FormBody>
+	</Form>
+</Root>
+

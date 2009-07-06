@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<WorkingStorageSection Line="0">
+<UnknownElement Line="5"/>
+<Item Level="01" Line="12" Name="DVTBMSGA">
+<Item Format="XXXX" Length="4" Level="10" Line="13" Name="NO" Type="STRING"/>
+<Item Format="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" Length="78" Level="10" Line="14" Name="TEXT" Type="STRING"/>
+</Item>
+</WorkingStorageSection>

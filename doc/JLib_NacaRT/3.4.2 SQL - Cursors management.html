@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.4.2 SQL - Cursors management</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.4.2 SQL - Cursors management
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 16 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>Cursors are used to handle resultset of 0, 1 or many records, one at a time.</p>
+
+<p>Multiple stages are required for operations:</p>
+<ul class="alternate" type="square">
+	<li>Cursor declaration</li>
+	<li>Cursor open</li>
+	<li>Cursor fetch</li>
+	<li>Cursor current record update</li>
+	<li>Cursor current record deletion</li>
+	<li>Cursor close</li>
+</ul>
+
+
+<h2><a name="3.4.2SQL-Cursorsmanagement-Cursordeclaration"></a>Cursor declaration</h2>
+
+<p>This is done at the very beginning of the program using the syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLCursor &lt;cursor_variable_name = declare.cursor();</pre>
+</div></div>
+
+<p>It's done in a cursorSection, before working storage section declaration.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class prog <span class="code-keyword">extends</span> BatchProgram
+{
+    DataSection sqlcursorsection = declare.cursorSection();
+    SQLCursor cl07 = declare.cursor() ;
+    SQLCursor c0307 = declare.cursor() ; 
+    ...</pre>
+</div></div>
+
+<p>Here 2 cursors are declared.</p>
+
+
+<h2><a name="3.4.2SQL-Cursorsmanagement-Open"></a>Open</h2>
+<p>When we open a cursor, we must provide the select statement that will give the resultset when executed. It follows the same general syntax as simple select statement, as seen previously:</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cursorOpen(cl07, <span class="code-quote">"SELECT TXTTYP FROM RS7A07  WHERE UTIENTO = #1 AND CDENUM= #2 AND TXTNO = #3 AND UTILNG = #4 AND TXTTYP = #5"</span>)
+.param(1, vrs7a03l.utiento)
+.param(2, vrs7a03l.cdenum)
+.param(3, vrs7a03l.txtno)
+.param(4, vrs7a07b.utilng)
+.param(5, vrs7a07b.txttyp)
+.onErrorGoto(sql_Error);</pre>
+</div></div>
+
+<p>Note: there is no .into() method call in the chain of method calls. Only .param() are indicated. The indicated variables's value will be used for record filtering.</p>
+
+<h2><a name="3.4.2SQL-Cursorsmanagement-Fetch"></a>Fetch</h2>
+<p>Fetching a cusror is to return to applcation the next record of the result set matching parameters of the select clause.<br/>
+We must indicate here which variable are to be filled. It's done by into() method calls.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cursorFetch(cl07)
+    .into(vrs7a07b.txttyp)
+    .onErrorGoto(sql_Error);</pre>
+</div></div>
+<p>As the SQL clause specified for c107 had only one column to return, there is only one into() method called.<br/>
+Error handling can be done here by onErrorGoto() or onWarningGoto or can use the isSQLCode() separated call.</p>
+
+<h3><a name="3.4.2SQL-Cursorsmanagement-Close"></a>Close</h3>
+<p>When the cursor's result set is not needed, it must be closed:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cursorClose(cl07).onErrorGoto(sql_Error) ;</pre>
+</div></div>
+
+<h2><a name="3.4.2SQL-Cursorsmanagement-Updateofsomecolumnsofthecurrentrecord"></a>Update of some columns of the current record</h2>
+
+<p>This operation enables to update a record after fetching it.<br/>
+It's done in 2 steps:</p>
+
+<h3><a name="3.4.2SQL-Cursorsmanagement-FORUPDATEOFspecifications"></a>FOR UPDATE OF specifications</h3>
+
+<p>The clause specified at cursor-open time must indicates the list of columns that will be updated.<br/>
+It's done by specifiy a string FOR UPDATE OF <span class="error">&#91;&lt;column&gt;&#93;</span>+</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cursorOpen(c0c_1, <span class="code-quote">"SELECT * FROM RS7A0C  WHERE UTIENTO = #1 AND CDENUM = #2 AND CDEST03 = '0' FOR UPDATE OF CDEST03, MUTDAT, MUTHEU"</span>)
+    .param(1, vrs7a0cd.utiento)
+    .param(2, vrs7a0cd.cdenum);</pre>
+</div></div>
+
+<p>In that sample, it will be possible to update the value of the columns <tt>CDEST03</tt>, <tt>MUTDAT</tt> and <tt>MUTHEU</tt> after having fetched a record.</p>
+
+<h3><a name="3.4.2SQL-Cursorsmanagement-Updatingcurrentrecord"></a>Updating current record</h3>
+
+<p>After fetching a cursor open with the "FOR UPDATE ..." string, it's possible to update the selected columns of the current record by calling:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cursorUpdateCurrent(c0c_1, <span class="code-quote">"UPDATE RS7A0C SET CDEST03 = '1', MUTDAT = #1, MUTHEU = #2"</span>)
+    .value(1, w_Sysdat)
+    .value(2, w_Sysheu)
+    .onErrorGoto(sql_Error);</pre>
+</div></div>
+<p>The statement and chained method calls has the same syntax as the sql("Update ...") order, but it acts only one the current record. There is no Where specification. Error management is similar.</p>
+
+<h3><a name="3.4.2SQL-Cursorsmanagement-Deletingcurrentrecord"></a>Deleting current record</h3>
+
+<p>After fetching a cursor open with the "FOR UPDATE ..." string, it's possible to delete the current record: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cursorDeleteCurrent(c0c_1, <span class="code-quote">"DELETE FROM RS7A0D"</span>)
+    .onErrorGoto(sql_Error);</pre>
+</div></div>
+
+<h2><a name="3.4.2SQL-Cursorsmanagement-Operationssumup"></a>Operations sum-up</h2>
+
+<h3><a name="3.4.2SQL-Cursorsmanagement-Wholeexample1"></a>Whole example 1</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class prog <span class="code-keyword">extends</span> BatchProgram
+{
+    DataSection sqlcursorsection = declare.cursorSection();
+    SQLCursor cur = declare.cursor() ; 
+    ...
+    procedureDivision()
+    {
+        ...
+        cursorOpen(cur, <span class="code-quote">"SELECT DISTINCT TXTNO, CDECOND1, UTIENTJ2, JNLCOD, JNLGRC, "</span>
+	   <span class="code-quote">"JNLCODS FROM RS7A03 WHERE UTIENTO = #1 AND CDENUM = #2 AND TXTNO BETWEEN "</span>#3 AND #4")
+            .param(1, vrs7a03l.utiento)
+	   .param(2, vrs7a03l.cdenum)
+	   .param(3, w_Txtno_Min)
+	   .param(4, w_Txtno_Max)
+	   .onErrorGoto(sql_Error);
+        ...
+        cursorFetch(cur)
+            .into(vrs7a03l.txtno)
+            .into(vrs7a03l.cdecond1)
+	   .into(vrs7a03l.utientj2)
+	   .into(vrs7a03l.jnlcod)
+	   .into(vrs7a03l.jnlgrc)
+	   .into(vrs7a03l.jnlcods)
+	   .onErrorGoto(sql_Error);
+        <span class="code-keyword">while</span>(!isNotSQLCode(SQLCode.SQL_NOT_FOUND))
+        { 
+            ...
+            cursorFetch(cur)
+                .into(vrs7a03l.txtno)
+                .into(vrs7a03l.cdecond1)
+	       .into(vrs7a03l.utientj2)
+	       .into(vrs7a03l.jnlcod)
+	       .into(vrs7a03l.jnlgrc)
+	       .into(vrs7a03l.jnlcods)
+	       .onErrorGoto(sql_Error);
+            ...
+        }
+        cursorClose(cur);
+        ...
+    } 
+    ...
+}</pre>
+</div></div>
+
+<h3><a name="3.4.2SQL-Cursorsmanagement-Wholeexample2withrecordupdateanddelete"></a>Whole example 2 - with record update and delete</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class prog <span class="code-keyword">extends</span> BatchProgram
+{
+    DataSection sqlcursorsection = declare.cursorSection();
+    SQLCursor cur = declare.cursor() ; 
+    ...
+    procedureDivision()
+    {
+        ...
+        cursorOpen(cur, <span class="code-quote">"SELECT * FROM RS7A0C WHERE UTIENTO = #1 AND CDENUM = #2 AND CDEST03 = '0' FOR UPDATE OF CDEST03, MUTDAT, MUTHEU"</span>)
+            .param(1, vrs7a0cd.utiento)
+	   .param(2, vrs7a0cd.cdenum)
+	   .onErrorGoto(sql_Error);
+        ...
+        cursorFetch(cur)
+            .into(vrs7a0cd.dvrs7a0cd)  <span class="code-comment">// vrs7a0cd.dvrs7a0cd is a group whose children having similar names as columns of RS7A0C will be filled
+</span>	   .onErrorGoto(sql_Error) ;
+        <span class="code-keyword">while</span>(!isNotSQLCode(SQLCode.SQL_NOT_FOUND))
+        { 
+            <span class="code-keyword">if</span>(isEqual(vrs7a0cd.mustUpdate, <span class="code-quote">"O"</span>))
+            {
+                cursorUpdateCurrent(cur, <span class="code-quote">"UPDATE RS7A0C SET CDEST03 = '1', MUTDAT = #1, MUTHEU = #2"</span>)
+		.value(1, w_Sysdat)
+		.value(2, w_Sysheu)
+		.onErrorGoto(sql_Error);
+            }
+            <span class="code-keyword">else</span> <span class="code-keyword">if</span>(isEqual(vrs7a0cd.mustDelete, <span class="code-quote">"O"</span>))
+            {
+                cursorDeleteCurrent(cur, <span class="code-quote">"DELETE RS7A0C"</span>)
+		.onErrorGoto(sql_Error);
+            }
+            ...
+            cursorFetch(cur)
+                .into(vrs7a0cd.dvrs7a0cd)
+   	       .onErrorGoto(sql_Error) ;
+        }
+        cursorClose(cur);
+        ...
+    } 
+    ...
+}</pre>
+</div></div>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

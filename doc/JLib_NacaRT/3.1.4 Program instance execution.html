@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.1.4 Program instance execution</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.1.4 Program instance execution
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 12 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h2><a name="3.1.4Programinstanceexecution-ProgramversusPrograminstance"></a>Program versus Program instance</h2>
+
+
+<h3><a name="3.1.4Programinstanceexecution-Definition"></a>Definition</h3>
+
+<p>A program is technically a piece of java code loaded in memory by a class loader. nacaRT contains such a class loader. This custom class loader, or the java&nbsp;standard one can equally be used, depending on parameters provided by configuration file. The act of loading a program in memory is the program's instanciation.</p>
+
+<p>A program can be loaded multiple times in memory. Each instance will be holded within a unique java object.</p>
+
+<p>It's important to do the distinction between these 2 notions as a single program may be run multiple times simultaneously by differents sessions, without leaking data from one session to another.</p>
+
+<h2><a name="3.1.4Programinstanceexecution-Programinstancestate"></a>Program instance state</h2>
+
+<p>A program instance can be either:<br/>
+&#45; in use. that is running<br/>
+&#45; waiting to be used</p>
+
+<h2><a name="3.1.4Programinstanceexecution-Programexecution"></a>Program execution</h2>
+
+<p>There is a pool for each program within the system. It keeps already allocated but unused program instance in a stack. So, when a user requests a program execution, nacaRT does the following operations:</p>
+<ul>
+	<li>checks if there is an available program instance in a dedicated pool.
+	<ul>
+		<li>if it doesn't find such an object (for example if the program has never been run yet), it loads the program instance in memory, using a class loader and initialize it. There is 2 cases, depending on whether the program has already been instancied once or not:
+		<ul>
+			<li>If it's the first instance of the program, then many computings must be done. For example, all variables' buffer position must be computed. These are important and CPU intensive steps. All these instance-neutral data are stored in a SharedProgramInstanceData object. This object contains data that can safely be shared among all instances of a given program.</li>
+			<li>If it's not the first instance of the program, then a SharedProgramInstanceData object has already been filled previously. Some buffer initializations must be done for the new instance to be correctly initialized. However, this is a lighter step than the 1st program instanciarion.<br/>
+. the program instance is then available for proper execution and the procedureDivision() method is called. After whole execution of the program instance, it set in the program's pool. making it almost immedaitly avalaible for other executions</li>
+		</ul>
+		</li>
+		<li>if an avalaible program instance is found in it's pool, it's removed from the pool, making sure that no other session can use the instance simultaneously. Some re-initializations must be done, using the program's SharedProgramInstanceData. It's mostly applying the initial values of working storage section variables that have an initial value declaration. The value of these variables may have been modified by a previous program execution and then must be re-set.</li>
+	</ul>
+	</li>
+	<li>We now have an initialized program instance, ready for running. the procedureDivision() metho is then called. If it doesn't exists, then the 1st paragraph or section is launched.</li>
+	<li>We the program execution terminates, the program instance is set in the program's pool.</li>
+</ul>
+
+
+<h2><a name="3.1.4Programinstanceexecution-PrograminstanceandProgramManager"></a>Program instance and ProgramManager</h2>
+
+<p>The program manager is the hidden side of the program instance. It's purpose is to make avaiable resources during program execution, without exposing these resources to the developper durng coding phases. They work together hand in hand, but are oriented differently. The program instance contains a reference to it's ProgramManager, and a ProgramManager contains also a reference on it's Program instance.</p>
+
+<h3><a name="3.1.4Programinstanceexecution-Programusagebyadevelopper"></a>Program usage by a developper</h3>
+
+<p>The developper sees the Program as the base class of it's code:<br/>
+&#45; It inherits all public methods that corresponds to Cobol verbs<br/>
+&#45; It gives access to all variables defined by the applciation code</p>
+
+<h3><a name="3.1.4Programinstanceexecution-Programusage%26nbsp%3Bduringexecution"></a>Program usage&nbsp;during execution</h3>
+
+<p>The executable public methods are defined here, but they are just public methods, that&nbsp;goes very quickly inside nacaRT classes. These classes are then isolated form the developper's point of view</p>
+
+<h3><a name="3.1.4Programinstanceexecution-ProgramManagerusagebyadevelopper"></a>ProgramManager usage by a developper</h3>
+
+<p>This object is mostly ignored, as it's visibilty during edition is reduced at the maximum.</p>
+
+<h3><a name="3.1.4Programinstanceexecution-ProgramManagerusageduringexecution"></a>ProgramManager usage during execution</h3>
+
+<p>Lots of applications resources are stored within the ProgramManager. For exemple an SQLStatus object contains the status of the last SQL statement executed. It is used by application code to handle SQL errors and perform treatment&nbsp;when an error occurs. But the program safely ignores how the last sql code is stored.</p>
+
+<h3><a name="3.1.4Programinstanceexecution-"></a></h3>
+
+<p><br clear="all" /></p>
+
+<h2><a name="3.1.4Programinstanceexecution-Programinstanceexecutionthreadcontext"></a>Program instance execution thread context</h2>
+
+<p>A program instance is executed by only one thread, as far as applicative code is concerned. Form the point of view of the Cobol-like program, there is only one thread that executes the instance.<br/>
+However, as multiple user session executes concurrently, it is possible that 2 different instances of the same program are executed by 2 differents threads. but, as nacaRT and it's&nbsp;internal libraries are thread safe, there no constraints on the application program. As long as nacaRT resources are used, there is no need to synchronize applicative code.<br/>
+Thread safety, and the fact that a given program instance is executed by the same thread during it's whole execution is critical. Some execution-required data are stored&nbsp;within the thread local storage, so that these objects are available by for everywhere of nacaRT, but only form the same thread.</p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

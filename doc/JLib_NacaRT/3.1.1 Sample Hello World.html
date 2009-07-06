@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.1.1 Sample Hello World</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.1.1 Sample Hello World
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 13 Mar 2007 by <font color="#0050B2">u930di</font>.
+					    
+				    </div>
+
+				    <h1><a name="3.1.1SampleHelloWorld-Samplehelloworldtypeprogram"></a>Sample hello-world type program</h1>
+
+
+<h2><a name="3.1.1SampleHelloWorld-Source"></a>Source</h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> nacaLib.batchPrgEnv.BatchProgram;
+<span class="code-keyword">import</span> nacaLib.program.Paragraph;
+<span class="code-keyword">import</span> nacaLib.varEx.DataSection;
+<span class="code-keyword">import</span> nacaLib.varEx.Var;
+<span class="code-keyword">public</span> class TestHelloWorld <span class="code-keyword">extends</span> BatchProgram
+{
+    DataSection WorkingStorage = declare.workingStorageSection();
+    Var varHelloWorld = declare.level(1).<span class="code-keyword">var</span>();
+    Var hello = declare.level(5).picX(5).<span class="code-keyword">var</span>();
+    Var space = declare.level(5).picX(1).value(<span class="code-quote">" "</span>).filler();
+    Var world = declare.level(5).picX(5).<span class="code-keyword">var</span>();
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+        move(<span class="code-quote">"Hello"</span>, hello);
+        move(<span class="code-quote">"World"</span>, world);
+        perform(DisplayHelloWorld);
+        stopRun();
+    }
+
+    Paragraph DisplayHelloWorld = <span class="code-keyword">new</span> Paragraph(<span class="code-keyword">this</span>){<span class="code-keyword">public</span> void run(){DisplayHelloWorld();}};void DisplayHelloWorld()
+    {
+        display(varHelloWorld);
+    }
+}</pre>
+</div></div>
+
+
+<h2><a name="3.1.1SampleHelloWorld-Explanations"></a>Explanations</h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestHelloWorld <span class="code-keyword">extends</span> BatchProgram</pre>
+</div></div>
+<p>This program is a batch program as it derives from BatchProgram class.</p>
+
+<p>The working storage section is declared by</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">DataSection WorkingStorage = declare.workingStorageSection();</pre>
+</div></div>
+<p>This declaration is mandatory.</p>
+
+<p>The program's variables are declared as</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Var varHelloWorld = declare.level(1).<span class="code-keyword">var</span>(); Var hello = declare.level(5).picX(5).<span class="code-keyword">var</span>(); Var space = declare.level(5).picX(1).value(<span class="code-quote">" "</span>).filler(); Var world = declare.level(5).picX(5).<span class="code-keyword">var</span>();</pre>
+</div></div>
+<p>Note that the space leading variables of level 5 is optional. It's set here only for easy reading of the source code.<br/>
+Declaration of all variables is always the same, and follows the syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Var &lt;variable name&gt; = declare.level(&lt;level&gt;).&lt;options&gt;.<span class="code-keyword">var</span>();</pre>
+</div></div>
+<p>a filler is declared as a variable, but the last keyword is filler() instead of var() :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Var &lt;filler name&gt; = declare.level(&lt;level&gt;).&lt;options&gt;.filler();</pre>
+</div></div>
+<p>The program entry point is here the method:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void procedureDivision()</pre>
+</div></div>
+<p>It could be also a paragraph ou a section.</p>
+
+<p>The procedure division contains various sentences that act upon the variables. Here we have moves and a paragrpah perform.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">move(<span class="code-quote">"Hello"</span>, hello);
+move(<span class="code-quote">"World"</span>, world);
+perform(DisplayHelloWorld);
+stopRun();</pre>
+</div></div>
+<p>Note that the paragraph is identified by a compiler validated name :<br/>
+<tt>DisplayHelloWorld</tt>, not a string that the compiler could not validate ("DisplayHelloWorld").<br/>
+The paragraph delcaration is a little bit strange:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Paragraph DisplayHelloWorld = <span class="code-keyword">new</span> Paragraph(<span class="code-keyword">this</span>){<span class="code-keyword">public</span> void run(){DisplayHelloWorld();}};void DisplayHelloWorld()</pre>
+</div></div>
+<p>This syntax is imposed by the fact that a paragraph is a java "functor" that can be called indirectly by it's name. It's name can also be registered internally.</p>
+
+<p>In the sample, the paragraph internal code does only</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">display(varHelloWorld);</pre>
+</div></div>
+<p>This displays the "Hello World" message on the java console output.<br/>
+Note that as varHelloWorld is build up with 2 variables and a filler, and then can be assambled by chunks.</p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+    
+   <br>
+</html>

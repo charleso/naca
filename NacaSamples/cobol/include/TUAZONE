@@ -1,0 +1,4 @@
+       01  TUA-ZONE.
+           05 TUA-I-TRAVAIL.
+              10 TUA-I-DTJOUR              PIC S9(8) COMP-3.
+              10 TUA-I-DTJOURF             PIC X(8).

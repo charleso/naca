@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : Online specific parameters</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : Online specific parameters
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 30 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>These parameters are used only for online programs.</p>
+
+
+<h1><a name="Onlinespecificparameters-Userinterfaceelementconfiguration"></a>User interface element configuration </h1>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FXSLFilePath%7D%7D"></a><tt>conf/XSLFilePath</tt></h4>
+<p>String parameter giving the full file name of the xslt file that transforms the XML data into HTML file sent to the browser.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FHelpXSLFilePath%7D%7D"></a><tt>conf/HelpXSLFilePath</tt></h4>
+<p>String parameter that gives the full file name of a xslt file used to produce the help screen</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FresourcePath%7D%7D"></a><tt>conf/resourcePath</tt></h4>
+<p>String parameter that gives the full directory path where screen resource files are stored. These are the *.res files that describes all screen graphical layout.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FXMLFrameFilePath%7D%7D"></a><tt>conf/XMLFrameFilePath</tt></h4>
+<p>String that gives the full file name of the xml file that describes the HTML frame layout</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FEmulWebRootPath%7D%7D"></a><tt>conf/EmulWebRootPath</tt></h4>
+<p>String that gives the full path and file name for EmulWeb mode. This mode is not used in production environment, and is reserved for development process. It must be set as <tt>EmulWebRootPath=""</tt></p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FhttpSessionMaxInactiveIntervals%7D%7D"></a><tt>conf/httpSessionMaxInactiveInterval_s</tt></h4>
+<p>Number of seconds that a http session is holded within tomcat container. It can be setup with a large value, as a session doesn't use too much resources. The typical value is "10800" (3 hours).</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FCacheResourceFiles%7D%7D"></a><tt>conf/CacheResourceFiles</tt></h4>
+<p>Boolean value<br/>
+Set this flag to "true" to enable caching of .res files. These files are then loaded and cached during server startup.<br/>
+Resource file cache can be updated by clicking a button in the JMX console.<br/>
+If it's set to false, then .res files are loaded at every user request. This is discouraged.</p>
+
+<h3><a name="Onlinespecificparameters-LDapconfiguration"></a>LDap configuration</h3>
+
+<p>nacaRT uses an initial LDAP login for users authentication.<br/>
+There can ba at maximum 3 differents LDAP servers, which are queried simultaneously.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FLDAPServer%7D%7D"></a><tt>conf/LDAPServer</tt></h4>
+<p>Identifies the DNS name of the first LDAP autentication server. Must be filled.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FLDAPServer2%7D%7D"></a><tt>conf/LDAPServer2</tt></h4>
+<p>Identifies the DNS name of the second LDAP autentication server. Can be an empty, if only one authentication serveris used.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FLDAPServer3%7D%7D"></a><tt>conf/LDAPServer3</tt></h4>
+<p>Identifies the DNS name of the third and last LDAP autentication server. Can be an empty, if only one or two authentication servers are used.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FLDAPRootOU%7D%7D"></a><tt>conf/LDAPRootOU</tt></h4>
+<p>Root OU; example is <tt>DAPRootOU="OU=FUTUR_PUBLIGROUPE,DC=Publigroupe,DC=net"</tt></p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FLDAPGenericUser%7D%7D"></a><tt>conf/LDAPGenericUser</tt></h4>
+<p>Generic LDap user</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FLDAPGenericPassword%7D%7D"></a><tt>conf/LDAPGenericPassword</tt></h4>
+<p>Generic LDap password</p>
+
+<h1><a name="Onlinespecificparameters-Transactiondefinitionandtranslationsupport"></a>Transaction definition and translation support</h1>
+
+<p>These resources are defined in the tag &lt;SequencerConfig&gt; of tag &lt;conf&gt;.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FSequencerConfig%2FTransIDMappingFilePath%7D%7D"></a><tt>conf/SequencerConfig/TransIDMappingFilePath</tt></h4>
+<p>Gives the full path and file name of an XML file that contains mappings between transaction name and 1st program running this transaction.<br/>
+The XML file structure is</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"ISO-8859-1"</span>?&gt;</span>
+<span class="code-tag">&lt;root&gt;</span>
+	[<span class="code-tag">&lt;transid id=<span class="code-quote">"cics_transaction_name"</span> program=<span class="code-quote">"program_name"</span>/&gt;</span>] *
+<span class="code-tag">&lt;/root&gt;</span></pre>
+</div></div>
+
+<p>This file is then used by nacaRT to identify which program must be run when a transaction has been launched.</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FSequencerConfig%2FTranslationFilePath%7D%7D"></a><tt>conf/SequencerConfig/TranslationFilePath</tt></h4>
+<p>Gives the full path and file name of an XML file that contains multilingual texts used by the custom help system.</p>
+
+<h1><a name="Onlinespecificparameters-Asynchronouslylaunchedprograms"></a>Asynchronously launched programs</h1>
+<p>An optionnal list of program to launch asynchronously can be setup. <br/>
+These programs will be launched after the application server is started.<br/>
+They are described by a list of tag &lt;Program&gt; within tag &lt;StartPrograms&gt; within tag &lt;SequencerConfig&gt;, itself with tag &lt;conf&gt;.<br/>
+Each program is run in it's own thread. The thread is created immediatly after server startup, but the program may wait a given number of second before being actually executed.</p>
+
+<h4><a name="Onlinespecificparameters-%7Bconf%2FSequencerConfig%2FStartPrograms%2FProgram%2Fn..."></a><tt>conf/SequencerConfig/StartPrograms/Program/name</tt></h4>
+<p>String value.<br/>
+Gives the name of a program to launch asynchronously after server startup. A custom thread is allocated for each program. Only 1 instance of the program is created.</p>
+
+<h4><a name="Onlinespecificparameters-%7Bconf%2FSequencerConfig%2FStartPrograms%2FProgram%2Fd..."></a><tt>conf/SequencerConfig/StartPrograms/Program/delaySeconds</tt></h4>
+<p>Integer value.<br/>
+Number of seconds to wait after having created and launched the custom thread before actually executing the program's code.</p>
+
+
+<h1><a name="Onlinespecificparameters-Userloginandhelp"></a>User login and help</h1>
+
+<p>When a user first connect to the nacaRT, a login screen is displayed on it's browser. This screen is a custom one, as well as the help screen.<br/>
+These elements are configured in tag &lt;CESMConfig&gt; of tag &lt;SequencerConfig&gt;, itself within &lt;conf&gt;</p>
+
+<h4><a name="Onlinespecificparameters-%7B%7Bconf%2FSequencerConfig%2FCESMConfig%2FStartProgramId%7D%7D"></a><tt>conf/SequencerConfig/CESMConfig/StartProgramId</tt></h4>
+<p>Gives the name of the first program to launch when a new http session is started by a new user.</p>
+
+<h4><a name="Onlinespecificparameters-%7Bconf%2FSequencerConfig%2FCESMConfig%2FStartCommand..."></a><tt>conf/SequencerConfig/CESMConfig/StartCommandCode</tt></h4>
+<p>Identifies how this program is executed. It must be set to "XCTL".</p>
+
+<h4><a name="Onlinespecificparameters-%7Bconf%2FSequencerConfig%2FCESMConfig%2FHelpCenterCl..."></a><tt>conf/SequencerConfig/CESMConfig/HelpCenterClassName</tt></h4>
+<p>Gives the full class name of the help program.</p>
+
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

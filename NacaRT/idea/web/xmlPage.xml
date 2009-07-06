@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page>
+	<grid>
+		<row>
+			<col>
+				<pagelogo/>
+				<pageinfo/>
+				<specialinfo/>
+				<pfkeylist>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<pfkey name="pf1" jsKey="112" jsValue="" action="topOpen('help.do?sessionId=H&amp;field=' + topFieldFocus + '&amp;currentPage='+document.form.idPage.value, 'help', 40, 300, 570, 400);">
+						<logo lang="FR" path="images/FR/ico_F1_lo.gif" display="Aide"/>
+						<logo lang="IT" path="images/IT/ico_F1_lo.gif" display="Help"/>
+						<logo lang="DE" path="images/DE/ico_F1_lo.gif" display="Help"/>
+					</pfkey>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<pfkey name="pf3" jsKey="114" jsValue="3" action="top.document.form.submit();topOver('progress');">
+						<logo lang="FR" path="images/FR/ico_F3_lo.gif" display="F3"/>
+						<logo lang="IT" path="images/IT/ico_F3_lo.gif" display="F3"/>
+						<logo lang="DE" path="images/DE/ico_F3_lo.gif" display="F3"/>
+					</pfkey>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<pfkey name="pf9" jsKey="120" jsValue="9" action="top.document.form.submit();topOver('progress');">
+						<logo lang="FR" path="images/FR/ico_F9_lo.gif" display="F9"/>
+						<logo lang="IT" path="images/IT/ico_F9_lo.gif" display="F9"/>
+						<logo lang="DE" path="images/DE/ico_F9_lo.gif" display="F9"/>
+					</pfkey>
+					<image ref="images/empty.gif" width="1" height="30"/>
+					<pfkey name="pf7" logo="images/ico_F7_lo.gif" display="F7" jsKey="118" jsValue="7" action="top.document.form.submit();topOver('progress');"/>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<pfkey name="pf8" logo="images/ico_F8_lo.gif" display="F8" jsKey="119" jsValue="8" action="top.document.form.submit();topOver('progress');"/>
+					<image ref="images/empty.gif" width="1" height="30"/>
+					<pfkey name="pf2" jsKey="113" jsValue="2" action="top.document.form.submit();topOver('progress');">
+						<logo lang="FR" path="images/FR/ico_F2_lo.gif" display="F2"/>
+						<logo lang="IT" path="images/IT/ico_F2_lo.gif" display="F2"/>
+						<logo lang="DE" path="images/DE/ico_F2_lo.gif" display="F2"/>
+					</pfkey>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<pfkey name="pf12" jsKey="123" jsValue="C" action="top.document.form.submit();topOver('progress');">
+						<logo lang="FR" path="images/FR/ico_F12_lo.gif" display="F12"/>
+						<logo lang="IT" path="images/IT/ico_F12_lo.gif" display="F12"/>
+						<logo lang="DE" path="images/DE/ico_F12_lo.gif" display="F12"/>
+					</pfkey>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<pfkey name="pf4" jsKey="115" jsValue="4" action="top.document.form.submit();topOver('progress');">
+						<logo lang="FR" path="images/FR/ico_F4_lo.gif" display="F4"/>
+						<logo lang="IT" path="images/IT/ico_F4_lo.gif" display="F4"/>
+						<logo lang="DE" path="images/DE/ico_F4_lo.gif" display="F4"/>
+					</pfkey>
+					<image ref="images/empty.gif" width="1" height="30"/>
+					<pfkey name="chguser" logo="images/ico_l_ogin_lo.gif" display="Login" jsKey="0" jsValue="chguser" action="top.document.form.submit();topOver('progress');"/>
+					<image ref="images/empty.gif" width="5" height="10"/>
+					<pfkey name="logout" logo="images/ico_l_ogout_lo.gif" display="Logout" jsKey="0" jsValue="logout" action="top.document.form.submit();topOver('progress');"/>
+					<image ref="images/empty.gif" width="1" height="30"/>
+					<pfkey name="enter" logo="images/ico_enter_lo.gif" display="Enter" jsKey="13" jsValue="0" action="doSubmit();"/>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<image name="progress" ref="images/ico_progress_lo.gif" width="150" height="10"/>
+					<pfkey name="pf5" jsKey="116" jsValue="5" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf6" jsKey="117" jsValue="6" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf10" jsKey="121" jsValue="A" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf11" jsKey="122" jsValue="B" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf13" jsKey="124" jsValue="D" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf14" jsKey="125" jsValue="E" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf15" jsKey="126" jsValue="F" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf16" jsKey="127" jsValue="G" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf17" jsKey="128" jsValue="H" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf18" jsKey="129" jsValue="I" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf19" jsKey="130" jsValue="J" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf20" jsKey="131" jsValue="K" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf21" jsKey="132" jsValue="L" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf22" jsKey="133" jsValue="M" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf23" jsKey="134" jsValue="N" action="top.document.form.submit();topOver('progress');"/>
+					<pfkey name="pf24" jsKey="135" jsValue="O" action="top.document.form.submit();topOver('progress');"/>
+				</pfkeylist>
+				<!--<vbox>
+					<replayInfo/>
+				</vbox>-->
+			</col>			
+			<col>
+				<vbox>
+					<image ref="images/empty.gif" width="20" height="0"/>
+				</vbox>
+			</col>
+			<col>
+				<vbox>
+					<image ref="images/empty.gif" width="0" height="12"/>
+				</vbox>
+			    <vbox>
+					<replaceTitle/>
+				</vbox>
+				<pageform/>
+			</col>
+		</row>
+	</grid>
+</page>

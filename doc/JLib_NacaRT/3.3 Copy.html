@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.3 Copy</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.3 Copy
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 13 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>A copy file is a file that owns a list of variables that are included in a program.</p>
+
+<p>It can be used for example to declared database table definition, or data file structure.</p>
+
+<h2><a name="3.3Copy-DeclarationofaCopyfile"></a>Declaration of a Copy file</h2>
+
+<p>A copy is a java class that dervices from the base class <tt>Copy</tt>.<br/>
+Syntax is :</p>
+
+<p>Source code file is &lt;copy_name&gt;.java:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class &lt;copy_class_name&gt; <span class="code-keyword">extends</span> Copy
+{
+    <span class="code-keyword">static</span> &lt;copy_class_name&gt; Copy(BaseProgram program)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> &lt;copy_class_name&gt;(program, <span class="code-keyword">null</span>);
+    }
+    <span class="code-keyword">static</span> &lt;copy_class_name&gt; Copy(BaseProgram program, CopyReplacing copyReplacing)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> &lt;copy_class_name&gt;(program, copyReplacing);
+    }
+    &lt;copy_class_name&gt;(BaseProgram program, CopyReplacing copyReplacing)
+    {
+        <span class="code-keyword">super</span>(program, copyReplacing);
+    }
+    &lt;Variables declaration. It's the same syntax as program's variable declaration&gt;
+}</pre>
+</div></div>
+<p>Example:</p>
+
+<p>Copy source file name is ErrorDef.java</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class ErrorDef <span class="code-keyword">extends</span> Copy
+{
+    <span class="code-keyword">static</span> ErrorDef Copy(BaseProgram program)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> ErrorDef(program, <span class="code-keyword">null</span>);
+    }
+    <span class="code-keyword">static</span> ErrorDef Copy(BaseProgram program, CopyReplacing copyReplacing)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> ErrorDef(program, copyReplacing);
+    }
+    ErrorDef(BaseProgram program, CopyReplacing copyReplacing)
+    {
+        <span class="code-keyword">super</span>(program, copyReplacing);
+    }
+
+    Var vError = declare.level(1).<span class="code-keyword">var</span>();
+       Var vErrorText = declare.level(5).picX(80).<span class="code-keyword">var</span>();
+       Var vErrorNumber = declare.level(5).pic9(4).<span class="code-keyword">var</span>();
+}</pre>
+</div></div>
+
+<h2><a name="3.3Copy-Copyusagebyaprogram"></a>Copy usage by a program</h2>
+
+<h3><a name="3.3Copy-Declaration"></a>Declaration</h3>
+
+<p>A copy is declared by a program as:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;copy_class_name&gt; &lt;copy_variable_name&gt; = &lt;copy_class_name&gt;.Copy(<span class="code-keyword">this</span>);</pre>
+</div></div>
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ErrorDef errorDef = ErrorDef.Copy(<span class="code-keyword">this</span>);</pre>
+</div></div>
+
+<h3><a name="3.3Copy-Variableaccess"></a>Variable access</h3>
+
+<p>As the copy variable are defined inside a different class than the program's own class, the copy's variable name must be prefixed by the copy variable name, so that the compiler knows form which class the copy variable is taken.</p>
+
+<h2><a name="3.3Copy-Example"></a>Example</h2>
+
+<p>With the following program TestCopy.java:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> idea.onlinePrgEnv.*;
+<span class="code-keyword">import</span> nacaLib.varEx.*;
+<span class="code-keyword">import</span> nacaLib.program.*;
+
+<span class="code-keyword">public</span> class TestCopy <span class="code-keyword">extends</span> OnlineProgram
+{	
+    DataSection WorkingStorage = declare.workingStorageSection();
+
+    Var vErrorText = declare.level(1).picX(10).<span class="code-keyword">var</span>(); <span class="code-comment">// Declare a variable named vErrorText
+</span>    Var v = declare.level(77).pic9(4).<span class="code-keyword">var</span>();          <span class="code-comment">// Declare another variable named vErrorText
+</span>
+    ErrorDef errorDef = ErrorDef.Copy(<span class="code-keyword">this</span>);    <span class="code-comment">// Declares the copy class; all it's variables will be accessed through errorDef. prefix
+</span>
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+         move(<span class="code-quote">"No Error"</span>, vErrorText);   <span class="code-comment">// This is the vErrorText variable of the working storage section
+</span>         move(<span class="code-quote">"No Error in copy variable"</span>, errorDef.vErrorText);   <span class="code-comment">// This is the vErrorText variable of the copy ErrorDef ! 
+</span>
+         <span class="code-keyword">assert</span>(!isEquals(<span class="code-quote">"No Error"</span>, errorDef.vErrorText));
+         <span class="code-keyword">assert</span>(!isEquals(<span class="code-quote">"No Error in copy variable"</span>, vErrorText));  <span class="code-comment">// the 2 variables are not mixed !!!
+</span>    }
+}</pre>
+</div></div>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

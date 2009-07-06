@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Program Author="XXXXXXXXX" Date_Written="2008" Line="1" Program_ID="BATCH1">
+<Configuration Line="14" ObjectComputer="IBM-3081" SourceComputer="IBM-3081"/>
+<IO Line="19">
+<FileSelect Line="22">
+<FileName Identifier="UT-S-FILEIN"/>
+<Reference Identifier="FILEIN"/>
+</FileSelect>
+<FileSelect Line="23">
+<FileName Identifier="UT-S-FILEOUT"/>
+<Reference Identifier="FILEOUT"/>
+</FileSelect>
+</IO>
+<FileSection Line="26">
+<FD Identifier="FILEIN" Line="28">
+<Record Length="69"/>
+<RecordingMode Identifier="F"/>
+<Item Level="01" Line="33" Name="FILEIN-Z">
+<Item Format="X" Level="05" Line="34" Name="FILEIN-CODE" Type="STRING"/>
+<Item Format="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" Length="68" Level="05" Line="35" Name="" Type="STRING"/>
+</Item>
+</FD>
+<FD Identifier="FILEOUT" Line="37">
+<Record Length="69"/>
+<RecordingMode Identifier="F"/>
+<Item Format="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" Length="69" Level="01" Line="42" Name="FILEOUT-Z" Type="STRING"/>
+</FD>
+</FileSection>
+<WorkingStorageSection Line="44">
+<Variable Comp="COMP3" Constant="ZERO" Format="S9999999" Length="7" Line="46" Name="CPT-IN" Type="SIGNED NUMBER"/>
+<Variable Comp="COMP3" Constant="ZERO" Format="S9999999" Length="7" Line="47" Name="CPT-OUT" Type="SIGNED NUMBER"/>
+<Variable Constant="SPACE" Format="X" Line="49" Name="FIN-TRAIT" Type="STRING"/>
+<Item Constant="ZEROS" Format="99999999" Length="8" Level="01" Line="51" Name="SYS-TIME" Type="NUMBER"/>
+<Item Level="01" Line="52" Name="">
+<Redefines Identifier="SYS-TIME"/>
+<Item Format="9999999" Length="7" Level="03" Line="53" Name="SYS-TIME1" Type="NUMBER"/>
+<Item Format="9" Level="03" Line="54" Name="SYS-TIME2" Type="NUMBER"/>
+</Item>
+<Copy Line="56" Reference="MSGZONE"/>
+</WorkingStorageSection>
+<ProcedureDivision Line="59">
+<Procedure Line="59">
+<Open Line="62">
+<ForInput Identifier="FILEIN"/>
+<ForOutput Identifier="FILEOUT"/>
+</Open>
+<Accept Line="65">
+<FromTime/>
+<To Identifier="SYS-TIME"/>
+</Accept>
+<Display Line="67">
+<Data String="DEBUG - TIME : "/>
+<Data Identifier="SYS-TIME1"/>
+</Display>
+<Perform Line="69" Reference="READ-FILEIN"/>
+<PerformUntil Line="71" Reference="TRAITEMENT">
+<Equals>
+<Value Identifier="FIN-TRAIT"/>
+<Value String="F"/>
+</Equals>
+</PerformUntil>
+<DisplayUponConsole Line="73">
+<Data String="STAT FILEIN  - READ RECORDS   : "/>
+<Data Identifier="CPT-IN"/>
+</DisplayUponConsole>
+<DisplayUponConsole Line="75">
+<Data String="STAT FILEOUT - WRITE RECORDS  : "/>
+<Data Identifier="CPT-OUT"/>
+</DisplayUponConsole>
+<Close Line="78">
+<File Identifier="FILEIN"/>
+<File Identifier="FILEOUT"/>
+</Close>
+<StopRun Line="81"/>
+</Procedure>
+<Procedure Line="83" Name="READ-FILEIN">
+<Read Line="85">
+<File Identifier="FILEIN"/>
+<AtEnd Line="86">
+<Move Line="86">
+<From String="F"/>
+<To Identifier="FIN-TRAIT"/>
+</Move>
+</AtEnd>
+</Read>
+</Procedure>
+<Procedure Line="88" Name="TRAITEMENT">
+<Add Line="90">
+<Add Number="1"/>
+<To Identifier="CPT-IN"/>
+</Add>
+<Evaluate Line="91">
+<When Line="92">
+<Condition>
+<Equals>
+<Value Identifier="FILEIN-CODE"/>
+<Value String="1"/>
+</Equals>
+</Condition>
+<Display Line="93">
+<Data String="DEBUG 1 - "/>
+<Data Identifier="FILEIN-Z"/>
+</Display>
+<Write Line="94">
+<File Identifier="FILEOUT-Z"/>
+<DataFrom Identifier="FILEIN-Z"/>
+</Write>
+<Add Line="95">
+<Add Number="1"/>
+<To Identifier="CPT-OUT"/>
+</Add>
+</When>
+<When Line="96">
+<Condition>
+<Equals>
+<Value Identifier="FILEIN-CODE"/>
+<Value String="2"/>
+</Equals>
+</Condition>
+<Move Line="97">
+<From String="0001"/>
+<To Identifier="MSG-NO"/>
+</Move>
+<Call Line="98">
+<Reference String="CALLMSG"/>
+<BY_REFERENCE Identifier="MSG-ZONE"/>
+</Call>
+<Display Line="99">
+<Data String="DEBUG 2 - "/>
+<Data Identifier="MSG-TEXT"/>
+</Display>
+</When>
+</Evaluate>
+<Perform Line="101" Reference="READ-FILEIN"/>
+</Procedure>
+</ProcedureDivision>
+</Program>

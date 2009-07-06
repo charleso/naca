@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.2 Variables</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.2 Variables
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 14 Mar 2007 by <font color="#0050B2">u930lz</font>.
+				    </div>
+
+				    <div class="error"><span class="error">Error formatting macro: toc: java.lang.NullPointerException</span> </div>
+<h1><a name="3.2Variables-Introduction"></a>Introduction</h1>
+
+<p>Cobol-like variables are the main way to manipulate data inside Cobol-like programs.</p>
+
+<p>The variables have differents major properties:</p>
+
+<ul class="alternate" type="square">
+	<li>Section: A variable can belong to one of the following section: WorkingStorage or&nbsp; Linkage section.</li>
+	<li>Name: Each variable of a given program has a unique name among all the variables of a program, whatever the section.</li>
+	<li>Depth level</li>
+	<li>Filler: A variable can be a filler, that is</li>
+	<li>Type: Each variable is typed, that is has a semantic during manipulation of it's value. for exampe, a variable of type PIC X can store alphanumeric chars, while a PIC 9 COMP stores numeric value in a binary form. PIC 9 Comp-3 stores packed numeric values e.g. each digit is stored in a nibble.</li>
+	<li>Buffer: Variables reads and writes their value in an underlying buffer. The buffer used in nacaRT is an array of 16 bits chars. So each char of a PIC X variable is stored in a 16 bits item. At present, only lower 8 bits are used. The internal representation is Ascii, but could be expended to UTF-16 encoding.</li>
+	<li>Occurences: It is possible to declared that a variable&nbsp;is represented mulitple times in memory. The underlying buffer is used to carry these occrurrences of a given variable</li>
+	<li>redefines: a variable A may redefine another one (B). That is A occuies the same storage within the buffer as B.</li>
+	<li>Length: A PIC X variable must have access to a certain&nbsp;quantity of storage, wich is function of the declared width, and of the place needed to store a single item.</li>
+	<li>Buffer position: as the buffer is used to store a variable value, the variable is located at a known position within this buffer</li>
+	<li>Initial value: It is possible to initialize the variable's buffer with a default value</li>
+</ul>
+
+
+<p>There exists also specialized properties:</p>
+<ul class="alternate" type="square">
+	<li>precision: For numerical types with decimals, it's the number of digits after comma</li>
+</ul>
+
+
+
+<p>To sum up, a variable is:</p>
+<ul class="alternate" type="square">
+	<li>A definition (Type, Name, Depth level, Length, ...)</li>
+	<li>A chunk of a memory buffer, and the begin position within this buffer</li>
+</ul>
+
+
+<h2><a name="3.2Variables-Variablestorage%3ABufferorganisation"></a>Variable storage: Buffer organisation</h2>
+
+
+<h3><a name="3.2Variables-Simpleexample"></a>Simple example</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">DataSection WorkingStorage = declare.workingStorageSection();
+    Var x = declare.level(1).<span class="code-keyword">var</span>();
+        Var a = declare.level(5).picX(5).<span class="code-keyword">var</span>();
+        Var b = declare.level(5).picX(1).value(<span class="code-quote">" "</span>).filler();
+        Var c = declare.level(5).picX(5).<span class="code-keyword">var</span>();
+    Var y = declare.level(1).picX(3).<span class="code-keyword">var</span>();</pre>
+</div></div>
+<p>Buffer representation:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Buffer position: 000000000011111
+Buffer position: 012345678901234
+--------------------------------
+Variable stored: xxxxxxxxxxxxyyy
+Variable stored: aaaaabbccccc
+</pre>
+</div></div>
+<p>We see here that variables a, b and c are all stored within the same buffer. It's because they all belong to the Working Storage Section.</p>
+<ul class="alternate" type="square">
+	<li>Variable x starts at position 0 and has a length of 12 chars, because it covers all sub variable (a, b and c).</li>
+	<li>Variable a starts also at position 0, and has a length of 5 chars.</li>
+	<li>Variable b starts after variable a, so at position 5, and has a length of 2 chars.</li>
+	<li>Variable c starts after variable b, so at position 7, and has a length of 5 chars.</li>
+	<li>Variable y starts after variable x, so at position 12, and has a length of 3 chars.</li>
+</ul>
+
+
+<h3><a name="3.2Variables-Morecomplexexample"></a>More complex example</h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">DataSection WorkingStorage = declare.workingStorageSection();
+    Var x = declare.level(1).<span class="code-keyword">var</span>();
+        Var a = declare.level(5).picX(5).<span class="code-keyword">var</span>();
+        Var b = declare.level(5).occurs(3).<span class="code-keyword">var</span>();
+            Var c = declare.level(10).picX(2).<span class="code-keyword">var</span>();
+            Var d = declare.level(10).pic9(2).<span class="code-keyword">var</span>();
+    Var y = declare.level(1).picX(3).<span class="code-keyword">var</span>();
+    Var z = declare.level(1).redefines(y).<span class="code-keyword">var</span>();</pre>
+</div></div>
+<p>Buffer representation</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Buffer position: 00000000001111111111
+Buffer position: 01234567890123456789
+-------------------------------------
+Variable stored: aaaaabbbbbbbbbbbbyyy
+Variable stored: aaaaaccddccddccddyyy
+Variable stored: aaaaaccddccddccddzzz
+Variable stored: xxxxxxxxxxxxxxxxxyyy
+
+Each line is rtepresents different cases, depending on which variable is considered
+</pre>
+</div></div>
+
+<ul class="alternate" type="square">
+	<li>Variable x starts ar position 0. Its size is the length of it's children a and b</li>
+	<li>Variable a starts at position 0 as x and is 5 chars long.</li>
+	<li>Variable b starts after a, so position 5. It has 2 children which are occured 3 times. The sum of it's children is 4 chars. So it's whole length is 3 * (2 + 2) = 3 * 4 = 12 chars long.</li>
+	<li>The 1st occurrence of c starts at the position of b, so it's 5.</li>
+	<li>The 1st occurrence of d start after the 1st occurence of it's predecessor (1st occurrence of c), so it's 5 + 2 = 7.</li>
+	<li>The 2nd occurrence of c starts at the position of b + size of it's first child (4 chars), so it's 5 + 4 = 9.</li>
+	<li>The 2nd occurrence of d start after the 2nd occurence of it's predecessor (2nd occurrence of c), so it's 9 + 2 = 11.</li>
+	<li>The 3nd occurrence of c starts at the position of b + size of it's 2 first children (2 * 4 chars), so it's 5 + (2 &#42;4) = 11.</li>
+	<li>The 3nd occurrence of d start after the 2nd occurence of it's predecessor (2nd occurrence of c), so it's 11 + 2 = 13.</li>
+	<li>Variable y starts after variable b. b starts at 5 and is 3 * (2+2) = 12 chars long. So y starts at position 17. It is 3 chars long</li>
+	<li>Variable z redefines variable y, so starts at position 17. It doesn't defines a length, so it inherit the length of y (3 chars).</li>
+</ul>
+
+
+<p>These 2 examples shows clearly that we can manipulate the same memory chunks by differents means. This is consistent with the requirements of Cobol, but places a lot of complexity on the nacaRT variable buffer computing.</p>
+
+<p>When the an application program does a move("val", a); for example, in fact the variable a is only used to get a type and a chunk of the buffer storage. The typing goves information on padding. In this case, as a is typed picX(), it means that spaces&nbsp;may have to be added on right if required. This rule is not valid for a numerically typed variable.</p>
+
+<h2><a name="3.2Variables-Variabledeclaration"></a>Variable declaration</h2>
+
+<p>A variable declaration follows starts always the same:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Var &lt;variable_name&gt; = declare.level(&lt;Level_number&gt;).</pre>
+</div></div>
+<p>The declaration specifics follows.<br/>
+&lt;Level_number&gt; is a constant that range between 1 and 49, or 77.<br/>
+Level 66 or 88 are not declared that way.</p>
+
+<p>The declaration always terminates by</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">.<span class="code-keyword">var</span>();
+or
+    .filler();</pre>
+</div></div>
+
+<h3><a name="3.2Variables-Declarationspecifics"></a>Declaration specifics</h3>
+
+<p>After level(), we can have:</p>
+<ul class="alternate" type="square">
+	<li><tt>.filler()</tt>: The variable is a group used as a filler.</li>
+	<li><tt>.var()</tt>: The variable is a group.</li>
+	<li><tt>.occurs(&lt;integer_numeric_quantity&gt;&#124;&lt;variable_name&gt;)</tt>: Used to indicate that the current variable carries multiple times it's children. The quantity (= number of occurs) can be directly given (.occurs(5)) ou provided by another variable. Note that this settings has limitations and is discouraged, as the variable's value must be known during variable buffer computations.</li>
+	<li><tt>.occursDepending(&lt;integer_numeric_quantity&gt;, &lt;variable_name&gt;)</tt>: The maximum allowed number of items is given by the first parameter (integer_numeric_quantity), but only the first items within the range 1, variable_name's integer value can be used.</li>
+	<li><tt>.redefines&lt;variable_name&gt;</tt>: Delcares that the current variable shares the buffer of the variable_name.</li>
+	<li><tt>.picX(&lt;length&gt;)</tt>: To indicate that the varible is PIC X</li>
+	<li><tt>.pic9(&lt;length&gt;)</tt>: To indicate that the varible is PIC 9</li>
+	<li><tt>.picS9(&lt;length&gt;)</tt>: To indicate that the varible is PIC S9</li>
+	<li><tt>.pic9(&lt;length&gt;, &lt;precision)</tt>: To indicate that the varible is PIC 9 with decimals</li>
+	<li><tt>.picS9(&lt;length&gt;, &lt;precision)</tt>: To indicate that the varible is PIC 9 with decimals</li>
+	<li><tt>.pic(&lt;String_format&gt;)</tt>: Used to create a numeric edited variable, whose format is given by String_format.</li>
+</ul>
+
+
+<p>When the variable is typed picX, then one of the specific methods can add appended:<br/>
+<tt>.justifyRight()</tt> to indicate that the justication is done on the right<br/>
+<tt>.value("String_Value")</tt>: to indicate the initial string value of the variable's buffer chunk<br/>
+<tt>.valueAll('&lt;char_value&gt;')</tt>: to fill the variable's buffer chunk with the char in parameter<br/>
+<tt>.valueAll("&lt;String_value&gt;")</tt>: to fill the variable's buffer chunk with the string in parameter<br/>
+<tt>.valueHighValue()</tt>: to fill the variable's buffer chunk with high value<br/>
+<tt>.valueLowValue()</tt>: to fill the variable's buffer chunk with high value<br/>
+<tt>.valueSpace()</tt>: to fill the variable's buffer chunk with spaces<br/>
+<tt>.valueZero()</tt>: to fill the variable's buffer chunk with zeroes</p>
+
+<p>When the variable is typed pic9 or picS9, it is by default COMP 0 - That is each digits is stored by exactly one char of buffer storage</p>
+
+<p>One of the specific methods can add appended:<br/>
+<tt>.signLeadingSeparated()</tt>: Specifies that the sign is separated form data, and is on the left<br/>
+<tt>.signTrailingSeparated()</tt>: Specifies that the sign is separated form data, and is on the right side<br/>
+By default, is sign is embedded with the rightest digit of the number value. The encoding is the same as the cobol on the host.<br/>
+<tt>.comp3()</tt>: Specifies that the variable uses decimal packed storage. Each 16 bits char of the buffer stores 2 digits (or 1 digit + sign).<br/>
+They are encoded in 1 byte, each digit using 1 nibble. The second byte of the 16 bits char is unused.<br/>
+<tt>.comp()</tt>: Specifies that the variable uses binary storage. Depending on the number of digits specifies, the binary storage may use 2, 4 or 8 chars of 16 bits each. As in the comp3 storage, only 1 byte of each char is used for storage. The byte ordering is little-endian as IBM mainframes : high value &#45;&gt; low value. It is the reverse order from Intel binary storage.</p>
+
+<p>The combination of pic9() or picS9() with or without decimals, and indicxation of comp3 or comp3 generates a different Var type. There exists 21 different numeric class in nacaRT to support all these possibilities.</p>
+
+<h2><a name="3.2Variables-Variabledefinition"></a>Variable definition</h2>
+
+<p>As we have seen previously, a variable belongs to a program. But the same program code may be run simulateously by different sessions. Each session uses a different program instance.<br/>
+Then we must make sure that a variable's value is unique and not shared eith another instance of the same program. Otherwise, we would have data values spreading and "jumping" form one user session to another one ... This is then a mandatory feature &#33;</p>
+
+<p>Another point to handle concerns memory usage optimisation: it would be interesting to share the name and depth level of a given variable among all instances of a given program.</p>
+
+<p>The notion of VarDef (standing for Variable Definition)&nbsp;achieves these points by defining only at one point all invariant characterics of a given variable:</p>
+<ul class="alternate" type="square">
+	<li>Name</li>
+	<li>Depth level</li>
+	<li>Typing</li>
+	<li>Parent variable</li>
+	<li>List of children</li>
+	<li>Initial value</li>
+	<li>number of occurs</li>
+	<li>Data size</li>
+	<li>...<br/>
+Interstingly, what is NOT here is the variable's value &#33;</li>
+</ul>
+
+
+<p>A variable is then a triple entity. If we are a variable, we then have access to:</p>
+<ul class="alternate" type="square">
+	<li>The VarDef that defines the invariant settings of the variable</li>
+	<li>The buffer which carries our's value</li>
+	<li>The start position that we occupies in the buffer</li>
+</ul>
+
+
+<p>To sum up:</p>
+
+<p>A variable belongs to a program instance, so it doesn't share it's value with another program instance<br/>
+A variable shares all it's invariant settings with all program instances</p>
+
+<p>Finally, when we need to manipulate a variable's value, we need the 3 entities:</p>
+<ul class="alternate" type="square">
+	<li>The VarBase derived object: The representationof the variable</li>
+	<li>The VarDefBase derivated object: The representationof the variable's definition</li>
+	<li>the VarBufferPos: It's the object that defines the buffer, and the variable start position within the buffer</li>
+</ul>
+
+
+<h3><a name="3.2Variables-Variableclasshierarchy"></a>Variable class hierarchy</h3>
+
+<p>The variable class hierarchy is dual: It's duplicated with the VarDef hierarchy.</p>
+
+<p>Its detailed here with the notation Var / VarDef.</p>
+<ul>
+	<li><tt>VarBase / VarDefBase</tt>: Base classes
+	<ul>
+		<li><tt>VarDefBuffer</tt>: Base classes which has no Var correspondance.
+		<ul>
+			<li><tt>Var / VarDefVariable</tt>: Base classes: This the common type of all application accessible variables : see <tt>Var v = declare.level(nnn)...var();</tt>
+			<ul>
+				<li><tt>VarGroup / VarDefG</tt>: Defines a group, that is no .pic method have been specified; <tt>Var v = declare.level(1).var();</tt></li>
+				<li><tt>VarAlphaNum / VarDefX</tt>: Defines an alphanumeric variable: <tt>Var v = declare.level(1).picX(10).var();</tt></li>
+				<li><tt>VarNum / VarDefFNum</tt>: Base class for all numeric types; it's not directly instanciable
+				<ul>
+					<li><tt>VarNumDecComp0 / VarDefNumDecComp0</tt>: Unsigned decimal comp-0 variable: <tt>Var v = declare.level(1).pic9(5, 2).var();</tt></li>
+					<li><tt>VarNumDecComp3 / VarDefNumDecComp3</tt>: Unsigned decimal comp-3 variable: <tt>Var v = declare.level(1).pic9(5, 2).comp3().var();</tt></li>
+					<li><tt>VarNumDecComp4 / VarDefNumDecComp4</tt>: Unsigned decimal comp-4 variable: <tt>Var v = declare.level(1).pic9(5, 2).comp().var();</tt></li>
+					<li><tt>VarNumDecSignComp0 / VarDefNumDecSignComp0</tt>: Signed decimal comp-0 variable: <tt>Var v = declare.level(1).picS9(5, 2).var();</tt></li>
+					<li><tt>VarNumDecSignComp3 / VarDefNumDecSignComp3</tt>: Signed decimal comp-3 variable: <tt>Var v = declare.level(1).picS9(5, 2).comp3().var();</tt></li>
+					<li><tt>VarNumDecSignComp4 / VarDefNumDecSignComp4</tt>: Signed decimal comp-4 variable: <tt>Var v = declare.level(1).picS9(5, 2).comp4().var();</tt></li>
+					<li><tt>VarNumDecSignLeadingComp0 / VarDefNumDecSignLeadingComp0</tt>: Sign separated leading decimal comp0 variable: <tt>Var v = declare.level(1).pic9(5, 2).signLeadingSeparated().var();</tt></li>
+					<li><tt>VarNumDecSignTrailingComp0 / VarDefNumDecSignTrailingComp0</tt>: Sign separated trailing decimal comp0 variable: <tt>Var v = declare.level(1).pic9(5, 2).signTralingSeparated().var();</tt></li>
+					<li><tt>VarNumEdited / VarDefNumEdited</tt>: Numeric edited variable: <tt>Var v = declare.level(1).pic("ZZZ9").var();</tt></li>
+					<li><tt>VarNumIntComp0 / VarDefNumIntComp0</tt>: Unsigned integer comp-0 variable: <tt>Var v = declare.level(1).pic9(5).var();</tt></li>
+					<li><tt>VarNumIntComp0Long / VarDefNumIntComp0Long</tt>: Unsigned integer comp-0 with more than 9 digits variable: <tt>Var v = declare.level(1).pic9(14).var();</tt></li>
+					<li><tt>VarNumIntComp3 / VarDefNumIntComp3</tt>: Unsigned integer comp-3 variable: <tt>Var v = declare.level(1).pic9(5).comp3().var();</tt></li>
+					<li><tt>VarNumIntComp3Long / VarDefNumIntComp3Long</tt>: Unsigned integer comp-3 variable with more than 9 digits: <tt>Var v = declare.level(1).pic9(14).comp3().var();</tt></li>
+					<li><tt>VarNumIntComp4 / VarDefNumIntComp4</tt>: Unsigned integer comp-4 variable: <tt>Var v = declare.level(1).pic9(5).comp4().var();</tt></li>
+					<li><tt>VarNumIntSignComp0 / VarDefNumIntSignComp0</tt>:Signed integer comp-0 variable: <tt>Var v = declare.level(1).picS9(5).var();</tt></li>
+					<li><tt>VarNumIntSignComp0 / VarDefNumIntSignComp0Long</tt>:Signed integer comp-0 variable with more than 9 digits: }}Var v = declare.level(1).picS9(14).var();}}</li>
+					<li><tt>VarNumIntSignComp3 / VarDefNumIntSignComp3</tt>:Signed integer comp-3 variable: <tt>Var v = declare.level(1).picS9(5).comp3().var();</tt></li>
+					<li><tt>VarNumIntSignComp3 / VarDefNumIntSignComp3Long</tt>:Signed integer comp-3 variable with more than 9 digits: <tt>Var v = declare.level(1).picS9(14).comp3().var();</tt></li>
+					<li><tt>VarNumIntSignComp4 / VarDefNumIntSignComp4</tt>:Signed integer comp-3 variable: <tt>Var v = declare.level(1).picS9(5).comp4().var();</tt></li>
+					<li><tt>VarNumIntSignLeadingComp0 / VarDefNumIntSignLeadingComp0</tt>:Sign separated leading integer comp-0 variable: <tt>Var v = declare.level(1).picS9(5).signLeadingSeparated().var();</tt></li>
+					<li><tt>VarNumIntSignLeadingComp0 / VarDefNumIntSignLeadingComp0Long</tt>:Sign separated leading integer comp-0, with more than 9 digits support variable: <tt>Var v = declare.level(1).picS9(14).signLeadingSeparated().var();</tt></li>
+					<li><tt>VarNumIntSignTrailingComp0 / VarDefNumIntSignTrailingComp0</tt>:Sign separated trailing integer comp-0 variable: <tt>Var v = declare.level(1).picS9(5).signTrailingSeparated().var();</tt></li>
+					<li><tt>VarNumIntSignTrailingComp0 / VarDefNumIntSignTrailingComp0Long</tt>:Sign separated trailing integer comp-0 variable with more than 9 digits: <tt>Var v = declare.level(1).picS9(14).signTrailingSeparated().var();</tt></li>
+				</ul>
+				</li>
+			</ul>
+			</li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>Note: This hierarchy is simplified, as Edits, forms and FPac type variables have been removed. These notions will be detailed below.</p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

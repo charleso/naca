@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<translation>
+	<languages>
+		<code id="01" lang="DE"/>
+		<code id="02" lang="FR"/>
+		<code id="03" lang="IT"/>
+		<code id="04" lang="EN"/>
+	</languages>
+	<item id="HELP_PAGE_TITLE">
+		<text lang="FR">Aide logique de traitement</text>
+		<text lang="DE">Help Verarbeitungslogik</text>
+		<text lang="IT">Aiuto logica trattamento</text>
+	</item>
+	<item id="HELP_CODE_TITLE">
+		<text lang="FR">Aide valeurs codes</text>
+		<text lang="DE">Help Kodewerte</text>
+		<text lang="IT">Aiuto valori codici</text>
+	</item>
+	<item id="HELP_CODEINFO_TITLE">
+		<text lang="FR">Aide fonction des champs</text>
+		<text lang="DE">Help Feldfunktionen</text>
+		<text lang="IT">Aiuto Funzione dei campi</text>
+	</item>
+	<item id="HELP_MESSAGE_TITLE">
+		<text lang="FR">Aide explications erreur</text>
+		<text lang="DE">Help Fehlererklärungen</text>
+		<text lang="IT">Aiuto messaggi errore</text>
+	</item>
+	<item id="HELP_PAGELIST_TITLE">
+		<text lang="FR">Liste des traitements</text>
+		<text lang="DE">Liste der Verarbeitungen</text>
+		<text lang="IT">Lista trattamenti</text>
+	</item>
+	<item id="HELP_CODEINFO_VALUE">
+		<text lang="FR">Valeur</text>
+		<text lang="DE">Wert</text>
+		<text lang="IT">Valore</text>
+	</item>
+	<item id="HELP_CODEINFO_PRESENCE">
+		<text lang="FR">Présence</text>
+		<text lang="DE">Präsenz</text>
+		<text lang="IT">Presenza</text>
+	</item>
+	<item id="HELP_CODEINFO_FUNCTION">
+		<text lang="FR">Fonction</text>
+		<text lang="DE">Funktion</text>
+		<text lang="IT">Funzione</text>
+	</item>
+</translation>
+

@@ -1,0 +1,79 @@
+<page>
+	<grid>
+		<row>
+			<col>
+				<vbox>
+					<image ref="images/logo.gif" width="192" height="66"/>
+				</vbox>
+				<pageinfo/>
+				<pfkeylist>
+					<pfkey name="enter" logo="images/ico_enter_lo.gif" display="Enter" ignore="false" jsKey="13" jsValue="0" action="doSubmit();"/>
+					<image ref="images/empty.gif" width="1" height="10"/>
+					<image name="progress" ref="images/ico_progress_lo.gif" width="150" height="10"/>
+					<image ref="images/empty.gif" width="1" height="30"/>
+				</pfkeylist>
+				<vbox>
+					<hbox>
+						<image ref="images/empty.gif" width="20" height="0"/>
+						<label length="9" color="DEFAULT" highLight="OFF">
+							<labelfield value="Ecran  : "/>
+						</label>
+						<edit length="8" name="editScreen" color="yellow" highLight="off" intensity="normal" protection="unprotected">
+						</edit>
+					</hbox>
+					<hbox>
+						<image ref="images/empty.gif" width="20" height="0"/>
+						<label length="9" color="DEFAULT" highLight="OFF">
+							<labelfield value="Langue : "/>
+						</label>
+						<combo length="8" name="cbLang" color="yellow" highLight="off" intensity="normal" protection="unprotected">
+						</combo>
+					</hbox>
+				</vbox>
+				<vbox>
+					<image ref="images/empty.gif" width="0" height="12"/>
+				</vbox>
+				<pfkeyinfo>
+					<pfkey name="pf1"/>
+					<pfkey name="pf2"/>
+					<pfkey name="pf3"/>
+					<pfkey name="pf4"/>
+					<pfkey name="pf5"/>
+					<pfkey name="pf6"/>
+					<pfkey name="pf7"/>
+					<pfkey name="pf8"/>
+					<pfkey name="pf9"/>
+					<pfkey name="pf10"/>
+					<pfkey name="pf11"/>
+					<pfkey name="pf12"/>
+					<pfkey name="pf13"/>
+					<pfkey name="pf14"/>
+					<pfkey name="pf15"/>
+					<pfkey name="pf16"/>
+					<pfkey name="pf17"/>
+					<pfkey name="pf18"/>
+					<pfkey name="pf19"/>
+					<pfkey name="pf20"/>
+					<pfkey name="pf21"/>
+					<pfkey name="pf22"/>
+					<pfkey name="pf23"/>
+					<pfkey name="pf24"/>
+				</pfkeyinfo>
+			</col>
+			<col>
+				<vbox>
+					<image ref="images/empty.gif" width="20" height="0"/>
+				</vbox>
+			</col>
+			<col>
+				<vbox>
+					<image ref="images/empty.gif" width="0" height="12"/>
+				</vbox>
+				<vbox>
+					<replaceTitle/>
+				</vbox>
+				<pageform/>
+			</col>
+		</row>
+	</grid>
+</page>

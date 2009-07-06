@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.1.4 Calls and called programs</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.1.4 Calls and called programs
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 13 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h2><a name="3.1.4Callsandcalledprograms-Calledprograms"></a>Called programs</h2>
+
+
+<h3><a name="3.1.4Callsandcalledprograms-Callertypes"></a>Caller types</h3>
+
+<p>Called programs are structurally similar to other programs, except that they a re derivated form CalledProgram base class. They can be used in equally by 3 different types of programs:</p>
+
+<p>&#45; Online programs<br/>
+&#45; Batch programs<br/>
+&#45; Stored procedure</p>
+
+<h3><a name="3.1.4Callsandcalledprograms-Parameterpassing%3Afromcallerpointofview"></a>Parameter passing: from caller point of view</h3>
+
+<p>When a program Caller has to call a program Called, it uses the following syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">call(&lt;called_program_class_name&gt;.class) [.using(&lt;variable&gt;)|.usingValue(&lt;variable&gt;)|.usingLengthOf(&lt;variable&gt;)]*.executeCall();</pre>
+</div></div>
+<p>There can be as much variable passed as required.</p>
+
+<p><tt>called_program_class_name</tt> is the name of the class that is to be called. It's not a string, as giving the class name ensures by the compiler that the called program name is valid.</p>
+
+<p>The following parameter passing is avalaible:</p>
+<ul class="alternate" type="square">
+	<li><tt>.using(&lt;variable&gt;)</tt>: Passes a variable by reference: the variable in the called program will hold a pointer (or a reference) to the orignal variable passed by .using() method call. Then, when the variable in the called program is modified, the original value in the caller program is also modified.</li>
+	<li><tt>.usingValue(&lt;variable&gt;)</tt>: Passes a variable by value: the variable in the called program is filled-up with the value of the caller program's variable. Then, when the variable in the called program is modified, the original value in the caller program is NOT modified.</li>
+	<li><tt>.usingLengthOf(&lt;variable&gt;)</tt>: Passes the length of the provided variable to the called program.</li>
+</ul>
+
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">call(TestCalledProgram.class).using(plaurech.plau_Rech).executeCall();</pre>
+</div></div>
+
+<h3><a name="3.1.4Callsandcalledprograms-Parameterpassing%3Afromcalledpointofview"></a>Parameter passing: from called point of view</h3>
+
+<p>The called program must declare the parameters that it can receive in a ParamDeclaration line:<br/>
+The syntax is:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ParamDeclaration callParameters = declare[.using(&lt;variable_name&gt;)]+;</pre>
+</div></div>
+<p>The number of .using() method calls must match the number of parameters passed by caller. The variables must be declared in the Linksage Section of the called program.</p>
+
+<h3><a name="3.1.4Callsandcalledprograms-Example"></a>Example</h3>
+
+
+<h4><a name="3.1.4Callsandcalledprograms-Caller"></a>Caller</h4>
+
+<p>Fedined in file TestCallerProgram.java:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+<span class="code-keyword">public</span> class TestCallerProgram <span class="code-keyword">extends</span> OnlineProgram
+{
+    DataSection workingstoragesection = declare.workingStorageSection() ;       <span class="code-comment">// (115)  WORKING-STORAGE SECTION.
+</span>
+    PLAURECH plaurech = PLAURECH.Copy(<span class="code-keyword">this</span>) ;
+    ...
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+        ...
+        call(TestCalledProgram.class).using(plaurech.plau_Rech).executeCall() ;
+        ...
+    }
+    ...
+}</pre>
+</div></div>
+<p>The parameter passed by reference is given by the copy file PLAURECH. It's code is:<br/>
+Defined in file PLAURECH.java:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class PLAURECH <span class="code-keyword">extends</span> Copy
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> PLAURECH Copy(BaseProgram program)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> PLAURECH(program, <span class="code-keyword">null</span>);
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> PLAURECH Copy(BaseProgram program, CopyReplacing copyReplacing)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> PLAURECH(program, copyReplacing);
+    }
+    <span class="code-keyword">public</span> PLAURECH(BaseProgram program, CopyReplacing copyReplacing)
+    {
+        <span class="code-keyword">super</span>(program, copyReplacing);
+    }
+
+    Var plau_Rech = declare.level(1).<span class="code-keyword">var</span>() ;
+         Var pr_Cdret = declare.level(5).picX(1).valueSpaces().<span class="code-keyword">var</span>() ;
+             Var pr_Input = declare.level(5).<span class="code-keyword">var</span>() ;
+    ...
+}</pre>
+</div></div>
+
+<h4><a name="3.1.4Callsandcalledprograms-Called"></a>Called</h4>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+<span class="code-keyword">public</span> class TestCalledProgram <span class="code-keyword">extends</span> CalledProgram
+{
+    DataSection WorkingStorage = declare.workingStorageSection();
+    ...
+    DataSection LinkageSection = declare.linkageSection();
+    Var dfhcommarea = declare.level(1).<span class="code-keyword">var</span>() ;
+        Var plau_Rech = declare.level(3).<span class="code-keyword">var</span>() ;
+            Var pr_Cdret = declare.level(5).picX(1).<span class="code-keyword">var</span>() ;
+            Var pr_Input = declare.level(5).<span class="code-keyword">var</span>() ;
+    ...
+    ParamDeclaration callParameters = declare.using(dfhcommarea);
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+        ....
+    }
+    ....
+}</pre>
+</div></div>
+<p>The called variable <tt>dfhcommarea</tt> acts as a reference on the <tt>plaurech.plau_Rech</tt> caller's variable. So, when <tt>dfhcommarea</tt> is modified, <tt>plaurech.plau_Rech</tt> is also modified.</p>
+
+<p>This is implemented by mapping the buffer of <tt>dfhcommarea</tt> on the buffer of <tt>plaurech.plau_Rech</tt>. However, access on the <tt>dfhcommarea</tt> are based on the data typing of <tt>dfhcommarea</tt>, not on the data typing of the source variable (<tt>plaurech.plau_Rech</tt>). This means that semantic and padding rules of <tt>dfhcommarea</tt> are applied, not those of <tt>plaurech.plau_Rech</tt>. What's more, if <tt>dfhcommarea</tt> is defined as a larger structure than <tt>plaurech.plau_Rech</tt>, Caller write in <tt>dfhcommarea</tt> may override chars that are out of the scope of <tt>plaurech.plau_Rech</tt>.</p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

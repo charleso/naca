@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.6.1 Data files</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.6.1 Data files
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 20 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="3.6.1Datafiles-Files"></a>Files</h1>
+
+<h2><a name="3.6.1Datafiles-Content"></a>Content</h2>
+
+<p>A file is a collection of records. Records are separated by an ascii line feed char (0x0A in hexadeciaml notation). This char is not part of the record. As a record may contain a 0x0a char as part of it's data, the 0x0a char cannot be used as a record separator, but is used for human easy editing of the file, and for heuristic determination of record length (see below).</p>
+
+<p>A record of a variable length record file is prefixed by the length of the record. It's expressed in binary form as 4 bytes ordered as little endian.<br/>
+The maximum record length is by default 32Ko. This limit can be raised, but some settings of the configuration nacaRT.cfg configuration file must be set accordingly.</p>
+
+<h3><a name="3.6.1Datafiles-Variablelengthrecordfile"></a>Variable length record file</h3>
+
+<p>Example:</p>
+
+<p>A file TEST_VAR contains 3 records. It's encoded in ascii format and physically stored in d:\Test\Test.txt.</p>
+
+<p>It's textual value is </p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>xxxxabcd
+xxxx12345678
+xxxxABC
+</pre>
+</div></div>
+
+<p>where x is a non-printable character.</p>
+
+<p>It's hexadeciaml dump is:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>    00 01 02 03 04 05 06 01 07 08 0A 0B 0C 0D 0E 0F
+    ------------------------------------------------
+10 !00 00 00 04 61 62 63 64 0A 00 00 00 08 31 32 33 
+20 !34 35 36 37 38 0A 00 00 00 03 41 42 43 0A
+</pre>
+</div></div>
+
+<p>The 1st record is <tt>00 00 00 04 61 62 63 64 0A</tt><br/>
+The 2nd record is <tt>00 00 00 08 31 32 33 20 34 35 36 37 38 0A</tt><br/>
+The 3rd one is <tt>00 00 00 03 41 42 43 0A</tt></p>
+
+<p>We see clearly that the 4 leading bytes are the record length, excluding the 0A end of record marker.</p>
+
+<p>The File descriptor of this file is TEST_VAR=d:\Test\Test.txt,vb,ascii</p>
+
+<h3><a name="3.6.1Datafiles-Fixedlengthrecordfile"></a>Fixed length record file</h3>
+
+<p>Example:</p>
+
+<p>A file TEST_FIXED contains 3 records of 6 bytes each. It's expressed in ascii format and physically stored in d:\Test\TestFixed.txt.</p>
+
+<p>It's textual value is </p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>ABCDEF
+123   
+GHIJKL
+</pre>
+</div></div>
+
+<p>Note the 2nd record is filled with spaces on right !</p>
+
+<p>It's hexadeciaml dump is:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>    00 01 02 03 04 05 06 01 07 08 0A 0B 0C 0D 0E 0F
+    ------------------------------------------------
+10 !41 42 43 44 45 46 0A 31 32 33 20 20 20 0A 47 48
+20 !49 4A 4B 4C 0A                             
+</pre>
+</div></div>
+
+<p>The 1st record is <tt>41 42 43 44 45 46 0A</tt><br/>
+The 2nd record is <tt>31 32 33 20 20 20 0A</tt><br/>
+The 3rd record is <tt>47 48 49 4A 4B 4C 0A</tt></p>
+
+<p>We see clearly that there isn't any leading bytes, but that the trailing 0A end of record marker is present.</p>
+
+<p>The File descriptor of this file is TEST_FIXED=d:\Test\TestFixed.txt,6,ascii</p>
+
+<h3><a name="3.6.1Datafiles-Filedescriptor"></a>File descriptor</h3>
+
+<p>the file descriptor is a nacaRT internal object that contains various definitions for a given file:</p>
+<ul class="alternate" type="square">
+	<li>It's logical name</li>
+	<li>It's phsical file path name</li>
+	<li>It's character encoding</li>
+	<li>It's record length if it's a fixed size record length file</li>
+</ul>
+
+
+<h4><a name="3.6.1Datafiles-Physicalfilename"></a>Physical file name</h4>
+
+<p>In a host environment, files accessed form a Cobol application are identified by their logical name. The physical path of the file is defined out of the program source code. In Java environment, a file is handled by it's physical path. NacaRT abstracts taht and enables file handling by logical name only. <br/>
+However, the physical path file must be given prior program execution as either:</p>
+<ul class="alternate" type="square">
+	<li>a command line parameter</li>
+	<li>an environment variable</li>
+</ul>
+
+
+<p>Example:<br/>
+The file "Client" is logical name of the physical file D:\Files\2007\Clients\ClientFile.txt</p>
+
+<p>It can be mapped either:</p>
+<ul class="alternate" type="square">
+	<li>by calling the program with the command line argument <tt>-File_Client=D:/Files/2007/Clients/ClientFile.txt</tt></li>
+	<li>or by exporting a system variable named <tt>Client</tt>, having value <tt>D:/Files/2007/Clients/ClientFile.txt</tt></li>
+</ul>
+
+
+<p>Note that in both cases the backslash chars ('\') used b ywindows as directory separator are replaced by slash chars ('/'). These definitions are identical in Linux plateforms.</p>
+
+<p>This enables the program to handle the file "Client", without knowing exactly where it physically stored.</p>
+
+<h4><a name="3.6.1Datafiles-Dummyfiles"></a>Dummy files</h4>
+
+<p>A dummy file is a file that doesn't physically exists in the file system, but can be used without errors, but treated as an empty file. <br/>
+Reading form a dummy file is the same as reading into an empty file.<br/>
+Writing into a dummy file does nothing.</p>
+
+<p>The physical name of a dummy file must be either:</p>
+<ul class="alternate" type="square">
+	<li>wrk/nullfile</li>
+	<li>NULLFILE</li>
+	<li>an empty string</li>
+</ul>
+
+
+<h4><a name="3.6.1Datafiles-Encoding"></a>Encoding</h4>
+
+<p>Mainframes use EBCDIC encoding, while Windows/Linux OS use ASCII encoding. A given Cobol program must be able to handle files in both encodings. Thus a file encoding must be provided somewhere so that nacaRT kowns how to deal with the file's data. Indeed, nacaRT uses internally unicode encoding, so EBCDIC data must be converter in UNICODE before execution. </p>
+
+<p>The encoding is specified by appending a <tt>,ebcdic</tt> or <tt>,ascii</tt> to the file physical definition. If nothing is specified, then ascii is considered the default value.</p>
+
+<h4><a name="3.6.1Datafiles-Recordlength"></a>Record length</h4>
+
+<p>The is 2 kinds of files records:</p>
+<ul class="alternate" type="square">
+	<li>Fixed length records.</li>
+	<li>Variable length records.</li>
+</ul>
+
+
+<p>If a file has a fixed length record definition, then all it's records have the same length.<br/>
+It is possible to instruct nacaRT of a file record length by appending another string to the file definition. It can be:</p>
+<ul class="alternate" type="square">
+	<li><tt>,vb</tt>: This indicates that thee file is variabel block: it contains variable length records.</li>
+	<li><tt>,nnn</tt>: this indicates that de file has fixed length record. nnn is the size in bytes of the records.</li>
+</ul>
+
+
+<p>If none of these specifications is given, then nacaRT will try to guess which is the record length type of a file. This is a heuristic method that read the beginning of the file. If the file is too short, then this guessing may fail. So it's not a very strong method.</p>
+
+<h4><a name="3.6.1Datafiles-Extendedmode"></a>Extended mode</h4>
+<p>When a file is open in output mode, it sometimes desirable to append new records, or the erase the file.<br/>
+By defaut, when writing the 1st record after open in output mode, the file is erased. but, if the extended mode is declared in the file definition, then records will by appended at the end of file.<br/>
+The extended mode is thus declared by specifying <tt>,ext</tt> in the file defintion string.</p>
+
+<h4><a name="3.6.1Datafiles-Filedefinitionsyntax"></a>File definition syntax</h4>
+
+<p>To sum-up, the file definition syntax can be given as an exported system variable, or as a command line parameter.</p>
+
+<p>Command line aprameter syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-File_&lt;logical_file_name&gt;=&lt;physical_file_path_name&gt;[,ebcdic|,ascii][,vb|nnn],[ext] where nnn is a record length</pre>
+</div></div>
+
+<p>Exported system variable:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">export &lt;logical_file_name&gt; &lt;physical_file_path_name&gt;[,ebcdic|,ascii][,vb|nnn],[ext] where nnn is a record length</pre>
+</div></div>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 2. Introduction</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 2. Introduction
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 19 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <div class="error"><span class="error">Error formatting macro: toc: java.lang.NullPointerException</span> </div>
+<h1><a name="2.Introduction-Designconstraints"></a>Design constraints</h1>
+
+<p>Various requirements were mandatory during design and implentation phases:</p>
+
+<p>NacaRT is a library layer used to executed Cobol-transcoded applications within a Java environment. Cobol programs are automatically transcoded in java source files with a syntaxe named cobol-like.</p>
+
+<p>These transcoded programs have a strict source structure which is not executable by itself, but requires a important abstraction layer. NacaRT implements all required objets to fully the Cobol-Like syntax, and then be able to executed these programs in the same manner as the original Cobol code.</p>
+
+<h3><a name="2.Introduction-TypesofsupportedCobolprograms"></a>Types of supported Cobol programs</h3>
+
+<p>There are multiple types of supported Cobol programs. They must all respect IBM Mainframe hosts Cobol (<b><em>version to precised</em></b>) specifications.</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Execution mode </th>
+<th class='confluenceTh'> Comments </th>
+<th class='confluenceTh'> Execution environment </th>
+</tr>
+<tr>
+<td class='confluenceTd'> Base </td>
+<td class='confluenceTd'> Support for Cobol standards keywords, variable declarations, arrays, DB2 and UDB database access. </td>
+<td class='confluenceTd'> Can be either: <br clear="all" />
+&#45; Application server (Tomcat) <br clear="all" />
+&#45; UDB stored procedure container <br clear="all" />
+&#45; Command line script <br clear="all" />
+&#45; Eclipse debugger command line </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Online </td>
+<td class='confluenceTd'> Online program with user interface. These programs&nbsp;can use all base services, plus can handle transactionnal screen input/output. These I/O are based upon CICS&nbsp;standard from Cobol world. </td>
+<td class='confluenceTd'> Application server (Tomcat) </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Batch </td>
+<td class='confluenceTd'> Batch programs, supporting sequential and direct access files. Internal sorting is avalaible </td>
+<td class='confluenceTd'> Command line script <br clear="all" />
+or <br clear="all" />
+Eclipse debugger command line </td>
+</tr>
+<tr>
+<td class='confluenceTd'> FilePac </td>
+<td class='confluenceTd'> Kind of script file giving a direct access buffer manipulation. All characterics of Batch programs are supported in this mode, with FilePac extensions. </td>
+<td class='confluenceTd'> Command line script </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Stored procedure </td>
+<td class='confluenceTd'> A DB2 Cobol stored procedure can be transcoded and executed in UDB as a java transcoded program. </td>
+<td class='confluenceTd'> UDB stored procedure container </td>
+</tr>
+<tr>
+<td class='confluenceTd'> EmulWeb </td>
+<td class='confluenceTd'> Reserved for testing purpose of screen oriented applications </td>
+<td class='confluenceTd'> Application server (Tomcat) </td>
+</tr>
+<tr>
+<td class='confluenceTd'> UnitTests </td>
+<td class='confluenceTd'> Reserved for unitary function testing. </td>
+<td class='confluenceTd'> Application server (Tomcat) <br clear="all" />
+or <br clear="all" />
+Command line script <br clear="all" />
+or <br clear="all" />
+Eclipse debugger command line <br clear="all" /> </td>
+<td class='confluenceTd'> <br clear="all" /> </td>
+</tr>
+</tbody></table>
+
+<h3><a name="2.Introduction-Syntaxandeasymaintenance"></a>Syntax and easy maintenance</h3>
+
+<p>&#45; Automatic transcoding with full Cobol + CICS extension support.<br/>
+&#45; Cobol like syntax as close as possible of original cobol syntax. In particular, it was mostly important to keep the same hierarchical&nbsp;description of the variables as in Cobol. No hard variable memory position computing was allowed. However,&nbsp;the important area of user interface management has been completly modernized, and defers in a important manner from the original CICS handling. But this transformation is automatically handled by the transcoder. This gives the developper a much high abstraction level of it's screen management.<br/>
+&#45; All cobol variable types had to be fully supported, including packed decimal, binary variables, alphanumeric types, numeric edited types.<br/>
+&#45; Ebcdic encoding had to be optinally supported for DB and File I/O.<br/>
+&#45; All standard cobol keywords had to be fully supported, with the same semantics&nbsp;and border effects.<br/>
+&#45; The notion of parapgraph, section, perform and goto had to be fully supported. The implentations details had to be hidden from the point of view of the application developper.<br/>
+&#45; The Cobol-like source code files had to be widely checked by Java compiler. This means that no strings could to be used for variable ou paragraph identification for example, as there semantic could not be validated by the java compiler.</p>
+
+<h3><a name="2.Introduction-Performance"></a>Performance</h3>
+
+<p>The&nbsp;aim the the project is to execute entreprise-wide applications with&nbsp;the same magnitude of response time as the original mainframe. Many optimisations strategies have been used to achieve this important point. they will be explained below.
+<br clear="all" /></p>
+
+<h2><a name="2.Introduction-Libraryorganisation"></a>Library organisation</h2>
+
+<p>2 Consultas specific libraries provides execution support:</p>
+
+<h3><a name="2.Introduction-JLib"></a>JLib</h3>
+
+<p>Base service library layer offering standards service, independants from the naca projet, but used by the naca project.</p>
+
+<p>The following base services are available:</p>
+
+<p>&#45; Logging<br/>
+&#45; XML parsing<br/>
+&#45; Class loading / Unloading<br/>
+&#45; Database connection and statement pooling<br/>
+&#45; Ldap authentication<br/>
+&#45; Multi-threading<br/>
+&#45; JMX beans<br/>
+&#45; Lots of various helper classes</p>
+
+<h3><a name="2.Introduction-NacaRT"></a>NacaRT</h3>
+
+<p>The following services are offered by the 2 main components:</p>
+
+<h4><a name="2.Introduction-NacaLib"></a>NacaLib</h4>
+
+<p>&#45; Base program class from which all transcoded programs are derived from. It exposes all Cobol keywords support (move, compute, perform, ...).<br/>
+&#45; Call program support, including arguments passing by reference or value<br/>
+&#45; Copy support<br/>
+&#45; Variable and Variable Defintion management<br/>
+&#45; Full cobol data types<br/>
+&#45; Flow of execution support, including goto keyword<br/>
+&#45; SQL statement handling, as well as sql error management<br/>
+&#45; CICS keywords<br/>
+&#45; Program instances pooling<br/>
+&#45; Batch file handling<br/>
+&#45; Batch internal and external sort<br/>
+&#45; Dynamic program class loading<br/>
+&#45; Execution of a program as a stored procedure with an UDB database<br/>
+&#45; JMX reporting<br/>
+&#45; Transaction support<br/>
+&#45; Accounting<br/>
+&#45; Program environment<br/>
+&#45; Asynchronous tasks support<br/>
+&#45; Time range defining application availability<br/>
+&#45; Ebcdic - ascii converter<br/>
+&#45; All internal classes required for this management.</p>
+
+<h4><a name="2.Introduction-Idea"></a>Idea</h4>
+
+<p>&#45; Tomcat servlet for application server startup<br/>
+&#45; User interface resources management<br/>
+&#45; Tomcat servlet for application screen handling<br/>
+&#45; HTML/javascript ouput generation<br/>
+&#45; HTML data input handling<br/>
+&#45; User session management<br/>
+&#45; Screen management compatible with CICS BMS
+<br clear="all" /></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

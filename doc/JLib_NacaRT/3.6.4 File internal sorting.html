@@ -1,0 +1,240 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.6.4 File internal sorting</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.6.4 File internal sorting
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 20 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>nacaRT supports internal and external sorting.<br/>
+Internal sorting is the possibility for a program to sort a given file. The file may be larger than available memory, as the sort is not done in-memory.</p>
+
+
+<h1><a name="3.6.4Fileinternalsorting-Internalsorting"></a>Internal sorting</h1>
+
+<p>Internal sorting uses a sort descriptor for describing the record structure to sort. </p>
+
+<p>A sort descriptor is desclared within the file section.</p>
+
+<p>It syntax is:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SortDescriptor &lt;sort_descriptor_name&gt; = declare.sort();</pre>
+</div></div>
+
+<p>It is followed by a variable at level 01 with it's children that defines the fields that builds up the record to sort.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SortDescriptor tr03prod = declare.sort();
+    Var ws03prod = declare.level(1).<span class="code-keyword">var</span>();
+        Var utitrt = declare.level(5).picX(1).<span class="code-keyword">var</span>();
+        Var utiref = declare.level(5).picX(3).<span class="code-keyword">var</span>();
+        Var utiproj = declare.level(5).picX(2).<span class="code-keyword">var</span>();
+        Var utiste = declare.level(5).picX(3).<span class="code-keyword">var</span>();
+        Var utisel = declare.level(5).picX(1).<span class="code-keyword">var</span>();
+        Var criteres = declare.level(5).<span class="code-keyword">var</span>();
+            Var dicapp = declare.level(7).occurs(2).picX(2).<span class="code-keyword">var</span>();
+            Var dicmap = declare.level(7).occurs(10).picX(6).<span class="code-keyword">var</span>();
+            Var helerrn = declare.level(7).occurs(2).picX(4).<span class="code-keyword">var</span>();
+                Var dicdonz = declare.level(7).occurs(10).picX(7).<span class="code-keyword">var</span>();
+                Var heldon1 = declare.level(7).occurs(9).picX(10).<span class="code-keyword">var</span>();
+            dicfamnz = declare.level(7).occurs(2).picX(3).<span class="code-keyword">var</span>();</pre>
+</div></div>
+
+
+<p>The sort_descriptor_name is used</p>
+
+
+
+<h2><a name="3.6.4Fileinternalsorting-SortDescriptor"></a>Sort Descriptor</h2>
+
+<p>This type of internal sort uses a static description of the sort to do.</p>
+
+<h2><a name="3.6.4Fileinternalsorting-Callinginternalsort"></a>Calling internal sort</h2>
+
+<p>Example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">class ProgramInternalSort <span class="code-keyword">extends</span> BatchProgram
+{
+    ...
+    DataSection filesection = declare.fileSection() ;
+        Var rrs03prod = declare.level(1).picX(248).<span class="code-keyword">var</span>() ;
+
+    FileDescriptor rs03prod = declare.file(<span class="code-quote">"RS03PROD"</span>) ;
+    SortDescriptor tr03prod = declare.sort();
+    Var ws03prod = declare.level(1).<span class="code-keyword">var</span>();
+        Var utitrt = declare.level(5).picX(1).<span class="code-keyword">var</span>();
+        Var utiref = declare.level(5).picX(3).<span class="code-keyword">var</span>();
+        Var utiproj = declare.level(5).picX(2).<span class="code-keyword">var</span>();
+        Var utiste = declare.level(5).picX(3).<span class="code-keyword">var</span>();
+        Var utisel = declare.level(5).picX(1).<span class="code-keyword">var</span>();
+        Var criteres = declare.level(5).<span class="code-keyword">var</span>();
+            Var dicapp = declare.level(7).occurs(2).picX(2).<span class="code-keyword">var</span>();
+            Var dicmap = declare.level(7).occurs(10).picX(6).<span class="code-keyword">var</span>();
+            Var helerrn = declare.level(7).occurs(2).picX(4).<span class="code-keyword">var</span>();
+                Var dicdonz = declare.level(7).occurs(10).picX(7).<span class="code-keyword">var</span>();
+                Var heldon1 = declare.level(7).occurs(9).picX(10).<span class="code-keyword">var</span>();
+            dicfamnz = declare.level(7).occurs(2).picX(3).<span class="code-keyword">var</span>(); 
+    ...
+
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+        rs03prod.openInput(); <span class="code-comment">// Open input data file
+</span>    
+        sort(tr03prod)
+            .ascKey(utiref)
+            .ascKey(utiproj)
+            .ascKey(utiste)
+            .ascKey(utisel)
+            .ascKey(criteres)
+            .usingInput(in)
+            .usingOutput(out)
+            .exec();
+        rs03prod.close();
+    }
+
+    Section in = <span class="code-keyword">new</span> Section(<span class="code-keyword">this</span>){<span class="code-keyword">public</span> void run(){in();}};void in() 
+    {
+        <span class="code-keyword">while</span>(!read(rs03prod).atEnd())
+        {
+            release(ws03prod); 
+            ...
+        }
+    }
+
+    Paragraph out = <span class="code-keyword">new</span> Paragraph(<span class="code-keyword">this</span>){<span class="code-keyword">public</span> void run(){out();}};void out()
+    {
+         ...
+         <span class="code-keyword">while</span>(!returnSort(tr03prod).atEnd())
+         {
+             ...
+         }
+    }</pre>
+</div></div>
+
+<h2><a name="3.6.4Fileinternalsorting-Syntax%3A"></a>Syntax:</h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sort(&lt;sort_descriptor&gt;)
+    [.ascKey(&lt;variable&gt;)]*
+    [.descKey(&lt;variable&gt;)]*
+
+    [.using(&lt;input_file_descriptor&gt;)]
+    [.usingInput(&lt;paragraph_name&gt;)]
+    [.usingInput(&lt;section_name&gt;)]
+    [.usingInput(&lt;first_paragraph_name&gt;, &lt;last_paragraph_name&gt;)
+
+    [.giving(&lt;output_file_descriptor&gt;)]
+    [.usingOutput(&lt;paragraph_name&gt;)]
+    [.usingOutput(&lt;section_name&gt;)]
+    [.usingOutput(&lt;paragraph_name&gt;|&lt;section_name&gt;)]
+
+    .exec();</pre>
+</div></div>
+
+<p>The <br/>
+The sort() method has multiple options. It must always be terminated by calling <tt>.exec()</tt>, as the number of methods calls in the call chain cannot be determined automatically.</p>
+
+<h3><a name="3.6.4Fileinternalsorting-Keyspecfications%3A"></a>Key specfications:</h3>
+
+<ul class="alternate" type="square">
+	<li>.ascKey(&lt;variable&gt;): Identify a key segment. This key segment is used to sort on ascending order.</li>
+	<li>.descKey(&lt;variable&gt;): Identify a key segment. This key segment is used to sort on descending order.<br/>
+The key specification is a chained list of .ascKey(&lt;variable&gt;) or .descKey(&lt;variable&gt;) calls.  They contain in parameter the variable name. <br/>
+For example, it is possible to call: <tt>.ascKey(varKey1).ascKey(varKey2).descKey(varKey3)</tt></li>
+</ul>
+
+
+<p>The type for comparison is brought by the variable underlying type.</p>
+
+<h3><a name="3.6.4Fileinternalsorting-Recordinput"></a>Record input</h3>
+
+<p>There is 2 main possibilities to provide records to sort. Either specify a source file, or identify a paragraph or section that provides the records to sort by calling the <tt>relase()</tt> method:</p>
+<ul class="alternate" type="square">
+	<li><tt>.using(&lt;input_file_descriptor&gt;)</tt>: Data are given the the records of the file in parameter.</li>
+</ul>
+
+
+<p>Or use one of these 3 methods:</p>
+<ul class="alternate" type="square">
+	<li><tt>.usingInput(&lt;paragraph_name&gt;)</tt>: The paragraph in parameter must call <tt>release(&lt;variable&gt;)</tt> to provide a record to sort. The paragraph is called by the internal sort code of nacaRT.</li>
+	<li><tt>.usingInput(&lt;section_name&gt;)</tt>: All paragraphs of the provided section are called. They must themsleves call <tt>release(&lt;variable&gt;)</tt> to provide a record to sort.</li>
+	<li><tt>.usingInput(&lt;first_paragraph_name&gt;, &lt;last_paragraph_name&gt;)</tt>: All paragraph between first_paragraph_name and last_paragraph_name are executed. The <tt>release()</tt> method must be called also.</li>
+</ul>
+
+
+<h4><a name="3.6.4Fileinternalsorting-release%28%29method"></a>release() method</h4>
+
+<p>This method is used to send a record to sort. The parameter must be a group. It's typically the group variable that follows the sort descriptor.</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">release(&lt;group_variable&gt;)</pre>
+</div></div>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">release(ws03prod);</pre>
+</div></div>
+
+
+<h3><a name="3.6.4Fileinternalsorting-Sortedrecordoutput"></a>Sorted record output</h3>
+
+<p>There is also 2 main possibilities to get sorted records. Either specify a destination file, or identify a paragraph or section that fetch the next sorted record by calling the <tt>return()</tt> method. It then can handle this record as required by application:</p>
+<ul class="alternate" type="square">
+	<li><tt>.giving(&lt;output_file_descriptor&gt;)</tt>: The file specified is filled with sorted records</li>
+</ul>
+
+
+<p>Or use one of these 3 methods:</p>
+<ul class="alternate" type="square">
+	<li>.usingOutput(&lt;paragraph_name&gt;): The paragraph in parameter must call <tt>return&lt;variable&gt;)</tt> to provide a record to sort. The paragraph is called by the internal sort code of nacaRT.</li>
+	<li>.usingOutput(&lt;section_name&gt;)</li>
+	<li>.usingOutput(&lt;paragraph_name&gt;|&lt;section_name&gt;)</li>
+</ul>
+
+
+<h4><a name="3.6.4Fileinternalsorting-returnSort%28%29method"></a>returnSort() method</h4>
+
+<p>This method is used to fetch a sorted record. The first call to <tt>return</tt> is handled when  the whole data set has been sorted. It is not allowed to call <tt>release</tt> after a <tt>returnSort{)</tt>.<br/>
+It is possible to known when all sorted records have been retrieved by appending <tt>.atEnd()</tt> after the <tt>returnSort{)</tt> call, and testing the returned boolean value:</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">returnSort{&lt;sort_descriptor_variable&gt;)[.atend()]</pre>
+</div></div>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">while</span>(!returnSort{xxx).atEnd()) <span class="code-comment">// Fetch all sorted records form sort descriptor xxx
+</span>{
+    ...
+}</pre>
+</div></div>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

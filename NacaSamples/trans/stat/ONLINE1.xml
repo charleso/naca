@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Program Author="XXXXXXXXX" Date_Written="2008" Line="1" Program_ID="ONLINE1">
+<WorkingStorageSection Line="21">
+<Variable Comp="COMP4" Format="S9999" Length="4" Line="24" Name="IND1" Number="1" Sync="yes" Type="SIGNED NUMBER"/>
+<Variable Comp="COMP4" Format="S9999" Length="4" Line="25" Name="IND-LNG" Number="1" Sync="yes" Type="SIGNED NUMBER"/>
+<Variable Comp="COMP4" Format="S9999" Length="4" Line="26" Name="LONGCAR" Number="1" Sync="yes" Type="SIGNED NUMBER"/>
+<Variable Comp="COMP4" Format="S9999" Length="4" Line="27" Name="LONGERR" Number="92" Sync="yes" Type="SIGNED NUMBER"/>
+<Variable Comp="COMP4" Format="S9999" Length="4" Line="28" Name="LONGPLAUS" Number="505" Sync="yes" Type="SIGNED NUMBER"/>
+<Variable Comp="COMP4" Format="S9999" Length="4" Line="29" Name="LONGSMAP" Number="400" Sync="yes" Type="SIGNED NUMBER"/>
+<Variable Constant="SPACE" Format="XXXXXXXX" Length="8" Line="31" Name="DATANAME" Type="STRING"/>
+<Variable Constant="SPACE" Format="XXXXXXXX" Length="8" Line="32" Name="W-CICS" Type="STRING"/>
+<Variable Format="X" Line="33" Name="HEX80" String="Ø" Type="STRING"/>
+<Variable Constant="SPACE" Format="X" Line="34" Name="ECR-VIERGE" Type="STRING"/>
+<Variable Comp="COMP4" Constant="ZERO" Format="S9999" Length="4" Line="35" Name="SVEIBCALEN" Type="SIGNED NUMBER"/>
+<Variable Constant="SPACE" Format="XX" Length="2" Line="36" Name="SVEIBFN" Type="STRING"/>
+<Variable Constant="SPACE" Format="XXX" Length="3" Line="38" Name="W-CDCENPI" Type="STRING"/>
+<Item Level="01" Line="40" Name="W-ABEND-DB2">
+<Item Format="X" Level="05" Line="41" Name="W-DB2" String="D" Type="STRING"/>
+<Item Constant="ZERO" Format="999" Length="3" Level="05" Line="42" Name="W-SQLCODE" Type="NUMBER"/>
+</Item>
+<Item Level="01" Line="44" Name="W-DATE-FORM">
+<Item Format="XX" Length="2" Level="05" Line="45" Name="W-JJ" Type="STRING"/>
+<Item Format="X" Level="05" Line="46" Name="" String="." Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="47" Name="W-MM" Type="STRING"/>
+<Item Format="X" Level="05" Line="48" Name="" String="." Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="49" Name="W-AA" Type="STRING"/>
+</Item>
+<Item Level="01" Line="51" Name="W-DATE-X">
+<Item Constant="ZERO" Format="99" Length="2" Level="05" Line="52" Name="W-SIECLE" Type="NUMBER"/>
+<Item Constant="ZERO" Format="99" Length="2" Level="05" Line="53" Name="W-ANNEE" Type="NUMBER"/>
+<Item Constant="ZERO" Format="99" Length="2" Level="05" Line="54" Name="W-MOIS" Type="NUMBER"/>
+<Item Constant="ZERO" Format="99" Length="2" Level="05" Line="55" Name="W-JOUR" Type="NUMBER"/>
+</Item>
+<Item Format="99999999" Length="8" Level="01" Line="56" Name="W-DATE-N" Type="NUMBER">
+<Redefines Identifier="W-DATE-X"/>
+</Item>
+<Item Constant="ZERO" Format="9999999" Length="7" Level="01" Line="59" Name="W-EIBTIME" Type="NUMBER"/>
+<Item Level="01" Line="60" Name="">
+<Redefines Identifier="W-EIBTIME"/>
+<Item Format="X" Level="05" Line="61" Name="" Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="62" Name="W-HEURE" Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="63" Name="W-MINUTE" Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="64" Name="W-SECONDE" Type="STRING"/>
+</Item>
+<Item Level="01" Line="66" Name="W-HEURE-FORM">
+<Item Format="XX" Length="2" Level="05" Line="67" Name="W-HH" Type="STRING"/>
+<Item Format="X" Level="05" Line="68" Name="" String=":" Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="69" Name="W-MI" Type="STRING"/>
+<Item Format="X" Level="05" Line="70" Name="" String=":" Type="STRING"/>
+<Item Format="XX" Length="2" Level="05" Line="71" Name="W-SS" Type="STRING"/>
+</Item>
+<Item Level="01" Line="73" Name="W-LIBEL">
+<Item Format="X" Level="03" Line="74" Name="W-LIB" Type="STRING">
+<Occurs Number="5"/>
+</Item>
+</Item>
+<Item Level="01" Line="75" Name="W-LIBEL1">
+<Item Format="XX" Length="2" Level="03" Line="76" Name="W-LIB1-CICS" Type="STRING"/>
+<Item Format="XXX" Length="3" Level="03" Line="77" Name="W-LIB1-STE" Type="STRING"/>
+</Item>
+<Copy Line="80" Reference="ONLINM1"/>
+<SQLInclude Line="82" Reference="ONLINM1S"/>
+<Copy Line="85" Reference="MSGZONE"/>
+<SQLInclude Line="88" Reference="SQLCA"/>
+<SQLInclude Line="91" Reference="VTBMSGA"/>
+<Copy Line="93" Reference="DFHAID" Suppress="true"/>
+</WorkingStorageSection>
+<LinkageSection Line="95">
+<Item Level="01" Line="97" Name="DFHCOMMAREA">
+<Item Format="X" Level="05" Line="98" Name="COMZONE" Type="STRING">
+<Occurs Number="10000"/>
+</Item>
+</Item>
+<SQLInclude Line="100" Reference="TUAZONE"/>
+</LinkageSection>
+<ProcedureDivision Line="103">
+<Procedure Line="103">
+<Move Line="105">
+<From Identifier="EIBFN"/>
+<To Identifier="SVEIBFN"/>
+</Move>
+<Move Line="106">
+<From Identifier="EIBCALEN"/>
+<To Identifier="SVEIBCALEN"/>
+</Move>
+<SQLOnErrorGoto Line="108" Reference="PC-ERR-DB2"/>
+<ExecCICSAddress Line="110">
+<TCTUA>
+<AddressOf Identifier="TUA-ZONE"/>
+</TCTUA>
+</ExecCICSAddress>
+<IF Line="114">
+<Condition>
+<Equals>
+<Value Identifier="SVEIBFN"/>
+<Value String="&#14;Ü"/>
+</Equals>
+</Condition>
+<Then Line="116">
+<Move Line="116">
+<From Constant="ZERO"/>
+<To Identifier="SVEIBCALEN"/>
+</Move>
+</Then>
+</IF>
+</Procedure>
+<Procedure Line="119" Name="P-TRAITEMENT">
+<IF Line="121">
+<Condition>
+<Equals>
+<Value Identifier="SVEIBCALEN"/>
+<Value Constant="ZERO"/>
+</Equals>
+</Condition>
+<Then Line="122">
+<Perform Line="122" Reference="1ER-PASSAGE"/>
+</Then>
+<Else Line="123">
+<Perform Line="124" Reference="2EME-PASSAGE"/>
+</Else>
+</IF>
+<ExecCICSReturn Line="127"/>
+<GoBack Line="129"/>
+</Procedure>
+<ProcedureSection Line="132" Name="1ER-PASSAGE">
+<Procedure Line="132">
+<Move Line="134">
+<From Constant="LOW-VALUE"/>
+<To Identifier="ONLINEFS"/>
+</Move>
+<Move Line="136">
+<From Identifier="CIXJOUR"/>
+<To Identifier="W-JJ"/>
+<To Identifier="W-JOUR"/>
+</Move>
+<Move Line="137">
+<From Identifier="CIXMOIS"/>
+<To Identifier="W-MM"/>
+<To Identifier="W-MOIS"/>
+</Move>
+<Move Line="138">
+<From Identifier="CIXAN"/>
+<To Identifier="W-AA"/>
+<To Identifier="W-ANNEE"/>
+</Move>
+<Move Line="139">
+<From Identifier="W-DATE-FORM"/>
+<To Identifier="TUA-I-DTJOURF"/>
+</Move>
+<IF Line="140">
+<Condition>
+<LessThan>
+<Value Identifier="W-ANNEE"/>
+<Value Number="84"/>
+</LessThan>
+</Condition>
+<Then Line="141">
+<Move Line="141">
+<From Number="20"/>
+<To Identifier="W-SIECLE"/>
+</Move>
+</Then>
+<Else Line="142">
+<Move Line="143">
+<From Number="19"/>
+<To Identifier="W-SIECLE"/>
+</Move>
+</Else>
+</IF>
+<Move Line="144">
+<From Identifier="W-DATE-N"/>
+<To Identifier="TUA-I-DTJOUR"/>
+</Move>
+<Move Line="146">
+<From Identifier="TUA-I-DTJOURF"/>
+<To Identifier="SDTEXECI"/>
+<To Identifier="DTEXECI"/>
+</Move>
+<Move Line="148">
+<From Number="-1"/>
+<To Identifier="SRECOLLL"/>
+<To Identifier="RECOLLL"/>
+</Move>
+<Perform Line="149" Reference="ENVOI-MASQUE"/>
+</Procedure>
+</ProcedureSection>
+<ProcedureSection Line="152" Name="2EME-PASSAGE">
+<Procedure Line="152">
+<Move Line="154">
+<From Identifier="DFHCOMMAREA"/>
+<To Identifier="ONLINEFS"/>
+</Move>
+<IF Line="156">
+<Condition>
+<Or>
+<Equals>
+<Value Identifier="EIBAID"/>
+<Value Identifier="DFHCLEAR"/>
+</Equals>
+<Or>
+<Value Identifier="DFHPA1"/>
+<Or>
+<Value Identifier="DFHPA2"/>
+<Value Identifier="DFHPA3"/>
+</Or>
+</Or>
+</Or>
+</Condition>
+<Then Line="160">
+<Perform Line="160" Reference="P-ANYKEY"/>
+</Then>
+</IF>
+<ExecCICSReceiveMap Line="163">
+<Map String="ONLINEF"/>
+<MapSet String="ONLINE1"/>
+<Into Identifier="ONLINEFI"/>
+</ExecCICSReceiveMap>
+<Perform Line="169" Reference="P-MERGE-MASQUE"/>
+<IF Line="172">
+<Condition>
+<Equals>
+<Value Identifier="EIBAID"/>
+<Value Identifier="DFHPF2"/>
+</Equals>
+</Condition>
+<Then Line="173">
+<Perform Line="173" Reference="P-MASQUE-VIDE"/>
+</Then>
+<Else Line="174">
+<IF Line="175">
+<Condition>
+<Equals>
+<Value Identifier="EIBAID"/>
+<Value Identifier="DFHPF7"/>
+</Equals>
+</Condition>
+<Then Line="176">
+<Perform Line="176" Reference="TEST-SQL"/>
+</Then>
+<Else Line="177">
+<IF Line="178">
+<Condition>
+<Equals>
+<Value Identifier="EIBAID"/>
+<Value Identifier="DFHENTER"/>
+</Equals>
+</Condition>
+<Then Line="179">
+<Continue Line="179"/>
+</Then>
+<Else Line="180">
+<Perform Line="181" Reference="P-ANYKEY"/>
+</Else>
+</IF>
+</Else>
+</IF>
+</Else>
+</IF>
+<Perform Line="183" Reference="PLAUS-REL"/>
+</Procedure>
+</ProcedureSection>
+<ProcedureSection Line="186" Name="TEST-SQL">
+<Procedure Line="186">
+<Move Line="188">
+<From String="1234"/>
+<To Identifier="NO">
+<Of Ascendant="DVTBMSGA"/>
+</To>
+</Move>
+<SQLSelect Clause=" SELECT * FROM VTBMSGA WHERE NO = #1" Line="189"/>
+<IF Line="195">
+<Condition>
+<Equals>
+<Value Identifier="SQLCODE"/>
+<Value Number="0"/>
+</Equals>
+</Condition>
+<Then Line="196">
+<Move Line="196">
+<From Identifier="TEXT">
+<Of Ascendant="DVTBMSGA"/>
+</From>
+<To Identifier="LIERRI"/>
+<To Identifier="SLIERRI"/>
+</Move>
+</Then>
+<Else Line="197">
+<Move Line="198">
+<From String="0003"/>
+<To Identifier="MSG-NO"/>
+</Move>
+<Move Line="199">
+<From Number="-1"/>
+<To Identifier="RECOLLL"/>
+</Move>
+<Perform Line="200" Reference="RECH-MSGERR"/>
+</Else>
+</IF>
+<Perform Line="203" Reference="ENVOI-MASQUE"/>
+</Procedure>
+</ProcedureSection>
+<ProcedureSection Line="206" Name="PLAUS-REL">
+<Procedure Line="206">
+<IF Line="208">
+<Condition>
+<Equals>
+<Value Identifier="SRECOLLI"/>
+<Value Constant="LOW-VALUE"/>
+</Equals>
+</Condition>
+<Then Line="209">
+<Move Line="209">
+<From String="0002"/>
+<To Identifier="MSG-NO"/>
+</Move>
+<Move Line="210">
+<From Number="-1"/>
+<To Identifier="RECOLLL"/>
+</Move>
+<Move Line="211">
+<From String="H"/>
+<To Identifier="RECOLLA"/>
+</Move>
+<Move Line="212">
+<From String="2"/>
+<To Identifier="RECOLLC"/>
+</Move>
+<Perform Line="213" Reference="RECH-MSGERR"/>
+</Then>
+</IF>
+<Perform Line="215" Reference="ENVOI-MASQUE"/>
+</Procedure>
+</ProcedureSection>
+<ProcedureSection Line="218" Name="ENVOI-MASQUE">
+<Procedure Line="218">
+<Move Line="220">
+<From Identifier="EIBTIME"/>
+<To Identifier="W-EIBTIME"/>
+</Move>
+<Move Line="221">
+<From Identifier="W-HEURE"/>
+<To Identifier="W-HH"/>
+</Move>
+<Move Line="222">
+<From Identifier="W-MINUTE"/>
+<To Identifier="W-MI"/>
+</Move>
+<Move Line="223">
+<From Identifier="W-SECONDE"/>
+<To Identifier="W-SS"/>
+</Move>
+<Move Line="224">
+<From Identifier="W-HEURE-FORM"/>
+<To Identifier="SHREXECI"/>
+<To Identifier="HREXECI"/>
+</Move>
+<IF Line="226">
+<Condition>
+<Equals>
+<Value Identifier="SVEIBCALEN"/>
+<Value Constant="ZERO"/>
+</Equals>
+</Condition>
+<Then Line="227">
+<Move Line="227">
+<From Identifier="ONLINEFS"/>
+<To Identifier="ONLINEFI"/>
+</Move>
+<ExecCICSSendMap Cursor="true" Erase="true" FreeKB="true" Line="228">
+<MapName String="ONLINEF"/>
+<MapSet String="ONLINE1"/>
+<From Identifier="ONLINEFI"/>
+</ExecCICSSendMap>
+</Then>
+<Else Line="236">
+<ExecCICSSendMap Cursor="true" DataOnly="true" FreeKB="true" Line="237">
+<MapName String="ONLINEF"/>
+<MapSet String="ONLINE1"/>
+<From Identifier="ONLINEFI"/>
+</ExecCICSSendMap>
+</Else>
+</IF>
+<ExecCICSReturn Line="247">
+<TransIS String="TRA1"/>
+<CommArea Identifier="ONLINEFS"/>
+</ExecCICSReturn>
+</Procedure>
+</ProcedureSection>
+<ProcedureSection Line="253" Name="ROUTINES-COMMUNES">
+<Procedure Line="256" Name="P-MERGE-MASQUE">
+<Move Line="258">
+<From Constant="SPACE"/>
+<To Identifier="LIERRI"/>
+<To Identifier="SLIERRI"/>
+</Move>
+<IF Line="260">
+<Condition>
+<Or>
+<GreaterThan>
+<Value Identifier="RECOLLL"/>
+<Value Constant="ZERO"/>
+</GreaterThan>
+<Equals>
+<Value Identifier="RECOLLF"/>
+<Value Identifier="HEX80"/>
+</Equals>
+</Or>
+</Condition>
+<Then Line="262">
+<Move Line="262">
+<From String="6"/>
+<To Identifier="RECOLLC"/>
+</Move>
+<Move Line="263">
+<From String="D"/>
+<To Identifier="RECOLLA"/>
+</Move>
+<Move Line="264">
+<From Identifier="RECOLLI"/>
+<To Identifier="SRECOLLI"/>
+</Move>
+<Move Line="265">
+<From Constant="LOW-VALUE"/>
+<To Identifier="RECOLLI"/>
+</Move>
+</Then>
+</IF>
+</Procedure>
+<Procedure Line="267" Name="P-MASQUE-VIDE">
+<ExecCICSSyncPointCommit Line="269"/>
+<ExecCICSXCTL Line="270" Program="ONLINE1"/>
+</Procedure>
+<Procedure Line="274" Name="P-ANYKEY">
+<Move Line="276">
+<From String="0002"/>
+<To Identifier="MSG-NO"/>
+</Move>
+<Move Line="277">
+<From Number="-1"/>
+<To Identifier="RECOLLL"/>
+</Move>
+<Perform Line="278" Reference="RECH-MSGERR"/>
+<Perform Line="279" Reference="ENVOI-MASQUE"/>
+</Procedure>
+<Procedure Line="281" Name="RECH-MSGERR">
+<ExecCICSLink Line="283">
+<Program String="CALLMSG"/>
+<CommArea Identifier="MSG-ZONE"/>
+</ExecCICSLink>
+<Move Line="287">
+<From Identifier="MSG-TEXT"/>
+<To Identifier="LIERRI"/>
+<To Identifier="SLIERRI"/>
+</Move>
+</Procedure>
+<Procedure Line="289" Name="PC-ERR-DB2">
+<Move Line="291">
+<From String="D"/>
+<To Identifier="W-DB2"/>
+</Move>
+<Move Line="292">
+<From Identifier="SQLCODE"/>
+<To Identifier="W-SQLCODE"/>
+</Move>
+<ExecCICSAbend Line="293">
+<ABCode Identifier="W-ABEND-DB2"/>
+</ExecCICSAbend>
+</Procedure>
+</ProcedureSection>
+</ProcedureDivision>
+</Program>

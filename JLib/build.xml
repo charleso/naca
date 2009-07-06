@@ -1,0 +1,63 @@
+<project name="JLib" default="all">
+	<target name="clean">
+		<delete dir="./bin" quiet="true"/>
+		<delete file="./JLib.jar"/>
+	</target>
+	<target name="build">
+		<mkdir dir="./bin"/>
+		<javac srcdir="." destdir="./bin" debug="true" encoding="ISO-8859-1">
+			<classpath>
+				<pathelement path="./lib/commons-codec-1.3.jar"/>
+				<pathelement path="./lib/commons-net-1.4.1.jar"/>
+				<pathelement path="./lib/junit.jar"/>
+				<pathelement path="./lib/mail.jar"/>
+				<pathelement path="./lib/servlet-api.jar"/>
+				<pathelement path="./lib/xercesImpl.jar"/>
+			</classpath>
+		</javac>
+	</target>
+	<target name="javadoc">
+		<delete dir="./doc/javadoc" quiet="true"/>
+		<javadoc
+		   destdir="./doc/javadoc"
+		   author="true"
+		   version="true"
+		   use="true"
+		   windowtitle="JLib API">
+		
+			<packageset dir="./src" defaultexcludes="yes">
+				<include name="jlib/log/**"/>
+				<include name="jlib/xml/**"/>
+			</packageset>
+			<classpath>
+				<pathelement path="./lib/junit.jar"/>
+				<pathelement path="./lib/commons-codec-1.3.jar"/>
+			</classpath>
+		</javadoc>
+		<jar destfile="./JLib.doc.jar">
+			<fileset dir="./doc/javadoc"/>
+		</jar>
+	</target>
+	<target name="rebuild" depends="clean,build,javadoc"/>
+	<target name="jar">
+		<jar destfile="./JLib.jar" basedir="./bin" includes="**/*.class">
+		</jar>
+	</target>
+	<target name="dist" depends="jar">
+		<fail unless="dist_dir" message="Required parameter : -Ddist_dir=[destination dir]"/>
+		<copy file="./JLib.jar" tofile="${dist_dir}/JLib.jar"/>
+		<copy file="./JLib.doc.jar" tofile="${dist_dir}/JLib.doc.jar"/>
+	</target>
+
+
+	<target name="all" depends="rebuild,jar"/>
+
+	<target name="anthill" depends="rebuild,jar">
+		<antcall target="dist">
+			<param name="dist_dir" value="${anthill.artifacts.dir}"/>
+		</antcall>
+		<fail unless="anthill.deployDir" message="Required parameter : anthill.deployDir"/>
+		<copy file="./JLib.jar" tofile="${anthill.deployDir}/JLib.jar"/>
+	</target>
+
+</project>

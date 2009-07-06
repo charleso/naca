@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<struts-config>
+<!-- ========== Data Source Configuration =============================== -->
+<data-sources />
+    
+    <!-- ========== Form Bean Definitions ================================== -->
+    <form-beans>
+        <form-bean dynamic="false" name="helpForm" type="idea.help.HelpForm">
+            <form-property name="Type" type="java.lang.String" />
+            <form-property name="Message" type="java.lang.String" />
+            <form-property name="Title" type="java.lang.String" />
+        </form-bean>
+    </form-beans>
+    
+    <!-- ========== Global Exception Definitions ============================== -->
+    <global-exceptions />
+    
+    <!-- ========== Global Forward Definitions =============================== -->
+    <global-forwards />
+    
+    <!-- ========== Action Mapping Definitions =============================== -->
+    <action-mappings>
+        <action
+            attribute="Naca"
+            path="/naca"
+            scope="session"
+            type="idea.action.ActionCompat"
+            unknown="false"
+            validate="false"
+		>
+            <forward
+                name="ViewCompat"
+                path="/XSLTServlet"
+                redirect="false"
+                contextRelative="false"
+			/>
+			<forward
+                name="RestartNaca"
+                path="/naca"
+                redirect="false"
+                contextRelative="false"
+			/>
+        </action>
+        <action
+            attribute="ShowScreen"
+            path="/showScreen"
+            scope="session"
+            type="idea.action.ActionShowScreen"
+            unknown="false"
+            validate="false"
+		>
+            <forward
+                name="ViewCompat"
+                path="/XSLTServlet"
+                redirect="false"
+                contextRelative="false"
+			/>
+			<forward
+                name="RestartNaca"
+                path="/naca"
+                redirect="false"
+                contextRelative="false"
+			/>
+        </action>
+        <action
+            attribute="CustomApplicationLauncher"
+            path="/appLaunch"
+            scope="session"
+            type="idea.action.CustomApplicationLauncherAction"
+            unknown="false"
+            validate="false"
+        />
+		<action
+            attribute="FormCompat"
+            path="/scenario"
+            scope="session"
+            type="idea.action.ActionScenarioList"
+            unknown="false"
+            validate="false"
+		>
+            <forward
+                name="ViewCompat"
+                path="/XSLTServlet"
+                redirect="false"
+                contextRelative="false"
+			/>
+			<forward
+				name="StartNaca"
+                path="/naca"
+                redirect="false"
+                contextRelative="false"
+			/>
+        </action>
+        <action
+            attribute="helpForm"
+            name="helpForm"
+            path="/help"
+            scope="session"
+            type="idea.action.HelpAction"
+            unknown="false"
+            validate="true"
+		>
+            <forward
+                name="ViewHelp"
+                path="/showhelp"
+                redirect="false"
+                contextRelative="false"
+			/>
+        </action>
+    </action-mappings>
+    
+    <!-- ========== Controller Configuration ================================ -->
+    <controller
+        bufferSize="4096"
+        contentType="text/html"
+        debug="0"
+        locale="false"
+        maxFileSize="250M"
+        multipartClass="org.apache.struts.upload.CommonsMultipartRequestHandler"
+        nocache="false"
+        processorClass="org.apache.struts.action.RequestProcessor"
+        inputForward="false"
+	/>
+    
+	<!-- ========== Message Resources Definitions ============================ -->
+	<!--
+    <message-resources
+		factory="org.apache.struts.util.PropertyMessageResourcesFactory"
+		key="org.apache.struts.action.MESSAGE"
+		null="true"
+		parameter="com.youcompany.struts.ApplicationResources"
+	/>
+	-->
+    
+    <!-- ========== Plug Ins Configuration ================================= -->
+</struts-config>

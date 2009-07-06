@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 1. Base notions</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 1. Base notions
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 19 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="1.Basenotions-1.1Nomemclature"></a>1.1 Nomemclature</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Name </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> NacaRT </td>
+<td class='confluenceTd'> Stands for Naca Runtime - Base library exposing&nbsp;a high level abstraction of methods supproting a cobol - like syntax. It's the runtime framework of Nacar </td>
+</tr>
+<tr>
+<td class='confluenceTd'> JLib </td>
+<td class='confluenceTd'> Stands for Java Libraray - Base library exposing generic services internally used by NacaRT </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Idea </td>
+<td class='confluenceTd'> Internal nacaRT&nbsp;part, made of several packages, offering user interface services </td>
+</tr>
+<tr>
+<td class='confluenceTd'> NacaLib </td>
+<td class='confluenceTd'> Internal NacaRT&nbsp;part, made of several packages, offering runtime support for cobol-like application programs </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Cobol-like </td>
+<td class='confluenceTd'> Name of the syntax of Cobol programs automatically transcoded in Java source files. This syntax has been design to be as close as possible to the original Cobol syntax. In particular, object orientation is out of scope from this syntax. The purpose is enable experimented Cobol developpers to maintain and develop the transcoded applications with a minimum amount of Java knowledge. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Program </td>
+<td class='confluenceTd'> Java Executable binary code, represented in a .class </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Program instance </td>
+<td class='confluenceTd'> Instance of a program. Many instqances can be executed simulataeously </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Variable (var) </td>
+<td class='confluenceTd'> Defines a memory place where to store a value. A variable is owned by a single program instance, so that it's value is not not shared among all program instances. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Variable definition (vardef) </td>
+<td class='confluenceTd'> Java objects defining the various characteristics of a given variable (name, hierarchical position, ...) It's shared among all instances of a given program. A variable owns a reference to it's variable definition. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Variable definition catalog </td>
+<td class='confluenceTd'> Collection that groups all variabke definitions of a given program </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Buffer </td>
+<td class='confluenceTd'> Memory storage area where values of variables of a program instance are stored. A buffer is by default not shared by multiple program instances. There may ba excpetion to that rule. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Parent </td>
+<td class='confluenceTd'> Cobol variables belongs to a hierarchy, which is defined by the variable definition depth level number. The parent of a given variable definition is the variable definition of a lowest depth level that precedes it. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Children </td>
+<td class='confluenceTd'> A given variable definition may&nbsp;own a list of sub-variables. They are the children of the current variable definition. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Dimension </td>
+<td class='confluenceTd'> Number of indexes that are&nbsp;needed to resolve&nbsp;a array access. An array of a dimension of 2 needs to indexes to find an item. The maximum dimension supported is 3. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Occurs owner </td>
+<td class='confluenceTd'> Parent variable of the variable that owns an occurs definition. <br clear="all" />
+Cobol exemple: <br clear="all" />
+01 A OCCURS 3. <br clear="all" />
+&nbsp;&nbsp; 05 B PIC X(10). <br clear="all" />
+A is the occurs owner of B. That means that A defines the number of times that&nbsp;B is instanciated. As occurs can be imbricated, a variable may have multiple occurs owner. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Nibble </td>
+<td class='confluenceTd'> Half byte = 4 bits. A byte occupied then 2 nibbles </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Unicode char </td>
+<td class='confluenceTd'> Alphanumeric supporting variables are stored internally as unicode String. Each char reserves 16 bits for it's internal representation. As of 01/04/07, only 8 bits ascii subset is used. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Edit </td>
+<td class='confluenceTd'> Screen entry field. It has the same attributes as a CICS BMS map&nbsp; entry field, but is used in an object oriented manner, instead of byte per byte </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Form <br clear="all" /> </td>
+<td class='confluenceTd'> Collection of Edits, representing a CICS BMS Map <br clear="all" /> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> MapRedefine <br clear="all" /> </td>
+<td class='confluenceTd'> Objects that redefines a form. It enables occess to the Form field in an indexed manner <br clear="all" /> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> EdiInMapRedefine <br clear="all" /> </td>
+<td class='confluenceTd'> Redefine of an Edit <br clear="all" /> </td>
+</tr>
+</tbody></table>
+
+<h1><a name="1.Basenotions-1.2Notationandsyntax"></a>1.2 Notation and syntax</h1>
+
+<p><br clear="all" /></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Notation </th>
+<th class='confluenceTh'> Comment </th>
+<th class='confluenceTh'> Sample 1 </th>
+<th class='confluenceTh'> Sample 2 </th>
+</tr>
+<tr>
+<td class='confluenceTd'> [xxx] </td>
+<td class='confluenceTd'> xxx is optional. </td>
+<td class='confluenceTd'> SortDescriptor sortDesc1 = declare.sort(); </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> [xxx]&#43; </td>
+<td class='confluenceTd'> xxx must apear 1 or many time </td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> [xxx]&#42; </td>
+<td class='confluenceTd'> xxx can appear 0, 1 or many time </td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+</tbody></table>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

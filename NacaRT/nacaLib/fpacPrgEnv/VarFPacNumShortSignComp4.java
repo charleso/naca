@@ -1,0 +1,22 @@
+/*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+package nacaLib.fpacPrgEnv;
+
+import nacaLib.varEx.DeclareTypeFPacSignComp4;
+import nacaLib.varEx.VarBuffer;
+import nacaLib.varEx.VarBufferPos;
+import nacaLib.varEx.VarNumIntSignComp4;
+
+public class VarFPacNumShortSignComp4 extends VarNumIntSignComp4 
+{
+	public VarFPacNumShortSignComp4(DeclareTypeFPacSignComp4 type, VarBuffer varBuffer, int nPosition)
+	{
+		super(type);		
+		m_bufferPos = new VarBufferPos(varBuffer, nPosition);
+		m_varDef.setTotalSize(m_varDef.getSingleItemRequiredStorageSize());
+	}
+}

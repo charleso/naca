@@ -1,0 +1,17 @@
+      ******************************************************************
+      * DCLGEN TABLE(VTABMSGA)                                         *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE VTABMSGA TABLE
+           ( NO                             CHAR(4) NOT NULL,
+             TEXT                           CHAR(78) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE TABMSG                             *
+      ******************************************************************
+       01  DVTBMSGA.
+           10 NO                   PIC X(4).
+           10 TEXT                 PIC X(78).
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 2       *
+      ******************************************************************

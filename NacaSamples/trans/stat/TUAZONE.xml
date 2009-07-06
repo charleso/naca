@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<WorkingStorageSection Line="0">
+<Item Level="01" Line="1" Name="TUA-ZONE">
+<Item Level="05" Line="2" Name="TUA-I-TRAVAIL">
+<Item Comp="COMP3" Format="S99999999" Length="8" Level="10" Line="3" Name="TUA-I-DTJOUR" Type="SIGNED NUMBER"/>
+<Item Format="XXXXXXXX" Length="8" Level="10" Line="4" Name="TUA-I-DTJOURF" Type="STRING"/>
+</Item>
+</Item>
+</WorkingStorageSection>

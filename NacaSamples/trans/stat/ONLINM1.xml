@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MapSet Language="COBOL" Line="1" Mode="INOUT" Name="ONLINM1">
+<Map Line="3" Name="ONLINEF">
+<Attributes Column="SAME" Data="FIELD" Line="NEXT" OBFMT="NO" SizeCol="80" SizeLine="24" TIOAPFX="YES">
+<CTRL Value="HONEOM"/>
+<CTRL Value="FREEKB"/>
+<MAPATTS Value="COLOR"/>
+<MAPATTS Value="PS"/>
+<MAPATTS Value="HILIGHT"/>
+<MAPATTS Value="VALIDN"/>
+<JUSTIFY Value="LEFT"/>
+<DSATTS Value="COLOR"/>
+<DSATTS Value="PS"/>
+<DSATTS Value="HILIGHT"/>
+<DSATTS Value="VALIDN"/>
+</Attributes>
+<Field Color="GREEN" HighLight="OFF" Length="6" Line="10" Name="NMMASQ" PosCol="1" PosLine="1" Value="INIT01">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="30" Line="15" Name="" PosCol="8" PosLine="1" Value="        DEMO ONLINE           ">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="TURQUOISE" HighLight="OFF" Length="8" Line="20" Name="DTEXEC" PosCol="39" PosLine="1" Value="">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+<Field Color="TURQUOISE" HighLight="OFF" Length="8" Line="25" Name="HREXEC" PosCol="48" PosLine="1" Value="">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="32" Line="29" Name="" PosCol="1" PosLine="10" Value="REFERENCE / REFERENZ / REFERENZA">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="0" Line="33" Name="" PosCol="34" PosLine="10" Value="">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="1" Line="36" Name="" PosCol="37" PosLine="10" Value="=">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="YELLOW" HighLight="UNDERLINE" Length="3" Line="41" Name="RECOLL" PosCol="39" PosLine="10" Value="">
+<ATTRB Value="UNPROT"/>
+<ATTRB Value="NORM"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="0" Line="45" Name="" PosCol="43" PosLine="10" Value="">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="8" Line="48" Name="" PosCol="1" PosLine="12" Value="PASSWORD">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="28" Line="52" Name="" PosCol="10" PosLine="12" Value="                           =">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="DEFAULT" HighLight="OFF" Length="8" Line="57" Name="PASSCOL" PosCol="39" PosLine="12" Value="">
+<ATTRB Value="UNPROT"/>
+<ATTRB Value="DRK"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="12" Line="61" Name="" PosCol="1" PosLine="14" Value="NEW PASSWORD">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="GREEN" HighLight="OFF" Length="24" Line="65" Name="" PosCol="14" PosLine="14" Value="                       =">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="NORM"/>
+</Field>
+<Field Color="DEFAULT" HighLight="OFF" Length="8" Line="70" Name="NEWPASS" PosCol="39" PosLine="14" Value="">
+<ATTRB Value="UNPROT"/>
+<ATTRB Value="DRK"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+<Field Color="RED" HighLight="OFF" Length="79" Line="75" Name="LIERR" PosCol="1" PosLine="24" Value="">
+<ATTRB Value="ASKIP"/>
+<ATTRB Value="BRT"/>
+<JUSTIFY Value="LEFT"/>
+<JUSTIFY Value="BLANK"/>
+</Field>
+</Map>
+</MapSet>

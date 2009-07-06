@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : Common parameters to all execution environments</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : Common parameters to all execution environments
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 30 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>All nacaRT shares some settings, whatever their execution mode (online, batch, stored procedure)<br/>
+This pages and it's children describes all these settings.</p>
+
+<h1><a name="Commonparameterstoallexecutionenvironments-Miscellaneous"></a>Miscellaneous</h1>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FSequencerFactoryClass%7D%7D"></a><tt>conf/SequencerFactoryClass</tt></h4>
+<p>String that gives the fully qualified class name of the Program Loader Factory used for online program. Must be set to <tt>"idea.onlinePrgEnv.OnlineProgramLoaderFactory"</tt>.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FLogSettingsPathFile%7D%7D"></a><tt>conf/LogSettingsPathFile</tt></h4>
+<p>String that gives the full file name of the logger configuration file. See JLib documentation for details on this file.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FLoadCopyByPrimordialLoader%7D%7D"></a><tt>conf/LoadCopyByPrimordialLoader</tt></h4>
+<p><b>TO BE FILLED</b></p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FServerName%7D%7D"></a><tt>conf/ServerName</tt></h4>
+<p>Name of the server as displayed in user's browser.</p>
+
+
+<h1><a name="Commonparameterstoallexecutionenvironments-Programspreload"></a>Programs preload</h1>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FPreLoadAllProgramFromDir%7D%7D"></a><tt>conf/PreLoadAllProgramFromDir</tt></h4>
+<p>Boolean value. If true, then all programs located in a directory are preloaded.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FPreLoadAllProgramFromList%7D%7D"></a><tt>conf/PreLoadAllProgramFromList</tt></h4>
+<p>Boolean value. If true, then all programs identified by a file are preloaded.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FKeepPreloadedProgramList%7D%7D"></a><tt>conf/KeepPreloadedProgramList</tt></h4>
+<p>boolean value. Used only if conf/PreLoadAllProgramFromDir="true".  In that case, the list of all preloaded programs is stored in a file.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FPreLoadProgramList%7D%7D"></a><tt>conf/PreLoadProgramList</tt></h4>
+<p>Full file name used for holding a list of files to preload. <br/>
+It's usage is:</p>
+<ul class="alternate" type="square">
+	<li>The file is open and the list is read to preload files, if conf/PreLoadAllProgramFromList="true"</li>
+	<li>The file is open and the list is written with the list of preloaded files, if conf/KeepPreloadedProgramList="true"</li>
+</ul>
+
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FAsynchronousPreloadPrograms%7D%7D"></a><tt>conf/AsynchronousPreloadPrograms</tt></h4>
+<p>Boolean value; It's used only if <tt>conf/PreLoadAllProgramFromDir="true"</tt> or <tt>conf/PreLoadAllProgramFromList="true"</tt>. If they are both "false", then this flag is not used.<br/>
+It's usage is:</p>
+<ul class="alternate" type="square">
+	<li>if true, then the server is started, and then all programs are preloaded (asynchronously). This enables users to start working without waiting for all programs to be preloaded.</li>
+	<li>if false, then all programs are preloaded, and then server is started, so that users must wait for all programs to be preloaded before working.</li>
+</ul>
+
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FGCAfterPreloadPrograms%7D%7D"></a><tt>conf/GCAfterPreloadPrograms</tt></h4>
+<p>Boolean value. Used only if <tt>conf/PreLoadAllProgramFromDir="true"</tt> or <tt>conf/PreLoadAllProgramFromList="true"</tt>. If they are both "false", then this flag is not used.</p>
+<ul class="alternate" type="square">
+	<li>if true, then a System.GC() call is forced after having preloaded all programs. This helps minimizing garbage collector activity.</li>
+	<li>if false, then no System.GC()</li>
+</ul>
+
+
+<h1><a name="Commonparameterstoallexecutionenvironments-Programloading"></a>Program loading</h1>
+
+<p>Cobol like programs are loaded by nacaRT.<br/>
+There are various modes:</p>
+<ul class="alternate" type="square">
+	<li>programs can be loaded by java primordial class loader. This is activated by setting <tt>conf/CanLoadJar="false"</tt> and <tt>conf/CanLoadClass="false"</tt>. In that case, programs can't be unloaded. The class files are loaded by a directory specified by the tomcat classloader or by the CLASSPATH variable.</li>
+	<li>programs can be loaded by nacaRT own class loader. To activate that mode, set <tt>conf/CanLoadJar="true"</tt> or <tt>conf/CanLoadClass="true"</tt>. The class files are loaded by one of the directories specified by <tt>conf/ApplicationClassPath</tt>. In that case, programs can be unloaded (warning: this has a deep impact on garbage collection, and is discouraged).</li>
+	<li>if <tt>conf/CanLoadJar="true"</tt> and <tt>conf/CanLoadClass="true"</tt> (they are both "true"), then nacaRT's internal class loader will first try to load a class by searching it in one of the directories specified by <tt>conf/ApplicationClassPath</tt>. If it doesn't find the class, then it tries to search for it within the jar file specified by <tt>conf/JarFile</tt>. This jar file must be stored in one fo the directories given by <tt>conf/ApplicationClassPath</tt>.<br/>
+This prioritzing enables to setup a new version of a given program as a .class file, without re-creating the jar file.</li>
+</ul>
+
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FUseProgramPool%7D%7D"></a><tt>conf/UseProgramPool</tt></h4>
+<p>Boolean value. It should be set to "true", so that programs instances are cached, so that an already loaded program instance can be reused for other executions. This is very important for online programs that are often reused.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FMaxSessionExecTimems%7D%7D"></a><tt>conf/MaxSessionExecTime_ms</tt></h4>
+<p>Number of milliseconds that can use a given session without being aggresivelly killed. It should not be set too low, nor too high, and must be adjused.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FApplicationClassPath%7D%7D"></a><tt>conf/ApplicationClassPath</tt></h4>
+<p>This parameter is very important as, it gives list of semi colums separated paths.<br/>
+Exemple:<br/>
+<tt>conf/ApplicationClassPath="d:/dev/naca/pub2000Online/bin;d:/dev/naca/pub2000Commons/bin;D:/Dev/naca/CJTests2/CJTestDev2/bin"</tt><br/>
+This paths are the path where programs and copy binary files are loaded if the nacaRT internal class loader is used.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FJarFile%7D%7D"></a><tt>conf/JarFile</tt></h4>
+<p>Name of the .jar file containg all programs and copy binaries.<br/>
+It is used only if <tt>conf/CanLoadJar="true"</tt>. In that case, it must give the file name of a jar file located in one of the directories specified by <br/>
+<tt>conf/ApplicationClassPath</tt>.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FCanLoadJar%7D%7D"></a><tt>conf/CanLoadJar</tt></h4>
+<p>Boolean value. <br/>
+If true, then the <tt>conf/JarFile</tt> file can be used for loading a program or copy.<br/>
+If false, then the <tt>conf/JarFile</tt> file cannot be used for loading a program or copy.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FCanLoadClass%7D%7D"></a><tt>conf/CanLoadClass</tt></h4>
+<p>Boolean value. <br/>
+If true, then a class can be loaded in one of the directory specified by <tt>conf/ApplicationClassPath</tt>.</p>
+
+
+<h3><a name="Commonparameterstoallexecutionenvironments-JVMconfiguration"></a>JVM configuration</h3>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7BMaxSizeMemPoolCodeCacheMb%7D%7D"></a><tt>MaxSizeMemPoolCodeCache_Mb</tt></h4>
+<p>Maximum size value in mega bytes of the short term pool code cache (typically set to "64")</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7BMaxSizeMemPoolPermGenMb%7D%7D"></a><tt>MaxSizeMemPoolPermGen_Mb</tt></h4>
+<p>Maximum size value in mega bytes of the long term pool code cache (typically set to "300"). Must be set accordingly to the size of all programs that can be loaded simultaneously.</p>
+
+<h1><a name="Commonparameterstoallexecutionenvironments-SQLCaches"></a>SQL Caches</h1>
+
+<p>NacaRT uses internally multiple cache for performance reasons</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FUseSQLStatementCache%7D%7D"></a><tt>conf/UseSQLStatementCache</tt></h4>
+<p>Boolean value. <br/>
+If "true", then all prepared SQL statements are cached and can reused by current program instrance, or another program instance, until the underlying DB connection is destroyed. <br/>
+If false, then the statement cannot be used twice. It gives a large performance penalty to set it to "false".</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FUseSQLObjectCache%7D%7D"></a><tt>conf/UseSQLObjectCache</tt></h4>
+<p>Boolean value.<br/>
+If true, then all SQL java object attached to a given perpared statement are cached and can be reused, until the contained prepared statement is to be removed. <br/>
+If flase, then this cacheing is not activated. It should not be set to "false" for performance reasons.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FUseVarFillCache%7D%7D"></a><tt>conf/UseVarFillCache</tt></h4>
+<p>Boolean value.<br/>
+Select and cursor SQL statements returns java Resultsset objects. Each resultset's column's value is stored in a cobol-like destination variable. Searching for the correct destination cobol-like variable is a time consuming process. If this flag is set to "true", then this search is done only once, thus giving an important performance advantage.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FManageVarDefCatalog%7D%7D"></a><tt>conf/ManageVarDefCatalog</tt></h4>
+<p>Boolean value<br/>
+Cobol-like variable are split in 2 parts: The variable's value, and it's definition. A variable definition is constant among all instances of a given program. Then set this variable to "true" to enable such sahring, giving a big memory size optimization, without CPU costs.</p>
+
+
+<h1><a name="Commonparameterstoallexecutionenvironments-CharmappingAscii%2FEBCDIC"></a>Char mapping - Ascii / EBCDIC</h1>
+
+<p>Some DB chars must be mapped specifically to another code in internal nacaRT storage space.<br/>
+The mapping is different depending the way data are accessed.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FCodeJavaToDb%7D%7D"></a><tt>conf/CodeJavaToDb</tt></h4>
+<p>String value giving a comma separated list of couples values.<br/>
+Used to map char code when writing data to DB. Each couple member is separated by a dash <img class="emoticon" src="images/icons/emoticons/forbidden.gif" height="16" width="16" align="absmiddle" alt="" border="0"/>. <br/>
+Must be set to "255-159,10-133" while using DB2 (EBCDIC encoding) database.<br/>
+If the DB used is UDB (which implies UNICODE encoding), then this parameter must be set to "".</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FCodeDbToJava%7D%7D"></a><tt>conf/CodeDbToJava</tt></h4>
+<p>String value giving a comma separated list of couples values.<br/>
+Used to map char code when reading data form DB.<br/>
+Must be set to "159-255" while using DB2 (EBCDIC encoding) database.<br/>
+If the DB used is UDB (which implies UNICODE encoding), then this parameter must be set to "".</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FComparisonMode%7D%7D"></a><tt>conf/ComparisonMode</tt></h4>
+<p>Flag that identifies how internal comparisons are done, independantly from their encoding.<br/>
+Must be set to "EBCDIC", so that digits are considered after letters, as in EBCDIC encoding. This enables to have the same sorting results as EBCDIC data, even if internal variable storage uses ASCII encoding order.<br/>
+Normally, this flag should be set to "ASCII", but this implies using UDB, and having application that does not rely on the fact that digits are ordered after letters. That is that applictions must not be dependant on the EBCDIC collating sequence.</p>
+
+<h3><a name="Commonparameterstoallexecutionenvironments-Applicationopening%2Fclose"></a>Application opening / close</h3>
+
+<p>The application can be run within a specific time frame. Thus, a calendar defines these settings.<br/>
+When the application is not open, then a user requesting an online application gets a screen teeling him that the application is closed.<br/>
+It is also possible to force the close of nacaRT by using a JMX button.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FStandardCalendar%7D%7D"></a><tt>conf/StandardCalendar</tt></h4>
+<p>Gives a path and file name to an xml file where standard week open time are described.<br/>
+This file is like:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;Settings&gt;</span>
+	<span class="code-tag">&lt;Day Value=<span class="code-quote">"Mon"</span>&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"20:00:00"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Day&gt;</span>
+	<span class="code-tag">&lt;Day Value=<span class="code-quote">"Tue"</span>&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"20:00:00"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Day&gt;</span>
+	<span class="code-tag">&lt;Day Value=<span class="code-quote">"Wed"</span>&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"20:00:00"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Day&gt;</span>
+	<span class="code-tag">&lt;Day Value=<span class="code-quote">"Thu"</span>&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"20:00:00"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Day&gt;</span>
+	<span class="code-tag">&lt;Day Value=<span class="code-quote">"Fri"</span>&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"20:00:00"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Day&gt;</span>
+	<span class="code-tag">&lt;Day Value=<span class="code-quote">"Sat"</span>&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"16:00:00"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Day&gt;</span>
+<span class="code-tag">&lt;/Settings&gt;</span></pre>
+</div></div>
+
+<p>It gives the list of application open time for all days of a standard week.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FCustomCalendar%7D%7D"></a><tt>conf/CustomCalendar</tt></h4>
+<p>Gives a path and file name to an xml file where specific days time frames are described.<br/>
+This file is like:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;Settings&gt;</span>
+	&lt;!--
+	<span class="code-tag">&lt;Date Value=<span class="code-quote">"JJ/MM/YYYY"</span>&gt;</span>
+		<span class="code-tag">&lt;Close Min=<span class="code-quote">"10:50:00"</span> Max=<span class="code-quote">"14:50:59"</span>/&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"14:51:00"</span> Max=<span class="code-quote">"14:51:59"</span>/&gt;</span>
+		<span class="code-tag">&lt;Close Min=<span class="code-quote">"14:52:00"</span> Max=<span class="code-quote">"14:52:59"</span>/&gt;</span>		
+	<span class="code-tag">&lt;/Date&gt;</span>
+	--&gt;
+	<span class="code-tag">&lt;Date Value=<span class="code-quote">"05/03/2007"</span>&gt;</span>
+		<span class="code-tag">&lt;Close Min=<span class="code-quote">"00:00:00"</span> Max=<span class="code-quote">"05:59:59"</span>/&gt;</span>
+		<span class="code-tag">&lt;Open Min=<span class="code-quote">"06:00:00"</span> Max=<span class="code-quote">"18:59:59"</span>/&gt;</span>
+		<span class="code-tag">&lt;Close Min=<span class="code-quote">"19:00:00"</span> Max=<span class="code-quote">"23:59:59"</span>/&gt;</span>
+	<span class="code-tag">&lt;/Date&gt;</span>
+<span class="code-tag">&lt;/Settings&gt;</span></pre>
+</div></div>
+<p>The whole day time ranges must be described.<br/>
+this can be used to enable special open time frame for specific days.</p>
+
+<h1><a name="Commonparameterstoallexecutionenvironments-Mailconfiguration"></a>Mail configuration</h1>
+
+<p>NacaRT uses mail to immediatly report runtime problems. This section configures it in tag &lt;MailConfig&gt; of tag &lt;SequencerConfig&gt;, itself within tag &lt;conf&gt;.<br/>
+The tag &lt;MailConfig&gt; can contain a collection of tags &lt;addressTo&gt; that each give a destination email address. There can be multiple &lt;addressTo&gt; tags, so that a nacaRT generated mail is sent to multiple destinations.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FSequencerConfig%2FMailConfig%2FaddressFrom%7D%7D"></a><tt>conf/SequencerConfig/MailConfig/addressFrom</tt></h4>
+<p>email address of the current server.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FSequencerConfig%2FMailConfig%2FsmtpServer%7D%7D"></a><tt>conf/SequencerConfig/MailConfig/smtpServer</tt></h4>
+<p>email address of the smtp server used for mail transport.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7B%7Bconf%2FSequencerConfig%2FMailConfig%2Ftitle%7D%7D"></a><tt>conf/SequencerConfig/MailConfig/title</tt></h4>
+<p>Title for all outgoing mails.</p>
+
+<h4><a name="Commonparameterstoallexecutionenvironments-%7Bconf%2FSequencerConfig%2FMailConfig%2FaddressTo%2Fem..."></a><tt>conf/SequencerConfig/MailConfig/addressTo/email</tt></h4>
+<p>Identifies a destination email address.</p>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

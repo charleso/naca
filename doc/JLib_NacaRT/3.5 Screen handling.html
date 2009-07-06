@@ -1,0 +1,404 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.5 Screen handling</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.5 Screen handling
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 19 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>The screen handling is done by nacaRT. It is available only to <tt>OnlineProgram</tt> derivated programs.</p>
+
+<p>The implementation is quite different from the original CICS screen handling, but all CICS possibilities are supported, with improvements.<br/>
+As of 03/2007, user screen input/output is done only via a web browser. But provisions have been done in nacaRT to support other user interface means.<br/>
+The implementation code make it sure not to be liked too heavily to a web interface, but generalizes the notion.</p>
+
+<h1><a name="3.5Screenhandling-Concept"></a>Concept</h1>
+
+<p>In CICS applications, screen definition is done by Cobol maps.<br/>
+This notion doesn't exist as such in transcoded programs.</p>
+
+<p>Cobol maps are transcoded as a derivated of Copy files, with Forms, Edit entry fields and static multi-lingual texts. Some other user interface controls could be added in future releases of nacaRT. There is no relationship between the screen description and it's graphical representation. In particular, the screen description doesn't give any information on the geographical placement of entry fields, nor does it defines the type of web-control used to provide entry field support: the description is fully independant from it's graphical representation on the user's workstation.<br/>
+The screen layout level is not provided by a source file, but instead is given by an external xml file. This enables a strong decoupling of the screen graphical representation from it's definition in source code.</p>
+
+<h1><a name="3.5Screenhandling-ScreendefinitionCICSMap"></a>Screen definition - CICS Map</h1>
+
+<p>A screen definition is a specialized Copy file, derived from standard base class Map, which in turns derives itself from Copy.<br/>
+It can contain a Form and multiple Edits and localized Strings.</p>
+
+<h2><a name="3.5Screenhandling-Example"></a>Example</h2>
+
+<p>Example of such a map :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestMap <span class="code-keyword">extends</span> Map 
+{
+    <span class="code-keyword">static</span> TestMap Copy(BaseProgram program) 
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> TestMap(program);
+    }
+	
+    TestMap(BaseProgram program) 
+    {
+        <span class="code-keyword">super</span>(program);
+    }
+	
+    Form vForm = declare.form(<span class="code-quote">"TestForm"</span>, 24, 8);
+        LocalizedString str_Nmmasq = declare.localizedString().text(LanguageCode.FR, <span class="code-quote">"FR"</span>);
+        Edit name1 = declare.edit(<span class="code-quote">"name1"</span>, 6)
+            .initialValue(str_Nmmasq)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+
+        Edit name2 = declare.edit(<span class="code-quote">"name2"</span>, 6)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+
+        Edit name3 = declare.edit(<span class="code-quote">"name3"</span>, 6)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+
+        Edit name4 = declare.edit(<span class="code-quote">"name4"</span>, 6)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+
+        Edit city1 = declare.edit(<span class="code-quote">"city1"</span>, 4)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+
+        Edit city2 = declare.edit(<span class="code-quote">"city1"</span>, 4)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+
+	Edit hDate = declare.edit(<span class="code-quote">"date"</span>, 10)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+	    Var vYear = declare.level(3).picX(4).<span class="code-keyword">var</span>();
+	    Var vFillerSep1 = declare.level(3).picX(1).filler();
+	    Var vMonth = declare.level(3).picX(2).<span class="code-keyword">var</span>();
+	    Var vFillerSep2 = declare.level(3).picX(1).filler();
+	    Var vDay = declare.level(3).picX(2).<span class="code-keyword">var</span>();</pre>
+</div></div>
+
+<p>This Copy is declared in the program source as a copy:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestMapProgram <span class="code-keyword">extends</span> OnlineProgram
+{
+    ...
+    DataSection WS = declare.workingStorageSection() ;
+    ...
+    TestMap testMap = TestMap.Copy(<span class="code-keyword">this</span>) ;    
+    ...</pre>
+</div></div>
+
+<p>Comments: the structure is close to the Copy structure: a map is a specialized Copy.<br/>
+A map contains a Form.<br/>
+Lets see the various parts of this declaration.</p>
+
+<h3><a name="3.5Screenhandling-Form"></a>Form</h3>
+
+<p>The form is described as:</p>
+
+<p><tt>Form MainForm = declare.form("TestForm", 24, 80) ;</tt><br/>
+the <tt>form</tt> method gives the folwingo parameters:</p>
+<ul class="alternate" type="square">
+	<li>Form's name, which must match a resource name, in a xml file.</li>
+	<li>Form's lines number</li>
+	<li>Form's column number.</li>
+</ul>
+
+
+<p>A form typically natchies a 3270 screen which is 24 lines of 80 chars. Non propotionnal char spacing is used.</p>
+
+<p>The <tt>Form MainForm</tt> can be seen as a kind of group variable of level 01. This group is composed of:</p>
+<ul class="alternate" type="square">
+	<li>Entry fields: the Edit</li>
+	<li>Localized String: Static text</li>
+	<li>Var.</li>
+</ul>
+
+
+<h3><a name="3.5Screenhandling-Edit"></a>Edit</h3>
+
+<p>An edit is typically displayed as an entry field in the user's web client. It can :</p>
+<ul class="alternate" type="square">
+	<li>display some textual value on the user screen,</li>
+	<li>enable datat input by the user.<br/>
+What's more, an the CICS map defines various attributes for entry field. These attributes also exists in nacaRT support.<br/>
+An edit can have an optional list of custom attributes. But 2 things are mandatory:</li>
+	<li>Edit name: The edit's name, which must match an entry of the xml resource file.</li>
+	<li>Width: length of the edit: that is the number of chars that can be dispayed and/or input.</li>
+</ul>
+
+
+<p>They are given by <tt>declare.edit(&lt;edit_name&gt;, &lt;Width&gt;)</tt>.</p>
+
+<p>The other optional attributes are defined by the parameter call chain that follows the <tt>declare.edit</tt> call.<br/>
+The following parameters are supported:</p>
+<ul class="alternate" type="square">
+	<li><tt>initialValue(&lt;localized_string_name&gt;)</tt>: Gives a reference to the initial value ofthe edit's textual content.</li>
+	<li><tt>color(MapFieldAttrColor.*)</tt>: Gives the default edit background color, where * is one of BLUE, RED, PINK, GREEN, TURQUOISE, YELLOW, NEUTRAL, DEFAULT.</li>
+	<li><tt>highLighting(MapFieldAttrHighlighting.*)</tt>: Gives the default edit text highlightning level where * is one of OFF, BLINK, REVERSE, UNDERLINE. Note: BLINK isn't supported on web client.</li>
+	<li><tt>protection(MapFieldAttrProtection.*)</tt>: Gives the default access right to the text content, where * is one of AUTOSKIP, UNPROCTECTED, NUMERIC, PROTECTED</li>
+	<li><tt>intensity(MapFieldAttrIntensity.*)</tt>: Gives the default edit text intensity, where * is one of NORMAL, BRIGHT, DATK, HIDE</li>
+	<li><tt>justify(MapFieldAttrJustify.*)</tt>: Gives the default text justification, where * is one of LEFT, RIGHT</li>
+	<li><tt>justifyFill(MapFieldAttrFill.*)</tt>: Gives the default char filling, where * is one of BLANK, ZERO</li>
+</ul>
+
+
+<p>Edits are variables defines at depth level 2, so they are part of the Form group.</p>
+
+<h3><a name="3.5Screenhandling-LocalizedString"></a>LocalizedString</h3>
+
+<p>A localized string is a way to define a text in multiple languages.<br/>
+This text in the current language is used to provide a default textual value to the Edit that references the localized string by calling the <tt>initialValue</tt> method.</p>
+
+<h3><a name="3.5Screenhandling-Var"></a>Var</h3>
+<p>As a form is a group of level 1, it can contains Edit of level 2. These edit can themsleves contains Vars. These Vars cannot have a higher level than 3. They redefine the Edit text content. The attributes are not accessible  throught the Var.</p>
+
+<p>In the sample:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Edit hDate = declare.edit(<span class="code-quote">"date"</span>, 10)
+            .justifyFill(MapFieldAttrFill.BLANK)
+            .justify(MapFieldAttrJustify.LEFT)
+            .edit();
+	    Var vYear = declare.level(3).picX(4).<span class="code-keyword">var</span>();
+	    Var vFillerSep1 = declare.level(3).picX(1).filler();
+	    Var vMonth = declare.level(3).picX(2).<span class="code-keyword">var</span>();
+	    Var vFillerSep2 = declare.level(3).picX(1).filler();
+	    Var vDay = declare.level(3).picX(2).<span class="code-keyword">var</span>();</pre>
+</div></div>
+
+<p>The hDate's textual value is split as a year, month and day value by variables <tt>vYear</tt>, <tt>vMonth</tt> and <tt>vDay</tt>.</p>
+
+<h2><a name="3.5Screenhandling-Internalmemoryrepresentation"></a>Internal memory representation</h2>
+
+<p>CICS screen handling specifies that:</p>
+<ul class="alternate" type="square">
+	<li>forms must have a leading buffer size of 12 bytes for CICS internal usage</li>
+	<li>entry fields attributes are stored in a 7 bytes header.</li>
+</ul>
+
+
+<p>The Cobol application handles directly these 7 bytes to change attributes.<br/>
+It's the case anymore in transcoded programs, as new methods for attributes handling are provided. <br/>
+However, the headers still exists for Forms and Edits fir compatibility reasons, but their handling is reserved for nacaRT usage only.<br/>
+Thus, when declaring an edit of 10 chars, a buffer chunk of 17 chars is reserved.</p>
+
+<p>Thus, the buffer of the previous example is 92 chars long:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>                      0        1         2         3         4         5         6         7         8         9        10
+Char buffer position: 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123
+                      ---------------------------------------------------------------------------------
+Buffer content 1    : hhhhhhhhhhhhaaaaaaaTTTTTTaaaaaaaUUUUUUaaaaaaaVVVVVVaaaaaaaWWWWWWaaaaaaaCCCCaaaaaaaCCCCaaaaaaaXXXXXXXXXX
+Buffer content 2    : hhhhhhhhhhhhaaaaaaaTTTTTTaaaaaaaUUUUUUaaaaaaaVVVVVVaaaaaaaWWWWWWaaaaaaaCCCCaaaaaaaCCCCaaaaaaaYYYYFMMFDD
+</pre>
+</div></div>
+<p>Where:</p>
+<ul class="alternate" type="square">
+	<li>h: is a form header reserved char</li>
+	<li>a: is an edit's attributes header reserved char</li>
+	<li>T: is name1 textual value</li>
+	<li>U: is name2 textual value</li>
+	<li>V: is name3 textual value</li>
+	<li>W: is name4 textual value</li>
+	<li>C: is city textual value</li>
+	<li>X: is hDate textual value</li>
+	<li>Y is the year chunk of the <tt>hDate</tt> textual value</li>
+	<li>F is a filler within the <tt>hDate</tt> textual value</li>
+	<li>M is the month chunk of the <tt>hDate</tt> textual value</li>
+	<li>D is the month chunk of the <tt>hDate</tt> textual value</li>
+</ul>
+
+
+<h1><a name="3.5Screenhandling-MapRedefines"></a>MapRedefines</h1>
+
+<p>The map gives a higher abstraction level than original CICS map. However, as CICS enables a lower level access than nacaRT, it possible in Cobol, program to maniplate directly the attributes of a given entry field.<br/>
+What's more, the map just defines a list of single edits. It is not possible to access them as aa array for example. This is often desirable, as some screens are in fact a list of entry fields organized in a tabular manner. </p>
+
+<p>Thus the notion of MapRedefine has been introduced in nacaRT. In the previous example, it enables to access edit name1 to name4 as an array of 4 edits. </p>
+
+<h2><a name="3.5Screenhandling-Example"></a>Example</h2>
+
+<p>The mapRedefine object is generally set just after the Copy declaration of the Map in the program's source code. The TestMapProgram is then:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestMapProgram <span class="code-keyword">extends</span> OnlineProgram
+{
+    ...
+    DataSection WS = declare.workingStorageSection() ;
+    ...
+    TestMap testMap = TestMap.Copy(<span class="code-keyword">this</span>) ;    
+    MapRedefine testMapRedefine = declare.level(1).redefinesMap(testMap.vForm);
+        Edit editNamesArray = declare.level(2).editOccurs(4, <span class="code-quote">"EditNamesArray"</span>);
+             Edit editName = declare.level(5).edit();
+        Edit filler_edit1 = declare.level(2).editSkip(1);
+        Edit editDate = declare.level(2).edit();
+    ...</pre>
+</div></div>
+
+<p>The variable editNamesArray is now an edit that enable indexed access to any of the 4 edits : testMap.name1, testMap.name2, testMap.name3 or testMap.name4.</p>
+
+<p>Lets see the various declarations:</p>
+
+<ul class="alternate" type="square">
+	<li><tt>TestMap testMap = TestMap.Copy(this);</tt>: It's the copy declaration, as seen below.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>MapRedefine testMapRedefine = declare.level(1).redefinesMap(testMap.vForm);</tt>: Declares a map that redfines the whole form testMap.vForm.<br/>
+<tt>testMap.vForm</tt> is the full of the form <tt>vForm</tt> declared inside the Map <tt>testMap</tt>. A MapRedefine thus is used to redefine a form. It references this form and gives a direct access to the edits of the referenced form.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>Edit editNamesArray = declare.level(2).editOccurs(4, "EditNamesArray");</tt>: Declares that editNamesArray is an array of 1 dimension of the 4th first edits of the form referenced by the parent mapRedefine <tt>testMapRedefine</tt>.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>Edit filler_edit1 = declare.level(2).editSkip(2);</tt>: filler_edit1 is mapped upon the 5th entry field of the map <tt>testMap.vForm</tt>.  The skipEdit(2) call specifies that the 2 <tt>city</tt> edits are skipped. Not however, that they are not accessible with <tt>filler_edit1</tt>.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>Edit editDate = declare.level(2).edit();</tt>: Declares that <tt>editDate</tt> is mapped on the 6th edit of the form. It then point to hDate.</li>
+</ul>
+
+
+<p>These edits are sait as EditInMapRedefine, as they are used only inside MapRedefine. Some specialized form of EditInMapRedefine exists, such as </p>
+<ul class="alternate" type="square">
+	<li>EditInMapRedefineNum with redefines a specialized edit than can input only numeric values</li>
+	<li>EditInMapRedefineNumEdited with redefines a specialized edit than can input only values with formatting</li>
+</ul>
+
+
+<h3><a name="3.5Screenhandling-Usages"></a>Usages</h3>
+
+<p>The edit textual value, or any of it's attribute can be accessed directly or indeirectly, via an EditInMapoRedefine.<br/>
+EditInMapRedefine enable indexed access to an edit.</p>
+
+<p>In the example: </p>
+<ul class="alternate" type="square">
+	<li><tt>editNamesArray.getAt(1)</tt> is the same edit as <tt>name1</tt></li>
+	<li><tt>editNamesArray.getAt(2)</tt> is the same edit as <tt>name2</tt></li>
+	<li><tt>editNamesArray.getAt(3)</tt> is the same edit as <tt>name3</tt></li>
+	<li><tt>editNamesArray.getAt(4)</tt> is the same edit as <tt>name4</tt></li>
+	<li><tt>filler_edit1</tt> is null. It cannot be used.</li>
+	<li><tt>editDate</tt> is the same edit as <tt>editDate</tt></li>
+</ul>
+
+
+<h2><a name="3.5Screenhandling-VarandEditmixing"></a>Var and Edit mixing</h2>
+
+
+<h3><a name="3.5Screenhandling-VarinsideanEdit"></a>Var inside an Edit</h3>
+
+<p>We have seen that an Edit in form can have it's textual value mapped on a one or many variable.</p>
+
+<p>This case happens when an edit's texutal value is redefined in one or many variables:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestMapProgram <span class="code-keyword">extends</span> OnlineProgram
+{
+    ...
+    DataSection WS = declare.workingStorageSection() ;
+    ...
+    TestMap testMap = TestMap.Copy(<span class="code-keyword">this</span>) ;    
+    MapRedefine testMapRedefine = declare.level(1).redefinesMap(testMap.vForm);
+        Edit editNamesArray = declare.level(2).editOccurs(4, <span class="code-quote">"EditNamesArray"</span>);
+             Edit editName = declare.level(5).edit();
+        Edit filler_edit1 = declare.level(2).editSkip(1);
+        Edit editDate = declare.level(2).edit();
+    ...
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+        ...
+        move(<span class="code-quote">"2007/03/19"</span>, testMap.hDate);  <span class="code-comment">// testMap.hDate's and editDate's text is now <span class="code-quote">"2007/03/19"</span>
+</span>        inc(vDay);                          <span class="code-comment">// testMap.hDate's and editDate's text is now <span class="code-quote">"2007/03/20"</span>
+</span>        move(<span class="code-quote">"2007/03/21"</span>, editDate);       <span class="code-comment">// testMap.hDate's and editDate's text is now <span class="code-quote">"2007/03/21"</span>
+</span>        inc(vMonth);                        <span class="code-comment">// testMap.hDate's and editDate's text is now <span class="code-quote">"2007/04/21"</span>
+</span>        ...</pre>
+</div></div>
+
+<p><tt>vDay</tt> and <tt>vMonth</tt> are defined in the TestMap source file (see below).</p>
+
+<p>What can't be done that way is access to hDate's attribute.</p>
+
+
+<h1><a name="3.5Screenhandling-XMLresourcefile"></a>XML resource file</h1>
+
+<p>Each form defines a list of entry fields and static texts. But the form doesn't give any clue on the geographical placement of these elements.<br/>
+To provide this information, each form is associated with an unique XML resource file. The extension of this file is .res.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"ISO-8859-1"</span>?&gt;</span>
+<span class="code-tag">&lt;form allLanguages=<span class="code-quote">"FR"</span> name=<span class="code-quote">"rs01a10"</span> title=<span class="code-quote">"rs01a10"</span>&gt;</span>
+  <span class="code-tag">&lt;pfkeydefine enter=<span class="code-quote">"true"</span> logout=<span class="code-quote">"true"</span> /&gt;</span>
+  <span class="code-tag">&lt;formbody&gt;</span>
+    <span class="code-tag">&lt;vbox&gt;</span>
+      <span class="code-tag">&lt;hbox&gt;</span>
+        &lt;edit col=<span class="code-quote">"1"</span> color=<span class="code-quote">"green"</span> highlighting=<span class="code-quote">"off"</span> intensity=<span class="code-quote">"normal"</span> length=<span class="code-quote">"6"</span> line=<span class="code-quote">"1"</span> linkedvalue=<span class="code-quote">"nmmasq"</span> name=<span class="code-quote">"nmmasq"</span>            
+        protection=<span class="code-quote">"autoskip"</span>/&gt;
+        <span class="code-tag">&lt;blank length=<span class="code-quote">"1"</span>/&gt;</span>
+        <span class="code-tag">&lt;title brightness=<span class="code-quote">"normal"</span> col=<span class="code-quote">"8"</span> color=<span class="code-quote">"green"</span> highlighting=<span class="code-quote">"off"</span> length=<span class="code-quote">"30"</span> line=<span class="code-quote">"1"</span> name=<span class="code-quote">"pageTitle"</span>&gt;</span>
+          <span class="code-tag">&lt;texts&gt;</span>
+            <span class="code-tag">&lt;text lang=<span class="code-quote">"FR"</span>&gt;</span>Initialisation<span class="code-tag">&lt;/text&gt;</span>
+          <span class="code-tag">&lt;/texts&gt;</span>
+        <span class="code-tag">&lt;/title&gt;</span>
+        <span class="code-tag">&lt;blank length=<span class="code-quote">"1"</span>/&gt;</span>
+        &lt;edit col=<span class="code-quote">"39"</span> color=<span class="code-quote">"turquoise"</span> highlighting=<span class="code-quote">"off"</span> intensity=<span class="code-quote">"normal"</span> length=<span class="code-quote">"8"</span> line=<span class="code-quote">"1"</span> linkedvalue=<span class="code-quote">"execdate"</span> name=<span class="code-quote">"execdate"</span> 
+        protection=<span class="code-quote">"autoskip"</span> replayMutable=<span class="code-quote">"true"</span>/&gt;
+        <span class="code-tag">&lt;blank length=<span class="code-quote">"1"</span>/&gt;</span>
+        &lt;edit col=<span class="code-quote">"48"</span> color=<span class="code-quote">"turquoise"</span> highlighting=<span class="code-quote">"off"</span> intensity=<span class="code-quote">"normal"</span> length=<span class="code-quote">"8"</span> line=<span class="code-quote">"1"</span> linkedvalue=<span class="code-quote">"exechour"</span> name=<span class="code-quote">"exechour"</span>                  
+        protection=<span class="code-quote">"autoskip"</span> replayMutable=<span class="code-quote">"true"</span>/&gt;
+      <span class="code-tag">&lt;/hbox&gt;</span>
+      <span class="code-tag">&lt;hbox&gt;</span>
+        &lt;edit col=<span class="code-quote">"1"</span> color=<span class="code-quote">"default"</span> highlighting=<span class="code-quote">"off"</span> intensity=<span class="code-quote">"dark"</span> length=<span class="code-quote">"6"</span> line=<span class="code-quote">"2"</span> linkedvalue=<span class="code-quote">"cdtrans"</span> modified=<span class="code-quote">"true"</span> name=<span class="code-quote">"cdtrans"</span>    
+        protection=<span class="code-quote">"autoskip"</span>/&gt;
+        <span class="code-tag">&lt;blank length=<span class="code-quote">"32"</span>/&gt;</span>
+        <span class="code-tag">&lt;label brightness=<span class="code-quote">"normal"</span> col=<span class="code-quote">"39"</span> color=<span class="code-quote">"green"</span> highlighting=<span class="code-quote">"off"</span> length=<span class="code-quote">"5"</span> line=<span class="code-quote">"2"</span>&gt;</span>
+          <span class="code-tag">&lt;texts&gt;</span>
+            <span class="code-tag">&lt;text lang=<span class="code-quote">"FR"</span>&gt;</span>0110 <span class="code-tag">&lt;/text&gt;</span>
+          <span class="code-tag">&lt;/texts&gt;</span>
+        <span class="code-tag">&lt;/label&gt;</span>
+      <span class="code-tag">&lt;/hbox&gt;</span>
+    <span class="code-tag">&lt;/vbox&gt;</span>
+  <span class="code-tag">&lt;/formbody&gt;</span>
+<span class="code-tag">&lt;/form&gt;</span></pre>
+</div></div>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

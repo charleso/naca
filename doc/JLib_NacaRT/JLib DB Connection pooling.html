@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : JLib DB Connection pooling</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : JLib DB Connection pooling
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 16 May 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="JLibDBConnectionpooling-StandaloneDBconnectionpoolingmanager."></a>Standalone DB connection pooling manager.</h1>
+
+<h2><a name="JLibDBConnectionpooling-Usage"></a>Usage</h2>
+
+<p>Do the following operations in your application source file:<br/>
+import jlib.log.*;<br/>
+import jlib.sql.*;</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Create a DbConnectionManager instance:
+DbConnectionManager manager = <span class="code-keyword">new</span> DbConnectionManager();</pre>
+</div></div>
+
+<p>If you are using an oracle DB, call manager.initOracle(...) with parameters.<br/>
+If you are using a DB2 DB, call manager.initDB2(...) with parameters.<br/>
+If you are using another DB, call manager.init(...) with parameters.</p>
+
+<p>For the 2 first calls, the parameters are:</p>
+<ul class="alternate" type="square">
+	<li>dbUrl. For example : "jdbc:oracle:thin:@itsdev1.PUBLIGROUPE.NET:1521:ITSDB"</li>
+	<li>dbUser</li>
+	<li>dbPassword</li>
+	<li>dbUrlOptionalParameters; This parameter is optional and if if not null it is concatenated with the DB URL;  it may contains variables that will be replaced at runtime:<br/>
+o $FoundPoolName that will be replaced by the connection pool name found<br/>
+o $RequestedPoolName that will be replaced by the connection pool name requested</li>
+	<li>Maximum number of connections that be maintained simultaneously in the connection pool.</li>
+	<li>Number of milliseconds the connection can remain unused in the pool. After this time is elapsed, the connection will be closed and freed asynchronously.</li>
+	<li>For DB other than Oracle or DB2, you must give a supplementary parameter giving the driver class for the db in use.</li>
+</ul>
+
+
+<p>You can provide optional parameters by calling:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">manager.setAutoCommit(<span class="code-keyword">true</span>);
+manager.setCloseCursorOnCommit(<span class="code-keyword">true</span>);</pre>
+</div></div>
+
+<p>In order to create a new connection, or to get it from the pool if one is available, call :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">DbConnectionBase connection = manager.getConnection();</pre>
+</div></div>
+
+<p>Then, you can use the connection as required by application code.</p>
+
+<p>To return the connection to the pool, in order to have it available at a later time, do the following:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">connection.returnConnectionToPool();</pre>
+</div></div>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

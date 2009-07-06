@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.4 SQL - generalities</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.4 SQL - generalities
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 15 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>SQL access is mandatory for Cobol-like transcoded applications<br/>
+It is internally implemented by JDBC calls, but presents a high level API to the developper.</p>
+
+<h2><a name="3.4SQL-generalities-Syntaxandremarks"></a>Syntax and remarks</h2>
+
+<p>There are different types of SQL statements :</p>
+<ul class="alternate" type="square">
+	<li>Statements that acts upon a single record at time. These are select, insert, update or delete statements</li>
+	<li>Statements that manages transaction states: commit or rollback</li>
+	<li>Cursors, that can fetch multiple records: they must be open, fetched, close. Records may optinnaly be updated or deleted depending on opening mode.</li>
+</ul>
+
+
+<p>Remarks: table-space prefix is added automatically before preparation of a SQL statement. This prefix is taken from nacaRT configuration file. <br/>
+This enables a given source program to be executed with different table spaces, without modifying source code. To achieve that, nacaRT parses the sql clause and adds the chosen table prefix before each table name.</p>
+
+<h3><a name="3.4SQL-generalities-Syntax%3A"></a>Syntax :</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(&lt;clause_string&gt;)
+    [.into(destination_variable_name)]*
+    [.param(&lt;parameter_number&gt;, param_variable_name&gt;)]*
+    [.value(&lt;parameter_number&gt;, source_variable_name&gt;)]*
+    [.onErrorContinue]
+    [.onErrorGoto(&lt;paragraph&gt;)][.onErrorGoto(&lt;section&gt;)]
+    [.onWarningContinue][.onWarningGoto(onErrorGoto(&lt;paragraph&gt;))][.onWarningGoto(onErrorGoto(&lt;section&gt;)]</pre>
+</div></div>
+
+<p>The clause string must be SQL valid. It may contains place-holders marked as #&lt;unique_number&gt;. This helps map a parameter to the where argument list.<br/>
+the number placed on the right of the # sign must be unique within the statement.<br/>
+The param method specified a parameter that will be used by the corresponding # .</p>
+
+<h3><a name="3.4SQL-generalities-Chainofmethodcalls"></a>Chain of method calls</h3>
+
+<p>The first method called is sql(&lt;clause_string&gt;) that indicates the sql clause string to use. It must be SQL a valid statement. It's correctness is not validated by the java compiler, as it's only interpreted at run-time.</p>
+
+<p>The sql() can be followed by various method calls:</p>
+
+<ul class="alternate" type="square">
+	<li><tt>into(variable)</tt>: indicates nacaRT that the variable must be filled with the content of a resultset column. There must be as many into() calls as there are columns seleted in the statement.<br/>
+If a column sepecification is *, then the variable indicated by the into() calls must be a group.<br/>
+This methode is only valid for select statements of course.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>param(&lt;parameter_number&gt;, param_variable_name&gt;)</tt>: This method call has 2 parameters. The 1st (parameter_number) is a number which must match a parameter placeholder given in the sql statement as #&lt;parameter_number&gt;. &lt;param_variable_name&gt; is the name of a cobol-like variable whose value will be used for record selection. This method is used for all statements that are filtered (select, update, delete).</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>value(&lt;parameter_number&gt;, source_variable_name&gt;</tt>: this method is used to provide a value to write in some table. The parameter_number number must match a parameter number of the SQL clause specified as #&lt;parameter_number&gt;. It's used only for insert or update statements.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>onErrorGoto()</tt> enables error management. An error is any DB2 negative code (&lt; 0) . Then, when we get such a negative code, the paragraph or section is executed.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li><tt>onWarningGoto()</tt> enables management when a warning appears. A warning is any DB2 strictly positive code (&gt; 0), excluding 100. Then, when we get such a code, the paragraph or section is executed.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li>{{onErrorContinue()} declares explicitly that we don't manages errors</li>
+</ul>
+
+
+<h4><a name="3.4SQL-generalities-MoreonSQLCodehandling"></a>More on SQL Code handling</h4>
+
+<p>When a SQL statement is executed, a status code is generated by JDBC. It can be either :</p>
+<ul class="alternate" type="square">
+	<li>handled directly in the methode chain, as described below (i.e. <tt>onErrorGoto()</tt>)</li>
+	<li>or handled in next source line:<br/>
+The method isSQLCode() enables to check the last SQL code against a given SQL code. A list of standard SQL code value is provided by object SQLCode.<br/>
+This enables to do the following operations:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">sql(<span class="code-quote">"select * from xxx"</span>).into(vGroup);
+...
+<span class="code-keyword">if</span>(isSQLCode(SQLCode.SQL_NOT_FOUND))
+{
+    <span class="code-comment">// Did not found any record !!!
+</span>}</pre>
+</div></div></li>
+</ul>
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

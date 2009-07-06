@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : NacaRT unit testing</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : NacaRT unit testing
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">				    	
+					    This page last changed on 16 May 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>Many cobol like statements are unit-tested by the Naca sub-project NacaRTTests.</p>
+
+<p>These tests are not junit tests, but are in fact cobol-like hand written programs that checks semantics of transcoded verbs.</p>
+
+<p>The <tt>main.java</tt> is a launcher that executes all tests. <br/>
+If a test fails, then an excpetion is sent.</p>
+
+<p>It is mandatory that all tests performs correctly.<br/>
+If nacaRT is modified in some way, the tests must be checked. If a test fails dur to some modification of nacaRT, then either:</p>
+<ul class="alternate" type="square">
+	<li>nacaRT has a bug that is shown by the test, so nacaRT must be corrected</li>
+	<li>the test is wrong, then it must be corrected.</li>
+</ul>
+
+
+<p>The various aspects covered by the tests are:</p>
+<ul class="alternate" type="square">
+	<li>program support</li>
+	<li>copy support</li>
+	<li>Working storage variable allocation</li>
+	<li>Occurs item, Groups, Redefintio of variables</li>
+	<li>Variable typing support</li>
+	<li>Alphanumeric variable support</li>
+	<li>Right justification words</li>
+	<li>Numeric variable support, including Comp0, comp3, comp4 encoding, with(/out) sign</li>
+	<li>Numeric edited variables support</li>
+	<li>variable redefinition</li>
+	<li>program calling</li>
+	<li>program linking</li>
+	<li>parameter passing between programs, including linkage storage section</li>
+	<li>String, Unstring, Inspect, Concat handling</li>
+	<li>Maths</li>
+	<li>Conditions</li>
+	<li>Queues</li>
+	<li>Paragraph/section perform/goto</li>
+	<li>Screen map defintion</li>
+	<li>Screen map redefintion</li>
+	<li>SQL statement</li>
+	<li>misc cobol like verbs</li>
+</ul>
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

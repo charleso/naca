@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : JLib - XML Support</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : JLib - XML Support
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 16 May 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="JLib-XMLSupport-XMLTagmanager"></a>XML Tag manager</h1>
+
+<p>JLib supports easy XML parsing, by wrapping Xerces parser.</p>
+
+<h2><a name="JLib-XMLSupport-XMLDataread"></a>XML Data read</h2>
+
+<p>XML Data can be easily read form an XML source.</p>
+
+<p>Example :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagRoot = Tag.createFromFile(m_csIniFilePath);
+	<span class="code-keyword">if</span>(tagRoot != <span class="code-keyword">null</span>)
+	{
+		<span class="code-object">String</span> csLogCfg = tagRoot.getVal(<span class="code-quote">"LogSettingsPathFile"</span>);
+		Tag tagLogSettings = Log.open(<span class="code-quote">"NacaRT"</span>, csLogCfg);
+		<span class="code-keyword">if</span> (tagLogSettings != <span class="code-keyword">null</span>)
+		{
+			Tag tagSettings = tagLogSettings.getChild(<span class="code-quote">"Settings"</span>);
+			<span class="code-keyword">if</span>(tagSettings != <span class="code-keyword">null</span>)
+			{
+				isLogCESM = tagSettings.getValAsBoolean(<span class="code-quote">"CESM"</span>); 
+				isLogFlow = tagSettings.getValAsBoolean(<span class="code-quote">"Flow"</span>);
+			}
+		}
+	}</pre>
+</div></div>
+
+<p>Exemplanations:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagRoot = Tag.createFromFile(m_csIniFilePath);</pre>
+</div></div>
+<p>Open a XML file and fill a document.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">String</span> csLogCfg = tagRoot.getVal(<span class="code-quote">"LogSettingsPathFile"</span>);</pre>
+</div></div>
+<p>Read a parameter inside the current tag. The parameter name is provided.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagSettings = tagLogSettings.getChild(<span class="code-quote">"Settings"</span>);</pre>
+</div></div>
+<p>Get the first named child of a tag ; tagSettings will be null if no child of this name exists.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">isLogCESM = tagSettings.getValAsBoolean(<span class="code-quote">"CESM"</span>);</pre>
+</div></div>
+<p>Get a named parameter's value as boolean.</p>
+
+<p>You can enumerate all child of a tag :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagLogCenter = tagLogCenters.getEnumChild(<span class="code-quote">"LogCenter"</span>);
+<span class="code-keyword">while</span>(tagLogCenter != <span class="code-keyword">null</span>)
+{
+	<span class="code-object">String</span> csChannel = tagLogCenter.getVal(<span class="code-quote">"Channel"</span>);
+	<span class="code-comment">// Do something with csChannel
+</span>	tagLogCenter = tagLogCenters.getEnumChild();
+}</pre>
+</div></div>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagLogCenter = tagLogCenters.getEnumChild(<span class="code-quote">"LogCenter"</span>);</pre>
+</div></div>
+<p>Returns the first child tag named LogCenters. An enumeration is read to be processed on next call.<br/>
+It's value will be null when all identically named children tags will have been read.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">tagLogCenter = tagLogCenters.getEnumChild();</pre>
+</div></div>
+<p>Get the next child tag with the same name.</p>
+
+<p>A textual parameter value can be read by calling</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag.getNodeVal()</pre>
+</div></div>
+
+<p>Example :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;Parent&gt;</span>
+    <span class="code-tag">&lt;Node&gt;</span>
+	SomeData
+    <span class="code-tag">&lt;/Node&gt;</span>
+<span class="code-tag">&lt;/Parent&gt;</span></pre>
+</div></div>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagNode = tagParent.getChild(« Node ») ;
+<span class="code-keyword">if</span>(tagNode != <span class="code-keyword">null</span>)
+{
+    <span class="code-object">String</span> csData = tagNode.getNodeVal() ;	<span class="code-comment">// csData will be filled with « SomeData »
+</span>    ...
+}</pre>
+</div></div>
+
+<p>Other APIs are available through Tag class. </p>
+
+<h2><a name="JLib-XMLSupport-XMLDatawrite"></a>XML Data write</h2>
+
+<p>A root tag is created by callling :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagRoot = <span class="code-keyword">new</span> Tag (« root ») ;</pre>
+</div></div>
+
+<p>A child tag is appended by calling</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag tagLogCenters = tagOrganisation.addTag(<span class="code-quote">"LogCenters"</span>);</pre>
+</div></div>
+<p>In this sample, tagLogCenters is a child of tagOrganisation. It is named « LogCenters ».</p>
+
+<p>A value parameter is added to the current  tag by calling</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Tag.addVal(« Name », nValue) ;</pre>
+</div></div>
+<p>The parameter types can be : String, int, long, boolean.</p>
+
+<p>A value parameter can be removed by calling </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">tag.removeVal(« Parameter Name »);</pre>
+</div></div>
+
+<p>A parameter existence can be checked by calling </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">isValExisting(Name) ;</pre>
+</div></div>
+
+<p>A Tag can by serialized to a file by calling :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">tag.exportToFile(<span class="code-object">String</span> filename) ;</pre>
+</div></div>
+
+<p>It can also be set in a string by calling :</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">String</span> cs = tag.exportToString() ;</pre>
+</div></div>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

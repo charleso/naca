@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.6.2 File declaration</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.6.2 File declaration
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 19 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="3.6.2Filedeclaration-Filesdeclarationinprograms"></a>Files declaration in programs</h1>
+
+<p>Files are declared in the File section, which is located after the working storage section, and before the linkage section.</p>
+
+<h2><a name="3.6.2Filedeclaration-Declaration"></a>Declaration</h2>
+
+<p>The declaration looks like:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestBatch <span class="code-keyword">extends</span> BatchProgram                                            
+{
+    DataSection workingstoragesection = declare.workingStorageSection();
+    ...
+    DataSection filesection = declare.fileSection();
+    FileDescriptor fileIn = declare.file(<span class="code-quote">"FileTestIn"</span>);
+    Var enreg = declare.level(1).<span class="code-keyword">var</span>();
+        Var name = declare.level(5).picX(5).<span class="code-keyword">var</span>();
+        Var Date = declare.level(5).picX(8).<span class="code-keyword">var</span>();
+        ...</pre>
+</div></div>
+
+<p>Every file is defined by a FileDescriptor entry.<br/>
+Each FileDescriptor is immediatly followed by a group variable at level 1. It's children defines a structure of all fields of the record.<br/>
+Note: the 0x0A end of record marker is not represented in a children of the record</p>
+
+
+<h2><a name="3.6.2Filedeclaration-Fixedrecordlengthdeclaration"></a>Fixed record length declaration</h2>
+
+<p>Fixed record length files are defined as below.</p>
+
+<p>For example, if the record is:</p>
+<ul class="alternate" type="square">
+	<li>a name of 10 chars</li>
+	<li>a date of 8 chars encoded as an unsigned comp3 number</li>
+	<li>a number of 4 digits encoded in 2 bytes as a comp value<br/>
+The total record length is 10 + ((8/2)+1) + 2 = 17 bytes. It will take 18 bytes on disk, as the trailing end of record marker will ba added.</li>
+</ul>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestBatch <span class="code-keyword">extends</span> BatchProgram                                            
+{
+    DataSection workingstoragesection = declare.workingStorageSection();
+    ...
+    DataSection filesection = declare.fileSection();
+    FileDescriptor fileIn = declare.file(<span class="code-quote">"FileTestIn"</span>);
+    Var enreg = declare.level(1).<span class="code-keyword">var</span>();
+        Var name = declare.level(5).picX(10).<span class="code-keyword">var</span>();
+        Var Date = declare.level(5).pic9(8).comp3().<span class="code-keyword">var</span>();
+        Var <span class="code-object">Number</span> = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>();</pre>
+</div></div>
+
+<h2><a name="3.6.2Filedeclaration-Variablelengthrecorddeclaration"></a>Variable length record declaration</h2>
+
+<p>A variable length record is divided in 2 parts:</p>
+<ul class="alternate" type="square">
+	<li>constant length chunk</li>
+	<li>variable length chunk</li>
+</ul>
+
+
+<p>For example, if the record is:</p>
+<ul class="alternate" type="square">
+	<li>a name of 10 chars</li>
+	<li>a date of 8 chars encoded as an unsigned comp3 number</li>
+	<li>a number of 4 digits encoded in 2 bytes as a comp value</li>
+	<li>a text length encoded in 2 bytes as a comp value</li>
+	<li>a variable length text, that can occupied a between 0 to 1000 bytes.<br/>
+The constant record size is 10 + ((8/2)+1) + 2 + 2 = 19 bytes.<br/>
+The variable record length is between 0 to 1000 bytes. <br/>
+Thus a record length ranges from 19 to 1019 bytes.</li>
+</ul>
+
+
+<p>It is important to identify 2 things:</p>
+<ul class="alternate" type="square">
+	<li>The variable part of this record. This is done by specifying <tt>.variableLength()</tt> in the Var declaration call chain.</li>
+	<li>The length of the variable part of the record. This is given by declaring a fileDescriptorDepending.</li>
+</ul>
+
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TestBatch <span class="code-keyword">extends</span> BatchProgram                                            
+{
+    DataSection workingstoragesection = declare.workingStorageSection();
+    ...
+    DataSection filesection = declare.fileSection();
+    FileDescriptor fileIn = declare.file(<span class="code-quote">"FileTestIn"</span>);
+    Var enreg = declare.level(1).<span class="code-keyword">var</span>();
+        Var Name = declare.level(5).picX(10).<span class="code-keyword">var</span>();
+        Var Date = declare.level(5).pic9(8).comp3().<span class="code-keyword">var</span>();
+        Var <span class="code-object">Number</span> = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>();
+        Var Length = declare.level(5).pic9(4).comp().<span class="code-keyword">var</span>();
+        Var Text = declare.level(5).variableLength().picX(1000).<span class="code-keyword">var</span>() ;
+    ...
+    FileDescriptorDepending fileIn$dependency = declare.fileDescriptorDepending(fileIn, Length);
+    ...
+    <span class="code-keyword">public</span> void procedureDivision()
+    {
+        ...</pre>
+</div></div>
+
+<p>This declaration states that:</p>
+<ul class="alternate" type="square">
+	<li>There are 4 fields in the record.</li>
+	<li>Name, Date, Number and Length are in the fixed variable chunk of the record</li>
+	<li>Text is the variable chunk part of the record</li>
+	<li>The variable chunk part length is given by the value of the Length variable.</li>
+</ul>
+
+
+<p>Note 1: In that sample, the variable length value is provided by a variable that is part of the fixed part chunk of the record. It could also be a working or linkage section variable.<br/>
+Note 2: The length stored in the record header is the total record length, excluding the header itself and the trailing 0x0A. But it includes the length of the fixed chunk. In that example, the Length contained "7" and Test's value was "My Text", then the record length stored in the header would be 19 + 7 = 26 bytes.</p>
+
+
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

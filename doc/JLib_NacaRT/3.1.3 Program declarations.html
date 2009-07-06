@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 3.1.3 Program declarations</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 3.1.3 Program declarations
+                                                    </span>
+				    </div>
+					<div><a href="index.html">Return to menu</a></div>
+					<div class="pagesubheading">
+					    This page last changed on 13 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>A program is implemented in 1 or many java classes.</p>
+
+<p>A Cobol-like program is structured as a Cobol program, within limitaitions due to Java language.</p>
+
+<p>The main declarations are described below. The declaration order is important and must be respected. A note indicates if the declaration is mandatory or not, and in which case it can be used.</p>
+
+<h4><a name="3.1.3Programdeclarations-Packagesimports"></a>Packages imports</h4>
+
+<p>Used&nbsp;by: OnlineProgram, BatchProgram, CalledProgram, FPacProgram&nbsp;</p>
+
+<p>This is mandatory for all Java programs to delcare the packages that provides needed runtime classes</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> nacaLib.batchPrgEnv.BatchProgram;
+<span class="code-keyword">import</span> nacaLib.program.Paragraph;
+<span class="code-keyword">import</span> nacaLib.varEx.DataSection;
+<span class="code-keyword">import</span> nacaLib.varEx.Var;</pre>
+</div></div>
+<p>This list is not complete and may be different, depending on your exact source code. However Eclipse integration makes easy the package declaration, as the tool proposes imports.</p>
+
+<h4><a name="3.1.3Programdeclarations-Programidentification"></a>Program identification</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram, FPacProgram&nbsp;&nbsp;</p>
+
+<p>As each program is implemented in it's own java class and can use resources from base classes, the declaration of the program is</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class xxx <span class="code-keyword">extends</span> BatchProgram|OnlineProgram|CalledProgram|FPacProgram</pre>
+</div></div>
+<p>where xxx is the program's name<br/>
+and yyy can be one of :</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Name </th>
+<th class='confluenceTh'> Comment </th>
+</tr>
+<tr>
+<td class='confluenceTd'> BatchProgram </td>
+<td class='confluenceTd'> Used by batch programs. They can handle files and do internal sorting </td>
+</tr>
+<tr>
+<td class='confluenceTd'> OnlineProgram </td>
+<td class='confluenceTd'> Used by online program supporting CICS like environment </td>
+</tr>
+<tr>
+<td class='confluenceTd'> CalledProgram </td>
+<td class='confluenceTd'> Used by programs that are called by the call() keyword. Such a program can be called by a BatchProgram, OnlineProgram or as a Stored procedure within UDB </td>
+</tr>
+<tr>
+<td class='confluenceTd'> FPacProgram </td>
+<td class='confluenceTd'> Consultas custom extension of batch programs. The can handle file buffer directly. </td>
+</tr>
+</tbody></table>
+
+<h4><a name="3.1.3Programdeclarations-Cursorssection"></a>Cursors section</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram&nbsp;</p>
+
+<p>Contrary to native Cobol programs, the cursors MUST be declared in&nbsp;cobol-like programs that uses SQL cursors. If it's not the case, then this declaration can safely be ignored.<br/>
+Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">[DataSection sqlcursorsection = declare.cursorSection();
+[SQLCursor &lt;cursor_name&gt; = declare.cursor();]*]</pre>
+</div></div>
+<p>Note:</p>
+
+<p>DataSection sqlcursorsection = declare.cursorSection(); Declares that the program uses some cursors. The name sqlcursorsection is only convention, and can be any unused name.</p>
+
+<p>SQLCursor cur1 = declare.cursor(); Declares a SQL cursor variable. it will be identified in source code by the name cur1.</p>
+
+<h4><a name="3.1.3Programdeclarations-Filesection"></a>File section</h4>
+
+<p>Used by: BatchProgram, CalledProgram</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">[DataSection filesection = declare.fileSection();
+     [FileDescriptor &lt;file_descriptor_name&gt; = declare.file(<span class="code-quote">"&lt;File_descriptor_logical_name&gt;"</span>);
+     &lt;File record structure declaration&gt;]*    [SortDescriptor &lt;sort_descriptor_name&gt; = declare.sort();
+    &lt;sort record structure declaration&gt;]*]</pre>
+</div></div>
+<p>Sample:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">DataSection filesection = declare.fileSection();
+FileDescriptor fileIn = declare.file(<span class="code-quote">"FILE_IN"</span>);
+    Var enreg_Pars = declare.level(1).<span class="code-keyword">var</span>()
+         Var pars_Param = declare.level(5).picX(8).<span class="code-keyword">var</span>() ;
+         Var filler$31 = declare.level(5).picX(1).filler() ;
+         Var pars_Value = declare.level(5).picX(60).<span class="code-keyword">var</span>() ;
+         Var filler$32 = declare.level(5).picX(11).filler() ;</pre>
+</div></div>
+<p>The file section is used only by batch programs or called programs used by batch programs. It declares the various file descriptor. They are identified internally by their file_descriptor_name and refers to a physical file through the File_descriptor_logical_name. Of course, multiple FileDescriptor objects can be describes here.</p>
+
+<p>The file descriptor is followed by a structure of variables that builds-up the file record. This variables declaration is similar to the WorkingStorage variable declarations, that is described below.</p>
+
+<p>The sort descriptor is used only for internal sorting.</p>
+
+<h4><a name="3.1.3Programdeclarations-Workingstorage"></a>Working storage</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram, FPacProgram</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">DataSection workingstoragesection = declare.workingStorageSection();
+[Var &lt;variable_name&gt; = declare.level(&lt;level&gt;).[&lt;specialisation&gt;].<span class="code-keyword">var</span>()|.filler() ;][&lt;Copy_Class_Name&gt; &lt;copy_variable_name&gt; = &lt;Copy_Class_Name&gt;.Copy(<span class="code-keyword">this</span>);]</pre>
+</div></div>
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Var pr_Output = declare.level(1).<span class="code-keyword">var</span>() ;
+    Var pr_Texte = declare.level(5).occurs(3).<span class="code-keyword">var</span>() ;
+        Var pr_Lichmr5 = declare.level(10).picX(5).<span class="code-keyword">var</span>() ;
+        Var filler$4 = declare.level(10).picX(2).value(<span class="code-quote">"--"</span>).filler() ;
+
+Var w_Utiste = declare.level(1).<span class="code-keyword">var</span>() ;
+    Var filler$1 = declare.level(5).picX(2).valueSpaces().filler() ;
+    Var w_Utiste_3 = declare.level(5).picX(1).valueSpaces().<span class="code-keyword">var</span>() ;
+Var w_Utiste_Princ = declare.level(1).redefines(w_Utiste).picX(3).<span class="code-keyword">var</span>() ;
+
+Var w_Count = declare.level(77).pic9(5).comp3().<span class="code-keyword">var</span>() ;FROMZONE fromzone = FROMZONE.Copy(<span class="code-keyword">this</span>) ;ERRZONE errzone = ERRZONE.Copy(<span class="code-keyword">this</span>) ;</pre>
+</div></div>
+<p>The variable declarations are explained in later chapter. The identation of variables is for eye catching only.</p>
+
+<p>Each variable declared here mmust have a unique name among all variables of the program, including the variables of the varous Copy that are included. This is a strong constraint that comethines requires name decoration to ensure this uniqueness. In particular, the fillers must be named with a unique name. The patterne used by the transcoder tool is to append a unique counter's value to the fille prefix. The Prefix and suffix is separated by a $ sign.</p>
+
+<p>The copy file is included by declaring a variable typed from the copy Class. This copy is then an instance of the copy class.&nbsp;A copy&nbsp;is not embedded within the program's class, but instead is shared by all programs that declares an instance of this copy.</p>
+
+<p>The &lt;specialisation&gt; is a list of method calls that fully qualifies the variable type. It is described below.</p>
+
+<h4><a name="3.1.3Programdeclarations-Linkagesection"></a>Linkage section</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">[
+    DataSection linkagesection = declare.linkageSection() ;
+    [Var &lt;variable_name&gt; = declare.level(&lt;level&gt;).[&lt;specialisation&gt;].<span class="code-keyword">var</span>()|.filler() ;]*
+]</pre>
+</div></div>
+<p>The linkage section is used to declare parameters to pass from a caller program to a called program.<br/>
+The &lt;specialisation&gt; is a list of method calls that fully qualifies the variable type. It is described below.</p>
+
+<h4><a name="3.1.3Programdeclarations-Calledparameter"></a>Called parameter</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">[
+    ParamDeclaration callParameters = declare[.using(&lt;linkageSection_variable_name)]\+
+]</pre>
+</div></div>
+<p>This declaration is used to indicate which variables of the linkage section are to filled by caller program. It is similar to the PROCEDURE DIVISON USING ... of Cobol.</p>
+
+<h4><a name="3.1.3Programdeclarations-FileDescritorDependingdeclaration"></a>FileDescritorDepending declaration</h4>
+
+<p>Used by: BatchProgram, CalledProgram</p>
+
+<p>Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">[
+    FileDescriptorDepending&amp;nbsp;&lt;name&gt; = declare.fileDescriptorDepending(&lt;file_descriptor_name&gt;, &lt;variable_name_within_file_descriptor_record&gt;);
+]</pre>
+</div></div>
+<p>This is used only for variable length files. The purpose is to identifies the variable of the file's record that carry the length of the record. This way, when writting such a record, nacaRT knowns the number of bytes to write in the file's record.</p>
+
+<h4><a name="3.1.3Programdeclarations-ProcedureDivision"></a>ProcedureDivision</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram<br/>
+Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">[
+    <span class="code-keyword">public</span> void ProcedureDivision()
+]</pre>
+</div></div>
+<p>This is program execution entry point main method.<br/>
+It contains varous verbs and method call. They are defined by the base class of the current program, and then support a different set of operations depending of base cléass type being BatchProgram, OnlineProgram, CalledProgram or FPacProgram.<br/>
+However, a large common set of features is supported for all these cases.</p>
+
+<h4><a name="3.1.3Programdeclarations-Sectionsandparagraphs"></a>Sections and paragraphs</h4>
+
+<p>Used by: OnlineProgram, BatchProgram, CalledProgram<br/>
+Syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Section &lt;section_name&gt; = <span class="code-keyword">new</span> Section(<span class="code-keyword">this</span>){<span class="code-keyword">public</span> void run(){section_name();}};void section_name()
+{
+    &lt;code&gt;...
+}
+|
+Paragraph &lt;paragraph_name&gt; = <span class="code-keyword">new</span> Paragraph(<span class="code-keyword">this</span>){<span class="code-keyword">public</span> void run(){paragraph_name();}};void paragraph_name()
+{
+    &lt;code&gt;...
+}</pre>
+</div></div>
+<p>The sections and paragraphs are defined with the same syntax. In terms of java implementation, they are both an object and a method. This enable nacaRT to store a reference to a paragraph / section, and to call it without using java relection APIs. That way, the paragraph/section name is fully checked by the compiler, and it's then impossible to perform / goto a paragraph/section that doesn't exists.</p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

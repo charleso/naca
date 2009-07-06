@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<WorkingStorageSection Line="0">
+<Item Level="01" Line="1" Name="MSG-ZONE">
+<Item Constant="SPACE" Format="XXXX" Length="4" Level="05" Line="2" Name="MSG-NO" Type="STRING"/>
+<Item Constant="SPACE" Format="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" Length="78" Level="05" Line="3" Name="MSG-TEXT" Type="STRING"/>
+</Item>
+</WorkingStorageSection>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/online"/>
+	<classpathentry kind="src" path="src/commons/include"/>
+	<classpathentry kind="src" path="src/batch"/>
+	<classpathentry excluding="include/" kind="src" path="src/commons"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JLib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/NacaRT"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

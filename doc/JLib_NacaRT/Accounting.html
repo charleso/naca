@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : Accounting</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : Accounting
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 30 Mar 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <p>nacaRT holds accounting informations for statics and billing purpose.<br/>
+They are defined here in tag &lt;Accounting&gt; stored within tag &lt;conf&gt;.<br/>
+The accounting system holds it's own DB connection that is not shared with the connection use dby application programs.<br/>
+Thus, many parameters defines this DB connection.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FMachineId%7D%7D"></a><tt>conf/Accounting/MachineId</tt></h4>
+<p>String value. <br/>
+Physical machine name.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FTomcatId%7D%7D"></a><tt>conf/Accounting/TomcatId</tt></h4>
+<p>String value. <br/>
+Name of the tomcat instance.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FTableName%7D%7D"></a><tt>conf/Accounting/TableName</tt></h4>
+<p>String value. <br/>
+Name of the db table that stores accounting infos.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FMaxLevelDepth%7D%7D"></a><tt>conf/Accounting/MaxLevelDepth</tt></h4>
+<p>Integer value.<br/>
+Billing can be set at different levels.<br/>
+Set 0 for storing an account only when starting a new transaction.<br/>
+Set 1 for storing an account when starting a new transaction, or starting a top level program.<br/>
+Set 2 for storing an account when starting a new transaction, or starting a top level program, a sub program.<br/>
+Set typically the parameter to "0".</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2Fdburl%7D%7D"></a><tt>conf/Accounting/dburl</tt></h4>
+<p>String value.<br/>
+Gives the jdbc url identifying the database holding the accounting table.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2Fdbuser%7D%7D"></a><tt>conf/Accounting/dbuser</tt></h4>
+<p>String value.<br/>
+Database user able to insert record in the accounting table.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2Fdbpassword%7D%7D"></a><tt>conf/Accounting/dbpassword</tt></h4>
+<p>String value.<br/>
+Database user password able to insert record in the accounting table.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FdbConnectionUrlOptionalParams%7D%7D"></a><tt>conf/Accounting/dbConnectionUrlOptionalParams</tt></h4>
+<p>Optional parameter string appended to dburl. It is must be set to "clientProgramName=$FoundPoolName;"</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2Fdbenvironment%7D%7D"></a><tt>conf/Accounting/dbenvironment</tt></h4>
+<p>Database environment. This is the accounting table prefix.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FdriverClass%7D%7D"></a><tt>conf/Accounting/driverClass</tt></h4>
+<p>JDBC driver class name used to connect to the db. Set it to "com.ibm.db2.jcc.DB2Driver" for DB2 or UDB support.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FCloseCursorOnCommit%7D%7D"></a><tt>conf/Accounting/CloseCursorOnCommit</tt></h4>
+<p>Boolean value.<br/>
+DB Connection option that must be set to "true".</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FAutoCommit%7D%7D"></a><tt>conf/Accounting/AutoCommit</tt></h4>
+<p>Boolean value.<br/>
+DB Connection option that must be set to "true".</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FvalidationQuery%7D%7D"></a><tt>conf/Accounting/validationQuery</tt></h4>
+<p>SQL clause that must always succeed, used to check the connection validity. Used to validate the DB connection after opening it.</p>
+
+<h3><a name="Accounting-Connectionpooling"></a>Connection pooling</h3>
+
+<p>All nacaRT DB connections are pooled internally. This includes the accounting connections.<br/>
+The pooling supports multiple pools. In the case of accounting, there is only one pool.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FName%7D%7D"></a><tt>conf/Accounting/Pools/Pool/Name</tt></h4>
+<p>Gives the name of the db connection pool used for accounting.<br/>
+Must be set to "Accounting".</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FProgramId%7D%7D"></a><tt>conf/Accounting/Pools/Pool/ProgramId</tt></h4>
+<p>Gives the name of the program that can use this connection pool.<br/>
+Must be set to "Accounting".</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FMaxConnection%7D%7D"></a><tt>conf/Accounting/Pools/Pool/MaxConnection</tt></h4>
+<p>Integer value. Maximum number of connections that this pool can hold. When an accounting record must be inserted, a connection is obtained from the pool, and is SQL statement is issued. Then, the connection returns to the pool. If at a certain moment all connection are used, then the next program requesting an accounting insertion must wait until one of the db connectio nis released.</p>
+
+<h4><a name="Accounting-%7Bconf%2FAccounting%2FPools%2FPool%2FTimeBeforeRemoveC..."></a><tt>conf/Accounting/Pools/Pool/TimeBeforeRemoveConnection_ms</tt></h4>
+<p>Time in milliseconds during which a connection can stay open without being used. When the connection is used, it's last usage time is resetted. When the last usage time is higher than this quantiy of milliseconds, then the connection and it's prepared statements are closed and removed. This is done by the GC thread.<br/>
+This value must not be longer than the corresponding database parameter. In fact, the db engine can pro-activelly close an obsolete connection, and nacaRT won't be informed of this event. It's best to close the connection before the db engine.</p>
+
+<h4><a name="Accounting-%7Bconf%2FAccounting%2FPools%2FPool%2FMaxStatementLiveT..."></a><tt>conf/Accounting/Pools/Pool/MaxStatementLiveTime_ms</tt></h4>
+<p>Time in milliseconds during which a prepared statement can stay open without being used. If a statement is unused for too long, the DB engine may close it aggressivelly, and nacaRT has no way to be informed of that fact. Thus, it's best to close an unsued statement before the db engine own timout value. This cleanup is done by the GC Thread and when a connection is returned to it's pool.</p>
+
+<h4><a name="Accounting-%7B%7Bconf%2FAccounting%2FPools%2FPool%2FUseExplain%7D%7D"></a><tt>conf/Accounting/Pools/Pool/UseExplain</tt></h4>
+<p>Boolean value. Set to false.</p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>

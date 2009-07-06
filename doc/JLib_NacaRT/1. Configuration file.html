@@ -1,0 +1,331 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Publicitas Naca : 1. Configuration file</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Publicitas Naca : 1. Configuration file
+                                                    </span>
+				    </div>
+				    <div><a href="index.html">Return to menu</a></div>
+				    <div class="pagesubheading">
+					    This page last changed on 02 Apr 2007 by <font color="#0050B2">u930di</font>.
+				    </div>
+
+				    <h1><a name="1.Configurationfile-1.Introduction"></a>1. Introduction </h1>
+
+<p>NacaRT is configured by a main configuration file: nacaRT.cfg<br/>
+The purpose of this file is to give variuos settings used during nacaRT runtime.<br/>
+It sets items like:</p>
+<ul class="alternate" type="square">
+	<li>Path and file name</li>
+	<li>Log settings</li>
+	<li>Db connection informationsc</li>
+	<li>Cache activation</li>
+	<li>...</li>
+</ul>
+
+
+<p>Some settings are mandatory, some are optional. If it's optionnal, then the default value is indicated.</p>
+
+<p>This file is critical to the correct execution. It must not be modified without a deep understanding.</p>
+
+<p>Some settings are usefull only in some execution mode. It's particulary true for specific online settings that are unsusable for batch programs.<br/>
+The parameters are grouped by such usage.</p>
+
+<h1><a name="1.Configurationfile-2.Notation"></a>2. Notation</h1>
+
+<p>This is a XML file.<br/>
+The notation used for all settings is given using the following syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">{{[tag_name/]+ parameter_name}}</pre>
+</div></div>
+
+<p>Exemple XML file:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt;conf 
+    XSLFilePath=<span class="code-quote">"..."</span>
+    &lt;GCThread
+        ActivateThreadGarbageCollectorStatement=<span class="code-quote">"..."</span>
+    /&gt;
+/&gt;</pre>
+</div></div>
+<p>is expressed as </p>
+<ul class="alternate" type="square">
+	<li><tt>conf/XSLFilePath</tt></li>
+	<li><tt>conf/GCThread/ActivateThreadGarbageCollectorStatement</tt></li>
+</ul>
+
+
+<h1><a name="1.Configurationfile-3Sample"></a>3 Sample</h1>
+
+<p>The following path, db and ldap identifications are faked. This XML configuration file is for a Linux system.</p>
+
+<h2><a name="1.Configurationfile-3.1OnlineSample"></a>3.1 Online Sample</h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt;conf 	
+	XSLFilePath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/ideaScript.xsl"</span> 
+	HelpXSLFilePath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/help.xsl"</span> 
+	ResourcePath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/lib/Resources"</span> 
+	SequencerFactoryClass=<span class="code-quote">"idea.onlinePrgEnv.OnlineProgramLoaderFactory"</span> 
+	XMLFrameFilePath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/xmlPageScript.xml"</span>
+	LogSettingsPathFile=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/LogSettings.cfg"</span>
+	
+	PreLoadAllProgramFromDir=<span class="code-quote">"false"</span>
+	PreLoadAllProgramFromList=<span class="code-quote">"true"</span>
+	KeepPreloadedProgramList=<span class="code-quote">"false"</span>
+	PreLoadProgramList=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/ProgramList.xml"</span>
+	AsynchronousPreloadPrograms=<span class="code-quote">"true"</span>
+	GCAfterPreloadPrograms=<span class="code-quote">"true"</span>
+	
+	EmulWebRootPath=""
+	UseProgramPool=<span class="code-quote">"true"</span>
+	UseSQLStatementCache=<span class="code-quote">"true"</span>
+	UseSQLObjectCache=<span class="code-quote">"true"</span>
+	UseVarFillCache=<span class="code-quote">"true"</span>
+	ManageVarDefCatalog=<span class="code-quote">"true"</span>
+	CacheResourceFiles=<span class="code-quote">"false"</span>
+
+	MaxSessionExecTime_ms=<span class="code-quote">"120000"</span>
+	HttpSessionMaxInactiveInterval_s=<span class="code-quote">"10800"</span>
+
+	ApplicationClassPath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/lib/pub2000"</span>
+
+	JarFile=<span class="code-quote">"Application.jar"</span>
+	CanLoadJar=<span class="code-quote">"true"</span>
+	CanLoadClass=<span class="code-quote">"true"</span>
+
+	MaxSizeMemPoolCodeCache_Mb=<span class="code-quote">"64"</span>
+	MaxSizeMemPoolPermGen_Mb=<span class="code-quote">"300"</span>
+	
+	TomcatStartCommand=<span class="code-quote">"./opt/apps/pub/start_tomcat"</span>
+
+	ServerName=<span class="code-quote">"PROD1b"</span>
+	LDAPServer=<span class="code-quote">"LDAP1.company.com"</span>
+	LDAPServer2=<span class="code-quote">"LDAP2.company.com"</span>
+	LDAPServer3=<span class="code-quote">"LDAP3.company.com"</span>
+	LDAPRootOU=<span class="code-quote">"OU=MY_OU,DC=MY_DC,DC=MYDCDC"</span>
+	LDAPGenericUser=<span class="code-quote">"LDAP_USER"</span>
+	LDAPGenericPassword=<span class="code-quote">"LDAP_PASSWORD"</span>
+
+	AppLauncherConfig=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/CustomAppLauncher.cfg"</span>
+	
+	CodeJavaToDb=<span class="code-quote">"255-159,10-133"</span>
+	CodeDbToJava=<span class="code-quote">"159-255"</span>
+	
+	ComparisonMode=<span class="code-quote">"EBCDIC"</span>
+	
+	StandardCalendar=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/StandardCalendar.xml"</span>
+	CustomCalendar=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/CustomCalendar.xml"</span>
+&gt;
+
+	&lt;GCThread
+		ActivateThreadGarbageCollectorStatement=<span class="code-quote">"true"</span>	
+		GarbageCollectorStatement_ms=<span class="code-quote">"300000"</span>
+		MaxPermanentHeap_Mo=<span class="code-quote">"3500"</span>
+		NbStatementForcedRemoved=<span class="code-quote">"0"</span>
+		NbSystemGCCall=<span class="code-quote">"1"</span>
+		NbStatementsToRemoveBeforeGC=<span class="code-quote">"500000"</span>
+	/&gt;
+
+	&lt;Accounting
+		MachineId=<span class="code-quote">"NACA1"</span>
+		TomcatId=<span class="code-quote">"TOMCAT1"</span>
+		TableName=<span class="code-quote">"SY0330"</span>
+		MaxLevelDepth=<span class="code-quote">"0"</span>
+		dburl=<span class="code-quote">"jdbc:db2://DBURL/TOTO:"</span> 
+		dbuser=<span class="code-quote">"DBUSER"</span>
+		dbpassword=<span class="code-quote">"DBPASSWORD"</span>
+		dbConnectionUrlOptionalParams=<span class="code-quote">"clientProgramName=$FoundPoolName;"</span>
+		dbenvironment=<span class="code-quote">"DB_ENV"</span>
+		driverClass=<span class="code-quote">"com.ibm.db2.jcc.DB2Driver"</span>
+		CloseCursorOnCommit=<span class="code-quote">"true"</span>
+		AutoCommit=<span class="code-quote">"true"</span>
+		validationQuery=<span class="code-quote">"select * from SYSIBM.SYSDUMMY1"</span>
+	&gt;
+		<span class="code-tag">&lt;Pools&gt;</span>
+			<span class="code-tag">&lt;Pool Name=<span class="code-quote">"Accounting"</span> ProgramId=<span class="code-quote">"Accounting"</span> MaxConnection=<span class="code-quote">"20"</span> TimeBeforeRemoveConnection_ms=<span class="code-quote">"1200000"</span> MaxStatementLiveTime_ms=<span class="code-quote">"1200001"</span> UseExplain=<span class="code-quote">"false"</span>/&gt;</span>
+		<span class="code-tag">&lt;/Pools&gt;</span>
+	<span class="code-tag">&lt;/Accounting&gt;</span>
+
+	&lt;DebugLoadTest
+    	LogAllSQLException=<span class="code-quote">"true"</span>
+	/&gt;
+
+	&lt;SequencerConfig	
+		TransIDMappingFilePath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/lib/Resources/TransIDMapping.xml"</span>
+		TranslationFilePath=<span class="code-quote">"/opt/apps/pub/webapps/Naca/WEB-INF/lib/Resources/Translations.xml"</span>
+	&gt;
+		<span class="code-tag">&lt;StartPrograms&gt;</span>
+			<span class="code-tag">&lt;Program name=<span class="code-quote">"ZX15T50"</span> delaySeconds=<span class="code-quote">"300"</span>/&gt;</span>
+			<span class="code-tag">&lt;Program name=<span class="code-quote">"ZX42V05"</span> delaySeconds=<span class="code-quote">"300"</span>/&gt;</span>
+			<span class="code-tag">&lt;Program name=<span class="code-quote">"ZX55B05"</span> delaySeconds=<span class="code-quote">"300"</span>/&gt;</span>
+			<span class="code-tag">&lt;Program name=<span class="code-quote">"ZX7AH7B"</span> delaySeconds=<span class="code-quote">"300"</span>/&gt;</span>
+			<span class="code-tag">&lt;Program name=<span class="code-quote">"ZX7BD91"</span> delaySeconds=<span class="code-quote">"300"</span>/&gt;</span>
+		<span class="code-tag">&lt;/StartPrograms&gt;</span>
+
+		&lt;MailConfig 
+			addressFrom=<span class="code-quote">"alert-nacaPROD1@consultas.ch"</span>
+			smtpServer=<span class="code-quote">"smtp.intra.consultas.ch"</span>
+			title=<span class="code-quote">"NACA-Online-PROD1"</span>
+		&gt;
+			<span class="code-tag">&lt;addressTo  email=<span class="code-quote">"user1@company.com"</span>/&gt;</span>
+			<span class="code-tag">&lt;addressTo  email=<span class="code-quote">"user2@company.com"</span>/&gt;</span>
+			<span class="code-tag">&lt;addressTo  email=<span class="code-quote">"user3@company.com"</span>/&gt;</span>
+		<span class="code-tag">&lt;/MailConfig&gt;</span>
+
+		&lt;CESMConfig 
+			StartProgramId=<span class="code-quote">"ZX01G01"</span>
+			StartCommandCode=<span class="code-quote">"XCTL"</span>
+			HelpCenterClassName=<span class="code-quote">"pub2000Utils.help.HelpCenter"</span>
+		&gt;
+			&lt;Config
+				StartBatchPrefix=<span class="code-quote">"P"</span>
+				StartBatchHostTest=<span class="code-quote">"false"</span>
+				StartBatchHostFtpUrl=<span class="code-quote">"???"</span>
+				StartBatchHostFtpUser=<span class="code-quote">"???"</span>
+				StartBatchHostFtpPassword=<span class="code-quote">"???"</span>
+				StartBatchHostFtpSiteCommand=<span class="code-quote">"???"</span>
+				StartBatchLinuxFtpUrl=<span class="code-quote">"???"</span>
+				StartBatchLinuxFtpUser=<span class="code-quote">"???"</span>
+				StartBatchLinuxFtpPassword=<span class="code-quote">"???"</span>
+				StartBatchLinuxFtpDirectory=<span class="code-quote">"???"</span>
+				StartBatchLinuxSshCommand=<span class="code-quote">"???"</span>
+				StartBatchLinuxSshPath=<span class="code-quote">"???"</span>
+				StartBatchLinuxSshUser=<span class="code-quote">"???"</span>
+			/&gt;
+		<span class="code-tag">&lt;/CESMConfig&gt;</span>	
+		
+		&lt;SQLConfig
+			dburl=<span class="code-quote">"jdbc:db2://DB_URL2/DFSAFDSA:"</span> 
+			dbuser=<span class="code-quote">"DBUSER2"</span>
+			CryptKey=<span class="code-quote">"DBCRYPTKEY"</span>
+			CryptedDbpassword=<span class="code-quote">"DBCRYPTEDPASSWORD"</span>
+			dbConnectionUrlOptionalParams=<span class="code-quote">"currentPackageSet=NACA;keepDynamic=yes;clientProgramName=$FoundPoolName;"</span>
+			dbenvironment=<span class="code-quote">"DBENV"</span>
+			driverClass=<span class="code-quote">"com.ibm.db2.jcc.DB2Driver"</span>
+			CloseCursorOnCommit=<span class="code-quote">"true"</span>
+			AutoCommit=<span class="code-quote">"false"</span>
+			validationQuery=<span class="code-quote">"select * from SYSIBM.SYSDUMMY1"</span>
+		&gt;
+			<span class="code-tag">&lt;Pools&gt;</span>
+				<span class="code-tag">&lt;Pool Name=<span class="code-quote">"Generic"</span> ProgramId=<span class="code-quote">"" MaxConnection="</span>100<span class="code-quote">" TimeBeforeRemoveConnection_ms="</span>1200000<span class="code-quote">" MaxStatementLiveTime_ms="</span>1200001<span class="code-quote">" UseExplain="</span>false"/&gt;</span>
+				<span class="code-tag">&lt;Pool Name=<span class="code-quote">"RS7AS70"</span> ProgramId=<span class="code-quote">"ZX7AS70"</span> MaxConnection=<span class="code-quote">"1"</span> TimeBeforeRemoveConnection_ms=<span class="code-quote">"1200000"</span> MaxStatementLiveTime_ms=<span class="code-quote">"1200001"</span> UseExplain=<span class="code-quote">"false"</span>/&gt;</span>
+				<span class="code-tag">&lt;Pool Name=<span class="code-quote">"RS7CS70"</span> ProgramId=<span class="code-quote">"ZX7CS70"</span> MaxConnection=<span class="code-quote">"1"</span> TimeBeforeRemoveConnection_ms=<span class="code-quote">"1200000"</span> MaxStatementLiveTime_ms=<span class="code-quote">"1200001"</span> UseExplain=<span class="code-quote">"false"</span>/&gt;</span>
+				<span class="code-tag">&lt;Pool Name=<span class="code-quote">"RS7CS70"</span> ProgramId=<span class="code-quote">"ZX7FGHJ"</span> ParentProgramId=<span class="code-quote">"RS74M11"</span> MaxConnection=<span class="code-quote">"1"</span> TimeBeforeRemoveConnection_ms=<span class="code-quote">"1200000"</span> MaxStatementLiveTime_ms=<span class="code-quote">"1200001"</span> UseExplain=<span class="code-quote">"false"</span>/&gt;</span>
+				<span class="code-tag">&lt;Pool Name=<span class="code-quote">"RS7DS70"</span> ProgramId=<span class="code-quote">"RS7TD70"</span> MaxConnection=<span class="code-quote">"1"</span> TimeBeforeRemoveConnection_ms=<span class="code-quote">"1200000"</span> MaxStatementLiveTime_ms=<span class="code-quote">"1200001"</span> UseExplain=<span class="code-quote">"false"</span>/&gt;</span>				
+			<span class="code-tag">&lt;/Pools&gt;</span>
+			<span class="code-tag">&lt;ConnectionKillerSQLCodes&gt;</span>
+				<span class="code-tag">&lt;ConnectionKillerSQLCode Value=<span class="code-quote">"-9999"</span>/&gt;</span>
+			<span class="code-tag">&lt;/ConnectionKillerSQLCodes&gt;</span>
+		<span class="code-tag">&lt;/SQLConfig&gt;</span>
+	<span class="code-tag">&lt;/SequencerConfig&gt;</span>
+<span class="code-tag">&lt;/conf&gt;</span></pre>
+</div></div>
+
+<h2><a name="1.Configurationfile-3.2BatchSample"></a>3.2 Batch Sample</h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt;conf
+	LogSettingsPathFile=<span class="code-quote">"/opt/apps/batch/libs/java/LogSettings.cfg"</span>
+	SequencerFactoryClass=<span class="code-quote">"nacaLib.batchPrgEnv.BatchProgramLoaderFactory"</span>
+
+	UseProgramPool=<span class="code-quote">"true"</span>
+	UseSQLStatementCache=<span class="code-quote">"true"</span>	
+	UseSQLObjectCache=<span class="code-quote">"true"</span>
+	UseVarFillCache=<span class="code-quote">"true"</span>
+	ManageVarDefCatalog=<span class="code-quote">"true"</span>
+
+	ApplicationClassPath=<span class="code-quote">"/opt/apps/batch/libs/java/"</span>	
+	JarFile=<span class="code-quote">"Application.jar"</span>
+	CanLoadJar=<span class="code-quote">"true"</span>
+	CanLoadClass=<span class="code-quote">"true"</span>
+
+	TempDir=<span class="code-quote">"/opt/apps/batch/sort_tmp"</span>
+	DynamicAllocationPath=<span class="code-quote">"/opt/apps/batch/data/"</span>
+	
+	CodeJavaToDb=""
+	CodeDbToJava=""
+	
+	ComparisonMode=<span class="code-quote">"ASCII"</span>
+	
+	SQLInsertStatementBatchSize=<span class="code-quote">"100"</span>
+&gt;
+
+	&lt;GCThread
+		ActivateThreadGarbageCollectorStatement=<span class="code-quote">"false"</span>
+		GarbageCollectorStatement_ms=<span class="code-quote">"300000"</span>
+		MaxPermanentHeap_Mo=<span class="code-quote">"800"</span>
+		NbStatementForcedRemoved=<span class="code-quote">"100"</span>
+	/&gt;
+
+	&lt;Accounting
+		MachineId=<span class="code-quote">"MACHINEID"</span>
+		TomcatId=<span class="code-quote">"batch"</span>
+		TableName=<span class="code-quote">"SY0330"</span>
+		MaxLevelDepth=<span class="code-quote">"0"</span>
+		dburl=<span class="code-quote">"jdbc:db2://DB_URL/TZTT:"</span> 
+		dbuser=<span class="code-quote">"DBUSER"</span> 
+		dbpassword=<span class="code-quote">"DBPASSWORD"</span>
+		dbConnectionUrlOptionalParams=<span class="code-quote">"clientProgramName=$FoundPoolName;"</span>
+		dbenvironment=<span class="code-quote">"DB_ENV"</span>
+		driverClass=<span class="code-quote">"com.ibm.db2.jcc.DB2Driver"</span>
+		CloseCursorOnCommit=<span class="code-quote">"true"</span>
+		AutoCommit=<span class="code-quote">"true"</span>
+		validationQuery=<span class="code-quote">"select * from SYSIBM.SYSDUMMY1"</span>
+	&gt;
+		<span class="code-tag">&lt;Pools&gt;</span>
+			<span class="code-tag">&lt;Pool Name=<span class="code-quote">"Accounting"</span> ProgramId=<span class="code-quote">"Accounting"</span> MaxConnection=<span class="code-quote">"1"</span> TimeBeforeRemoveConnection_ms=<span class="code-quote">"1200000"</span> MaxStatementLiveTime_ms=<span class="code-quote">"1200001"</span> UseExplain=<span class="code-quote">"false"</span>/&gt;</span>
+		<span class="code-tag">&lt;/Pools&gt;</span>
+	<span class="code-tag">&lt;/Accounting&gt;</span>
+
+	<span class="code-tag">&lt;SequencerConfig&gt;</span>		
+		&lt;MailConfig 
+			addressFrom=<span class="code-quote">"alert-naca@company.com"</span>
+			smtpServer=<span class="code-quote">"smtp.intra.company.com"</span>
+			title=<span class="code-quote">"NACA-Pub2000-Batch-VALT-UDB-batchvali"</span>
+		&gt;
+			<span class="code-tag">&lt;addressTo  email=<span class="code-quote">"user1@company.com"</span>/&gt;</span>
+			<span class="code-tag">&lt;addressTo  email=<span class="code-quote">"user2@company.com"</span>/&gt;</span>
+			<span class="code-tag">&lt;addressTo  email=<span class="code-quote">"user3@company.com"</span>/&gt;</span>			
+		<span class="code-tag">&lt;/MailConfig&gt;</span>
+
+		&lt;SQLConfig
+			dburl=<span class="code-quote">"jdbc:db2://DBURL2/GFDGD:"</span> 
+			dbuser=<span class="code-quote">"DBUSER"</span> 
+			dbpassword=<span class="code-quote">"DBPASSWORD"</span>
+			dbConnectionUrlOptionalParams=<span class="code-quote">"clientProgramName=$FoundPoolName;"</span>
+			dbenvironment=<span class="code-quote">"PROD"</span>
+			driverClass=<span class="code-quote">"com.ibm.db2.jcc.DB2Driver"</span>
+			CloseCursorOnCommit=<span class="code-quote">"true"</span>
+			AutoCommit=<span class="code-quote">"false"</span>			
+			validationQuery=<span class="code-quote">"select * from SYSIBM.SYSDUMMY1"</span>
+		&gt;
+			<span class="code-tag">&lt;Pools&gt;</span>
+				<span class="code-tag">&lt;Pool Name=<span class="code-quote">"Generic"</span> ProgramId=<span class="code-quote">"" MaxConnection="</span>1<span class="code-quote">" TimeBeforeRemoveConnection_ms="</span>1200000<span class="code-quote">" MaxStatementLiveTime_ms="</span>1200001<span class="code-quote">" UseExplain="</span>false"/&gt;</span>
+			<span class="code-tag">&lt;/Pools&gt;</span>
+		<span class="code-tag">&lt;/SQLConfig&gt;</span>
+	<span class="code-tag">&lt;/SequencerConfig&gt;</span>
+<span class="code-tag">&lt;/conf&gt;</span></pre>
+</div></div>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td><div><a href="index.html">Return to menu</a></div></td>
+			</tr>
+	    </table>
+    </body>
+</html>
