@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry path="CobolLikeSupport" kind="src"/>
-	<classpathentry path="ClassicalJavaApp" kind="src"/>
-	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
-	<classpathentry path="/JLib" combineaccessrules="false" kind="src"/>
-	<classpathentry path="/NacaRT" combineaccessrules="false" kind="src"/>
-	<classpathentry path="Main" kind="src"/>
-	<classpathentry path="D:/Dev/naca/NacaRTTests/lib/junit-4.1.jar" kind="lib"/>
-	<classpathentry path="bin" kind="output"/>
+	<classpathentry kind="src" path="CobolLikeSupport"/>
+	<classpathentry kind="src" path="ClassicalJavaApp"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JLib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/NacaRT"/>
+	<classpathentry kind="src" path="Main"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
