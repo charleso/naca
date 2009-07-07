@@ -405,7 +405,6 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public void InitCustomCICSEntities()
 	{
 		// some entries are no longer defined here : look into Pub2000/NacaTransRules.xml	
-		NewEntityGetKeyPressed("EIBAID") ;
 		NewEntitySQLCode("SQLCODE") ;
 		NewEntitySQLCode("SQLERRD") ;
 		
