@@ -71,7 +71,7 @@ public class CUnstring extends CCobolElement
 					char [] arr = {' '} ;
 					e = factory.NewEntityString(arr);
 				}
-				else if (!term.IsReference() && (term.GetValue().equals("LOW-VALUE")))
+				else if (!term.IsReference() && (term.GetValue().equals("LOW-VALUE") || term.GetValue().equals("LOW-VALUES")))
 				{
 					char [] arr = {'\0'} ;
 					e = factory.NewEntityString(arr);
