@@ -21,9 +21,26 @@ import lexer.Cobol.CCobolKeywordList;
 import parser.CFunctionIdentifier;
 import parser.CIdentifier;
 import parser.CLanguageElement;
-import parser.condition.*;
-import parser.expression.*;
-import utils.NacaTransAssertException;
+import parser.condition.CCondAndStatement;
+import parser.condition.CCondDifferentStatement;
+import parser.condition.CCondEqualsStatement;
+import parser.condition.CCondGreaterStatement;
+import parser.condition.CCondIsAll;
+import parser.condition.CCondIsAlphabetic;
+import parser.condition.CCondIsNumeric;
+import parser.condition.CCondLessStatement;
+import parser.condition.CCondNotStatement;
+import parser.condition.CCondOrStatement;
+import parser.expression.CConstantTerminal;
+import parser.expression.CExpression;
+import parser.expression.CIdentifierTerminal;
+import parser.expression.CNumberTerminal;
+import parser.expression.COppositeExpression;
+import parser.expression.CProdExpression;
+import parser.expression.CStringTerminal;
+import parser.expression.CSumExpression;
+import parser.expression.CTermExpression;
+import parser.expression.CTerminal;
 import utils.Transcoder;
 
 /**
@@ -239,7 +256,7 @@ public abstract class CCobolElement extends CLanguageElement
 	public CExpression ReadExpression()
 	{
 		CExpression exprGlobal = null ;
-		CBaseToken tok = GetCurrentToken() ;
+		GetCurrentToken() ;
 		exprGlobal = ReadConditionalStatement() ;
 		return exprGlobal ;
 	}
@@ -247,7 +264,7 @@ public abstract class CCobolElement extends CLanguageElement
 	public CExpression ReadCalculExpression()
 	{
 		CExpression exprGlobal = null ;
-		CBaseToken tok = GetCurrentToken() ;
+		GetCurrentToken() ;
 		exprGlobal = ReadSumExpr() ;
 		return exprGlobal ;
 	}
@@ -698,7 +715,7 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.NOT)
 		{
-			CBaseToken tokNext = GetNext() ;
+			GetNext() ;
 			return ReadBinaryCondEvaluator(operand1, !bIsOpposite) ;
 //			if (tokNext.GetType() == CTokenType.EQUALS)
 //			{
@@ -753,7 +770,7 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.IS)
 		{
-			CBaseToken tokOption = GetNext();
+			GetNext();
 			return ReadBinaryCondEvaluator(operand1, bIsOpposite) ;
 		}
 		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.NUMERIC)
