@@ -61,7 +61,7 @@ public class CCopyInWorking extends CCobolElement
 		}
 		CGlobalEntityCounter.GetInstance().CountCobolVerb(tokCopy.GetKeyword().m_Name) ;
 		CBaseToken tokRef = GetNext();
-		if (tokRef.GetType() != CTokenType.IDENTIFIER)
+		if (tokRef.GetType() != CTokenType.IDENTIFIER && tokRef.GetType() != CTokenType.STRING)
 		{
 			Transcoder.logError(getLine(), "Expecting an identifier after COPY, instead of : " + tokRef.toString()) ;
 			return false ;
