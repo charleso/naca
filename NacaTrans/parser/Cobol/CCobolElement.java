@@ -646,7 +646,7 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 		else if (tok.GetType() == CTokenType.GREATER_THAN || tok.GetKeyword() == CCobolKeywordList.GREATER) 
 		{
-			GetNext() ;
+			boolean bOrEquals = getNextThan() ;
 			CExpression term2 = ReadSimpleCondition(null);
 			if (bIsOpposite)
 			{
@@ -654,12 +654,12 @@ public abstract class CCobolElement extends CLanguageElement
 			}
 			else
 			{
-				return new CCondGreaterStatement(tok.getLine(), operand1, term2) ;
+				return new CCondGreaterStatement(tok.getLine(), operand1, term2, bOrEquals) ;
 			}
 		}
-		else if (tok.GetType() == CTokenType.LESS_THAN) 
+		else if (tok.GetType() == CTokenType.LESS_THAN || tok.GetKeyword() == CCobolKeywordList.LESS) 
 		{
-			GetNext() ;
+			boolean bOrEquals = getNextThan() ;
 			CExpression term2 = ReadSimpleCondition(null);
 			if (bIsOpposite)
 			{
@@ -667,7 +667,7 @@ public abstract class CCobolElement extends CLanguageElement
 			}
 			else
 			{
-				return new CCondLessStatement(tok.getLine(), operand1, term2) ;
+				return new CCondLessStatement(tok.getLine(), operand1, term2, bOrEquals) ;
 			}
 		}
 		else if (tok.GetType() == CTokenType.GREATER_OR_EQUALS) 
@@ -815,6 +815,23 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 
 		return null ;
+	}
+
+	private boolean getNextThan()
+	{
+		CBaseToken next = GetNext() ;
+		if (next.GetKeyword() == CCobolKeywordList.THAN)
+		{
+			next = GetNext() ;
+			if (next.GetKeyword() == CCobolKeywordList.OR)
+			{
+				GetNext() ; // Equal
+				GetNext() ; // To
+				GetNext() ;
+				return true ;
+			}
+		}
+		return false ;
 	}
 
 	protected String ReadStringUntilEOL()
