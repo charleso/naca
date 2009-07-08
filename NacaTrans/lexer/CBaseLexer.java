@@ -101,6 +101,10 @@ public abstract class CBaseLexer
 			}
 			else if (nbStringMarks == 1)
 			{ // the string is ended on the next line, and the \n character is part of the string.
+				if (ContinueLine(nextline))
+				{
+					return true;
+				}
 				for (int i=0; i<nReadNextLine ; i++)
 				{
 					char c = nextline[i] ;
@@ -116,38 +120,11 @@ public abstract class CBaseLexer
 			else  if (nbStringMarks % 2 == 0)
 			{ // the string is ended at the end of this line, the next line is a whole line, the \n char marks the en of the line, 
 				// but the string is not finnished yet, the next line contains the end of the string
-				char mark = nextline[m_nbCharsIgnoredAtBegining] ;
-				if (mark == '-')
-				{
-					String cs = new String(nextline) ;
-					m_prgmListing.RegisterNewOriginalLine(cs.trim()) ;
-					m_line ++ ;
-					int n1 = cs.indexOf('\'')  ;
-//					int n2 = cs.lastIndexOf('\'') ;
-					int n2 = cs.lastIndexOf('\n')-1 ;
-					char[] newline = new char[m_nbCharsUtils + (n2 - n1)] ;
-					for (int i=0; i<m_nCurrentLineLength; i++)
-					{
-						char c = m_arrCurrentLine[i] ;
-						newline[i] = c ;
-					}
-					for (int i=0; i<m_nbCharsUtils-m_nCurrentLineLength; i++)
-					{
-						newline[m_nCurrentLineLength+i] = ' ' ;
-					}
-					for (int i=0; i<n2 - n1; i++)
-					{
-						char c = nextline[n1 + 1 + i] ;
-						newline[m_nbCharsUtils + i] = c ;
-					}
-					m_nCurrentLineLength = m_nbCharsUtils + (n2 - n1) ;
-					m_arrCurrentLine = newline ;
-					return true ;
-				}
-				else
+				if (!ContinueLine(nextline))
 				{ // other cases not handleled
 					throw new NacaTransAssertException("String lexing case not implemented") ;
 				}
+				return true ;
 			}
 			else
 			{ // other cases not handleled
@@ -194,7 +171,40 @@ public abstract class CBaseLexer
 			return false ;
 		}
 	}
-	
+
+	private boolean ContinueLine(char[] nextline)
+	{
+		char mark = nextline[m_nbCharsIgnoredAtBegining] ;
+		if (mark == '-')
+		{
+			String cs = new String(nextline) ;
+			m_prgmListing.RegisterNewOriginalLine(cs.trim()) ;
+			m_line ++ ;
+			int n1 = cs.indexOf('\'')  ;
+//			int n2 = cs.lastIndexOf('\'') ;
+			int n2 = cs.lastIndexOf('\n')-1 ;
+			char[] newline = new char[m_nbCharsUtils + (n2 - n1)] ;
+			for (int i=0; i<m_nCurrentLineLength; i++)
+			{
+				char c = m_arrCurrentLine[i] ;
+				newline[i] = c ;
+			}
+			for (int i=0; i<m_nbCharsUtils-m_nCurrentLineLength; i++)
+			{
+				newline[m_nCurrentLineLength+i] = ' ' ;
+			}
+			for (int i=0; i<n2 - n1; i++)
+			{
+				char c = nextline[n1 + 1 + i] ;
+				newline[m_nbCharsUtils + i] = c ;
+			}
+			m_nCurrentLineLength = m_nbCharsUtils + (n2 - n1) ;
+			m_arrCurrentLine = newline ;
+			return true ;
+		}
+		return false ;
+	}
+
 	protected boolean ReadLine(InputStream buffer)
 	{
 		int nReadChar = 0 ;
