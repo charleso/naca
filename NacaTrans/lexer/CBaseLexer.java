@@ -78,9 +78,17 @@ public abstract class CBaseLexer
 			int nbStringMarks = 0 ;
 			char[] nextline = new char[m_nbCharsUtils+m_nbCharsIgnoredAtBegining] ;
 			Arrays.fill(nextline, '\0');
+			char l = 0 ;
 			while (b != '\n' && buffer.available()>0)
 			{
 				b = (char)buffer.read() ;
+				if (b == '\'' && b == l)
+				{
+					l = 0;
+					nbStringMarks -- ;
+					continue;
+				}
+				l = b;
 				nextline[nReadNextLine] = b ;
 				nReadNextLine ++ ;
 				if (b == '\'')
