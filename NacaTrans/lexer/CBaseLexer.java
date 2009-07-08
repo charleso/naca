@@ -69,10 +69,8 @@ public abstract class CBaseLexer
 	
 	protected boolean ReadLineEnd(InputStream buffer)
 	{
-		int nReadChar = m_nCurrentLineLength + m_nbCharsIgnoredAtBegining +1; // +1 counts the \n character
+		int nReadChar = m_nCurrentLineLength + m_nbCharsIgnoredAtBegining; // +1 counts the \n character
 		int nLineChar = m_nCurrentLineLength ;
-		m_arrCurrentLine[nLineChar] = '\n' ;
-		nLineChar ++ ;
 		try
 		{
 			char b = 0 ;
