@@ -740,6 +740,11 @@ public abstract class VarBase extends CJMapObject
 			varDest2.fillEndOfRecord(nSourceLength, nFillLength2);
 	}
 	
+	public void set(byte[] tBytes)
+	{
+		setFromByteArray(tBytes, 0, tBytes.length);
+	}
+
 	public void setFromByteArray(byte[] tBytes, int nOffsetSource, int nLength)
 	{
 		m_bufferPos.setByteArray(tBytes, nOffsetSource, nLength);
