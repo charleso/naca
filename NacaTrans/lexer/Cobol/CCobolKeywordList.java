@@ -328,4 +328,5 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword CURSOR = new CReservedKeyword(List, "CURSOR") ;  // PJD Isn't there a conflit with SQL and CICS cursors ?
 	public static CReservedKeyword TABLE = new CReservedKeyword(List, "TABLE") ;
 	public static CReservedKeyword NULL = new CReservedKeyword(List, "NULL") ;
+	public static CReservedKeyword EXCEPTION = new CReservedKeyword(List, "EXCEPTION") ;
 }

@@ -244,6 +244,20 @@ public class CCall extends CCobolElement
 					GetNext() ;
 				}
 			}
+			else if (tok.GetKeyword() == CCobolKeywordList.ON)
+			{
+				tok = GetNext() ;
+				if (tok.GetKeyword() != CCobolKeywordList.EXCEPTION)
+				{
+					Transcoder.logError(getLine(), "Expecting 'EXCEPTION' keyword") ;
+					return false ;
+				}
+				CExceptionBloc e = new CExceptionBloc(tok.getLine());
+				if (!Parse(e))
+				{
+					return false ;
+				}
+			}
 			else
 			{
 				bDone = true ;
