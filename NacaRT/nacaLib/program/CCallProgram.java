@@ -14,6 +14,7 @@ import nacaLib.basePrgEnv.BaseProgramLoader;
 import nacaLib.varEx.CCallParam;
 import nacaLib.varEx.CallParamByLength;
 import nacaLib.varEx.CallParamByRef;
+import nacaLib.varEx.CallParamByStringValue;
 import nacaLib.varEx.CallParamByValue;
 import nacaLib.varEx.Edit;
 import nacaLib.varEx.Var;
@@ -126,7 +127,11 @@ public class CCallProgram extends CJMapObject
 
 	public CCallProgram using(String string)
 	{
-		return this; // TODO
+		if(m_arrCallParam == null)
+			m_arrCallParam = new ArrayList<CCallParam>();
+		CallParamByStringValue CallParam = new CallParamByStringValue(string);
+		m_arrCallParam.add(CallParam);
+		return this;
 	}
 
 	/**
