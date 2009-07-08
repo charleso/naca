@@ -123,7 +123,12 @@ public class CCallProgram extends CJMapObject
 		m_arrCallParam.add(CallParam);
 		return this;
 	}
-	
+
+	public CCallProgram using(String string)
+	{
+		return this; // TODO
+	}
+
 	/**
 	 * @param Var var: Variable to pass whose length if passed by value to the called program
 	 * @return this
