@@ -24,6 +24,7 @@ import generate.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -178,6 +179,7 @@ public abstract class CBaseEntityFactory
 	public abstract CSubStringAttributReference NewEntitySubString(int l) ;
 	public abstract CEntityArrayReference NewEntityArrayReference(int l) ;
 	public abstract CEntityGoto NewEntityGoto(int l, String Reference, CEntityProcedureSection section) ;
+	public abstract CBaseActionEntity NewEntityGotoDepending(int l, List<String> refs, CDataEntity dep, CEntityProcedureSection section) ;
 	public abstract CEntityLoopWhile NewEntityLoopWhile(int l) ;
 	public abstract CEntityLoopIter NewEntityLoopIter(int l) ;
 	public abstract CEntityAddTo NewEntityAddTo(int l) ;

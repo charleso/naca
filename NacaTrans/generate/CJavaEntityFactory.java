@@ -158,6 +158,7 @@ import generate.java.verbs.CJavaDisplay;
 import generate.java.verbs.CJavaDivide;
 import generate.java.verbs.CJavaExec;
 import generate.java.verbs.CJavaGoto;
+import generate.java.verbs.CJavaGotoDepending;
 import generate.java.verbs.CJavaInitialize;
 import generate.java.verbs.CJavaLoopIter;
 import generate.java.verbs.CJavaLoopWhile;
@@ -183,6 +184,7 @@ import generate.java.verbs.CJavaWriteFile;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import semantic.CBaseEntityFactory;
@@ -525,6 +527,9 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	}
 	public CEntityGoto NewEntityGoto(int l, String Reference, CEntityProcedureSection section)	{
 		return new CJavaGoto(l, m_ProgramCatalog, m_LangOutput, Reference, section) ;
+	}
+	public CJavaGotoDepending NewEntityGotoDepending(int l, List<String> refs, CDataEntity dep, CEntityProcedureSection section)	{
+		return new CJavaGotoDepending(l, m_ProgramCatalog, m_LangOutput, refs, dep, section) ;
 	}
 	public CEntityLoopWhile NewEntityLoopWhile(int l)	{
 		return new CJavaLoopWhile(l, m_ProgramCatalog, m_LangOutput);

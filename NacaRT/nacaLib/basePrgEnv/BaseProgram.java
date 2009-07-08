@@ -41,6 +41,7 @@ import nacaLib.misc.NacaToolBox;
 import nacaLib.misc.Pointer;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.program.CCallProgram;
+import nacaLib.program.CJMapRunnable;
 import nacaLib.program.CopyManager;
 import nacaLib.program.CopyReplacing;
 import nacaLib.program.Paragraph;
@@ -3301,6 +3302,18 @@ public abstract class BaseProgram extends CJMapObject
 			Log.logDebug("goTo section:"+ getSimpleName()+"."+functor.toString());
 		CGotoException e = new CGotoException(functor);
 		throw e;
+	}
+
+	protected void goTo(CJMapRunnable[] functors, Var dependingOn)
+	{
+		int i = dependingOn.getInt() - 1;
+		if (i >= 0)
+		{
+			CJMapRunnable f = functors[i];
+			if (f instanceof Section)
+				goTo((Section) f);
+			goTo((Paragraph) f);
+		}
 	}
 
 	/**Method: goTo

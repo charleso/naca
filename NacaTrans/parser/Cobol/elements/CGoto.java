@@ -12,6 +12,9 @@
  */
 package parser.Cobol.elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lexer.CBaseToken;
 import lexer.CTokenType;
 import lexer.Cobol.CCobolKeywordList;
@@ -19,13 +22,12 @@ import lexer.Cobol.CCobolKeywordList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.sun.org.apache.xml.internal.utils.StringVector;
-
 import parser.CIdentifier;
 import parser.Cobol.CCobolElement;
+import semantic.CBaseActionEntity;
 import semantic.CBaseLanguageEntity;
 import semantic.CBaseEntityFactory;
-import semantic.Verbs.CEntityGoto;
+import semantic.CDataEntity;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
 
@@ -73,7 +75,7 @@ public class CGoto extends CCobolElement
 		while (tokRef.GetType() == CTokenType.IDENTIFIER || tokRef.GetType() == CTokenType.NUMBER)
 		{
 			csReference = tokRef.GetValue();
-			m_arrReference.addElement(csReference);
+			m_arrReference.add(csReference);
 			tokRef = GetNext() ;
 		}
 		
@@ -97,7 +99,7 @@ public class CGoto extends CCobolElement
 		if (m_arrReference.size() == 1)
 		{
 			Element eGoto = root.createElement("Goto") ;
-			eGoto.setAttribute("Reference", m_arrReference.elementAt(0)) ;
+			eGoto.setAttribute("Reference", m_arrReference.get(0)) ;
 			return eGoto;
 		}
 		else
@@ -105,7 +107,7 @@ public class CGoto extends CCobolElement
 			Element eGoto = root.createElement("Goto") ;
 			for (int i=0; i<m_arrReference.size(); i++)
 			{
-				String cs = m_arrReference.elementAt(i);
+				String cs = m_arrReference.get(i);
 				Element e = root.createElement("Ref"+i);
 				eGoto.appendChild(e);
 				e.setAttribute("Reference", cs); 
@@ -116,23 +118,24 @@ public class CGoto extends CCobolElement
 			return eGoto;
 		}
 	}
-	protected StringVector m_arrReference = new StringVector() ;
+	protected List<String> m_arrReference = new ArrayList<String>() ;
 	protected CIdentifier m_Dependence = null ;
 	/* (non-Javadoc)
 	 * @see parser.CBaseElement#DoCustomSemanticAnalysis(semantic.CBaseSemanticEntity, semantic.CBaseSemanticEntityFactory)
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		if (m_arrReference.size() == 1)
+		CBaseActionEntity e;
+		if (m_Dependence == null)
 		{
-			CEntityGoto e = factory.NewEntityGoto(getLine(), m_arrReference.elementAt(0), parent.getSectionContainer()) ;
-			parent.AddChild(e) ;
-			return e;
+			e = factory.NewEntityGoto(getLine(), m_arrReference.get(0), parent.getSectionContainer()) ;
 		}
 		else
 		{
-			Transcoder.logError(getLine(), "No semantic analysis for GOTO ... DEPENDING") ;
-			return null ;
+			CDataEntity dep = m_Dependence.GetDataReference(getLine(), factory);
+			e = factory.NewEntityGotoDepending(getLine(), m_arrReference, dep, parent.getSectionContainer());
 		}
+		parent.AddChild(e) ;
+		return e;
 	}
 }

@@ -14,6 +14,7 @@ import generate.java.verbs.CJavaRoutineEmulationCall;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import semantic.*;
@@ -742,6 +743,13 @@ public class CJavaFPacEntityFactory extends CBaseEntityFactory
 	public CEntityGoto NewEntityGoto(int l, String Reference, CEntityProcedureSection section)
 	{
 		return new CFPacJavaGoto(l, m_ProgramCatalog, m_LangOutput, Reference, section) ;
+	}
+
+	@Override
+	public CEntityGoto NewEntityGotoDepending(int l, List<String> refs, CDataEntity dep, CEntityProcedureSection section)
+	{
+		// TODO Auto-generated method stub
+		throw new NacaTransAssertException("Method not implemented") ;
 	}
 
 	@Override
