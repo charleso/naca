@@ -39,7 +39,7 @@ public class CJavaClass extends CEntityClass
 	 */
 	protected void DoExport()
 	{
-		String name = GetName().replace('-', '_').toUpperCase();
+		String name = GetName().replace('-', '_').toLowerCase();
 		//WriteLine("package example.output ;") ;
 		WriteEOL() ;
 		for (int i=0; i<m_ProgramCatalog.getNbImportDeclaration(); i++)

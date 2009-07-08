@@ -120,5 +120,9 @@ public class CJavaExternalDataStructure extends CEntityExternalDataStructure
 		return m_csClassName.replace('-', '_');
 	}
 
+	public String GetDisplayName()
+	{
+		return super.GetDisplayName() + "_copy";
+	}
 }
  
