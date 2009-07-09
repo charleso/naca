@@ -43,7 +43,9 @@ public class CJavaCallProgram extends CEntityCallProgram
 		String name = m_Reference.ExportReference(getLine());
 		if (name.startsWith("\""))
 		{
-			name = name.subSequence(1, name.length()-1) + ".class";	
+			name = name.substring(1, name.length()-1);
+			if (m_bChecked)
+				name += ".class";
 		}
 		if (m_bChecked)
 		{
