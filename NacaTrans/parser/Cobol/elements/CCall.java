@@ -231,14 +231,13 @@ public class CCall extends CCobolElement
 			}
 			else if (tok.GetType() == CTokenType.NUMBER || tok.GetType() == CTokenType.STRING)
 			{
-				tok = GetNext() ;
 				CTerminal term = ReadTerminal() ; 
 				CCallParameter p = new CCallParameter();
 				p.term = term ;
 				p.method = "VALUE" ;
 				m_arrParams.addElement(p) ;
 				// more IDs ?
-				CBaseToken tokComma = GetNext() ;
+				CBaseToken tokComma = GetCurrentToken() ;
 				if (tokComma.GetType() == CTokenType.COMMA)
 				{
 					GetNext() ;
