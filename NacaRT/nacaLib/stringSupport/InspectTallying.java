@@ -77,6 +77,12 @@ public class InspectTallying
 		return to(vto) ;
 	}
 
+	public InspectTallying countCharsBefore(String csBefore, VarAndEdit vto) {
+		m_csBefore = csBefore;
+		m_InspectTallyingType = TypeForChars;
+		return to(vto) ;
+	}
+
 	public InspectTallying forChars()
 	{
 		m_InspectTallyingType = TypeForChars;
