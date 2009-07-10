@@ -769,7 +769,32 @@ public abstract class BaseProgramManager extends CJMapObject
 	public void perform(Section section)
 	{
 		if(section != null)
-			section.runSection();
+		{
+			m_currentSection = section;
+			Paragraph gotoParagraph = null;
+			while(m_currentSection != null)
+			{
+				try
+				{
+					m_currentSection.runSectionFromParagraph(gotoParagraph);
+					gotoParagraph = null;
+					m_currentSection = null;
+				}
+				catch (CGotoOtherSectionParagraphException e)	// Goto a paragraph of another section
+				{
+					gotoParagraph = e.m_Paragraph;
+				}
+				catch (CGotoOtherSectionException e)	// goto another section
+				{
+					m_currentSection = e.m_Section;
+					gotoParagraph = null;				
+				}
+				catch (CESMReturnException e)
+				{
+					m_currentSection = null ;	// Force a return to CESM
+				}
+			}
+		}
 	}
 	
 	public void performThrough(Paragraph paragraphBegin, Paragraph paragraphEnd)

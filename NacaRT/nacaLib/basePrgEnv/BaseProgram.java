@@ -3251,9 +3251,7 @@ public abstract class BaseProgram extends CJMapObject
 		if(isLogFlow)
 			Log.logDebug("Performing section:"+ getSimpleName()+"."+section.toString());
 		
-		if(section != null)
-			section.runSection();
-		//m_BaseProgramManager.perform(section);
+		m_BaseProgramManager.perform(section);
 	}
 	
 	/**Method: performTrough
