@@ -53,6 +53,7 @@ import utils.CGlobalEntityCounter;
 import utils.CObjectCatalog;
 import utils.CSpecialActionContainer;
 import utils.CTransApplicationGroup;
+import utils.CobolNameUtil;
 import utils.Transcoder;
 import utils.TranscoderEngine;
 
@@ -411,7 +412,7 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 	@Override
 	protected String generateOutputFileName(String filename)
 	{
-		return ReplaceExtensionFileName(filename, "java") ;
+		return ReplaceExtensionFileName(CobolNameUtil.fixJavaName(filename), "java") ;
 	}
 	/**
 	 * @see utils.TranscoderEngine#generateInputFileName(java.lang.String)

@@ -16,6 +16,7 @@ import generate.CBaseLanguageExporter;
 import semantic.CDataEntity;
 import semantic.Verbs.CEntityCallProgram;
 import utils.CObjectCatalog;
+import utils.CobolNameUtil;
 
 /**
  * @author sly
@@ -44,6 +45,7 @@ public class CJavaCallProgram extends CEntityCallProgram
 		if (name.startsWith("\""))
 		{
 			name = name.substring(1, name.length()-1);
+			name = CobolNameUtil.fixJavaName(name);
 			if (m_bChecked)
 				name += ".class";
 		}

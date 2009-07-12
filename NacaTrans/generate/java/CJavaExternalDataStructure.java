@@ -15,6 +15,7 @@ package generate.java;
 import generate.CBaseLanguageExporter;
 import semantic.CEntityExternalDataStructure;
 import utils.CObjectCatalog;
+import utils.CobolNameUtil;
 
 /**
  * @author sly
@@ -51,6 +52,7 @@ public class CJavaExternalDataStructure extends CEntityExternalDataStructure
 		if (!m_bInline)
 		{
 			String name = m_csClassName.replace('-', '_') ;
+			name = CobolNameUtil.fixJavaName(name);
 			WriteEOL() ;
 			WriteLine("import nacaLib.program.* ;") ;
 			WriteLine("import nacaLib.varEx.* ;") ;
@@ -118,11 +120,6 @@ public class CJavaExternalDataStructure extends CEntityExternalDataStructure
 	public String GetTypeDecl()
 	{
 		return m_csClassName.replace('-', '_');
-	}
-
-	public String GetDisplayName()
-	{
-		return super.GetDisplayName() + "_copy";
 	}
 }
  

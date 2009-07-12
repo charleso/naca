@@ -39,7 +39,8 @@ public class CJavaClass extends CEntityClass
 	 */
 	protected void DoExport()
 	{
-		String name = GetName().replace('-', '_').toLowerCase();
+		String name = GetName().replace('-', '_');
+		name = CobolNameUtil.fixJavaName(name);
 		//WriteLine("package example.output ;") ;
 		WriteEOL() ;
 		for (int i=0; i<m_ProgramCatalog.getNbImportDeclaration(); i++)

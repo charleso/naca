@@ -25,6 +25,7 @@ import semantic.CEntityExternalDataStructure;
 import utils.CGlobalEntityCounter;
 import utils.CObjectCatalog;
 import utils.CTransApplicationGroup;
+import utils.CobolNameUtil;
 import utils.Transcoder;
 import utils.TranscoderEngine;
 
@@ -177,7 +178,7 @@ public class CobolIncludeTranscoderEngine extends TranscoderEngine<CStandAloneWo
 	@Override
 	protected String generateOutputFileName(String filename)
 	{
-		return ReplaceExtensionFileName(filename, "java") ;
+		return ReplaceExtensionFileName(CobolNameUtil.fixJavaName(filename), "java") ;
 	}
 
 	/**
