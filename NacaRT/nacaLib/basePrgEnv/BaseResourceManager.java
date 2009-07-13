@@ -377,6 +377,10 @@ public abstract class BaseResourceManager extends CJMapObject
 	{
 		return ms_bUseProgramPool;
 	}
+	public static void setUseProgramPool(boolean b)
+	{
+		ms_bUseProgramPool = true;
+	}
 	public static boolean getUseStatementCache()
 	{
 		return ms_bUseStatementCache;
