@@ -21,7 +21,7 @@ import nacaLib.misc.LogFlowCustomNacaRT;
  */
 public class CalledResourceManager extends BaseResourceManager
 {
-	CalledResourceManager()
+	public CalledResourceManager()
 	{
 		super(true);
 	}
