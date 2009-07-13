@@ -1481,6 +1481,11 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 		return 0;
 	}
 
+	public ArrayFixDyn<VarDefBase> getChildren()
+	{
+		return m_arrChildren;
+	}
+	
 	protected ArrayFixDyn<VarDefBase> m_arrChildren = null;	// Array of VarDefBase
 	private ArrayFixDyn<VarDefBase> m_arrRedefinition = null;	// Array of VarDefBase
 	
