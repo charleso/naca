@@ -218,9 +218,7 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		Object obj = CodeManager.getInstance(csProgName, ClassDynLoaderFactory.getInstance());
 		if(obj != null)
 		{
-			BaseProgram program = (BaseProgram)obj ;
-			program.getProgramManager().compressSharedProgramInstanceData();
-			return program;
+			return (BaseProgram)obj ;
 		}
 		else
 		{
