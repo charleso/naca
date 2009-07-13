@@ -48,6 +48,8 @@ import utils.NacaTransAssertException;
 
 public abstract class CBaseLexer
 {
+	// TODO Dodgy - but I need this to work NOW
+	private static final char QUOTE_MARKER = '\1';
 	protected char m_cCurrent = 0 ;
 	protected int m_nCurrentPositionInLine = 0;
 	protected int m_nCurrentLineLength = 0;
@@ -85,6 +87,7 @@ public abstract class CBaseLexer
 				if (b == '\'' && b == l)
 				{
 					l = 0;
+					nextline[nReadNextLine-1] = QUOTE_MARKER;
 					nbStringMarks -- ;
 					continue;
 				}
@@ -801,6 +804,8 @@ public abstract class CBaseLexer
 		{
 			Character b = val.get(i) ;
 			res[i] = b.charValue() ;
+			if(res[i] == QUOTE_MARKER)
+				res[i] = '\'';
 		}
 		CBaseToken tok = new CTokenString(res, getLine(), false);
 		return tok ;
