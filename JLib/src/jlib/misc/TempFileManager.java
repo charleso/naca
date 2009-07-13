@@ -57,14 +57,7 @@ public class TempFileManager
 //		//tag.exportIndentedFileUft8(csFileTmpOut);
 //		tag.exportToFileUTF8(csFileTmpOut);
 //	}
-	
-	public String saveIndentedTmpFile(Tag tag, String csFile, String csExt, int nStep)
-	{
-		String csFullExt = "" + nStep + "." + csExt + "." + nStep;
-		String csFileTmpOut = makeTempFileName(csFile, csFullExt);
-		tag.exportIndentedUtf8(csFileTmpOut);
-		return csFileTmpOut;
-	}	
+
 //	
 //	public void saveIndentedTmpFileHtml(Tag tag, String csFile, String csExt, int nStep)
 //	{

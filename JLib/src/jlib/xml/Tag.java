@@ -15,17 +15,14 @@ package jlib.xml;
 
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
@@ -55,9 +52,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
-
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 
 /**
@@ -859,47 +853,6 @@ public class Tag
 //		}
 //		return false;
 //	}
-	
-	public String exportIndented()
-	{
-		 try 
-		 {
-	        OutputFormat format = new OutputFormat(m_doc);
-	        format.setIndenting(true);
-	        format.setIndent(4);
-	        StringWriter sw = new StringWriter();
-	        Writer output = new BufferedWriter(sw);
-	        XMLSerializer serializer = new XMLSerializer(output, format);
-	        serializer.serialize(m_doc);
-	        
-	        String cs = sw.getBuffer().toString();
-	        return cs;
-		 } 
-		 catch (Exception e) 
-		 { 
-			 return null; 
-		 }
-	}
-    
-	public boolean exportIndentedUtf8(String csFileName)
-	{
-		 try 
-		 {
-	        OutputFormat format = new OutputFormat(m_doc);
-	        format.setIndenting(true);
-	        format.setIndent(4);
-	        FileOutputStream out = new FileOutputStream(csFileName);
-	        Writer output = new BufferedWriter(new OutputStreamWriter(out, "utf-8"));
-	        //Writer output = new BufferedWriter( new FileWriter(csFileName) );
-	        XMLSerializer serializer = new XMLSerializer(output, format);
-	        serializer.serialize(m_doc);
-		 } 
-		 catch (Exception e) 
-		 { 
-			 return false; 
-		 }
-		 return true;
-	}
 	
 	private boolean exportToStream(StreamResult res, String csEncoding)
 	{

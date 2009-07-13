@@ -56,7 +56,7 @@ public class JSonParser
 			try
 			{
 				Constructor ct = cls.getConstructor();
-				Object obj = ct.newInstance(null);
+				Object obj = ct.newInstance((Object) null);
 				boolean b = fill("{" + csItem[i] + "}", obj);
 				if (b)
 					list.add(obj);
