@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0-rc3.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/struts.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JLib"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/JLib"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
