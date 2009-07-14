@@ -11,7 +11,6 @@ import idea.onlinePrgEnv.OnlineSession;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Format;
@@ -29,13 +28,11 @@ import jlib.misc.DateUtil;
 import jlib.misc.EnvironmentVar;
 import jlib.misc.FileEndOfLine;
 import jlib.misc.FileSystem;
-import jlib.misc.FtpUtil;
 import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.LineRead;
 import jlib.misc.LogicalFileDescriptor;
 import jlib.misc.NumberParser;
 import jlib.misc.StringUtil;
-import jlib.sql.DbConnectionBase;
 import nacaLib.base.CJMapObject;
 import nacaLib.basePrgEnv.BaseProgramLoader;
 import nacaLib.basePrgEnv.BaseProgramManager;
@@ -1044,13 +1041,10 @@ public class NacaToolBox extends CJMapObject
 				String local = m_ProgramManager.getEnv().getConfigOption("StartBatchLinuxLocal");
 				boolean isLocal = Boolean.parseBoolean(local);
 				String ftpUrl = m_ProgramManager.getEnv().getConfigOption("StartBatchLinuxFtpUrl") ;
-				String ftpUser = m_ProgramManager.getEnv().getConfigOption("StartBatchLinuxFtpUser") ;
-				String ftpPassword = m_ProgramManager.getEnv().getConfigOption("StartBatchLinuxFtpPassword");				
-				String ftpDirectory = m_ProgramManager.getEnv().getConfigOption("StartBatchLinuxFtpDirectory");
 				String date = new DateUtil("yyyyMMdd").toString();
 				String time = new DateUtil("HHmmssSSS").toString().substring(0, 7) + jobId.substring(2);
 				String filename = "temp." + procedure + "." + date + "." + time;				
-				int rc = startBatchLinuxFtp(isLocal, temp, ftpUrl, ftpUser, ftpPassword, ftpDirectory, filename);
+				int rc = 0;
 				if (rc == 0)
 				{
 					String sshPath = m_ProgramManager.getEnv().getConfigOption("StartBatchLinuxSshPath");
@@ -1062,16 +1056,6 @@ public class NacaToolBox extends CJMapObject
 				}
 				returnCode.set(rc);
 			}
-			else
-			{
-				startBatchHostPrepareFtp(temp, job, account, entity, procedure, reference, cards, prefix, jobId);
-				String ftpUrl = m_ProgramManager.getEnv().getConfigOption("StartBatchHostFtpUrl");
-				String ftpUser = m_ProgramManager.getEnv().getConfigOption("StartBatchHostFtpUser");
-				String ftpPassword = m_ProgramManager.getEnv().getConfigOption("StartBatchHostFtpPassword");
-				String ftpSiteCommand = m_ProgramManager.getEnv().getConfigOption("StartBatchHostFtpSiteCommand");
-				int rc = startBatchHostFtp(temp, ftpUrl, ftpUser, ftpPassword, ftpSiteCommand);
-				returnCode.set(rc);
-			}
 			temp.delete();
 		}
 		catch (Exception ex) 
@@ -1080,45 +1064,6 @@ public class NacaToolBox extends CJMapObject
 	    }
 	}
 	
-	public int startBatchLinuxFtp(boolean isLocal, File temp, String url, String user, String password, String directoryRemote, String fileNameRemote) throws IOException
-	{
-		int rc = 0;
-		
-		if (isLocal)
-		{
-			if (!FileSystem.copy(temp, new File(FileSystem.normalizePath(directoryRemote) + fileNameRemote)))
-				rc = 1;
-		}
-		else
-		{
-			FtpUtil ftp = new FtpUtil();
-			boolean bConnected = ftp.connect(url, user, password, null);
-			if (bConnected)
-			{
-				ftp.setFileTransferMode(2);
-				ftp.setFileType(2);
-				if (ftp.changeWorkingDirectory(directoryRemote))
-				{
-					if (!ftp.storeFile(new FileInputStream(temp), fileNameRemote)) 
-					{
-						rc = 2;
-					}
-				}
-				else
-				{
-					rc = 2;
-				}
-			}
-			else
-			{
-				rc = 1;
-			}
-			ftp.disconnect();
-		}
-		
-		return rc;
-	}
-		
 	public int startBatchLinuxSsh(boolean isLocal, String sshPath, String sshUser, String url, String sshCommand, 
 								  String procedure, String account, String entity, String reference, String fileName, String date, String time, String jobclass, String jobname)
 	{
@@ -1194,27 +1139,6 @@ public class NacaToolBox extends CJMapObject
 //		if (!RunSystemCommand.runSystemCommand(command, args))
 //			rc = 1;
 
-		return rc;
-	}
-	
-	public int startBatchHostFtp(File temp, String url, String user, String password, String siteCommand) throws IOException 
-	{
-		int rc = 0;
-		
-		FtpUtil ftp = new FtpUtil();
-		if (ftp.connect(url, user, password, siteCommand))
-		{
-			if (!ftp.storeFile(new FileInputStream(temp), "XXX"))
-			{
-				rc = 2;
-			}
-		}
-		else
-		{
-			rc = 1;
-	    }
-		ftp.disconnect();
-		
 		return rc;
 	}
 	
