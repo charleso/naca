@@ -1,0 +1,9 @@
+<project name="NacaTrans" default="dist">
+
+	<property name="project.name" value="NacaTrans" />
+	<property name="project.title" value="NacaTrans" />
+	<property name="tests.enabled" value="false" />
+
+	<import file="../../default.xml" />
+
+</project>
