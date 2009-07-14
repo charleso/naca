@@ -42,7 +42,12 @@ public class CRulesManager
 	
 	public void LoadRulesFile(String csFilePath)
 	{
-		m_tagRules = Tag.createFromFile(csFilePath);
+		LoadRulesFile(Tag.createFromFile(csFilePath));
+	}
+	
+	public void LoadRulesFile(Tag tag)
+	{
+		m_tagRules = tag;
 		LoadRules() ;
 	}
 	/**

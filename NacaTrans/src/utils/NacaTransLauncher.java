@@ -9,8 +9,6 @@
  */
 package utils;
 
-import jlib.misc.StringUtil;
-
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
@@ -66,19 +64,13 @@ public class NacaTransLauncher extends Transcoder
 		transLauncher.initForPlugin(configFilePath);
 		return transLauncher;		
 	}
-	
-//	public static void transcode(String csSingleFile, String csApplication, String csGroup, String csAction)
-//	{
-//		TranscoderAction transcoderAction = getTranscoderAction(csAction);
-//		doStart(csSingleFile, csApplication, csGroup, transcoderAction, "D:/Dev/naca/NacaTrans/NacaTrans.cfg", "");
-//	}
-	
+
 	public static void doStart(String csApplication, TranscoderAction transcoderAction, String csCfg, String csGroupToTranscode)
 	{
 		NacaTransLauncher obj = new NacaTransLauncher() ;
 		obj.setTranscoderAction(transcoderAction);
 
-		obj.Start("", csCfg, csGroupToTranscode) ;
+		obj.Start(csCfg, csGroupToTranscode) ;
 	}
 
 }

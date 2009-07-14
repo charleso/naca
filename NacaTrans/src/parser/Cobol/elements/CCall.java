@@ -355,7 +355,7 @@ public class CCall extends CCobolElement
 
 				if (!factory.m_ProgramCatalog.CheckProgramReference(prg, bWithDFHCommarea, nbParameters, true))
 				{
-					Transcoder.logError(getLine(), "Missing sub program : "+prg) ;
+					Transcoder.logInfo(getLine(), "Missing sub program : "+prg) ;
 					CGlobalEntityCounter.GetInstance().RegisterMissingSubProgram(parent.GetProgramName(), prg) ;
 					bChecked = false ;
 				}

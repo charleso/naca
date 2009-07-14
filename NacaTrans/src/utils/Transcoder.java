@@ -67,7 +67,6 @@ public class Transcoder
 			PropertyConfigurator.configure(log4jConf);
 		}
 		ms_logger = Logger.getLogger("LogFile");
-		ms_logger.setLevel(Level.INFO);
 		logInfo("Starting NacaTrans");
 		
 		logInfo("Init rules...");
@@ -400,17 +399,22 @@ public class Transcoder
 		releaseConnection();
 	}
 	
-	public void Start(String baseDir, String configFilePath, String groupToTranscode)
+	public void Start(String configFilePath, String groupToTranscode)
+	{
+		Tag eConf = Tag.createFromFile(configFilePath) ;
+		if (eConf == null)
+		{
+			System.out.println("Failure while loading configuration file : "+configFilePath) ;
+			return ;
+		}
+		Start(eConf, groupToTranscode);
+	}
+	
+	public void Start(Tag eConf, String groupToTranscode)
 	{
 		try
 		{
 			AsciiEbcdicConverter.create();
-			Tag eConf = Tag.createFromFile(configFilePath) ;
-			if (eConf == null)
-			{
-				System.out.println("Failure while loading configuration file : "+configFilePath) ;
-				return ;
-			}
 	
 			if (!Init(eConf))
 			{
@@ -437,7 +441,11 @@ public class Transcoder
 			e.printStackTrace();
 		}
 
-		logInfo("Done; Errors="+ms_nNbError + " Warnings="+ms_nNbWarning);		
+		String message = "Done; Errors="+ms_nNbError + " Warnings="+ms_nNbWarning;
+		if(ms_nNbError > 0)
+			logError(message);
+		else
+			logInfo(message);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -481,7 +489,7 @@ public class Transcoder
 				String csCurrentApplication = eFile.getVal("Application") ;
 				String csCurrentGroup = eFile.getVal("Group") ;
 				CTransApplicationGroup grp = m_tabGroups.get(csCurrentGroup) ;
-				if (grp != null && !csCurrentApplication.equals(""))
+				if (grp != null)
 				{
 					Transcoder.pushTranscodedUnit(fileName, grp.m_csInputPath);
 					grp.getEngine().doFileTranscoding(fileName, csCurrentApplication, grp, bResources);
@@ -891,5 +899,10 @@ public class Transcoder
 				throw new RuntimeException(ex);
 			}
 		}
+	}
+	
+	public int getErrors()
+	{
+		return ms_nNbError;
 	}
 }

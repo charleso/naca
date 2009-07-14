@@ -13,7 +13,6 @@
 package utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -21,13 +20,10 @@ import java.util.NoSuchElementException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -106,7 +102,7 @@ public class CGlobalEntityCounter
 		{
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = builder.newDocument();
-			Element elem = MakeXML(doc) ;
+			MakeXML(doc) ;
 			Source source = new DOMSource(doc);
 			FileOutputStream file = new FileOutputStream(path+".xml");
 			StreamResult res = new StreamResult(file) ;
@@ -117,6 +113,8 @@ public class CGlobalEntityCounter
 			xformer.transform(source, res);
 			
 			File fSS = new File(path+".xsl");
+			if(!fSS.exists())
+				return;
 			Source stylesheet = new StreamSource(fSS) ; 
 			Templates templ = TransformerFactory.newInstance().newTemplates(stylesheet) ;
 			Transformer xformer2 = templ.newTransformer() ;			
@@ -126,25 +124,9 @@ public class CGlobalEntityCounter
 			xformer2.transform(source, result);
 			
 		}
-		catch (TransformerConfigurationException e)
+		catch (Exception e)
 		{
 			e.printStackTrace() ;
-			int n =0;
-		}
-		catch (TransformerException e)
-		{
-			e.printStackTrace() ;
-			int n =0;
-		}
-		catch (ParserConfigurationException e)
-		{
-			e.printStackTrace() ;
-			int n =0;
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace() ;
-			int n =0;
 		}
 	}
 	
