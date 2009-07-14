@@ -235,9 +235,11 @@ public class CGlobalCatalog
 		}
 		
 		// else do transcoding ;
-		CTransApplicationGroup grpIncludes = m_Transcoder.getGroup(m_csIncludeGroupName) ;
-		if (grpIncludes != null)
+		for (String includeGroupName : m_csIncludeGroupName.split(":"))
 		{
+			CTransApplicationGroup grpIncludes = m_Transcoder.getGroup(includeGroupName) ;
+			if (grpIncludes == null)
+				continue;
 			BaseEngine<CEntityExternalDataStructure> engine = grpIncludes.getEngine() ;
 			Transcoder.pushTranscodedUnit(name, grpIncludes.m_csInputPath);
 			ext = engine.doAllAnalysis(name, "", grpIncludes, false) ;
@@ -246,14 +248,10 @@ public class CGlobalCatalog
 			if (ext != null)
 			{
 				ext.StartExport() ;
+				return ext ;
 			}
-			else
-			{
-				Transcoder.logError("Missing include file : "+name) ;
-			}
-			
-			return ext ;
 		}
+		Transcoder.logError("Missing include file : "+name) ;
 		return null ;
 	}
 	protected Hashtable<String, String> m_tabTransID = new Hashtable<String, String>() ;
