@@ -14,8 +14,6 @@ package parser.expression;
 
 import org.w3c.dom.*;
 
-import com.sun.org.apache.xpath.internal.Expression;
-
 import semantic.CDataEntity;
 import semantic.CBaseEntityFactory;
 import semantic.expression.CBaseEntityCondition;
