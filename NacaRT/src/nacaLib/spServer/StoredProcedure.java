@@ -6,6 +6,7 @@
  */
 package nacaLib.spServer;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -167,8 +168,9 @@ public class StoredProcedure extends CalledProgramParamSupportByPosition
 	{
 		try
 		{
-			COM.ibm.db2.jdbc.app.DB2Connection Db2connection = (COM.ibm.db2.jdbc.app.DB2Connection)spConnection;
-			Db2connection.setConnectOption(1276, csSpDbPackage); // SQL_ATTR_CURRENT_PACKAGE_SET
+			Class<?> dbs = Class.forName("COM.ibm.db2.jdbc.app.DB2Connection");
+			Method m = dbs.getDeclaredMethod("setConnectOption", Integer.TYPE, String.class);
+			m.invoke(spConnection, 1276, csSpDbPackage); // SQL_ATTR_CURRENT_PACKAGE_SET
 			Log.logNormal("Change Package:" + csSpDbPackage);
 		}
 		catch (Exception ex)
