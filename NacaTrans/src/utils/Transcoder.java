@@ -17,13 +17,11 @@ import java.util.Stack;
 import java.util.Vector;
 
 import jlib.misc.AsciiEbcdicConverter;
-import jlib.misc.NumberParser;
 import jlib.misc.StringUtil;
 import jlib.sql.SQLTypeOperation;
 import jlib.xml.Tag;
 import jlib.xml.TagCursor;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -39,7 +37,6 @@ public class Transcoder
 	
 	private String m_csInfoDir = "" ;
 	
-	private CGlobalEntityCounter m_EntityCounter ;
 	private Hashtable<String, CTransApplicationGroup> m_tabGroups = new Hashtable<String, CTransApplicationGroup>();
 	private Vector<CTransApplicationGroup> m_arrGroups = new Vector<CTransApplicationGroup>() ;
 	private Tag m_eConf = null ;
@@ -82,7 +79,6 @@ public class Transcoder
 		LoadGroups(eConf) ;
 		
 		logInfo("Init global objects...");
-		m_EntityCounter = CGlobalEntityCounter.GetInstance() ;
 		
 		LoadApplications() ;
 		
@@ -448,7 +444,6 @@ public class Transcoder
 			logInfo(message);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void DoApplications(String groupToTranscode)
 	{
 		if (groupToTranscode != null && !groupToTranscode.equals(""))
@@ -492,7 +487,18 @@ public class Transcoder
 				if (grp != null)
 				{
 					Transcoder.pushTranscodedUnit(fileName, grp.m_csInputPath);
-					grp.getEngine().doFileTranscoding(fileName, csCurrentApplication, grp, bResources);
+					try
+					{
+						grp.getEngine().doFileTranscoding(fileName, csCurrentApplication, grp, bResources);
+					}
+					catch(OutOfMemoryError e)
+					{
+						throw e;
+					}
+					catch(Throwable e)
+					{
+						logError(fileName, ms_nLastLine, e.getMessage());
+					}
 					Transcoder.popTranscodedUnit();
 				}
 				eFile = m_eConf.getNextChild(cur) ;
@@ -665,29 +671,6 @@ public class Transcoder
 	}
 	
 	private static Stack<String> ms_stackTranscodedUnits = new Stack<String>(); 
-
-	private static int extractLineFromText(String csText)
-	{
-		String csTextUpper = csText.toUpperCase();
-		int nPosStartLine = csTextUpper.indexOf("LINE");
-		if(nPosStartLine >= 0)
-		{
-			while(nPosStartLine < csText.length() && (csTextUpper.charAt(nPosStartLine) < '0' || csTextUpper.charAt(nPosStartLine) > '9'))
-				nPosStartLine++;
-		}
-		if(nPosStartLine >= 0)
-		{
-			String csRight = csTextUpper.substring(nPosStartLine);
-			int nTextRight = csRight.indexOf(" ");
-			if(nTextRight >= 0)
-			{
-				String csNumber = csRight.substring(0, nTextRight);
-				int nLine = NumberParser.getAsInt(csNumber);
-				return nLine;
-			}
-		}
-		return -1;
-	}
 	
 	private static String makeFullLogText(String csFile, int nLine, String csText, String csCategory)
 	{		
