@@ -429,6 +429,11 @@ public abstract class CBaseLexer
 						case '*':
 							tok = new CTokenGeneric(CTokenType.STAR, getLine(), bIsNewLine);
 							m_nCurrentPositionInLine ++ ;
+							if(m_arrCurrentLine[m_nCurrentPositionInLine] == '*')
+							{
+								tok = new CTokenGeneric(CTokenType.STAR_STAR, getLine(), bIsNewLine);
+								m_nCurrentPositionInLine ++ ;
+							}
 							break;
 						case '/':
 							tok = new CTokenGeneric(CTokenType.SLASH, getLine(), bIsNewLine);

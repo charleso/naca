@@ -31,9 +31,13 @@ public class CJavaExprProd extends CEntityExprProd
 		{
 			cs = "multiply(" ;
 		}
-		else
+		else if (m_Type == CProdExpression.CProdType.DIVIDE)
 		{
 			cs = "divide(" ;
+		}
+		else
+		{
+			cs = "pow(" ;
 		}
 		cs += m_Op1.Export() + ", \n" + m_Op2.Export() + ")" ;
 		return cs ;

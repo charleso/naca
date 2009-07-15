@@ -33,6 +33,7 @@ import nacaLib.mapSupport.Map;
 import nacaLib.mathSupport.MathAdd;
 import nacaLib.mathSupport.MathBase;
 import nacaLib.mathSupport.MathDivide;
+import nacaLib.mathSupport.MathPow;
 import nacaLib.mathSupport.MathMultiply;
 import nacaLib.mathSupport.MathSubtract;
 import nacaLib.misc.KeyPressed;
@@ -2615,6 +2616,11 @@ public abstract class BaseProgram extends CJMapObject
 		return math;
 	}
 	
+	protected MathMultiply multiply(String s, VarAndEdit var1)
+	{
+		return multiply(var1, s);
+	}
+	
 	/** multiply
 	 * @param IN Var var1: operand1 variable; may be integer or decimal
 	 * @param IN String s: operand2 variable that must parse as a number
@@ -2759,6 +2765,16 @@ public abstract class BaseProgram extends CJMapObject
 			Log.logFineDebug("multiply_d_M:" + d + ":" + mathBase.getSTCheckValue());
 
 		MathMultiply math= new MathMultiply(d, mathBase);
+		return math;
+	}
+
+	protected MathPow pow(VarAndEdit var1, String s)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("expon_V_cs:" + var1.getSTCheckValue() + ":" + s);
+		MathPow math= new MathPow(var1, s);
+		if(m_bUsedTempVarOrCStr)
+			m_tempCache.resetTempIndex(var1);
 		return math;
 	}
 

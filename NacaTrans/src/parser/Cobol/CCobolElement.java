@@ -41,6 +41,7 @@ import parser.expression.CStringTerminal;
 import parser.expression.CSumExpression;
 import parser.expression.CTermExpression;
 import parser.expression.CTerminal;
+import parser.expression.CProdExpression.CProdType;
 import utils.Transcoder;
 
 /**
@@ -330,26 +331,18 @@ public abstract class CCobolElement extends CLanguageElement
 		while (!bDone)
 		{
 			CBaseToken tok = GetCurrentToken();
-			if (tok.GetType() == CTokenType.STAR)
+			if (tok.GetType() == CTokenType.STAR || tok.GetType() == CTokenType.SLASH || tok.GetType() == CTokenType.STAR_STAR)
 			{
 				GetNext() ;
 				CExpression e = ReadTerminalExpr() ;
 				if (e != null)
 				{
-					exprProd = new CProdExpression(tok.getLine(), exprProd, e, CProdExpression.CProdType.PROD) ;
-				}
-				else
-				{
-					bDone = true ;
-				}
-			}
-			else if(tok.GetType() == CTokenType.SLASH)
-			{
-				GetNext() ;
-				CExpression e = ReadTerminalExpr() ;
-				if (e != null)
-				{
-					exprProd = new CProdExpression(tok.getLine(), exprProd, e, CProdExpression.CProdType.DIVIDE) ;
+					CProdType type = CProdExpression.CProdType.PROD;
+					if (tok.GetType() == CTokenType.SLASH)
+						type = CProdExpression.CProdType.DIVIDE;
+					else if (tok.GetType() == CTokenType.STAR_STAR)
+						type = CProdExpression.CProdType.POW;
+					exprProd = new CProdExpression(tok.getLine(), exprProd, e, type) ;
 				}
 				else
 				{

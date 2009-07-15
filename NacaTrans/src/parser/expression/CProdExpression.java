@@ -38,6 +38,7 @@ public class CProdExpression extends CExpression
 		} 
 		public static CProdType PROD = new CProdType("MULT") ;
 		public static CProdType DIVIDE = new CProdType("DIVID") ;
+		public static CProdType POW = new CProdType("POW") ;
 	}
 	public CProdExpression(int line, CExpression op1, CExpression op2, CProdType t)
 	{
@@ -115,9 +116,13 @@ public class CProdExpression extends CExpression
 		{
 			return "MULT("+m_Op1.toString()+", "+m_Op2.toString()+")" ;
 		}
-		else
+		else if (m_Type == CProdType.DIVIDE)
 		{
 			return "DIV("+m_Op1.toString()+", "+m_Op2.toString()+")" ;
+		}
+		else
+		{
+			return "POW("+m_Op1.toString()+", "+m_Op2.toString()+")" ;
 		}
 	}
 	public CExpression getMasterBinaryCondition()
