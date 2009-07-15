@@ -255,6 +255,7 @@ public abstract class CBlocElement extends CCommentContainer
 		{
 			if (tokVerb.GetKeyword() == CCobolKeywordList.END_IF ||
 				tokVerb.GetKeyword() == CCobolKeywordList.ELSE  ||
+				tokVerb.GetKeyword() == CCobolKeywordList.WHEN  ||
 				tokVerb.GetKeyword() == CCobolKeywordList.END_PERFORM  ||
 				tokVerb.GetKeyword() == CCobolKeywordList.END_EVALUATE  ||
 				tokVerb.GetType() == CTokenType.DOT)
