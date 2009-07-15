@@ -4400,6 +4400,11 @@ public abstract class BaseProgram extends CJMapObject
 			m_tempCache.resetTempIndex(v);
 	}
 	
+	protected void moveSubStringHighValue(VarAndEdit v, MathBase nOffsetPosition, MathBase nNbChar)
+	{
+		moveSubStringHighValue(v, nOffsetPosition.m_d.intValue(), nNbChar.m_d.intValue());
+	}
+	
 	protected void moveSubStringHighValue(VarAndEdit v, Var vOffsetPosition, int nNbChar)
 	{
 		if(IsSTCheck)
@@ -4556,7 +4561,12 @@ public abstract class BaseProgram extends CJMapObject
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(varDest, nNbChar);
 	}
-
+	
+	protected void setSubString(VarAndEdit varDest, MathBase nOffsetPosition, int nNbChar, String csValue)
+	{
+		setSubString(varDest, nOffsetPosition.m_d.intValue(), nNbChar, csValue);
+	}
+	
 	/**
 	 * @param Var varDest: Destination variable 
 	 * @param int nOffsetPosition: Start position into to source variable
