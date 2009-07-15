@@ -12,7 +12,9 @@
  */
 package parser.Cobol.elements;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
@@ -102,7 +104,7 @@ public class CWorkingEntry extends CCobolElement
 	protected CIdentifier m_OccursDepending = null ;
 	protected CWorkingEntryType m_EntryType = null ;
 	protected String m_Format = ""  ;
-	protected CIdentifier m_OccursIndexedBy = null ;
+	protected final List<CIdentifier> m_OccursIndexedBy = new ArrayList<CIdentifier>() ;
 	protected CTerminal m_BlankWhenValue = null ;
 	protected boolean m_bFillAll = false ;
 	protected boolean m_bIsPointer = false ;
@@ -396,9 +398,10 @@ public class CWorkingEntry extends CCobolElement
 							{
 								tokBy = GetNext();
 							}
-							if (tokBy.GetType() == CTokenType.IDENTIFIER)
+							while (tokBy.GetType() == CTokenType.IDENTIFIER)
 							{
-								m_OccursIndexedBy = ReadIdentifier() ;
+								m_OccursIndexedBy.add(ReadIdentifier()) ;
+								tokBy = GetCurrentToken();
 							}
 						}
 						else if (tokOpt.GetKeyword() == CCobolKeywordList.ASCENDING || tokOpt.GetKeyword() == CCobolKeywordList.DESCENDING)
@@ -832,11 +835,11 @@ public class CWorkingEntry extends CCobolElement
 			Element eOccurs = root.createElement("Occurs") ;
 			eItem.appendChild(eOccurs) ;
 			m_Occurs.ExportTo(eOccurs, root) ;
-			if (m_OccursIndexedBy != null)
+			for (CIdentifier indexedBy : m_OccursIndexedBy)
 			{
 				Element eIndexed = root.createElement("IndexedBy") ;
 				eOccurs.appendChild(eIndexed) ;
-				m_OccursIndexedBy.ExportTo(eIndexed, root) ;
+				indexedBy.ExportTo(eIndexed, root) ;
 			}
 		}
 		if (m_Sync)
@@ -876,9 +879,9 @@ public class CWorkingEntry extends CCobolElement
 					eStruct.SetTableSize(eSize) ;
 				}
 				
-				if (m_OccursIndexedBy != null)
+				for (CIdentifier indexedBy : m_OccursIndexedBy)
 				{
-					CEntityIndex index = factory.NewEntityIndex(m_OccursIndexedBy.GetName()) ;
+					CEntityIndex index = factory.NewEntityIndex(indexedBy.GetName()) ;
 					eStruct.setOccursIndex(index) ;
 					parent.AddChild(index) ;
 				}
