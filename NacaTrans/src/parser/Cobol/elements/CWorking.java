@@ -100,10 +100,6 @@ public class CWorking extends CCommentContainer
 			{
 				return true ;
 			}
-			if (tokEntry.GetType() == CTokenType.KEYWORD)
-			{
-				int gg = 0;
-			}
 			if (tokEntry.GetType() == CTokenType.NUMBER)
 			{
 				int n = tokEntry.GetIntValue();
@@ -188,6 +184,10 @@ public class CWorking extends CCommentContainer
 			else if (tokEntry.GetType()==CTokenType.DOT)
 			{
 				StepNext() ;//ConsumeEndLineWithDot();
+			}
+			else if (tokEntry.GetType()==CTokenType.KEYWORD && tokEntry.GetKeyword()==CCobolKeywordList.EXTERNAL)
+			{
+				StepNext() ;
 			}
 			else
 			{

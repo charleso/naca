@@ -329,4 +329,5 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword TABLE = new CReservedKeyword(List, "TABLE") ;
 	public static CReservedKeyword NULL = new CReservedKeyword(List, "NULL") ;
 	public static CReservedKeyword EXCEPTION = new CReservedKeyword(List, "EXCEPTION") ;
+	public static CReservedKeyword EXTERNAL = new CReservedKeyword(List, "EXTERNAL") ;
 }
