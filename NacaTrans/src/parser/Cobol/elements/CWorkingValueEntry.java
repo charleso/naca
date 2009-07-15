@@ -86,7 +86,7 @@ public class CWorkingValueEntry extends CCobolElement
 		{
 			CBaseToken tokVal = GetCurrentToken();
 			CTerminal val ; 
-			if (tokVal.GetType() == CTokenType.STRING || tokVal.GetType() == CTokenType.NUMBER || tokVal.GetType() == CTokenType.CONSTANT)
+			if (tokVal.GetType() == CTokenType.STRING || tokVal.GetType() == CTokenType.NUMBER || tokVal.GetType() == CTokenType.CONSTANT || tokVal.GetType() == CTokenType.MINUS)
 			{
 				val = ReadTerminal();
 				m_arrValues.addElement(val) ;
