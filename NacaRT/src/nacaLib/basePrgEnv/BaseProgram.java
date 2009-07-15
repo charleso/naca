@@ -43,7 +43,6 @@ import nacaLib.misc.Pointer;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.program.CCallProgram;
 import nacaLib.program.CJMapRunnable;
-import nacaLib.program.CopyManager;
 import nacaLib.program.CopyReplacing;
 import nacaLib.program.Paragraph;
 import nacaLib.program.Section;
@@ -85,13 +84,7 @@ import nacaLib.varEx.SortParagHandler;
 import nacaLib.varEx.Var;
 import nacaLib.varEx.VarAndEdit;
 import nacaLib.varEx.VarBase;
-import nacaLib.varEx.VarBufferPos;
-import nacaLib.varEx.VarDefBuffer;
-import nacaLib.varEx.VarDefNumIntSignComp3;
 import nacaLib.varEx.VarEnumerator;
-import nacaLib.varEx.VarGroup;
-import nacaLib.varEx.VarNumIntComp0;
-import nacaLib.varEx.VarNumIntSignComp3;
 import nacaLib.varEx.VarTypeId;
 
 
@@ -189,7 +182,7 @@ public abstract class BaseProgram extends CJMapObject
 	 * @see call(String )
 	 * <b>Not intended to be used by applications directly, but they should use call(String) instead</b>
 	 */
-	protected CCallProgram call(Class classPrgToCall)
+	protected CCallProgram call(Class<?> classPrgToCall)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("call_Class:" + classPrgToCall.getName());
@@ -3901,7 +3894,7 @@ public abstract class BaseProgram extends CJMapObject
 
 		try
 		{
-			int n = Integer.parseInt(s) ;
+			Integer.parseInt(s) ;
 			return true ;
 		}
 		catch (NumberFormatException e)
