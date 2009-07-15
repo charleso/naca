@@ -223,7 +223,7 @@ public abstract class CEntityAttribute extends CGenericDataEntityReference imple
 		{
 			eCond.SetIsSpace(this);
 		}
-		else if (value.equals("LOW-VALUE"))
+		else if (value.equals("LOW-VALUE") || value.equals("LOW-VALUES"))
 		{
 			eCond.SetIsLowValue(this);
 		}
