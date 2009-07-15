@@ -68,7 +68,7 @@ public abstract class CEntityFormAccessor extends CBaseDataReference
 		{
 			eAssign.SetToSpace(m_Owner) ;
 		}
-		else if (value.equals("LOW-VALUE"))
+		else if (value.equals("LOW-VALUE") || value.equals("LOW-VALUES"))
 		{
 			CEntityInitialize init = factory.NewEntityInitialize(l, m_Owner);
 			m_Owner.RegisterWritingAction(init);

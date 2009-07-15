@@ -165,7 +165,7 @@ public abstract class CEntityFieldAttribute extends CBaseEntityFieldAttribute
 		else if (v.equals("("))	{eCond.IsUnprotected() ; eCond.IsDark() ; eCond.IsModified() ; }
 		else if (v.equals(")"))	{eCond.IsNumeric() ; eCond.IsDark() ; eCond.IsModified() ; }
 		else if (v.equals("@"))	{eCond.IsAutoSkip() ; eCond.IsDark() ; }
-		else if (v.equals("LOW-VALUE") || v.equals("SPACE"))	{eCond.IsUnmodified() ;}
+		else if (v.equals("LOW-VALUE") || v.equals("LOW-VALUES") || v.equals("SPACE"))	{eCond.IsUnmodified() ;}
 		else if (v.equals("Ø") || (v.equals("\u0080")))	
 		{
 			eCond.IsCleared() ;

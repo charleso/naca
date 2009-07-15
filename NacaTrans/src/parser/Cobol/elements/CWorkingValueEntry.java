@@ -189,7 +189,7 @@ public class CWorkingValueEntry extends CCobolElement
 				if (eVal == null && !term1.IsReference())
 				{
 					String cs = term1.GetValue() ;
-					if (cs.equals(CCobolConstantList.HIGH_VALUE.m_Name))
+					if (cs.equals(CCobolConstantList.HIGH_VALUE.m_Name) || cs.equals(CCobolConstantList.HIGH_VALUES.m_Name))
 					{
 						eVal = factory.NewEntityConstant(CEntityConstant.Value.HIGH_VALUE) ;
 					}

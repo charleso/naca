@@ -110,7 +110,7 @@ public abstract class CEntityFieldHighlight extends CBaseEntityFieldAttribute
 			eCond.IsBlink() ;
 			m_Reference.RegisterVarTesting(eCond);
 		}
-		else if (value.equals("HIGH-VALUE") || value.equals("\u009F"))
+		else if (value.equals("HIGH-VALUE") || value.equals("HIGH-VALUES") || value.equals("\u009F"))
 		{
 			eCond = factory.NewEntityIsFieldHighlight(m_Reference) ;
 			eCond.IsNormal() ;

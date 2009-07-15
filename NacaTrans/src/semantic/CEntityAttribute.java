@@ -275,12 +275,12 @@ public abstract class CEntityAttribute extends CGenericDataEntityReference imple
 		{
 			return eCond ;
 		}
-		else if (type == CBaseEntityCondition.EConditionType.IS_LESS_THAN && value.equals("HIGH-VALUE"))
+		else if (type == CBaseEntityCondition.EConditionType.IS_LESS_THAN && value.startsWith("HIGH-VALUE"))
 		{
 			eCond.SetOpposite() ;
 			return eCond ;
 		}
-		else if (type == CBaseEntityCondition.EConditionType.IS_GREATER_THAN && value.equals("LOW-VALUE"))
+		else if (type == CBaseEntityCondition.EConditionType.IS_GREATER_THAN && value.startsWith("LOW-VALUE"))
 		{
 			eCond.SetOpposite() ;
 			return eCond ;

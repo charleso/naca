@@ -62,7 +62,7 @@ public abstract class CEntityEnvironmentVariable extends CDataEntity
 		{
 			eCond.SetIsLowValue(this);
 		}
-		else if (value.equals("HIGH-VALUE"))
+		else if (value.equals("HIGH-VALUE") || value.equals("HIGH-VALUES"))
 		{
 			eCond.SetIsHighValue(this);
 		}

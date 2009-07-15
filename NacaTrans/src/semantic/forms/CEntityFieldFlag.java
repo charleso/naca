@@ -87,7 +87,7 @@ public abstract class CEntityFieldFlag extends CBaseEntityFieldAttribute
 		{
 			eCond.SetIsFlag(m_Reference, "1");
 		}
-		else if (value.equals("LOW-VALUE"))
+		else if (value.equals("LOW-VALUE") || value.equals("LOW-VALUES"))
 		{
 			eCond.SetIsFlagSet(m_Reference);
 			eCond.SetOpposite() ;	 // if FIELD.Flag == LOW-VALUE  <=>  if flag not set
