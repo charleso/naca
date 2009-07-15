@@ -200,6 +200,7 @@ public abstract class CBaseLanguageExporter
 				if (cs != null)
 				{
 					int blanksize = m_WidthBeforeOriginalCode - m_Indent.length()*m_IndentWidth;
+					blanksize = Math.max(0, blanksize);
 					char[] c = new char[blanksize] ; // COBOL comments starts on line 60
 					Arrays.fill(c, ' ') ;
 					String blankline = new String(c) ;
