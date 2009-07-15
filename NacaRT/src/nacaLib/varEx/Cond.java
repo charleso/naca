@@ -34,13 +34,13 @@ public class Cond extends CJMapObject
 		return toString();
 	}
 
-	//	public Cond(Var2 varParent, CondValue condValue)
-//	{
-//		m_var = varParent;
-//		m_arrValues = new ArrayList();
-//		m_arrValues.add(condValue);		
-//	}
-		
+	private Cond(Var varParent, CondValue condValue)
+	{
+		m_var = varParent;
+		m_arrValues = new ArrayList<CondValue>();
+		m_arrValues.add(condValue);		
+	}
+
 	public void setTrue()
 	{
 		int nNbValues = m_arrValues.size();
@@ -64,16 +64,20 @@ public class Cond extends CJMapObject
 		return false;		
 	}
 	
-	public Cond getAt(Var x_Cmaj)	// 1 based
+	public Cond getAt(Var x_Cmaj)
 	{
-//		int nIndex = x_Cmaj.getInt() -1;	// 0 based
-//		int nNbValues = m_arrValues.size();
-//		if(nIndex < nNbValues)
-//		{
-//			CondValue condValue = (CondValue)m_arrValues.get(nIndex);
-//			Cond condItem = new Cond(m_var, condValue);	// Same parent
-//			return condItem;
-//		} 
+		return getAt(x_Cmaj.getInt());
+	}
+	
+	public Cond getAt(int x_Cmaj)	// 1 based
+	{
+		int nIndex = x_Cmaj - 1;	// 0 based
+		int nNbValues = m_arrValues.size();
+		if(nIndex < nNbValues)
+		{
+			CondValue condValue = (CondValue)m_arrValues.get(nIndex);
+			return new Cond(m_var, condValue);	// Same parent
+		} 
 		return null;
 	}
 	
@@ -95,8 +99,9 @@ public class Cond extends CJMapObject
 		cs += "}";
 		return cs;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private String m_csName = null;
 	private Var m_var = null;
-	private ArrayList m_arrValues = null;	// Array of CondValue
+	private ArrayList<CondValue> m_arrValues = null;	// Array of CondValue
 }
