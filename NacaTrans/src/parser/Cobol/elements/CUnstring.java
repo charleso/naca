@@ -146,23 +146,29 @@ public class CUnstring extends CCobolElement
 		tok = GetCurrentToken() ;
 		if (tok.GetKeyword() != CCobolKeywordList.DELIMITED)
 		{
-			return false ;
-		}
-		tok = GetNext();
-		if (tok.GetKeyword() == CCobolKeywordList.BY)
-		{
-			tok = GetNext();
-		}
-		if (tok.GetKeyword() == CCobolKeywordList.ALL)
-		{
-			tok = GetNext() ; 
-			CTerminal t = ReadTerminal();
-			m_arrDelimitersMulti.add(t) ;
+			if (tok.GetKeyword() != CCobolKeywordList.INTO)
+			{
+				return false ;
+			}
 		}
 		else
 		{
-			CTerminal t = ReadTerminal();
-			m_arrDelimitersSingle.add(t) ;
+			tok = GetNext();
+			if (tok.GetKeyword() == CCobolKeywordList.BY)
+			{
+				tok = GetNext();
+			}
+			if (tok.GetKeyword() == CCobolKeywordList.ALL)
+			{
+				tok = GetNext() ; 
+				CTerminal t = ReadTerminal();
+				m_arrDelimitersMulti.add(t) ;
+			}
+			else
+			{
+				CTerminal t = ReadTerminal();
+				m_arrDelimitersSingle.add(t) ;
+			}
 		}
 		tok = GetCurrentToken();
 		if (tok.GetType()  == CTokenType.COMMA)
