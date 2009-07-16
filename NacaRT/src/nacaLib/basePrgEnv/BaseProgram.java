@@ -2394,6 +2394,10 @@ public abstract class BaseProgram extends CJMapObject
 			m_tempCache.resetTempIndex(var1);
 		return math;
 	}
+	protected MathDivide divide(int n, MathBase var1)
+	{
+		return divide(n, var1.m_d.intValue());
+	}
 
 	protected MathDivide divide(int var1, int n)
 	{
