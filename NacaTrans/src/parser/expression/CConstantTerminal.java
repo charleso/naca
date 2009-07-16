@@ -100,6 +100,14 @@ public class CConstantTerminal extends CTerminal
 			char[] b = {'"'} ;
 			return factory.NewEntityString(b);
 		}
+		else if (m_csValue.equals(CCobolConstantList.LOW_VALUE.m_Name) || m_csValue.equals(CCobolConstantList.LOW_VALUES.m_Name))
+		{
+			return factory.NewEntityString(new char[] { 0 });
+		}
+		else if (m_csValue.equals(CCobolConstantList.HIGH_VALUE.m_Name) || m_csValue.equals(CCobolConstantList.HIGH_VALUES.m_Name))
+		{
+			return factory.NewEntityString(new char[] { 255 });
+		}
 		return null ;
 //		CBaseTranscoder.ms_logger.error("ERROR : missing Special test for constant "+m_csValue);
 //		return factory.NewEntityString(m_csValue);
