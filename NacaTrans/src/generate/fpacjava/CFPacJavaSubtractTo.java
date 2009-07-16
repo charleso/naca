@@ -8,7 +8,6 @@ package generate.fpacjava;
 
 import generate.CBaseLanguageExporter;
 import semantic.CDataEntity;
-import semantic.CDataEntity.CDataEntityType;
 import semantic.Verbs.CEntitySubtractTo;
 import utils.CObjectCatalog;
 
@@ -24,8 +23,11 @@ public class CFPacJavaSubtractTo extends CEntitySubtractTo
 	protected void DoExport() {
 		WriteWord("subtract(") ;
 		WriteWord(this.m_Variable.ExportReference(getLine())) ;
-		WriteWord(", ") ;
-		WriteWord(this.m_Value.ExportReference(getLine())) ;
+		for(CDataEntity m_Value : m_Values)
+		{
+			WriteWord(", ") ;
+			WriteWord(m_Value.ExportReference(getLine())) ;
+		}
 		WriteWord(").to(") ;
 		WriteWord(this.m_Destination.ExportReference(getLine())) ;		
 		WriteWord(") ;") ;

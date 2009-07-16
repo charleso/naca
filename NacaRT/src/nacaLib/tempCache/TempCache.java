@@ -112,51 +112,14 @@ public class TempCache
 			breakCurrentSessionIfTimeout();
 	}
 
-	public void resetTempIndex(VarBase varA)
-	{
-		if(getAndResetUseTempVar())
-			m_tempVarManager.resetTempIndex(varA.m_varTypeId);
-		if(getAndResetUseCStr())
-			m_CStrManager.reset();
-		if(m_nCurrentTimeTryCounter-- <= 0)
-			breakCurrentSessionIfTimeout();
-	}
-	
-	public void resetTempIndex(VarBase varA, VarBase varB)
+	public void resetTempIndex(VarBase... vars)
 	{
 		if(getAndResetUseTempVar())
 		{
-			m_tempVarManager.resetTempIndex(varA.m_varTypeId);
-			m_tempVarManager.resetTempIndex(varB.m_varTypeId);
-		}
-		if(getAndResetUseCStr())
-			m_CStrManager.reset();
-		if(m_nCurrentTimeTryCounter-- <= 0)
-			breakCurrentSessionIfTimeout();
-	}
-	
-	public void resetTempIndex(VarBase varA, VarBase varB, VarBase varC)
-	{
-		if(getAndResetUseTempVar())
-		{
-			m_tempVarManager.resetTempIndex(varA.m_varTypeId);
-			m_tempVarManager.resetTempIndex(varB.m_varTypeId);
-			m_tempVarManager.resetTempIndex(varC.m_varTypeId);
-		}
-		if(getAndResetUseCStr())
-			m_CStrManager.reset();
-		if(m_nCurrentTimeTryCounter-- <= 0)
-			breakCurrentSessionIfTimeout();
-	}
-	
-	public void resetTempIndex(VarBase varA, VarBase varB, VarBase varC, VarBase varD)
-	{
-		if(getAndResetUseTempVar())
-		{
-			m_tempVarManager.resetTempIndex(varA.m_varTypeId);
-			m_tempVarManager.resetTempIndex(varB.m_varTypeId);
-			m_tempVarManager.resetTempIndex(varC.m_varTypeId);
-			m_tempVarManager.resetTempIndex(varD.m_varTypeId);
+			for(VarBase var : vars)
+			{
+				m_tempVarManager.resetTempIndex(var.m_varTypeId);
+			}
 		}
 		if(getAndResetUseCStr())
 			m_CStrManager.reset();

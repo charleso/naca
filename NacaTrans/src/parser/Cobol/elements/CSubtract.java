@@ -12,6 +12,8 @@
  */
 package parser.Cobol.elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import lexer.CBaseToken;
@@ -53,7 +55,11 @@ public class CSubtract extends CCobolElement
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		CDataEntity eValue = m_Value.GetDataEntity(getLine(), factory) ;
+		List<CDataEntity> eValues = new ArrayList<CDataEntity>(m_Value.size());
+		for (CTerminal value : m_Value)
+		{
+			eValues.add(value.GetDataEntity(getLine(), factory));
+		}
 		for (int i=0; i<m_arrVariables.size(); i++)
 		{
 			CEntitySubtractTo eSub = factory.NewEntitySubtractTo(getLine());
@@ -62,7 +68,10 @@ public class CSubtract extends CCobolElement
 			CTerminal variable = m_arrVariables.get(i) ;
 			CDataEntity eVar = variable.GetDataEntity(getLine(), factory);
 			eVar.RegisterReadingAction(eSub) ;
-			eValue.RegisterReadingAction(eSub) ;
+			for (CDataEntity eValue : eValues)
+			{
+				eValue.RegisterReadingAction(eSub) ;
+			}
 			CDataEntity eRes = null ;
 			if (m_arrResult.size() == m_arrVariables.size())
 			{
@@ -74,7 +83,7 @@ public class CSubtract extends CCobolElement
 			{
 				eVar.RegisterWritingAction(eSub) ;
 			}
-			eSub.SetSubstract(eVar, eValue, eRes);
+			eSub.SetSubstract(eVar, eValues, eRes);
 		}
 		return null;
 	}
@@ -91,8 +100,11 @@ public class CSubtract extends CCobolElement
 		}
 		CGlobalEntityCounter.GetInstance().CountCobolVerb(tok.GetKeyword().m_Name) ;
 		tok = GetNext() ;
-		m_Value = ReadTerminal() ; 
-		tok = GetCurrentToken();
+		while (tok.GetType() == CTokenType.NUMBER || tok.GetType() == CTokenType.IDENTIFIER)
+		{
+			m_Value.add(ReadTerminal());
+			tok = GetCurrentToken();
+		}
 		if (tok.GetKeyword() != CCobolKeywordList.FROM)
 		{
 			Transcoder.logError(tok.getLine(), "Expecting FROM") ;
@@ -140,7 +152,10 @@ public class CSubtract extends CCobolElement
 	protected Element ExportCustom(Document root)
 	{
 		Element e = root.createElement("Substract") ;
-		m_Value.ExportTo(e, root) ;
+		for (CTerminal value : m_Value)
+		{
+			value.ExportTo(e, root) ;
+		}
 		for (int i=0; i<m_arrVariables.size(); i++)
 		{
 			Element eTo = root.createElement("From") ;
@@ -158,7 +173,7 @@ public class CSubtract extends CCobolElement
 		return e ;
 	}
 	
-	protected CTerminal m_Value ;
+	protected List<CTerminal> m_Value = new ArrayList<CTerminal>();
 	protected boolean m_bRounded ;
 	protected Vector<CTerminal> m_arrVariables = new Vector<CTerminal>() ;
 	protected Vector<CIdentifier> m_arrResult = new Vector<CIdentifier>() ;

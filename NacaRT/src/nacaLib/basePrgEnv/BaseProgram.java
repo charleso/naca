@@ -2088,14 +2088,20 @@ public abstract class BaseProgram extends CJMapObject
 	 * @param: IN Var var2: operand of the operation; Must evaluate to a numeric value  
 	 * @return: MathSubtract: wrapper object containg the var1 - var2, while keeping the maximum precision  
 	 */
-	protected MathSubtract subtract(VarAndEdit var1, VarAndEdit var2)
+	protected MathSubtract subtract(VarAndEdit var1, VarAndEdit var2, VarAndEdit... vars)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("subtract_V_V:" + var1.getSTCheckValue() + ":" + var2.getSTCheckValue());
 
 		MathSubtract math = new MathSubtract(var1, var2);
+		for(VarAndEdit var : vars)
+		{
+			math = new MathSubtract(math, var);
+		}
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(var1, var2);
+		if(vars.length > 0)
+			m_tempCache.resetTempIndex(vars);
 		return math;
 	}
 	

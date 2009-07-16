@@ -13,6 +13,7 @@
 package generate.java.verbs;
 
 import generate.CBaseLanguageExporter;
+import semantic.CDataEntity;
 import semantic.Verbs.CEntitySubtractTo;
 import utils.CObjectCatalog;
 
@@ -37,12 +38,18 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 	{
 		if (m_Destination != null)
 		{
-			String cs = "subtract(" + m_Variable.ExportReference(getLine()) + ", " + m_Value.ExportReference(getLine()) + ")" ;
+			String cs = "subtract(" + m_Variable.ExportReference(getLine()) ;
+			for(CDataEntity value : m_Values)
+			{
+				cs += ", " + value.ExportReference(getLine()) ;
+			}
+			cs += ")" ;
 			WriteWord(cs);
 			WriteWord(".to(" + m_Destination.ExportReference(getLine()) + ") ;") ;
 		} 
-		else
+		else if(m_Values.size() == 1)
 		{
+			CDataEntity m_Value = m_Values.get(0);
 			if (m_Value.GetConstantValue().equals("1"))
 			{
 				String cs = "dec(" + m_Variable.ExportReference(getLine()) + ") ;" ;
@@ -58,6 +65,16 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 				String cs = "dec(" + m_Value.ExportReference(getLine()) + ", " + m_Variable.ExportReference(getLine()) +") ;" ;
 				WriteWord(cs) ;
 			}
+		} 
+		else
+		{
+			String cs = "dec(" ;
+			for(CDataEntity m_Value : m_Values)
+			{
+				cs += m_Value.ExportReference(getLine()) + ", " ;
+			}
+			cs += m_Variable.ExportReference(getLine()) +") ;" ;
+			WriteWord(cs) ;
 		}
 		WriteEOL() ;
 	}

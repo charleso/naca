@@ -13,6 +13,11 @@
 package semantic.Verbs;
 
 import generate.CBaseLanguageExporter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import semantic.CBaseActionEntity;
 import semantic.CDataEntity;
 import utils.CObjectCatalog;
@@ -39,12 +44,14 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 			var.RegisterReadingAction(this) ;
 			bRes = true ;
 		}
-		if (m_Value == field)
+		for (CDataEntity value : m_Values)
 		{
-			m_Value = var ;
-			field.UnRegisterReadingAction(this) ;
-			var.RegisterReadingAction(this) ;
-			bRes = true ;
+			if (value == field)
+			{
+				field.UnRegisterReadingAction(this) ;
+				var.RegisterReadingAction(this) ;
+				bRes = true ;
+			}
 		}
 		if (m_Destination == field)
 		{
@@ -74,25 +81,33 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 	
 	public void SetSubstract(CDataEntity var, CDataEntity val, CDataEntity dest)
 	{
+		SetSubstract(var, Arrays.asList(val), dest);
+	}
+	
+	public void SetSubstract(CDataEntity var, List<CDataEntity> val, CDataEntity dest)
+	{
 		m_Variable = var ;
-		m_Value = val ;
+		m_Values.addAll(val);
 		m_Destination = dest ;
 	}
 	
 	protected CDataEntity m_Variable ;
-	protected CDataEntity m_Value ;
+	protected final List<CDataEntity> m_Values = new ArrayList<CDataEntity>();
 	protected CDataEntity m_Destination ;
 	public void Clear()
 	{
 		super.Clear() ;
 		m_Variable = null ;
-		m_Value = null ;
+		m_Values.clear();
 		m_Destination = null ;
 	}
 	public boolean ignore()
 	{
 		boolean ignore = m_Variable.ignore() ;
-		ignore |= m_Value.ignore();
+		for (CDataEntity value : m_Values)
+		{
+			ignore |= value.ignore();
+		}
 		if (m_Destination != null)
 		{
 			ignore |= m_Destination.ignore() ;
