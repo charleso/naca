@@ -455,6 +455,10 @@ public abstract class CBaseLexer
 						case '<':
 							tok = ReadLessThan() ;
 							break;
+						case '$':
+							tok = new CTokenGeneric(CTokenType.DOLLAR, getLine(), bIsNewLine);
+							m_nCurrentPositionInLine ++ ;
+							break;
 						case 0:
 							m_nCurrentPositionInLine = m_nCurrentLineLength; // end of line
 							continue;

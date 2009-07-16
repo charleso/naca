@@ -58,6 +58,7 @@ public class CTokenType
 	public static CTokenType STRING = new CTokenType() ; 
 	public static CTokenType CONSTANT = new CTokenType() ; 
 	public static CTokenType COMMA = new CTokenType("COMMA", ",") ; 
+	public static CTokenType DOLLAR = new CTokenType("DOLLAR", "$") ; 
 	public static CTokenType LEFT_SQUARE_BRACKET = new CTokenType("LEFT_SQUARE_BRACKET", "[") ; 
 	public static CTokenType RIGHT_SQUARE_BRACKET = new CTokenType("RIGHT_SQUARE_BRACKET", "]") ; 
 	public static CTokenType LEFT_BRACKET = new CTokenType("LEFT_BRACKET", "(") ; 

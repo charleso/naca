@@ -475,6 +475,10 @@ public class CWorkingEntry extends CCobolElement
 			{
 				cs += "," ;
 			}
+			else if (tok.GetType() == CTokenType.DOLLAR)
+			{
+				cs += "$" ;
+			}
 			else if (tok.GetType() == CTokenType.PLUS)
 			{
 				cs += "+" ;
@@ -573,6 +577,10 @@ public class CWorkingEntry extends CCobolElement
 					m_bEdited = true ;
 					cRepeatPattern = '-' ;
 				}
+				else if (c == '$')
+				{
+					m_Type = CWorkingPicType.NUMBER ;
+				}
 				else
 				{
 					Transcoder.logError(getLine(), "Unexpecting character in Pic Type : " + c);
@@ -642,7 +650,7 @@ public class CWorkingEntry extends CCobolElement
 					m_Format += c ;
 					cRepeatPattern = '9' ;
 				}
-				else if (c == '.' || c == ',')
+				else if (c == '.' || c == ',' || c == '$')
 				{
 					m_bEdited = true ;
 					m_Format += c ;
