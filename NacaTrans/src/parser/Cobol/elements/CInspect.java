@@ -28,7 +28,9 @@ import parser.expression.CTerminal;
 import semantic.CDataEntity;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
+import semantic.Verbs.CEntityConvertReference;
 import semantic.Verbs.CEntityCount;
+import semantic.Verbs.CEntityInspectConverting;
 import semantic.Verbs.CEntityReplace;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
@@ -186,6 +188,17 @@ public class CInspect extends CCobolElement
 				}		
 			} 
 			return eCount ;
+		}
+		else if (m_Method == CInspectActionType.CONVERTING)
+		{
+			CEntityInspectConverting entity = factory.NewEntityInspectConverting(getLine());
+			CDataEntity eVar = m_idStringVariable.GetDataReference(getLine(), factory);
+			eVar.RegisterWritingAction(entity) ;
+			parent.AddChild(entity) ;
+			entity.SetConvert(eVar);
+			entity.SetFrom(m_Converting.m_From.GetDataReference(getLine(), factory));
+			entity.SetTo(m_Converting.m_To.GetDataReference(getLine(), factory));
+			return entity;
 		}
 		else
 		{
@@ -360,6 +373,12 @@ public class CInspect extends CCobolElement
 		else if (tok.GetKeyword() == CCobolKeywordList.CONVERTING)
 		{
 			m_Method = CInspectActionType.CONVERTING ;
+			m_Converting = new CInspectConverting();
+			GetNext();
+			m_Converting.m_From = ReadIdentifier();
+			Assert(CCobolKeywordList.TO);
+			m_Converting.m_To = ReadIdentifier();
+			Assert(CTokenType.DOT);
 		}
 		else 
 		{
@@ -463,6 +482,7 @@ public class CInspect extends CCobolElement
 	protected Vector<CInspectValueToReplace> m_arrItemToReplace = new Vector<CInspectValueToReplace>() ;
 	protected CIdentifier m_idStringVariable = null ; 
 	protected CInspectActionType m_Method = null ; 
+	protected CInspectConverting m_Converting = null ;
 	protected Vector<CInspectItemToCount> m_arrItemToCount = new Vector<CInspectItemToCount>() ;
 	protected static class CInspectActionType
 	{
@@ -477,5 +497,10 @@ public class CInspect extends CCobolElement
 		boolean m_bCharactersAfter = false ;
 		Vector<CTerminal> m_TokenToCount = new Vector<CTerminal>() ;
 		CIdentifier m_Variable = null ;
+	}
+	protected class CInspectConverting
+	{
+		CIdentifier m_From = null ;
+		CIdentifier m_To = null ;
 	}
 }

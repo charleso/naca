@@ -160,6 +160,7 @@ import generate.java.verbs.CJavaExec;
 import generate.java.verbs.CJavaGoto;
 import generate.java.verbs.CJavaGotoDepending;
 import generate.java.verbs.CJavaInitialize;
+import generate.java.verbs.CJavaInspectConverting;
 import generate.java.verbs.CJavaLoopIter;
 import generate.java.verbs.CJavaLoopWhile;
 import generate.java.verbs.CJavaMultiply;
@@ -284,6 +285,7 @@ import semantic.Verbs.CEntityExec;
 import semantic.Verbs.CEntityGoto;
 import semantic.Verbs.CEntityInc;
 import semantic.Verbs.CEntityInitialize;
+import semantic.Verbs.CEntityInspectConverting;
 import semantic.Verbs.CEntityLoopIter;
 import semantic.Verbs.CEntityLoopWhile;
 import semantic.Verbs.CEntityMultiply;
@@ -803,6 +805,9 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	}
 	public CEntityCount NewEntityCount(int l)	{
 		return new CJavaCount(l, m_ProgramCatalog, m_LangOutput);
+	}
+	public CEntityInspectConverting NewEntityInspectConverting(int l) {
+		return new CJavaInspectConverting(l, m_ProgramCatalog, m_LangOutput);
 	}
 	public CEntityCICSReWrite NewEntityCICSReWrite(int l)	{
 		return new CJavaCICSReWrite(l, m_ProgramCatalog, m_LangOutput);

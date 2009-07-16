@@ -169,6 +169,13 @@ public class CJavaFPacEntityFactory extends CBaseEntityFactory
 	}
 
 	@Override
+	public CEntityInspectConverting NewEntityInspectConverting(int l)
+	{
+		// TODO Auto-generated method stub
+		throw new NacaTransAssertException("Method not implemented") ;
+	}
+
+	@Override
 	public CEntityDisplay NewEntityDisplay(int l, boolean b)
 	{
 		return new CFPacJavaDisplay(l, m_ProgramCatalog, m_LangOutput, b)  ;

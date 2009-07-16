@@ -83,6 +83,7 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityCICSDeQ NewEntityCICSDeQ(int l) ;
 	public abstract CEntityCICSEnQ NewEntityCICSEnQ(int l) ;
 	public abstract CEntityCount NewEntityCount(int l) ;
+	public abstract CEntityInspectConverting NewEntityInspectConverting(int l) ;
 	public abstract CEntityDisplay NewEntityDisplay(int l, boolean b) ;
 	public abstract CEntityCICSAssign NewEntityCICSAssign(int l) ;
 	public abstract CEntityCICSWriteQ NewEntityCICSWriteQ(int l, boolean b) ;

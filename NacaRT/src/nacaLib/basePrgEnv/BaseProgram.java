@@ -55,6 +55,7 @@ import nacaLib.sqlSupport.SQLCursor;
 import nacaLib.sqlSupport.SQLCursorFetch;
 import nacaLib.sqlSupport.SQLCursorOperation;
 import nacaLib.stringSupport.Concat;
+import nacaLib.stringSupport.InspectConvert;
 import nacaLib.stringSupport.InspectReplacing;
 import nacaLib.stringSupport.InspectTallying;
 import nacaLib.stringSupport.Unstring;
@@ -4786,6 +4787,14 @@ public abstract class BaseProgram extends CJMapObject
 		InspectTallying inspect = new InspectTallying(cs);
 		return inspect;  
 	}		
+	
+	protected InspectConvert inspectConverting(VarAndEdit var)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("inspectConverting_cs:" + var.getSTCheckValue());
+
+		return new InspectConvert(var);
+	}
 	
 	/**
 	 * @param String csSource: Source string

@@ -15,6 +15,7 @@ package parser.Cobol;
 
 
 import lexer.CBaseToken;
+import lexer.CReservedKeyword;
 import lexer.CTokenList;
 import lexer.CTokenType;
 import lexer.Cobol.CCobolKeywordList;
@@ -42,6 +43,7 @@ import parser.expression.CSumExpression;
 import parser.expression.CTermExpression;
 import parser.expression.CTerminal;
 import parser.expression.CProdExpression.CProdType;
+import utils.NacaTransAssertException;
 import utils.Transcoder;
 
 /**
@@ -601,7 +603,26 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 	}
 
-
+	protected void Assert(CReservedKeyword expected)
+	{
+		CBaseToken tok = GetCurrentToken();
+		if(tok.GetKeyword() != expected)
+		{
+			throw new NacaTransAssertException("Found: " + tok + ", Expected: " + expected);
+		}
+		GetNext();
+	}
+	
+	protected void Assert(CTokenType expected)
+	{
+		CBaseToken tok = GetCurrentToken();
+		if(tok.GetType() != expected)
+		{
+			throw new NacaTransAssertException("Found: " + tok + ", Expected: " + expected);
+		}
+		GetNext();
+	}
+	
 	private CExpression ReadBinaryCondEvaluator(CExpression operand1, boolean bIsOpposite)
 	{
 		CBaseToken tok = GetCurrentToken();
