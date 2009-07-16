@@ -42,6 +42,10 @@ public class InspectTallying
 		m_InspectTallyingType = TypeForAll;
 		return this;
 	}
+	public InspectTallying countAll(VarAndEdit csSearchForAll, VarAndEdit result)
+	{
+		return countAll(csSearchForAll.getString(), result);
+	}
 	public InspectTallying countAll(String csSearchForAll, VarAndEdit result)
 	{
 		m_csSearchForAll = csSearchForAll;
