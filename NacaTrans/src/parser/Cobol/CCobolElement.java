@@ -613,16 +613,6 @@ public abstract class CCobolElement extends CLanguageElement
 		GetNext();
 	}
 	
-	protected void Assert(CTokenType expected)
-	{
-		CBaseToken tok = GetCurrentToken();
-		if(tok.GetType() != expected)
-		{
-			throw new NacaTransAssertException("Found: " + tok + ", Expected: " + expected);
-		}
-		GetNext();
-	}
-	
 	private CExpression ReadBinaryCondEvaluator(CExpression operand1, boolean bIsOpposite)
 	{
 		CBaseToken tok = GetCurrentToken();

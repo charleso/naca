@@ -28,7 +28,6 @@ import parser.expression.CTerminal;
 import semantic.CDataEntity;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
-import semantic.Verbs.CEntityConvertReference;
 import semantic.Verbs.CEntityCount;
 import semantic.Verbs.CEntityInspectConverting;
 import semantic.Verbs.CEntityReplace;
@@ -196,8 +195,8 @@ public class CInspect extends CCobolElement
 			eVar.RegisterWritingAction(entity) ;
 			parent.AddChild(entity) ;
 			entity.SetConvert(eVar);
-			entity.SetFrom(m_Converting.m_From.GetDataReference(getLine(), factory));
-			entity.SetTo(m_Converting.m_To.GetDataReference(getLine(), factory));
+			entity.SetFrom(m_Converting.m_From.GetDataEntity(getLine(), factory));
+			entity.SetTo(m_Converting.m_To.GetDataEntity(getLine(), factory));
 			return entity;
 		}
 		else
@@ -375,10 +374,9 @@ public class CInspect extends CCobolElement
 			m_Method = CInspectActionType.CONVERTING ;
 			m_Converting = new CInspectConverting();
 			GetNext();
-			m_Converting.m_From = ReadIdentifier();
+			m_Converting.m_From = ReadTerminal();
 			Assert(CCobolKeywordList.TO);
-			m_Converting.m_To = ReadIdentifier();
-			Assert(CTokenType.DOT);
+			m_Converting.m_To = ReadTerminal();
 		}
 		else 
 		{
@@ -500,7 +498,7 @@ public class CInspect extends CCobolElement
 	}
 	protected class CInspectConverting
 	{
-		CIdentifier m_From = null ;
-		CIdentifier m_To = null ;
+		CTerminal m_From = null ;
+		CTerminal m_To = null ;
 	}
 }
