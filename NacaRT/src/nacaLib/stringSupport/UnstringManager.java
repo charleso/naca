@@ -14,7 +14,6 @@ package nacaLib.stringSupport;
 
 import java.util.ArrayList;
 
-import jlib.misc.StringUtil;
 import nacaLib.varEx.*;
 
 class UnstringDelimiter
@@ -136,6 +135,17 @@ class UnstringManager
 				if (nPointer0Based < 0)
 					m_bFailed = true;
 				return ;
+			}
+			
+			if(m_arrDelimiters.isEmpty())
+			{
+				if (m_csCurrentSource.length() == 0)
+					return;
+				varDelimiterDest.set(m_csCurrentSource);
+				int i = Math.min(varDelimiterDest.getLength(),
+						m_csCurrentSource.length() - 1);
+				m_csCurrentSource = m_csCurrentSource.substring(i);
+				return;
 			}
 			
 			for(int nDelimiter=0; nDelimiter<m_arrDelimiters.size(); nDelimiter++)	// Try all delimiters
