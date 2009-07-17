@@ -229,7 +229,7 @@ public class BMSTranscoderEngine extends TranscoderEngine<CMapSetElement, CEntit
 		CBMSParser BMSParser = parseRESResource(tagRoot);
 		if(BMSParser != null)
 		{
-			Transcoder.logInfo("Transcoding resource " + inputFileName);
+			Transcoder.logDebug("Transcoding resource " + inputFileName);
 			//exportXMLToFile(BMSParser, "D:/Dev/naca/Pub2000Cobol/Inter/BMS/RS01A05b.xml") ; // Reexport XML
 
 			NotificationEngine engine = new NotificationEngine() ;

@@ -185,7 +185,7 @@ public abstract class CEntityAttribute extends CGenericDataEntityReference imple
 			CEntityAssign asgn = factory.NewEntityAssign(l) ;
 			asgn.SetValue(factory.NewEntityString(value)) ;
 			asgn.AddRefTo(this) ;
-			Transcoder.logInfo(l, "Number converted to string to move into "+type+" var ("+GetName()+"): "+value) ;
+			Transcoder.logDebug(l, "Number converted to string to move into "+type+" var ("+GetName()+"): "+value) ;
 			RegisterWritingAction(asgn) ;
 			return asgn ;
 		}

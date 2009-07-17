@@ -68,10 +68,10 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 
 	public boolean CustomInit(Tag eConf)
 	{
-		Transcoder.logInfo("Do CSD Registering...");
+		Transcoder.logDebug("Do CSD Registering...");
 		DoCSDRegistering(eConf) ;
 
-		Transcoder.logInfo("Init Global Entities...");
+		Transcoder.logDebug("Init Global Entities...");
 		CJavaEntityFactory factory = new CJavaEntityFactory(null, null) ;
 		InitGlobalEntitiesFromRules(factory) ;
 		factory.InitCustomGlobalEntities(m_cat) ;

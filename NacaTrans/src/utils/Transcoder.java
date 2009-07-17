@@ -64,21 +64,21 @@ public class Transcoder
 			PropertyConfigurator.configure(log4jConf);
 		}
 		ms_logger = Logger.getLogger("LogFile");
-		logInfo("Starting NacaTrans");
+		logDebug("Starting NacaTrans");
 		
-		logInfo("Init rules...");
+		logDebug("Init rules...");
 		InitGlobals(eConf) ;
 
-		logInfo("Init Engines...");
+		logDebug("Init Engines...");
 		if (!LoadEngines())
 		{
 			return false ;
 		}
 		
-		logInfo("Loading paths...");
+		logDebug("Loading paths...");
 		LoadGroups(eConf) ;
 		
-		logInfo("Init global objects...");
+		logDebug("Init global objects...");
 		
 		LoadApplications() ;
 		
@@ -380,7 +380,7 @@ public class Transcoder
 		{
 			DoProgramForPlugin(csGroupToTranscode, csApplication, csSingleFile, bResources);
 			
-			logInfo("Exporting Infos...");
+			logDebug("Exporting Infos...");
 			CGlobalEntityCounter.GetInstance().Export(m_csInfoDir+"ItemCount");
 		}
 		catch (Exception e)
@@ -388,7 +388,7 @@ public class Transcoder
 			Transcoder.logError(ms_nLastLine, "Transcode ERROR: Catched global exception: "+e.toString() + "; please correct other previous errors before transcoding again");
 		}
 
-		logInfo("Done; Errors="+ms_nNbError + " Warnings="+ms_nNbWarning);
+		logDebug("Done; Errors="+ms_nNbError + " Warnings="+ms_nNbWarning);
 		ms_nNbError = 0;
 		ms_nNbWarning = 0;
 		ms_pluginMarker = null;
@@ -419,16 +419,16 @@ public class Transcoder
 			
 			if (groupToTranscode != null && !groupToTranscode.equals(""))
 			{
-				logInfo("Do groups : "+groupToTranscode);
+				logDebug("Do groups : "+groupToTranscode);
 				DoApplications(groupToTranscode) ;
 			}
 			else
 			{
-				logInfo("Do Applications...");
+				logDebug("Do Applications...");
 				DoApplications(null) ;
 			}
 			
-			logInfo("Exporting Infos...");
+			logDebug("Exporting Infos...");
 			CGlobalEntityCounter.GetInstance().Export(m_csInfoDir+"ItemCount");
 		}
 		catch (Exception e)
@@ -687,81 +687,49 @@ public class Transcoder
 	
 	public static void logError(String csText)
 	{
-		String csFile = getCurrentTranscodedUnit();
-//		int nLine = extractLineFromText(csText);
-//		if(nLine <= 0)
-//			nLine = ms_nLastLine;
-		String cs = makeFullLogText(csFile, 0, csText, "Error");
-		ms_nNbError++;
-		showError(cs);
+		logError(0, csText);
 	}
 	
 	public static void logError(int nLine, String csText)
 	{
-		String csFile = getCurrentTranscodedUnit();
-		if(nLine <= 0)
-			nLine = ms_nLastLine;
-		String cs = makeFullLogText(csFile, nLine, csText, "Error");
-		ms_nNbError++;
-		showError(cs);
+		logError(null, nLine, csText);
 	}
-
+	
 	public static void logError(String csFile, int nLine, String csText)
 	{
-		if(nLine <= 0)
-			nLine = ms_nLastLine;
-		String cs = makeFullLogText(csFile, nLine, csText, "Error");
-		ms_nNbError++;
-		showError(cs);
+		ms_logger.error(log(csFile, nLine, csText, "Error"));
 	}
 	
 	public static void logWarn(int nLine, String csText)
 	{
-		String csFile = getCurrentTranscodedUnit();
-		if(nLine <= 0)
-			nLine = ms_nLastLine;
-		String cs = makeFullLogText(csFile, nLine, csText, "Warning");
-		ms_nNbWarning++;
-		showWarn(cs);
+		ms_logger.warn(log(null, nLine, csText, "Warning"));
 	}
 	
 	public static void logInfo(String csText)
 	{
-		String csFile = getCurrentTranscodedUnit();
-		String cs = makeFullLogText(csFile, 0, csText, "Info");
-		showInfo(cs);
+		ms_logger.info(log(null, 0, csText, "Info"));
 	}
 	
-	public static void logInfo(int nLine, String csText)
+	public static void logDebug(String csText)
 	{
-		String csFile = getCurrentTranscodedUnit();
-		if(nLine <= 0)
-			nLine = ms_nLastLine;
-		String cs = makeFullLogText(csFile, nLine, csText, "Info");
-		showInfo(cs);
+		logDebug(0, csText);
+	}
+	
+	public static void logDebug(int nLine, String csText)
+	{
+		ms_logger.debug(log(null, nLine, csText, "Debug"));
 	}	
 	
-	private static void showError(String cs)
+	public static String log(String csFile, int nLine, String csText, String type)
 	{
-		if(ms_pluginMarker != null)
-			ms_pluginMarker.error(cs);
-		ms_logger.error(cs);
+		if(csFile == null)
+			csFile = getCurrentTranscodedUnit();
+		if(nLine <= 0)
+			nLine = ms_nLastLine;
+		String cs = makeFullLogText(csFile, nLine, csText, type);
+		return cs;
 	}
-	
-	private static void showWarn(String cs)
-	{
-		if(ms_pluginMarker != null)
-			ms_pluginMarker.warn(cs);
-		ms_logger.warn(cs);
-	}
-	
-	private static void showInfo(String cs)
-	{
-		if(ms_pluginMarker != null)
-			ms_pluginMarker.info(cs);
-		ms_logger.info(cs);
-	}
-	
+
 	public static boolean canGenerateCheckNumberIndexes()
 	{
 		return ms_bGenerateCheckNumberIndexes;		

@@ -117,7 +117,7 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		String csFullFileName = generateInputFileName(filename);
 		if (lst != null)
 		{			
-			Transcoder.logInfo("Transcoding " + filename);
+			Transcoder.logDebug("Transcoding " + filename);
 			ExportTokens(lst, grp.m_csInterPath + ReplaceExtensionFileName(filename, "lex"));
 			CParser<T_Elem> p = doParsing(lst) ;
 			if (p!= null)

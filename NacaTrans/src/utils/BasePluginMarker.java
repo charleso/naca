@@ -16,6 +16,7 @@ package utils;
  */
 public abstract class BasePluginMarker
 {
+	public abstract void debug(String csText);
 	public abstract void info(String csText);
 	public abstract void warn(String csText);
 	public abstract void error(String csText);

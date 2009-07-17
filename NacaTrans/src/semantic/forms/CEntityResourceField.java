@@ -245,7 +245,7 @@ public abstract class CEntityResourceField extends CBaseResourceEntity  implemen
 			CEntityAssign asgn = factory.NewEntityAssign(l) ;
 			asgn.SetValue(factory.NewEntityString(value)) ;
 			asgn.AddRefTo(this) ;
-			Transcoder.logInfo(l, "Number converted to string to move into EDIT var : "+value) ;
+			Transcoder.logDebug(l, "Number converted to string to move into EDIT var : "+value) ;
 			RegisterWritingAction(asgn) ;
 			return asgn ;
 		}

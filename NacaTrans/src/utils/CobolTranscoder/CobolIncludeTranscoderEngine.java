@@ -92,7 +92,7 @@ public class CobolIncludeTranscoderEngine extends TranscoderEngine<CStandAloneWo
 		}
 		else
 		{
-			Transcoder.logInfo("Include " + fileName + " is replaced by " + replace);
+			Transcoder.logDebug("Include " + fileName + " is replaced by " + replace);
 			Transcoder.popTranscodedUnit();
 			Transcoder.pushTranscodedUnit(replace, grp.m_csInputPath);
 			CEntityExternalDataStructure newext = doAllAnalysis(replace, "", grp, false) ;

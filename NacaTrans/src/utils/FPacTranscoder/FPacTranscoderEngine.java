@@ -118,7 +118,7 @@ public class FPacTranscoderEngine extends TranscoderEngine<CFPacScript, CFPacJav
 	@Override
 	protected void doLogs(String csInput, String csOutput)
 	{
-		Transcoder.logInfo("Start transcoding file to "+ csOutput);
+		Transcoder.logDebug("Start transcoding file to "+ csOutput);
 	}
 
 	@Override

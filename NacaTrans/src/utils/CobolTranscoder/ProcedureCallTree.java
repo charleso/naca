@@ -199,7 +199,7 @@ public class ProcedureCallTree
 			node.m_bImplicitCall = !bPrecedentFinished ;
 			if (node.m_bImplicitCall)
 			{
-				Transcoder.logInfo("Procedure implicitly called : "+nameP) ;
+				Transcoder.logDebug("Procedure implicitly called : "+nameP) ;
 			}
 			node.m_bHasExplicitGetOut = node.m_Proc.hasExplicitGetOut() ;
 
@@ -213,7 +213,7 @@ public class ProcedureCallTree
 			node.m_bImplicitCall = !bPrecedentFinished ;
 			if (node.m_bImplicitCall)
 			{
-				Transcoder.logInfo("Section implicitly called : "+name) ;
+				Transcoder.logDebug("Section implicitly called : "+name) ;
 			}
 			node.m_bHasExplicitGetOut = node.m_Sec.hasExplicitGetOut() ;
 			
@@ -225,7 +225,7 @@ public class ProcedureCallTree
 				nodeP.m_bImplicitCall = !bPrecedentParagraphFinished ;
 				if (nodeP.m_bImplicitCall)
 				{
-					Transcoder.logInfo("Procedure implicitly called : "+nameP) ;
+					Transcoder.logDebug("Procedure implicitly called : "+nameP) ;
 				}
 				nodeP.m_bHasExplicitGetOut = nodeP.m_Proc.hasExplicitGetOut() ;
 
@@ -303,13 +303,13 @@ public class ProcedureCallTree
 			if (!nodeP.isCalled())
 			{
 				// this procedure is never called...
-				Transcoder.logInfo("Procedure ignored (4) : "+nameP) ;
+				Transcoder.logDebug("Procedure ignored (4) : "+nameP) ;
 				nodeP.m_Proc.setIgnore() ;
 			}
 			else if (nodeP.m_Proc.isEmpty())
 			{
 				// this procedure do nothing...
-				Transcoder.logInfo("Procedure ignored (5) : "+nameP) ;
+				Transcoder.logDebug("Procedure ignored (5) : "+nameP) ;
 				nodeP.m_Proc.setIgnore() ;
 			}
 			else if (i==0 && nodeP.m_bImplicitCall && nodeP.m_bHasExplicitGetOut)
@@ -318,7 +318,7 @@ public class ProcedureCallTree
 				{
 					CEntityCallFunction ePerform = factory.NewEntityCallFunction(0, nameP, "", null) ;
 					m_root.m_div.getProcedureBloc().AddChild(ePerform) ;
-					Transcoder.logInfo("Perform to "+nameP+" added to procedure division") ;
+					Transcoder.logDebug("Perform to "+nameP+" added to procedure division") ;
 					nodeP.m_bImplicitCall = false ;
 					nodeP.m_bExplicitCallAsProcedure = true ;
 				}
@@ -345,7 +345,7 @@ public class ProcedureCallTree
 				if (!nodeP.isCalled())
 				{
 					// this procedure is never called...
- 					Transcoder.logInfo("Procedure ignored (3) : "+nameP) ;
+ 					Transcoder.logDebug("Procedure ignored (3) : "+nameP) ;
 					nodeP.m_Proc.setIgnore() ;
 				}
 				else if (nodeP.m_Proc.isEmpty())
@@ -354,13 +354,13 @@ public class ProcedureCallTree
 					if (nodeP.m_bImplicitCall && !nodeP.m_bExplicitCallAsProcedure && !nodeP.m_bExplicitCallByGoto)
 					{
 						// simply ignore current procedure
-						Transcoder.logInfo("Procedure ignored (2) : "+nameP) ;
+						Transcoder.logDebug("Procedure ignored (2) : "+nameP) ;
 						nodeP.m_Proc.setIgnore() ;
 					}
 					else if (nodeP.m_bExplicitCallAsProcedure)
 					{
 						// simply ignore current procedure, call will be ignore too
-						Transcoder.logInfo("Procedure ignored (1) : "+nameP) ;
+						Transcoder.logDebug("Procedure ignored (1) : "+nameP) ;
 						nodeP.m_Proc.setIgnore() ;
 					}
 					else if (nodeP.m_bExplicitCallByGoto)
@@ -386,7 +386,7 @@ public class ProcedureCallTree
 									ret.SetParent(gto.GetParent()) ;
 //								}
 							}
-							Transcoder.logInfo("Procedure ignored (6) : "+nameP) ;
+							Transcoder.logDebug("Procedure ignored (6) : "+nameP) ;
 							nodeP.m_Proc.setIgnore() ;
 						}
 						else
@@ -410,7 +410,7 @@ public class ProcedureCallTree
 							CBaseLanguageEntity le = lst[k] ;
 							node.m_Sec.getSectionBloc().AddChild(le) ;
 						}
-						Transcoder.logInfo("Procedure "+nameP+" merged into "+name) ;
+						Transcoder.logDebug("Procedure "+nameP+" merged into "+name) ;
 						nodeP.m_Proc.setIgnore() ;
 					}
 					else
@@ -439,7 +439,7 @@ public class ProcedureCallTree
 				if (bIgnoreAllProcedures)
 				{	// all of the procedures are never called
 					node.m_Sec.setIgnore() ;
-					Transcoder.logInfo("Section ignored : "+name) ;
+					Transcoder.logDebug("Section ignored : "+name) ;
 				}
 				else if (bAllSectionsAreReduced)
 				{ // remove section object, and leave all procedures alone in program
@@ -453,7 +453,7 @@ public class ProcedureCallTree
 				}
 				else if (bAllSectionsAreReduced)
 				{
-					Transcoder.logInfo("Section not reduced : "+name) ;
+					Transcoder.logDebug("Section not reduced : "+name) ;
 					bAllSectionsAreReduced = false ;
 				}
 			}
@@ -476,18 +476,18 @@ public class ProcedureCallTree
 					String nameP = lastValidProcedure.m_Proc.GetName() ;
 					CEntityCallFunction ePerform = factory.NewEntityCallFunction(0, nameP, "", node.m_Sec) ;
 					node.m_Sec.getSectionBloc().AddChild(ePerform) ;
-					Transcoder.logInfo("Section reduced : "+name+" and perform to "+nameP+" added") ;
+					Transcoder.logDebug("Section reduced : "+name+" and perform to "+nameP+" added") ;
 					node.m_Sec.ReduceToProcedure() ;
 				}
 				else
 				{
-					Transcoder.logInfo("Section not reduced : "+name) ;
+					Transcoder.logDebug("Section not reduced : "+name) ;
 					bAllSectionsAreReduced = false ;
 				}
 			}
 			else if (bAllSectionsAreReduced)
 			{
-				Transcoder.logInfo("Section not reduced : "+name) ;
+				Transcoder.logDebug("Section not reduced : "+name) ;
 				bAllSectionsAreReduced = false ;
 			}
 		}
