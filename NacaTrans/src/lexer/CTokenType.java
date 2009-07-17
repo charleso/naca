@@ -77,6 +77,7 @@ public class CTokenType
 	public static CTokenType GREATER_THAN = new CTokenType("GREATER", ">") ; 
 	public static CTokenType GREATER_OR_EQUALS = new CTokenType("GREATER_OR_EQUALS", ">=") ; 
 	public static CTokenType LESS_OR_EQUALS = new CTokenType("LESS_OR_EQUALS", "<=") ; 
+	public static CTokenType LESS_GREATER = new CTokenType("LESS_GREATER", "<>") ; 
 	public static CTokenType WHITESPACE = new CTokenType("WHITE_SPACE", " ") ; 
 	public static CTokenType NEWLINE = new CTokenType("NEW_LINE") ;
 	public static CTokenType UNRECOGNIZED = new CTokenType() ;

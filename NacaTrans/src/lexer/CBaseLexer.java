@@ -655,6 +655,11 @@ public abstract class CBaseLexer
 				m_nCurrentPositionInLine ++ ;
 				return new CTokenGeneric(CTokenType.LESS_OR_EQUALS, getLine(), false) ; 
 			}
+			else if (m_cCurrent == '>')
+			{
+				m_nCurrentPositionInLine ++ ;
+				return new CTokenGeneric(CTokenType.LESS_GREATER, getLine(), false) ; 
+			}
 			else
 			{
 				return new CTokenGeneric(CTokenType.LESS_THAN, getLine(), false) ; 

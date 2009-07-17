@@ -727,7 +727,7 @@ public abstract class CCobolElement extends CLanguageElement
 				return new CCondLessStatement(tok.getLine(), operand1, term2, true) ;
 			}
 		}
-		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.NOT)
+		else if ((tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.NOT) || tok.GetType() == CTokenType.LESS_GREATER)
 		{
 			GetNext() ;
 			return ReadBinaryCondEvaluator(operand1, !bIsOpposite) ;
