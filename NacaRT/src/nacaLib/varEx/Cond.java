@@ -34,11 +34,10 @@ public class Cond extends CJMapObject
 		return toString();
 	}
 
-	private Cond(Var varParent, CondValue condValue)
+	private Cond(Var varParent, Cond condValue)
 	{
 		m_var = varParent;
-		m_arrValues = new ArrayList<CondValue>();
-		m_arrValues.add(condValue);		
+		m_arrValues = condValue.m_arrValues;	
 	}
 
 	public void setTrue()
@@ -71,14 +70,8 @@ public class Cond extends CJMapObject
 	
 	public Cond getAt(int x_Cmaj)	// 1 based
 	{
-		int nIndex = x_Cmaj - 1;	// 0 based
-		int nNbValues = m_arrValues.size();
-		if(nIndex < nNbValues)
-		{
-			CondValue condValue = (CondValue)m_arrValues.get(nIndex);
-			return new Cond(m_var, condValue);	// Same parent
-		} 
-		return null;
+		Var var = m_var.getAt(x_Cmaj);
+		return new Cond(var, this);
 	}
 	
 	public void setName(String csName)
