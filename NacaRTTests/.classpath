@@ -2,9 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="CobolLikeSupport"/>
 	<classpathentry kind="src" path="ClassicalJavaApp"/>
+	<classpathentry kind="src" path="ExtraTests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JLib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/NacaRT"/>
 	<classpathentry kind="src" path="Main"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

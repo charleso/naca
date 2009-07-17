@@ -1,0 +1,28 @@
+Loading program instance:Msbtst
+Subtracting 07, 05 from 20
+Answer -> 08
+ 
+Subtracting 02 from 999 into PIC 9(2) variable which should cause SIZE ERROR message.
+String before INSPECT CONVERTING:
+The lazy brown FOX jumped over the fence
+String after INSPECT CONVERTING:
+THE LAZY BROWN FOX JUMPED OVER THE FENCE
+ 
+UNSTRING of 10 chars into 2 variables  defined as PIC X(5) and PIC X(3).
+1234567890
+12345
+678
+ 
+Moving 6,199,876 to PIC ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99.
+          6,199,876.00
+ 
+Moving 6,199,876 to PIC $$$,$$$,$$$,$$$,$$9.99.
+         $6,199,876.00
+ 
+Check 88-LVL condition on Indexed variable.
+Correct - Array element (1) is YES
+ 
+Correct - Array element (3) is NO
+ 
+Correct - Array element (4) not YES  and not NO (not initialised)
+ 
