@@ -6,9 +6,7 @@
  */
 package jlib.log;
 
-import junit.framework.AssertionFailedError;
-
-public class AssertException extends AssertionFailedError
+public class AssertException extends Error
 {
 	private static final long serialVersionUID = 1L;
 
