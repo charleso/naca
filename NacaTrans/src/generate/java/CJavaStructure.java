@@ -12,6 +12,7 @@
  */
 package generate.java;
 
+import parser.Cobol.elements.CWorkingEntry.CWorkingSignType;
 import generate.*;
 import semantic.*;
 import utils.*;
@@ -146,6 +147,14 @@ public class CJavaStructure extends CEntityStructure
 		if (m_bBlankWhenZero)
 		{
 			WriteWord(".blankWhenZero()") ;
+		}
+		if (m_bSignSeparateType == CWorkingSignType.LEADING)
+		{
+			WriteWord(".signLeadingSeparated()");
+		}
+		else if (m_bSignSeparateType == CWorkingSignType.TRAILING)
+		{
+			WriteWord(".signTrailingSeparated()");
 		}
 		if (m_bFiller)
 		{

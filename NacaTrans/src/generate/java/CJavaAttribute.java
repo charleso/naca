@@ -12,6 +12,7 @@
  */
 package generate.java;
 
+import parser.Cobol.elements.CWorkingEntry.CWorkingSignType;
 import generate.*;
 import semantic.*;
 import utils.*;

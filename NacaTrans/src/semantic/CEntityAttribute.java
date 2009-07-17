@@ -14,6 +14,7 @@ package semantic;
 
 import generate.*;
 import lexer.Cobol.CCobolConstantList;
+import parser.Cobol.elements.CWorkingEntry.CWorkingSignType;
 import parser.expression.CTerminal;
 import semantic.Verbs.*;
 import semantic.expression.CBaseEntityExpression;
@@ -335,6 +336,11 @@ public abstract class CEntityAttribute extends CGenericDataEntityReference imple
 		m_bBlankWhenZero = blankWhenZero ;
 	}
 	protected boolean m_bBlankWhenZero = false ;
+	public void SetSignSeparateType(CWorkingSignType signSeparateType)
+	{
+		m_bSignSeparateType = signSeparateType ;
+	}
+	protected CWorkingSignType m_bSignSeparateType ;
 
 
 	/**

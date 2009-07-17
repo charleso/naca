@@ -90,6 +90,12 @@ public class CWorkingEntry extends CCobolElement
 		public static CWorkingEntryType STRUCTURE = new CWorkingEntryType() ;
 		public static CWorkingEntryType VARIABLE = new CWorkingEntryType() ;
 	}
+	public static class CWorkingSignType
+	{
+		protected CWorkingSignType() {}
+		public static CWorkingSignType LEADING = new CWorkingSignType() ;
+		public static CWorkingSignType TRAILING = new CWorkingSignType() ;
+	}
 	protected int m_EntryLevel = 0 ;
 	protected String m_FormalLevel = "" ;
 	protected CWorkingPicType m_Type = null ;
@@ -111,7 +117,7 @@ public class CWorkingEntry extends CCobolElement
 	protected boolean m_bIsIndex = false;
 	protected boolean m_bJustifiedRight = false ;
 	protected boolean m_bBlankWhenZero = false ;
-	protected boolean m_bSignTrailingSeparate = false ;
+	protected CWorkingSignType m_bSignSeparateType ;
 	protected Vector<CIdentifier> m_arrTableSortKey = null ;
 	protected boolean m_bTableSortedAscending = false ;
 	protected boolean m_bBinary = true ;
@@ -231,7 +237,21 @@ public class CWorkingEntry extends CCobolElement
 					tok = GetNext();
 					if (tok.GetKeyword() == CCobolKeywordList.SEPARATE)
 					{
-						m_bSignTrailingSeparate = true ;
+						m_bSignSeparateType = CWorkingSignType.TRAILING ;
+						bNext = true ;
+						GetNext();
+					}
+					else
+					{
+						return false ;
+					}
+				}
+				else if (tok.GetKeyword() == CCobolKeywordList.LEADING)
+				{
+					tok = GetNext();
+					if (tok.GetKeyword() == CCobolKeywordList.SEPARATE)
+					{
+						m_bSignSeparateType = CWorkingSignType.LEADING ;
 						bNext = true ;
 						GetNext();
 					}
@@ -940,6 +960,7 @@ public class CWorkingEntry extends CCobolElement
 			factory.m_ProgramCatalog.RegisterAttribute(eAtt) ;
 		}
 		
+		eAtt.SetSignSeparateType(m_bSignSeparateType) ;
 		eAtt.SetJustifiedRight(m_bJustifiedRight) ;
 		eAtt.SetBlankWhenZero(m_bBlankWhenZero) ;
 		SetType(eAtt) ;
