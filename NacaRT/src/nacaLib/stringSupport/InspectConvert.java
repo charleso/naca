@@ -27,12 +27,13 @@ public class InspectConvert
 	{
 		String value = var.getString();
 		char[] charArray = value.toCharArray();
-		for(char c : charArray)
+		
+		for(int i = 0; i<charArray.length;i++)
 		{
-			int i = from.indexOf(c);
-			if(i >= 0)
+			int index = from.indexOf(charArray[i]);
+			if(index >= 0)
 			{
-				charArray[i] = to.charAt(i);
+				charArray[i] = to.charAt(index);
 			}
 		}
 		var.set(new String(charArray));
