@@ -54,7 +54,7 @@ public class LogCenterConsole extends LogCenter
 	{
 	}
 	
-	void sendOutput(LogParams logParam)
+	protected void sendOutput(LogParams logParam)
 	{
 		String csOut = m_patternLayout.format(logParam, 0);
 		System.out.println(csOut);

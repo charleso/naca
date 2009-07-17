@@ -58,7 +58,7 @@ public abstract class LogCenter extends LogCenterCloseMBeam // LogCenterOpenMBea
 		m_patternLayout = patternLayout;
 	}	
 	
-	LogPatternLayout m_patternLayout = null;
+	protected LogPatternLayout m_patternLayout = null;
 
 	protected boolean m_bEnable = false;                    // If not enabled, the log center doesn't accept any event.
 	protected String m_csChannel = null;

@@ -362,7 +362,7 @@ public class Log
  * {@link #sendLog} method. 
  * @param logCenter The log center to register.
  */
-	synchronized static void registerLogCenter(LogCenter logCenter)
+	public synchronized static void registerLogCenter(LogCenter logCenter)
 	{
 		boolean b = logCenter.doOpen();
 		if(b)

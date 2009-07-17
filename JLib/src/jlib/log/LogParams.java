@@ -96,7 +96,7 @@ public class LogParams
 	
 	public String toString()
 	{
-		String cs = m_logEvent.getShortName() + ":" ;
+		String cs = "";
 		if (!StringUtil.isEmpty(getMessage()))
 		{
 			cs += getMessage();
