@@ -1914,6 +1914,10 @@ public abstract class BaseProgram extends CJMapObject
 		return math;
 	}
 
+	protected MathAdd add(String s, VarAndEdit var)
+	{
+		return add(var, s);
+	}
 	
 	protected MathAdd add(String var1, int var2)
 	{
