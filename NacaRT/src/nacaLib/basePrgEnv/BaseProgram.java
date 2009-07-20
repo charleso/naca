@@ -299,6 +299,13 @@ public abstract class BaseProgram extends CJMapObject
 		return n == m;
 	}
 	
+	protected boolean isEqual(MathBase a, MathBase b)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("isEqual_M_M" + a.getSTCheckValue() + "/" + b.getSTCheckValue());
+		return a.compareTo(b.m_d) == 0;
+	}
+	
 	/**Method: is
 	 * Condition value negative evaluation
 	 * @param: IN Cond cond
@@ -1163,6 +1170,11 @@ public abstract class BaseProgram extends CJMapObject
 		if(nVal >= nMath)
 			return true;
 		return false;
+	}
+	
+	protected boolean isDifferent(MathBase Math1, MathBase Math2)
+	{
+		return !isEqual(Math1, Math2);
 	}
 	
 	protected boolean isDifferent(MathBase Math2, int i)
