@@ -22,6 +22,7 @@ package nacaLib.mathSupport;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import nacaLib.varEx.Var;
 import nacaLib.varEx.VarAndEdit;
 
 public class MathDivide extends MathBase
@@ -279,6 +280,11 @@ public class MathDivide extends MathBase
 		m_dA = m_d;
 		m_dB = val;			
 		m_d = m_d.divide(val, PRECISION, BigDecimal.ROUND_HALF_UP);
+	}
+
+	public MathBase toRounded(Var varDest, VarAndEdit varRest) {
+		round(varDest);
+		return to(varDest, varRest);
 	}
 
 	/**

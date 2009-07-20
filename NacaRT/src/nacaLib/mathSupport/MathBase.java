@@ -98,15 +98,19 @@ public class MathBase extends CJMapObject
 	 */
 	public MathBase toRounded(Var varDest)
 	{
+		round(varDest);
+		return to(varDest);
+	}
+
+	protected void round(Var varDest)
+	{
 		VarDefBuffer varDef = varDest.getVarDef();
 		int nNbDecimal = varDef.getNbDigitDecimal();
 		if(nNbDecimal >= 0)
 		{
 			m_d = m_d.setScale(nNbDecimal, BigDecimal.ROUND_HALF_UP);
 		}
-		return to(varDest);
 	}
-	
 	
 	/**
 	 * @param int n 

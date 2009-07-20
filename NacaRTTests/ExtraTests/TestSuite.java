@@ -29,6 +29,10 @@ public class TestSuite extends TestCase {
 		_test("ifaai");
 	}
 
+	public void testMath() {
+		_test("math");
+	}
+
 	private void _test(String name) {
 		final StringBuilder b = new StringBuilder();
 		LogCenterConsole logCenter = new LogCenterConsole(
