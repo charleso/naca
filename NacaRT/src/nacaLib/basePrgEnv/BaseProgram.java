@@ -4838,6 +4838,11 @@ public abstract class BaseProgram extends CJMapObject
 		return subString(csSource, nStart.m_d.intValue(), nNbChars.m_d.intValue());
 	}
 	
+	protected String subString(Var varSource, MathBase nStart, Var nNbChars)
+	{
+		return subString(varSource.getString(), nStart.m_d.intValue(), nNbChars.getInt(), varSource);
+	}
+	
 	/**
 	 * @param String csSource: Source string
 	 * @param int nStart: 1 based start position into source string
@@ -4913,7 +4918,7 @@ public abstract class BaseProgram extends CJMapObject
 	 * @param int nNbChars: Number of chars to extract
 	 * @return String Subtring of the source string, starting form position start, up to nNbChars chars
 	 */
-	protected String subString(String csSource, int nStart, int nNbChars)
+	protected String subString(String csSource, int nStart, int nNbChars, VarBase... vars)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("subString_cs_n_n:" + csSource + ":" + nStart + ":" + nNbChars);
@@ -4925,6 +4930,7 @@ public abstract class BaseProgram extends CJMapObject
 				nNbChars = csSource.length() - nStart + 1;
 			}
 			String csFound = csSource.substring(nStart-1, nStart-1+nNbChars);
+			resetTempIndex(vars);
 			return csFound;
 		}
 		catch (IndexOutOfBoundsException  e)
