@@ -2095,6 +2095,11 @@ public abstract class BaseProgram extends CJMapObject
 		return math;
 	}
 	
+	protected MathAdd add(String cs, MathBase mathBase)
+	{
+		return add(mathBase, cs);
+	}
+	
 	protected MathAdd add(MathBase mathBase, String cs)
 	{
 		if(IsSTCheck)
