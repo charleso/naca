@@ -20,9 +20,13 @@ import nacaLib.calledPrgSupport.BaseCalledPrgPublicArgPositioned;
 import nacaLib.tempCache.TempCacheLocator;
 
 public class TestSuite extends TestCase {
-
+	
 	public void test() {
 		_test("msbtst");
+	}
+
+	public void testIfaai() {
+		_test("ifaai");
 	}
 
 	private void _test(String name) {

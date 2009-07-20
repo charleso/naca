@@ -163,27 +163,31 @@ public class CInspect extends CCobolElement
 			parent.AddChild(eCount) ;
 			for (int i=0; i<m_arrItemToCount.size();i++)
 			{
-				CInspectItemToCount item = m_arrItemToCount.get(i);
-				CDataEntity evar = item.m_Variable.GetDataReference(getLine(), factory);
-				for (int j=0; j<item.m_TokenToCount.size(); j++)
+				CInspectItemToCount itemToCount = m_arrItemToCount.get(i);
+				CDataEntity evar = itemToCount.m_Variable.GetDataReference(getLine(), factory);
+				eCount.SetToVar(evar);
+				for (CInspectItem item : itemToCount.m_Items)
 				{
-					CTerminal t = item.m_TokenToCount.get(j);
-					if (item.m_bAll)
+					for (int j=0; j<item.m_TokenToCount.size(); j++)
 					{
-						eCount.CountAll(t.GetDataEntity(getLine(), factory), evar);
+						CTerminal t = item.m_TokenToCount.get(j);
+						if (item.m_bAll)
+						{
+							eCount.CountAll(t.GetDataEntity(getLine(), factory));
+						}
+						else if (item.m_bCharactersAfter)
+						{
+							eCount.CountAfter(t.GetDataEntity(getLine(), factory));
+						}
+						else if (item.m_bCharactersBefore)
+						{
+							eCount.CountBefore(t.GetDataEntity(getLine(), factory));
+						}
+						else
+						{
+							eCount.CountLeading(t.GetDataEntity(getLine(), factory));
+						}
 					}
-					else if (item.m_bCharactersAfter)
-					{
-						eCount.CountAfter(t.GetDataEntity(getLine(), factory), evar);
-					}
-					else if (item.m_bCharactersBefore)
-					{
-						eCount.CountBefore(t.GetDataEntity(getLine(), factory), evar);
-					}
-					else
-					{
-						eCount.CountLeading(t.GetDataEntity(getLine(), factory), evar);
-					}	
 				}		
 			} 
 			return eCount ;
@@ -282,8 +286,9 @@ public class CInspect extends CCobolElement
 					if (tok.GetKeyword() == CCobolKeywordList.CHARACTERS)
 					{
 						tok = GetNext() ;
-						CInspectItemToCount count = new CInspectItemToCount() ;
-						count.m_Variable = variableForCountResult ;
+						CInspectItemToCount icount = new CInspectItemToCount() ;
+						icount.m_Variable = variableForCountResult ;
+						CInspectItem count = new CInspectItem();
 						if (tok.GetKeyword() == CCobolKeywordList.AFTER)
 						{
 							count.m_bCharactersAfter = true ;
@@ -305,7 +310,8 @@ public class CInspect extends CCobolElement
 						}
 						CTerminal t = ReadTerminal();
 						count.m_TokenToCount.add(t) ; 
-						m_arrItemToCount.add(count);
+						icount.m_Items.add(count) ; 
+						m_arrItemToCount.add(icount);
 					}
 					else
 					{
@@ -331,11 +337,12 @@ public class CInspect extends CCobolElement
 							if (!bDone)
 							{
 								CTerminal t = ReadTerminal();
-								CInspectItemToCount item = new CInspectItemToCount() ;
-								item.m_bAll = bAll ; 
-								item.m_Variable = variableForCountResult ;
+								CInspectItemToCount itemToCount = new CInspectItemToCount() ;
+								itemToCount.m_Variable = variableForCountResult ;
 								while (t != null)
 								{
+									CInspectItem item = new CInspectItem();
+									item.m_bAll = bAll ; 
 									item.m_TokenToCount.add(t) ;
 									
 									tok = GetCurrentToken() ;
@@ -350,9 +357,30 @@ public class CInspect extends CCobolElement
 									else
 									{
 										t = null ;
-									} 
+									}
+									itemToCount.m_Items.add(item);
 								}
-								m_arrItemToCount.add(item);
+								m_arrItemToCount.add(itemToCount);
+								
+								if (tok.GetKeyword() == CCobolKeywordList.AFTER || tok.GetKeyword() == CCobolKeywordList.BEFORE)
+								{
+									CInspectItem item = new CInspectItem();
+									if (tok.GetKeyword() == CCobolKeywordList.AFTER)
+									{
+										item.m_bCharactersAfter = true ;
+									}
+									else if (tok.GetKeyword() == CCobolKeywordList.BEFORE)
+									{
+										item.m_bCharactersBefore = true ;
+									}
+									tok = GetNext();
+									if (tok.GetKeyword() == CCobolKeywordList.INITIAL)
+									{
+										tok=GetNext();
+									}
+									item.m_TokenToCount.add(ReadTerminal()) ;
+									itemToCount.m_Items.add(item);
+								}
 							}
 						} 
 					}
@@ -435,31 +463,35 @@ public class CInspect extends CCobolElement
 			
 			for (int i=0; i<m_arrItemToCount.size(); i++)
 			{
-				CInspectItemToCount item = m_arrItemToCount.get(i);
+				CInspectItemToCount itemToCount = m_arrItemToCount.get(i);
 				Element eCount = root.createElement("Count");
 				eInsp.appendChild(eCount);
 				Element eRes = root.createElement("Result") ;
 				eCount.appendChild(eRes); 
-				item.m_Variable.ExportTo(eRes, root) ;
+				itemToCount.m_Variable.ExportTo(eRes, root) ;
 				String cs = "Leading" ;
-				if (item.m_bAll)
+				
+				for (CInspectItem item : itemToCount.m_Items)
 				{
-					cs = "All";
-				}
-				else if (item.m_bCharactersAfter)
-				{
-					cs = "CharsAfter" ;
-				}
-				else if (item.m_bCharactersBefore)
-				{
-					cs = "CharsBefore" ;
-				}
-				for (int j=0; j<item.m_TokenToCount.size(); j++)
-				{
-					CTerminal term = item.m_TokenToCount.get(j);
-					Element e = root.createElement(cs) ;
-					eCount.appendChild(e);
-					term.ExportTo(e, root);
+					if (item.m_bAll)
+					{
+						cs = "All";
+					}
+					else if (item.m_bCharactersAfter)
+					{
+						cs = "CharsAfter" ;
+					}
+					else if (item.m_bCharactersBefore)
+					{
+						cs = "CharsBefore" ;
+					}
+					for (int j=0; j<item.m_TokenToCount.size(); j++)
+					{
+						CTerminal term = item.m_TokenToCount.get(j);
+						Element e = root.createElement(cs) ;
+						eCount.appendChild(e);
+						term.ExportTo(e, root);
+					}
 				}
 			} 
 		}
@@ -490,11 +522,15 @@ public class CInspect extends CCobolElement
 	}
 	protected class CInspectItemToCount
 	{
+		Vector<CInspectItem> m_Items = new Vector<CInspectItem>() ;
+		CIdentifier m_Variable = null ;
+	}
+	protected class CInspectItem
+	{
 		boolean m_bAll = false ;
 		boolean m_bCharactersBefore = false ;
 		boolean m_bCharactersAfter = false ;
 		Vector<CTerminal> m_TokenToCount = new Vector<CTerminal>() ;
-		CIdentifier m_Variable = null ;
 	}
 	protected class CInspectConverting
 	{

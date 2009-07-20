@@ -58,51 +58,46 @@ public abstract class CEntityCount extends CBaseActionEntity
 	{
 		m_Variable = var ;
 	}
-	
+
+	public void SetToVar(CDataEntity var)
+	{
+		m_ToVariable = var ;
+	}
 	
 	protected CDataEntity m_Variable = null ;
+	protected CDataEntity m_ToVariable = null ;
 	protected Vector<CDataEntity> m_arrCountLeadingToken = new Vector<CDataEntity>() ; 
-	protected Vector<CDataEntity> m_arrCountVariableLeading = new Vector<CDataEntity>() ; 
 	protected Vector<CDataEntity> m_arrCountAllToken = new Vector<CDataEntity>() ; 
-	protected Vector<CDataEntity> m_arrCountVariableAll = new Vector<CDataEntity>() ; 
 	protected Vector<CDataEntity> m_arrCountAfterToken = new Vector<CDataEntity>() ; 
-	protected Vector<CDataEntity> m_arrCountVariableAfterToken = new Vector<CDataEntity>() ; 
 	protected Vector<CDataEntity> m_arrCountBeforeToken = new Vector<CDataEntity>() ; 
-	protected Vector<CDataEntity> m_arrCountVariableBeforeToken = new Vector<CDataEntity>() ; 
 	public void Clear()
 	{
 		super.Clear() ;
 		m_arrCountAfterToken.clear() ;
 		m_arrCountAllToken.clear() ;
 		m_arrCountBeforeToken.clear() ;
-		m_arrCountVariableAfterToken.clear();
-		m_arrCountVariableAll.clear();
-		m_arrCountVariableBeforeToken.clear() ;
 		m_Variable = null ;
+		m_ToVariable = null ;
 	}
 
-	public void CountBefore(CDataEntity entity, CDataEntity evar)
+	public void CountBefore(CDataEntity entity)
 	{
 		m_arrCountBeforeToken.add(entity) ;
-		m_arrCountVariableBeforeToken.add(evar) ;
 	}
 
-	public void CountAll(CDataEntity entity, CDataEntity evar)
+	public void CountAll(CDataEntity entity)
 	{
 		m_arrCountAllToken.add(entity) ;
-		m_arrCountVariableAll.add(evar) ;
 	}
 	
-	public void CountLeading(CDataEntity entity, CDataEntity evar)
+	public void CountLeading(CDataEntity entity)
 	{
 		m_arrCountLeadingToken.add(entity) ;
-		m_arrCountVariableLeading.add(evar) ;
 	}
 
-	public void CountAfter(CDataEntity entity, CDataEntity evar)
+	public void CountAfter(CDataEntity entity)
 	{
 		m_arrCountAfterToken.add(entity) ;
-		m_arrCountVariableAfterToken.add(evar) ;
 	}
 	public boolean ignore()
 	{
