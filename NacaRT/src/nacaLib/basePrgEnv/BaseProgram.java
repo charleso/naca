@@ -605,6 +605,11 @@ public abstract class BaseProgram extends CJMapObject
 		return !isAll(var, csPattern) ;
 	}
 	
+	protected boolean isNotAll(VarAndEdit var, int i)
+	{
+		return isNotAll(var, Integer.toString(i));
+	}
+	
 	/**Method: isNotAll
 	 * return true if the var's value contains only occurences of the same string csPattern
 	 * @param: IN Var var
