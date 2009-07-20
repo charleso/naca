@@ -985,6 +985,16 @@ public abstract class BaseProgram extends CJMapObject
 		return false;
 	}
 
+	protected boolean isGreater(MathBase math, String s)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("isGreater_M_S:" + math.getSTCheckValue() + "/" + s);
+
+		double n = math.m_d.doubleValue() ;
+		double i = Double.parseDouble(s) ; 
+		return n > i;
+	}
+	
 	/**Method: isGreater
 	 * return true if var1's value > nb; var1 is evaluated as an int (can be rounded). 
 	 * @param: IN MathBase var1
@@ -1112,6 +1122,16 @@ public abstract class BaseProgram extends CJMapObject
 		if(nVal >= nMath)
 			return true;
 		return false;
+	}
+	
+	protected boolean isLessOrEqual(MathBase math, String s)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("isLessOrEqual_M_S:" + math.getSTCheckValue() + "/" + s);
+
+		double n = math.m_d.doubleValue() ;
+		double i = Double.parseDouble(s) ; 
+		return n <= i;
 	}
 	
 	protected boolean isGreater(int nVal, MathBase Math)
@@ -1529,6 +1549,16 @@ public abstract class BaseProgram extends CJMapObject
 
 		int n = math.m_d.intValue() ;
 		return n < val;
+	}
+	
+	protected boolean isLess(MathBase math, String s)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("isLess_M_S:" + math.getSTCheckValue() + "/" + s);
+
+		double n = math.m_d.doubleValue() ;
+		double i = Double.parseDouble(s) ; 
+		return n < i;
 	}
 	
 	protected boolean isLess(MathBase math, Var var2)
