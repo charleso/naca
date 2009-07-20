@@ -122,7 +122,7 @@ public class InspectReplacing
 		return this ;
 	}
 
-	public InspectReplacing leadingZeroes()
+	public InspectReplacing leadingZeros()
 	{
 		m_InspectReplacingType = TypeLeadingZeroes;
 		return this ;

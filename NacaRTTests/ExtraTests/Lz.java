@@ -17,7 +17,7 @@ public class Lz extends CalledProgram {
 		display(wx51_Lost_Prod_Match);
 
 		move("000A000", wx51_Lost_Prod_Match);
-		inspectReplacing(wx51_Lost_Prod_Match).leadingZeroes().by("*");
+		inspectReplacing(wx51_Lost_Prod_Match).leadingZeros().by("*");
 		display(wx51_Lost_Prod_Match);
 
 		stopRun();
