@@ -83,7 +83,7 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 	
 	public void SetSubstract(CDataEntity var, CDataEntity val, CDataEntity dest)
 	{
-		SetSubstract(var, Arrays.asList(val), Arrays.asList(val));
+		SetSubstract(var, Arrays.asList(val), Arrays.asList(dest));
 	}
 	
 	public void SetSubstract(CDataEntity var, List<CDataEntity> val, List<CDataEntity> dest)

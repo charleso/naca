@@ -12,6 +12,9 @@
  */
 package parser.Cobol.elements;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import lexer.CBaseToken;
@@ -119,7 +122,8 @@ public class CSet extends CCobolElement
 					CDataEntity eTo = idTo.GetDataReference(getLine(), factory);
 					CEntitySubtractTo eSub = factory.NewEntitySubtractTo(getLine());
 					CDataEntity val = m_DownByValue.GetDataEntity(getLine(), factory);
-					eSub.SetSubstract(eTo, val, null) ;
+					List<CDataEntity> dest = Collections.emptyList();
+					eSub.SetSubstract(eTo, Arrays.asList(val), dest) ;
 					parent.AddChild(eSub);
 				}
 				return null ;
