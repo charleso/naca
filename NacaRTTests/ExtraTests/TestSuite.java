@@ -32,9 +32,13 @@ public class TestSuite extends TestCase {
 	public void testMath() {
 		_test("math");
 	}
-
+	
 	public void testCond() {
 		_test("condtest");
+	}
+
+	public void testLeadingZeroes() {
+		_test("lz");
 	}
 
 	private void _test(String name) {

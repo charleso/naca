@@ -30,6 +30,7 @@ public class InspectReplacing
 	public static final InspectReplacingType TypeAllHighValue = new InspectReplacingType();
 	public static final InspectReplacingType TypeAll = new InspectReplacingType();
 	public static final InspectReplacingType TypeLeadingSpaces = new InspectReplacingType();
+	public static final InspectReplacingType TypeLeadingZeroes = new InspectReplacingType();
 	
 	public InspectReplacing(VarAndEdit var)
 	{
@@ -118,6 +119,12 @@ public class InspectReplacing
 	public InspectReplacing leadingSpaces()
 	{
 		m_InspectReplacingType = TypeLeadingSpaces;
+		return this ;
+	}
+
+	public InspectReplacing leadingZeroes()
+	{
+		m_InspectReplacingType = TypeLeadingZeroes;
 		return this ;
 	}
 		
@@ -305,14 +312,22 @@ public class InspectReplacing
 		}
 		else if(m_InspectReplacingType == TypeLeadingSpaces)
 		{
-			if(nLg > 0)
-			{
-				// Try to find all consecutive range of nReplaceLength low value chars
-				char c = csSource.charAt(0);	// nPosStart);
-				if(c == ' ')
-					return 0;
-			}
-			return -1; 
+			return getReplacePositionLeading(csSource, nLg, ' '); 
+		}
+		else if(m_InspectReplacingType == TypeLeadingZeroes)
+		{
+			return getReplacePositionLeading(csSource, nLg, '0'); 
+		}
+		return -1;
+	}
+
+	private int getReplacePositionLeading(String csSource, int nLg, char p) {
+		if(nLg > 0)
+		{
+			// Try to find all consecutive range of nReplaceLength low value chars
+			char c = csSource.charAt(0);	// nPosStart);
+			if(c == p)
+				return 0;
 		}
 		return -1;
 	}
@@ -320,6 +335,8 @@ public class InspectReplacing
 	private int getReplaceLength()
 	{
 		if(m_InspectReplacingType == TypeLeadingSpaces)
+			return 1;
+		if(m_InspectReplacingType == TypeLeadingZeroes)
 			return 1;
 		else if(m_InspectReplacingType == TypeAllLowValue)
 			return 1;
