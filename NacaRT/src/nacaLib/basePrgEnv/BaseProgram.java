@@ -2774,26 +2774,25 @@ public abstract class BaseProgram extends CJMapObject
 
 	protected MathPow pow(VarAndEdit var1, VarAndEdit var2)
 	{
-		return pow(var1, var2.getDottedSignedString());
+		return pow(var1.getDottedSignedString(), var2.getDottedSignedString(), var1, var2);
 	}
 
 	protected MathPow pow(MathBase var1, VarAndEdit var2)
 	{
-		return pow(var1.m_d.toString(), var2.getDottedSignedString());
+		return pow(var1.m_d.toString(), var2.getDottedSignedString(), var2);
 	}
 
 	protected MathPow pow(VarAndEdit var1, String s)
 	{
-		return pow(var1.getDottedSignedString(), s);
+		return pow(var1.getDottedSignedString(), s, var1);
 	}
 
-	protected MathPow pow(String var1, String s)
+	protected MathPow pow(String var1, String s, VarBase... vars)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("expon_V_cs:" + var1 + ":" + s);
 		MathPow math= new MathPow(var1, s);
-		if(m_bUsedTempVarOrCStr)
-			m_tempCache.resetTempIndex();
+		resetTempIndex(vars);
 		return math;
 	}
 
@@ -5754,36 +5753,17 @@ public abstract class BaseProgram extends CJMapObject
 	{
 		return m_tempCache;
 	}
-//	
-//	private void m_tempCache.resetTempIndex(VarBase a)
-//	{
-//		a.m_tempCache.resetTempIndex(m_tempCache);
-//	}
-//
-//	private void m_tempCache.resetTempIndex(VarBase a, VarBase b)
-//	{
-//		m_tempCache.resetTempVarIndex(a);
-//		m_tempCache.resetTempVarIndex(b.getTypeId());
-//	}
-//
-//	private void m_tempCache.resetTempIndex(VarBase a, VarBase b, VarBase c)
-//	{
-//		a.m_tempCache.resetTempIndex(m_tempCache);
-//		b.m_tempCache.resetTempIndex(m_tempCache);
-//		c.m_tempCache.resetTempIndex(m_tempCache);
-//	}
-//
-//	private void m_tempCache.resetTempIndex(VarBase a, VarBase b, VarBase c, VarBase d)
-//	{
-//		a.m_tempCache.resetTempIndex(m_tempCache);
-//		b.m_tempCache.resetTempIndex(m_tempCache);
-//		c.m_tempCache.resetTempIndex(m_tempCache);
-//		d.m_tempCache.resetTempIndex(m_tempCache);
-//	}
+
 	private TempCache m_tempCache = null;
 	private boolean m_bUsedTempVarOrCStr = false;
 	private boolean m_bUsedTempVar = false;
 	private boolean m_bUsedCStr = false;
+	
+	public void resetTempIndex(VarBase... vars)
+	{
+		if(m_bUsedTempVarOrCStr)
+			m_tempCache.resetTempIndex(vars);
+	}
 	
 	public void setUseTempVar()
 	{
