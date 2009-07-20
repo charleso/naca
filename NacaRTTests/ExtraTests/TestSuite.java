@@ -28,9 +28,13 @@ public class TestSuite extends TestCase {
 	public void testIfaai() {
 		_test("ifaai");
 	}
-
+	
 	public void testMath() {
 		_test("math");
+	}
+
+	public void testCond() {
+		_test("condtest");
 	}
 
 	private void _test(String name) {

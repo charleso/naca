@@ -74,6 +74,21 @@ public class Cond extends CJMapObject
 		return new Cond(var, this);
 	}
 	
+	public Cond getAt(VarAndEdit x, VarAndEdit y)
+	{
+		return getAt(x.getInt(), y.getInt());
+	}
+	
+	public Cond getAt(int x, VarAndEdit y)
+	{
+		return getAt(x, y.getInt());
+	}
+	
+	public Cond getAt(int x, int y)
+	{
+		return new Cond(m_var.getAt(x, y), this);
+	}
+	
 	public void setName(String csName)
 	{
 		m_csName = csName;
