@@ -42,10 +42,13 @@ public class CJavaMultiply extends CEntityMultiply
 		WriteWord(cs);
 		if (m_To != null)
 		{
-			WriteWord(".to");
 			if (m_bIsRounded)
 			{
-				WriteWord("Rounded");
+				WriteWord(".toRounded");
+			}
+			else
+			{
+				WriteWord(".to");
 			}
 			
 			WriteWord("(" + m_To.ExportReference(getLine()) + ")" );
