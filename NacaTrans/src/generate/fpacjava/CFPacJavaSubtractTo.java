@@ -28,9 +28,14 @@ public class CFPacJavaSubtractTo extends CEntitySubtractTo
 			WriteWord(", ") ;
 			WriteWord(m_Value.ExportReference(getLine())) ;
 		}
-		WriteWord(").to(") ;
-		WriteWord(this.m_Destination.ExportReference(getLine())) ;		
-		WriteWord(") ;") ;
+		WriteWord(")") ;
+		for(CDataEntity m_Value : m_Destination)
+		{
+			WriteWord(".to(");
+			WriteWord(m_Value.ExportReference(getLine())) ;
+			WriteWord(")");
+		}
+		WriteWord(" ;") ;
 		WriteEOL() ;
 	}
 }

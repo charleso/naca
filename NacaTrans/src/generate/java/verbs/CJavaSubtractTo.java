@@ -36,7 +36,7 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 	}
 	protected void DoExport()
 	{
-		if (m_Destination != null)
+		if (!m_Destination.isEmpty())
 		{
 			String cs = "subtract(" + m_Variable.ExportReference(getLine()) ;
 			for(CDataEntity value : m_Values)
@@ -45,7 +45,11 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 			}
 			cs += ")" ;
 			WriteWord(cs);
-			WriteWord(".to(" + m_Destination.ExportReference(getLine()) + ") ;") ;
+			for(CDataEntity value : m_Destination)
+			{
+				WriteWord(".to(" + value.ExportReference(getLine()) + ")") ;
+			}
+			WriteWord(" ;");
 		} 
 		else if(m_Values.size() == 1)
 		{

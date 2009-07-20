@@ -72,18 +72,15 @@ public class CSubtract extends CCobolElement
 			{
 				eValue.RegisterReadingAction(eSub) ;
 			}
-			CDataEntity eRes = null ;
-			if (m_arrResult.size() == m_arrVariables.size())
+			List<CDataEntity> eRess = new ArrayList<CDataEntity>() ;
+			for (CIdentifier idRes : m_arrResult)
 			{
-				CIdentifier idRes = m_arrResult.get(i);
-				eRes = idRes.GetDataReference(getLine(), factory);
+				CDataEntity eRes = idRes.GetDataReference(getLine(), factory);
 				eRes.RegisterWritingAction(eSub) ;
+				eRess.add(eRes);
 			}
-			else
-			{
-				eVar.RegisterWritingAction(eSub) ;
-			}
-			eSub.SetSubstract(eVar, eValues, eRes);
+			eVar.RegisterWritingAction(eSub) ;
+			eSub.SetSubstract(eVar, eValues, eRess);
 		}
 		return null;
 	}

@@ -53,14 +53,16 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 				bRes = true ;
 			}
 		}
-		if (m_Destination == field)
+		for (CDataEntity value : m_Destination)
 		{
-			m_Destination = var ;
-			field.UnRegisterWritingAction(this) ;
-			var.RegisterWritingAction(this) ;
-			bRes = true ;
+			if (value == field)
+			{
+				field.UnRegisterWritingAction(this) ;
+				var.RegisterWritingAction(this) ;
+				bRes = true ;
+			}
 		}
-		else if (m_Destination == null)
+		if (m_Destination.isEmpty())
 		{
 			field.UnRegisterWritingAction(this) ;
 			var.RegisterWritingAction(this) ;
@@ -81,25 +83,25 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 	
 	public void SetSubstract(CDataEntity var, CDataEntity val, CDataEntity dest)
 	{
-		SetSubstract(var, Arrays.asList(val), dest);
+		SetSubstract(var, Arrays.asList(val), Arrays.asList(val));
 	}
 	
-	public void SetSubstract(CDataEntity var, List<CDataEntity> val, CDataEntity dest)
+	public void SetSubstract(CDataEntity var, List<CDataEntity> val, List<CDataEntity> dest)
 	{
 		m_Variable = var ;
 		m_Values.addAll(val);
-		m_Destination = dest ;
+		m_Destination.addAll(dest) ;
 	}
 	
 	protected CDataEntity m_Variable ;
 	protected final List<CDataEntity> m_Values = new ArrayList<CDataEntity>();
-	protected CDataEntity m_Destination ;
+	protected final List<CDataEntity> m_Destination = new ArrayList<CDataEntity>();
 	public void Clear()
 	{
 		super.Clear() ;
 		m_Variable = null ;
 		m_Values.clear();
-		m_Destination = null ;
+		m_Destination.clear() ;
 	}
 	public boolean ignore()
 	{
@@ -108,9 +110,9 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 		{
 			ignore |= value.ignore();
 		}
-		if (m_Destination != null)
+		for (CDataEntity value : m_Destination)
 		{
-			ignore |= m_Destination.ignore() ;
+			ignore |= value.ignore();
 		}
 		return ignore;
 	}
