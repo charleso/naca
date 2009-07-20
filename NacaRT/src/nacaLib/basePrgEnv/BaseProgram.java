@@ -2772,13 +2772,28 @@ public abstract class BaseProgram extends CJMapObject
 		return math;
 	}
 
+	protected MathPow pow(VarAndEdit var1, VarAndEdit var2)
+	{
+		return pow(var1, var2.getDottedSignedString());
+	}
+
+	protected MathPow pow(MathBase var1, VarAndEdit var2)
+	{
+		return pow(var1.m_d.toString(), var2.getDottedSignedString());
+	}
+
 	protected MathPow pow(VarAndEdit var1, String s)
 	{
+		return pow(var1.getDottedSignedString(), s);
+	}
+
+	protected MathPow pow(String var1, String s)
+	{
 		if(IsSTCheck)
-			Log.logFineDebug("expon_V_cs:" + var1.getSTCheckValue() + ":" + s);
+			Log.logFineDebug("expon_V_cs:" + var1 + ":" + s);
 		MathPow math= new MathPow(var1, s);
 		if(m_bUsedTempVarOrCStr)
-			m_tempCache.resetTempIndex(var1);
+			m_tempCache.resetTempIndex();
 		return math;
 	}
 
