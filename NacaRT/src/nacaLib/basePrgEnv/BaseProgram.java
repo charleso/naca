@@ -18,6 +18,7 @@ package nacaLib.basePrgEnv;
 
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import jlib.log.Log;
@@ -5422,6 +5423,16 @@ public abstract class BaseProgram extends CJMapObject
 		SimpleDateFormat formatter = new SimpleDateFormat("yyDDD");
 		String cs = formatter.format(date) ;
 		return cs;
+	}
+	
+	public String getDayOfWeekBatch()
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("getDayOfWeekBatch()");
+		int i = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+		// 1 == Mon, 7 = Sun
+		i = i == Calendar.SUNDAY ? 7 : i - 1;
+		return Integer.toString(i);
 	}
 	
 	public int getReturnCode()
