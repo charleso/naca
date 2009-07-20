@@ -81,6 +81,11 @@ public class InspectTallying
 		return to(vto) ;
 	}
 
+	public InspectTallying countCharsBefore(VarAndEdit csBefore, VarAndEdit vto)
+	{
+		return countCharsBefore(csBefore.getString(), vto);
+	}
+
 	public InspectTallying countCharsBefore(String csBefore, VarAndEdit vto) {
 		m_csBefore = csBefore;
 		m_InspectTallyingType = TypeForChars;
