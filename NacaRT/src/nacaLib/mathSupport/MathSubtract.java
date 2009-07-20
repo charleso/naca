@@ -236,6 +236,11 @@ public class MathSubtract extends MathBase
 		m_d = m_d.subtract(val2);
 	}
 	
+	public MathSubtract(String s, MathBase mathBase)
+	{
+		m_d = new BigDecimal(s).subtract(mathBase.m_d);
+	}
+	
 	/**
 	 * @param MathBase mathBase1
 	 * @param MathBase mathBase2

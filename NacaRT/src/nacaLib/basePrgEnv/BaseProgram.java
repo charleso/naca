@@ -2418,6 +2418,12 @@ public abstract class BaseProgram extends CJMapObject
 		return math;
 	}
 	
+	protected MathSubtract subtract(String s, MathBase mathBase)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("subtract_S_M:" + s + ":" + mathBase.getSTCheckValue());
+		return new MathSubtract(s, mathBase);
+	}
 
 	// Divide	
 	/** divide
