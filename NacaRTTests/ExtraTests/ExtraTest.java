@@ -19,7 +19,7 @@ import nacaLib.callPrg.CalledResourceManager;
 import nacaLib.calledPrgSupport.BaseCalledPrgPublicArgPositioned;
 import nacaLib.tempCache.TempCacheLocator;
 
-public class TestSuite extends TestCase {
+public class ExtraTest extends TestCase {
 	
 	public void test() {
 		_test("msbtst");

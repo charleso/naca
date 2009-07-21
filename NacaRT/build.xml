@@ -2,7 +2,7 @@
 
 	<property name="project.name" value="NacaRT" />
 	<property name="project.title" value="NacaRT" />
-	<property name="tests.enabled" value="false" />
+	<property name="src.test.dir.abs" value="../NacaRTTests/ExtraTests" />
 
 	<import file="../../default.xml" />
 
