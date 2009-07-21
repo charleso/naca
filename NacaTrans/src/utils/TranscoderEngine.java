@@ -114,20 +114,14 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		doLogs(grp.m_csInputPath + filename, csOutputDir + outname) ;
 		COriginalLisiting listing = new COriginalLisiting() ;
 		CTokenList lst = doLexing(grp.m_csInputPath + filename, listing);
-		String csFullFileName = generateInputFileName(filename);
 		if (lst != null)
 		{			
 			Transcoder.logDebug("Transcoding " + filename);
-			ExportTokens(lst, grp.m_csInterPath + ReplaceExtensionFileName(filename, "lex"));
 			CParser<T_Elem> p = doParsing(lst) ;
 			if (p!= null)
 			{
-
 				if(m_Transcoder.mustGenerate())
 				{
-					String csFileNameOut = grp.m_csInterPath + ReplaceExtensionFileName(filename, "xml");
-					exportXMLToFile(p, csFileNameOut) ;
-					//ExportParser(p, csFileNameOut) ;
 					NotificationEngine engine = new NotificationEngine() ;
 					doPopulateSpecialActionHandlers(engine) ;
 					CObjectCatalog cat = new CObjectCatalog(m_cat, listing, grp.m_eType, engine) ;
