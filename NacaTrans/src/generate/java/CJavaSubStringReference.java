@@ -43,7 +43,10 @@ public class CJavaSubStringReference extends CSubStringAttributReference
 //		if (m_Reference.HasAccessors())
 //		{
 			String cs = "subString(" + m_Reference.ExportReference(getLine()) ;
-			cs += ", " + m_Start.Export() + ", " + m_Length.Export() + ")" ;
+			cs += ", " + m_Start.Export();
+			if(m_Length != null)
+				cs += ", " + m_Length.Export();
+			cs += ")" ;
 			return cs ;
 //		}
 //		else
@@ -68,7 +71,11 @@ public class CJavaSubStringReference extends CSubStringAttributReference
 	public String ExportWriteAccessorTo(String value)
 	{
 		String cs = m_Reference.ExportReference(getLine()) ;
-		cs = "setSubString(" + cs + ", " + m_Start.Export() + ", " + m_Length.Export() + ", " + value + ") ;" ;
+		cs = "setSubString(" + cs + ", " + m_Start.Export();
+		if (m_Length != null)
+			cs += ", " + m_Length.Export();
+		cs += ", " + value ;
+		cs += ") ;" ;
 		return cs ;		
 	}
 	public boolean isValNeeded()

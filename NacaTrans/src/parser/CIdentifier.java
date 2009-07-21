@@ -153,10 +153,10 @@ public class CIdentifier
 		{
 			e = e.GetArrayReference(m_arrArrayIndex, fact);
 		}
-		if (m_exprStringStartReference != null && m_exprStringLengthReference != null)
+		if (m_exprStringStartReference != null)
 		{
 			CBaseEntityExpression expStart = m_exprStringStartReference.AnalyseExpression(fact);
-			CBaseEntityExpression expLen = m_exprStringLengthReference.AnalyseExpression(fact); 
+			CBaseEntityExpression expLen = m_exprStringLengthReference != null ? m_exprStringLengthReference.AnalyseExpression(fact) : null; 
 			e = e.GetSubStringReference(expStart, expLen, fact);
 		}
 		

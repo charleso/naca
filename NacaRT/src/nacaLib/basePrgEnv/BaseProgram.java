@@ -4578,6 +4578,16 @@ public abstract class BaseProgram extends CJMapObject
 			m_tempCache.resetTempIndex(varDest, varValue);
 	}
 
+	protected void setSubString(VarAndEdit varDest, int nOffsetPosition, VarAndEdit varValue)
+	{
+		setSubString(varDest, nOffsetPosition, varDest.getVarDef().getLength(), varValue);
+	}
+	
+	protected void setSubString(VarAndEdit varDest, VarAndEdit varOffsetPosition, VarAndEdit varValue)
+	{
+		setSubString(varDest, varOffsetPosition.getInt(), varDest.getVarDef().getLength(), varValue);
+	}
+	
 	protected void setSubString(VarAndEdit varDest, int nOffsetPosition, int nNbChar, int nValue)
 	{
 		if(IsSTCheck)
@@ -4983,6 +4993,24 @@ public abstract class BaseProgram extends CJMapObject
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(varSource, varStart, nNbChars);
 		return cs;
+	}
+	
+	protected VarAndEdit subString(Var varSource, Var varStart)
+	{
+		try {
+			return subString(varSource, varStart.getInt());
+		} finally {
+			resetTempIndex(varSource, varStart);
+		}
+	}
+	
+	protected VarAndEdit subString(Var varSource, int start)
+	{
+		try {
+			return varSource.subString(start, varSource.getLength());
+		} finally {
+			resetTempIndex(varSource);
+		}
 	}
 	
 	/**
