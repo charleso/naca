@@ -22,6 +22,7 @@ import nacaLib.exceptions.CESMReturnException;
 import nacaLib.exceptions.CGotoException;
 import nacaLib.exceptions.CGotoOtherSectionException;
 import nacaLib.exceptions.CGotoOtherSectionParagraphException;
+import nacaLib.exceptions.NacaRTException;
 import nacaLib.mapSupport.Map;
 import nacaLib.misc.KeyPressed;
 import nacaLib.program.CJMapRunnable;
@@ -562,39 +563,55 @@ public abstract class BaseProgramManager extends CJMapObject
 			else
 				m_currentSection = getSectionOwnerParagraph(gotoParagraph);
 		} 
-		catch (CGotoOtherSectionException e)	// goto another section
+		catch (CESMReturnException e)
 		{
-			m_currentSection = e.m_Section;
-			gotoParagraph = null;				
-		}
-		catch (CGotoOtherSectionParagraphException e)	// Goto a paragraph of another section
-		{
-			gotoParagraph = e.m_Paragraph;
-			m_currentSection = getSectionOwnerParagraph(gotoParagraph) ;
+			gotoParagraph = exceptionHandler(e, gotoParagraph);
 		}
 		
+		runSectionFromParagraph(gotoParagraph, true);
+	}
+
+	private void runSectionFromParagraph(Paragraph gotoParagraph, boolean setNext)
+	{
 		while(m_currentSection != null)
 		{
 			try
 			{		
 				m_currentSection.runSectionFromParagraph(gotoParagraph);
 				gotoParagraph = null;
-				setNextSectionCurrent();
-			}
-			catch (CGotoOtherSectionParagraphException e)	// Goto a paragraph of another section
-			{
-				gotoParagraph = e.m_Paragraph;
-			}
-			catch (CGotoOtherSectionException e)	// goto another section
-			{
-				m_currentSection = e.m_Section;
-				gotoParagraph = null;				
+				if(setNext)
+					setNextSectionCurrent();
+				else
+					m_currentSection = null;
 			}
 			catch (CESMReturnException e)
 			{
 				m_currentSection = null ;	// Force a return to CESM
 			}
+			catch (NacaRTException e)
+			{
+				gotoParagraph = exceptionHandler(e, gotoParagraph);
+			}
 		}
+	}
+	
+	private Paragraph exceptionHandler(NacaRTException e, Paragraph gotoParagraph)
+	{
+		if (e instanceof CGotoOtherSectionParagraphException)	// Goto a paragraph of another section
+		{
+			gotoParagraph = ((CGotoOtherSectionParagraphException) e).m_Paragraph;
+			m_currentSection = getSectionOwnerParagraph(gotoParagraph);
+		}
+		else if (e instanceof CGotoOtherSectionException)	// goto another section
+		{
+			m_currentSection = ((CGotoOtherSectionException) e).m_Section;
+			gotoParagraph = null;				
+		}
+		else
+		{
+			throw e;
+		}
+		return gotoParagraph;
 	}
 	
 	private Section getSectionOwnerParagraph(Paragraph paragraph)
@@ -771,29 +788,7 @@ public abstract class BaseProgramManager extends CJMapObject
 		if(section != null)
 		{
 			m_currentSection = section;
-			Paragraph gotoParagraph = null;
-			while(m_currentSection != null)
-			{
-				try
-				{
-					m_currentSection.runSectionFromParagraph(gotoParagraph);
-					gotoParagraph = null;
-					m_currentSection = null;
-				}
-				catch (CGotoOtherSectionParagraphException e)	// Goto a paragraph of another section
-				{
-					gotoParagraph = e.m_Paragraph;
-				}
-				catch (CGotoOtherSectionException e)	// goto another section
-				{
-					m_currentSection = e.m_Section;
-					gotoParagraph = null;				
-				}
-				catch (CESMReturnException e)
-				{
-					m_currentSection = null ;	// Force a return to CESM
-				}
-			}
+			runSectionFromParagraph(null, false);
 		}
 	}
 	
