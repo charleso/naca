@@ -14,6 +14,13 @@ public class Goto extends CalledProgram {
 		display("a");
 		perform($2);
 		perform($4);
+	}
+
+	Section $7 = new Section(this, false);
+	Paragraph i = new Paragraph(this);
+
+	public void i() {
+		display("i");
 		exitProgram();
 	}
 
@@ -36,7 +43,6 @@ public class Goto extends CalledProgram {
 
 	public void h() {
 		display("h");
-		exitProgram();
 	}
 
 	Section $5 = new Section(this, false);
