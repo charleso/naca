@@ -40,9 +40,13 @@ public class TestSuite extends TestCase {
 	public void testLeadingZeroes() {
 		_test("lz");
 	}
-
+	
 	public void testSubstring() {
 		_test("substring");
+	}
+
+	public void testGoto() {
+		_test("goto");
 	}
 
 	private void _test(String name) {
