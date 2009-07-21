@@ -13,6 +13,16 @@ public class AbortSessionException extends NacaRTException
 	public Throwable m_Reason = null ;
 	public String m_ProgramName = "" ;
 	
+	public AbortSessionException()
+	{
+		super();
+	}
+
+	public AbortSessionException(Throwable e)
+	{
+		super(e);
+	}
+
 	public String getMessage()
 	{
 		String cs = "";

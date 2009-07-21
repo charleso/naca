@@ -14,6 +14,11 @@ public class NacaRTException extends RuntimeException
 	{
 		super();
 	}
+	
+	public NacaRTException(Throwable t)
+	{
+		super(t);
+	}
 
 	public NacaRTException(String message)
 	{

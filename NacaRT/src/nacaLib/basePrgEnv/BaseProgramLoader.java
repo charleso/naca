@@ -369,7 +369,7 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 	
 	private void throwAbortSession(Throwable e, String csProgramName)
 	{
-		AbortSessionException exp = new AbortSessionException();
+		AbortSessionException exp = new AbortSessionException(e);
 		exp.m_ProgramName = csProgramName;
 		exp.m_Reason = e;
 		throw exp;
