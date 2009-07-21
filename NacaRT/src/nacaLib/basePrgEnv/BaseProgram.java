@@ -195,6 +195,11 @@ public abstract class BaseProgram extends CJMapObject
 		return call ;
 	}	
 	
+	protected CCallProgram call(VarAndEdit var)
+	{
+		return call(var.getString().trim());
+	}
+	
 	/**Method: call
 	 * Declare a sub-program to call
 	 * @param: IN String csPrgClassName: Program name to call 

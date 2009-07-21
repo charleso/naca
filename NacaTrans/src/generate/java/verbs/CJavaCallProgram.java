@@ -42,21 +42,13 @@ public class CJavaCallProgram extends CEntityCallProgram
 	protected void DoExport()
 	{
 		String name = m_Reference.ExportReference(getLine());
-		if (name.startsWith("\""))
+		if (name.startsWith("\"") && m_bChecked)
 		{
 			name = name.substring(1, name.length()-1);
 			name = CobolNameUtil.fixJavaName(name);
-			if (m_bChecked)
-				name += ".class";
+			name += ".class";
 		}
-		if (m_bChecked)
-		{
-			WriteWord("call(" +  name + ")") ;
-		}
-		else
-		{
-			WriteWord("call(\"" +  name + "\")") ;
-		}
+		WriteWord("call(" +  name + ")") ;
 		if (m_arrParameters.size()>0)
 		{
 			for (int i=0; i<m_arrParameters.size(); i++)

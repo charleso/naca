@@ -180,7 +180,7 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		{
 			csProgramName = ProgId ;
 		}*/
-		
+		csProgram = Character.toUpperCase(csProgram.charAt(0)) + csProgram.substring(1).toLowerCase();
 		BaseProgram program = null;
 		if(bUseProgramPool)
 			program = loadPooledProgramInstance(csProgram);
