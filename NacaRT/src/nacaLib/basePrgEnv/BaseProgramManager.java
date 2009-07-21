@@ -787,8 +787,10 @@ public abstract class BaseProgramManager extends CJMapObject
 	{
 		if(section != null)
 		{
+			Section oldSection = m_currentSection;
 			m_currentSection = section;
 			runSectionFromParagraph(null, false);
+			m_currentSection = oldSection;
 		}
 	}
 	
