@@ -15,7 +15,9 @@ package generate.java.verbs;
 //import parser.expression.CBaseExpressionExporter;
 
 import generate.*;
+import semantic.CDataEntity;
 import semantic.Verbs.*;
+import semantic.expression.CBaseEntityCondition;
 import utils.CObjectCatalog;
 
 /**
@@ -44,33 +46,17 @@ public class CJavaLoopIter extends CEntityLoopIter
 	{
 		if (m_bTestBefore)
 		{
-			String cs = "for (move(" + m_InitialValue.ExportReference(getLine()) + ", " + m_Variable.ExportReference(getLine()) + "); " ;
-			WriteWord(cs);
-			WriteWord(m_WhileCondition.Export() + "; ") ;
-		
-			cs = "" ;
-			if (m_Increment != null)
+			_for(m_InitialValue, m_Variable, m_WhileCondition, m_Increment, m_bIncrementByOne);
+			for (CEntityAfter a : m_Afters)
 			{
-				cs = "inc(" + m_Increment.ExportReference(getLine()) + ", " ;
+				_for(a.m_varFromValueAfter, a.m_VariableAfter, a.m_condUntilAfter, a.m_varByValueAfter, true);
 			}
-			else
-			{
-				if(m_bIncrementByOne)
-				{
-					cs = "inc(" ;
-				}
-				else if(m_bDecrementByOne)
-				{
-					cs = "dec(" ;
-				}
-			}
-			cs += m_Variable.ExportReference(getLine()) ;
-			WriteWord(cs+")) {") ;
-			WriteEOL() ;
-			StartOutputBloc() ;
 			ExportChildren() ;
-			EndOutputBloc() ;
-			WriteLine("}") ;
+			for (@SuppressWarnings("unused") CEntityAfter a : m_Afters)
+			{
+				_EndBlock();
+			}
+			_EndBlock();
 		}
 		else
 		{
@@ -100,17 +86,48 @@ public class CJavaLoopIter extends CEntityLoopIter
 			cs += m_Variable.ExportReference(getLine()) ;
 			WriteWord(cs+") ;") ;
 			WriteEOL();
-			EndOutputBloc();
-			WriteLine("}");
+			_EndBlock();
 			WriteLine("else {");
 			StartOutputBloc() ;
 			WriteLine("break ;");
-			EndOutputBloc();
-			WriteLine("}");
+			_EndBlock();
 			
-			EndOutputBloc() ;
-			WriteLine("}") ;
+			_EndBlock();
 		}
+	}
+
+	private void _for(CDataEntity m_InitialValue, CDataEntity m_Variable,
+			CBaseEntityCondition m_WhileCondition, CDataEntity m_Increment, boolean m_bIncrementByOne)
+	{
+		String cs = "for (move(" + m_InitialValue.ExportReference(getLine()) + ", " + m_Variable.ExportReference(getLine()) + "); " ;
+		WriteWord(cs);
+		WriteWord(m_WhileCondition.Export() + "; ") ;
+
+		cs = "" ;
+		if (m_Increment != null)
+		{
+			cs = "inc(" + m_Increment.ExportReference(getLine()) + ", " ;
+		}
+		else
+		{
+			if(m_bIncrementByOne)
+			{
+				cs = "inc(" ;
+			}
+			else
+			{
+				cs = "dec(" ;
+			}
+		}
+		cs += m_Variable.ExportReference(getLine()) ;
+		WriteWord(cs+")) {") ;
+		WriteEOL() ;
+		StartOutputBloc() ;
+	}
+
+	private void _EndBlock() {
+		EndOutputBloc() ;
+		WriteLine("}") ;
 	}
 
 }

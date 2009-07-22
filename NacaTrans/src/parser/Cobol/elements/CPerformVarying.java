@@ -12,6 +12,9 @@
  */
 package parser.Cobol.elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lexer.CBaseToken;
 import lexer.CTokenType;
 import lexer.Cobol.CCobolKeywordList;
@@ -47,12 +50,16 @@ public class CPerformVarying extends CBlocElement
 	protected CTerminal m_varByValue = null ;
 	protected CExpression m_condUntil = null ;
 	protected boolean m_bTestBefore = true ;
-
-	protected CIdentifier m_VariableAfter = null ;
-	protected CTerminal m_varFromValueAfter = null ;
-	protected CTerminal m_varByValueAfter = null ;
-	protected CExpression m_condUntilAfter = null ;
+	private List<After> m_Afters = new ArrayList<After>();
 	
+	private class After 
+	{
+		protected CIdentifier m_VariableAfter = null ;
+		protected CTerminal m_varFromValueAfter = null ;
+		protected CTerminal m_varByValueAfter = null ;
+		protected CExpression m_condUntilAfter = null ;
+	}
+
 	public CPerformVarying(CIdentifier Ref, CIdentifier refThru, int line, boolean bBefore)
 	{
 		super(line);
@@ -89,7 +96,7 @@ public class CPerformVarying extends CBlocElement
 			return false ;
 		}
 		
-		CBaseToken tokValFrom = GetNext() ;
+		GetNext() ;
 		m_varFromValue = ReadTerminal() ;
 		
 		CBaseToken tokBy = GetCurrentToken();
@@ -112,10 +119,11 @@ public class CPerformVarying extends CBlocElement
 		} 
 		
 		CBaseToken tok = GetCurrentToken() ;
-		if (tok.GetKeyword() == CCobolKeywordList.AFTER)
+		while (tok.GetKeyword() == CCobolKeywordList.AFTER)
 		{
+			After after = new After();
 			tok = GetNext() ;
-			m_VariableAfter = ReadIdentifier();
+			after.m_VariableAfter = ReadIdentifier();
 			tok = GetCurrentToken() ;
 			if (tok.GetKeyword() != CCobolKeywordList.FROM)
 			{
@@ -123,7 +131,7 @@ public class CPerformVarying extends CBlocElement
 				return false ;
 			}
 			tok = GetNext() ;
-			m_varFromValueAfter = ReadTerminal() ;
+			after.m_varFromValueAfter = ReadTerminal() ;
 			tok = GetCurrentToken() ;
 			if (tok.GetKeyword() != CCobolKeywordList.BY)
 			{
@@ -131,7 +139,7 @@ public class CPerformVarying extends CBlocElement
 				return false ;
 			}
 			tok = GetNext() ;
-			m_varByValueAfter = ReadTerminal() ;
+			after.m_varByValueAfter = ReadTerminal() ;
 			tok = GetCurrentToken() ;
 			if (tok.GetKeyword() != CCobolKeywordList.UNTIL)
 			{
@@ -139,8 +147,10 @@ public class CPerformVarying extends CBlocElement
 				return false ;
 			} 
 			tok = GetNext() ;
-			m_condUntilAfter = ReadConditionalStatement() ;
-		} 
+			after.m_condUntilAfter = ReadConditionalStatement() ;
+			m_Afters.add(after);
+			tok = GetCurrentToken();
+		}
 		
 		if (m_Reference == null)
 		{	// there is no reference to paragraph, the perform must run code inside him.
@@ -230,6 +240,15 @@ public class CPerformVarying extends CBlocElement
 		eLoop.SetUntilCondition(condUntil, m_bTestBefore) ;
 		parent.AddChild(eLoop) ;
 		
+		for (After after : m_Afters)
+		{
+			CBaseEntityCondition cond = after.m_condUntilAfter
+					.AnalyseCondition(factory).GetOppositeCondition();
+			eLoop.AddAfter(after.m_VariableAfter.GetDataReference(getLine(),
+					factory), after.m_varFromValueAfter.GetDataReference(
+					getLine(), factory), after.m_varByValueAfter
+					.GetDataReference(getLine(), factory), cond);
+		}
 		if (m_RefThru != null)
 		{
 			CEntityCallFunction e = factory.NewEntityCallFunction(getLine(), m_Reference.GetName(), m_RefThru.GetName(), parent.getSectionContainer()) ;
@@ -243,6 +262,7 @@ public class CPerformVarying extends CBlocElement
 			eLoop.AddChild(e) ;
 			return e;
 		}
+
 		return eLoop;
 	}
 

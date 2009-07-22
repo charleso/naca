@@ -12,6 +12,9 @@
  */
 package semantic.Verbs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import generate.CBaseLanguageExporter;
 import semantic.CBaseActionEntity;
 import semantic.CDataEntity;
@@ -80,6 +83,7 @@ public abstract class CEntityLoopIter extends CBaseActionEntity
 	protected CBaseEntityCondition m_WhileCondition = null ;
 	protected CDataEntity m_InitialValue = null ;
 	protected CDataEntity m_Increment = null ;
+	protected List<CEntityAfter> m_Afters = new ArrayList<CEntityAfter>();
 	public void Clear()
 	{
 		super.Clear() ;
@@ -88,6 +92,7 @@ public abstract class CEntityLoopIter extends CBaseActionEntity
 		m_WhileCondition = null ;
 		m_Increment = null ;
 		m_InitialValue = null ;
+		m_Afters.clear();
 	}
 	public boolean ignore()
 	{
@@ -114,4 +119,25 @@ public abstract class CEntityLoopIter extends CBaseActionEntity
 		}
 		return false ;
 	}
+	public void AddAfter(CDataEntity after,
+			CDataEntity from, CDataEntity by,
+			CBaseEntityCondition until) {
+		m_Afters.add(new CEntityAfter(after, from, by, until));
+	}
+	protected class CEntityAfter
+	{
+		public CDataEntity m_VariableAfter = null ;
+		public CDataEntity m_varFromValueAfter = null ;
+		public CDataEntity m_varByValueAfter = null ;
+		public CBaseEntityCondition m_condUntilAfter = null ;
+		public CEntityAfter(CDataEntity after, CDataEntity from,
+				CDataEntity by, CBaseEntityCondition until)
+		{
+			m_VariableAfter = after;
+			m_varFromValueAfter = from;
+			m_varByValueAfter = by;
+			m_condUntilAfter = until;
+		}
+	}
+
 }

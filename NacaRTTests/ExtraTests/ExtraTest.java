@@ -44,9 +44,13 @@ public class ExtraTest extends TestCase {
 	public void testSubstring() {
 		_test("substring");
 	}
-
+	
 	public void testGoto() {
 		_test("goto");
+	}
+
+	public void testAfter() {
+		_test("after");
 	}
 
 	private void _test(String name) {
