@@ -5005,7 +5005,7 @@ public abstract class BaseProgram extends CJMapObject
 		return cs;
 	}
 	
-	protected VarAndEdit subString(Var varSource, Var varStart)
+	protected Var subString(Var varSource, Var varStart)
 	{
 		try {
 			return subString(varSource, varStart.getInt());
@@ -5014,7 +5014,7 @@ public abstract class BaseProgram extends CJMapObject
 		}
 	}
 	
-	protected VarAndEdit subString(Var varSource, int start)
+	protected Var subString(Var varSource, int start)
 	{
 		try {
 			return varSource.subString(start, varSource.getLength());

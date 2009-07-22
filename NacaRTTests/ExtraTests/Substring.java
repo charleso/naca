@@ -16,6 +16,9 @@ public class Substring extends CalledProgram {
 		inspectReplacing(subString(ws_Out_String, 3)).leadingSpaces().by("0");
 		display(subString(ws_Out_String, 3));
 		display(ws_Out_String);
+		move("1234567890", ws_Out_String);
+		move(subString(ws_Out_String, 2), ignoreMe);
+		display(ignoreMe);
 		stopRun();
 	}
 }

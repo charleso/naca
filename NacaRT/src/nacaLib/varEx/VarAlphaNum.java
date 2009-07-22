@@ -92,7 +92,7 @@ public class VarAlphaNum extends Var
 	}
 	
 	@Override
-	public VarAndEdit subString(int start, int length) {
+	public Var subString(int start, int length) {
 		VarAlphaNum num = new VarAlphaNum();
 		VarDefBuffer def = m_varDef.allocCopy();
 		start--;

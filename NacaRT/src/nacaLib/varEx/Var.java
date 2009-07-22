@@ -640,7 +640,7 @@ public abstract class Var extends VarAndEdit
 		return m_varDef.getOffsetFromLevel01();
 	}
 
-	public VarAndEdit subString(int start, int length)
+	public Var subString(int start, int length)
 	{
 		Assert("Var.subString(int, int) not implemented") ;
 		return this;
