@@ -436,7 +436,8 @@ public class CInspect extends CCobolElement
 		}
 		else 
 		{
-			Transcoder.logError(tok.getLine(), "Unexpecting INSPECT action : "+tok.GetValue()) ;
+			if (m_Actions.isEmpty())
+				Transcoder.logError(tok.getLine(), "Unexpecting INSPECT action : "+tok.GetValue()) ;
 			return false;
 		}
 		a.m_Method = m_Method;
