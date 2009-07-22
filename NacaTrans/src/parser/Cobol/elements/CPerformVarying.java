@@ -245,9 +245,9 @@ public class CPerformVarying extends CBlocElement
 			CBaseEntityCondition cond = after.m_condUntilAfter
 					.AnalyseCondition(factory).GetOppositeCondition();
 			eLoop.AddAfter(after.m_VariableAfter.GetDataReference(getLine(),
-					factory), after.m_varFromValueAfter.GetDataReference(
+					factory), after.m_varFromValueAfter.GetDataEntity(
 					getLine(), factory), after.m_varByValueAfter
-					.GetDataReference(getLine(), factory), cond);
+					.GetDataEntity(getLine(), factory), cond);
 		}
 		if (m_RefThru != null)
 		{
