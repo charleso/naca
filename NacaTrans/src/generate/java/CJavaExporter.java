@@ -440,28 +440,8 @@ public class CJavaExporter extends CBaseLanguageExporter
 		{
 			File newF = new File(m_csTempFileName) ;
 			File file = new File(m_FileName) ;
-			if (newF.isFile() && file.isFile())
-			{
-				boolean bDiff = isDifferent(file, newF) ;
-				if (bDiff)
-				{
-					boolean b = file.delete() ;
-					b = newF.renameTo(file) ;
-				}
-				else
-				{
-					boolean b = newF.delete() ;
-					if (!b)
-					{
-						newF.deleteOnExit() ;
-					}
-				}
-			}
-			else
-			{
-				boolean b = file.delete() ;
-				b = newF.renameTo(file) ;
-			}
+			file.delete() ;
+			newF.renameTo(file) ;
 		}
 	}
 

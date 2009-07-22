@@ -329,47 +329,6 @@ public abstract class CBaseLanguageExporter
 	}
 
 	/**
-	 * @param file
-	 * @param newF
-	 * @return
-	 */
-	protected boolean isDifferent(File file, File newF)
-	{
-		try
-		{
-			FileInputStream fst = new FileInputStream(file) ;
-			FileInputStream scd = new FileInputStream(newF) ;
-			boolean bDiff = false ;
-			int a = 0 ;
-			int b = 0 ;
-			while (!bDiff && a != -1 && b != -1)
-			{
-				a = fst.read() ;
-				while (Character.isWhitespace(a))
-				{
-					a = fst.read() ;
-				}
-				b = scd.read() ;
-				while (Character.isWhitespace(b))
-				{
-					b = scd.read() ;
-				}
-				bDiff = (a != b) ;
-			}
-			fst.close() ;
-			scd.close() ;
-			return bDiff ;
-		} catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return true ;
-	}
-
-	/**
 	 * @return
 	 */
 	protected String GenereTempFileName(String filename)

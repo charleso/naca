@@ -12,10 +12,12 @@
  */
 package utils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 
 import javax.xml.transform.OutputKeys;
@@ -224,7 +226,7 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		try
 		{
 			CBaseLexer lexer = getLexer() ;			
-			FileInputStream file = new FileInputStream(csFullFileName) ;
+			InputStream file = new BufferedInputStream(new FileInputStream(csFullFileName)) ;
 			boolean b = lexer.StartLexer(file, cat) ;
 			if (b)
 			{

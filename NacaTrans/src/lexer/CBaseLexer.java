@@ -224,12 +224,12 @@ public abstract class CBaseLexer
 			m_arrCurrentLine = new char[m_nbCharsUtils] ;
 			char b = 0 ;
 			int nLineChar = 0;
-			char cc = '\0' ;
-			while (b != '\n' && buffer.available()>0)
+			while (b != '\n')
 			{
 				b = (char)buffer.read() ;
+				if (b == 65535)
+					break;
 				nReadChar ++ ;
-				cc = b ;
 				if (nReadChar <= m_nbCharsUtils+m_nbCharsIgnoredAtBegining
 					&& nReadChar > m_nbCharsIgnoredAtBegining)
 				{
