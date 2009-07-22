@@ -13,7 +13,6 @@
 package utils;
 
 import java.util.Vector;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -24,8 +23,8 @@ import java.util.regex.Pattern;
  */
 public class COriginalLisiting
 {
-	private static final Matcher nP = Pattern.compile("0x000A").matcher("\n");
-	private static final Matcher rP = Pattern.compile("0x000D").matcher("\r");
+	private static final Pattern nP = Pattern.compile("0x000A");
+	private static final Pattern rP = Pattern.compile("0x000D");
 	
 	public void RegisterNewOriginalLine(String line)
 	{
@@ -36,8 +35,8 @@ public class COriginalLisiting
 		if (n>0 && n<=m_arrLines.size())
 		{
 			String cs = m_arrLines.get(n-1) ;
-			cs = nP.replaceAll(cs);
-			cs = rP.replaceAll(cs);
+			cs = nP.matcher(cs).replaceAll("\n");
+			cs = rP.matcher(cs).replaceAll("\r");
 			return cs ;
 		}
 		else
