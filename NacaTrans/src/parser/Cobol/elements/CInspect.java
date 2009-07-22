@@ -12,6 +12,8 @@
  */
 package parser.Cobol.elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import lexer.CBaseToken;
@@ -56,6 +58,17 @@ public class CInspect extends CCobolElement
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
+		CBaseLanguageEntity entity = null;
+		for(CInspectAction action : m_Actions)
+		{
+			entity = analysis(parent, factory, action);
+		}
+		return entity;
+	}
+	
+	private CBaseLanguageEntity analysis(CBaseLanguageEntity parent, CBaseEntityFactory factory, CInspectAction a)
+	{
+		CInspectActionType m_Method = a.m_Method;
 		if (m_Method == CInspectActionType.REPLACING)
 		{
 			CEntityReplace eReplace = factory.NewEntityReplace(getLine());
@@ -64,6 +77,7 @@ public class CInspect extends CCobolElement
 			eVar.RegisterWritingAction(eReplace) ;
 			parent.AddChild(eReplace) ;
 			
+			Vector<CInspectValueToReplace> m_arrItemToReplace = a.m_arrItemToReplace;
 			// variable into witch replacing, and methode
 			for (int i = 0; i<m_arrItemToReplace.size(); i++)
 			{
@@ -161,6 +175,7 @@ public class CInspect extends CCobolElement
 			eVar.RegisterReadingAction(eCount) ;
 			eCount.SetCount(eVar);
 			parent.AddChild(eCount) ;
+			Vector<CInspectItemToCount> m_arrItemToCount = a.m_arrItemToCount;
 			for (int i=0; i<m_arrItemToCount.size();i++)
 			{
 				CInspectItemToCount itemToCount = m_arrItemToCount.get(i);
@@ -199,6 +214,7 @@ public class CInspect extends CCobolElement
 			eVar.RegisterWritingAction(entity) ;
 			parent.AddChild(entity) ;
 			entity.SetConvert(eVar);
+			CInspectConverting m_Converting = a.m_Converting;
 			entity.SetFrom(m_Converting.m_From.GetDataEntity(getLine(), factory));
 			entity.SetTo(m_Converting.m_To.GetDataEntity(getLine(), factory));
 			return entity;
@@ -223,7 +239,18 @@ public class CInspect extends CCobolElement
 		CGlobalEntityCounter.GetInstance().CountCobolVerb(tok.GetKeyword().m_Name) ;
 		tok = GetNext(); 
 		m_idStringVariable = ReadIdentifier() ;
-		tok = GetCurrentToken();
+		CInspectAction a;
+		if(!_parse(GetCurrentToken(), a = new CInspectAction()))
+			return false;
+		m_Actions.add(a);
+		if(_parse(GetCurrentToken(), a = new CInspectAction()))
+			m_Actions.add(a);
+		return true;
+	}
+	
+	private boolean _parse(CBaseToken tok, CInspectAction a)
+	{
+		CInspectActionType m_Method;
 		if (tok.GetKeyword() == CCobolKeywordList.REPLACING)
 		{
 			m_Method = CInspectActionType.REPLACING ;
@@ -268,11 +295,12 @@ public class CInspect extends CCobolElement
 				tok = GetCurrentToken() ;
 				if (tok.GetType() == CTokenType.COMMA)
 					tok = GetNext() ;
-				m_arrItemToReplace.add(item);
+				a.m_arrItemToReplace.add(item);
 			}
 		}
 		else if (tok.GetKeyword() == CCobolKeywordList.TALLYING)
 		{
+			Vector<CInspectItemToCount> m_arrItemToCount = a.m_arrItemToCount;
 			m_Method = CInspectActionType.TALLYING ;
 			tok = GetNext();
 			boolean bDone2 = false ;
@@ -400,7 +428,7 @@ public class CInspect extends CCobolElement
 		else if (tok.GetKeyword() == CCobolKeywordList.CONVERTING)
 		{
 			m_Method = CInspectActionType.CONVERTING ;
-			m_Converting = new CInspectConverting();
+			CInspectConverting m_Converting = a.m_Converting = new CInspectConverting();
 			GetNext();
 			m_Converting.m_From = ReadTerminal();
 			Assert(CCobolKeywordList.TO);
@@ -411,6 +439,7 @@ public class CInspect extends CCobolElement
 			Transcoder.logError(tok.getLine(), "Unexpecting INSPECT action : "+tok.GetValue()) ;
 			return false;
 		}
+		a.m_Method = m_Method;
 		return true;
 	}
 
@@ -420,8 +449,11 @@ public class CInspect extends CCobolElement
 	protected Element ExportCustom(Document root)
 	{
 		Element eInsp ;
+		CInspectAction a = m_Actions.get(0);
+		CInspectActionType m_Method = a.m_Method;
 		if (m_Method == CInspectActionType.REPLACING)
 		{
+			Vector<CInspectValueToReplace> m_arrItemToReplace = a.m_arrItemToReplace;
 			eInsp = root.createElement("InspectRemplace") ;
 			for (int i =0; i<m_arrItemToReplace.size(); i++)
 			{
@@ -456,6 +488,7 @@ public class CInspect extends CCobolElement
 		}
 		else if (m_Method == CInspectActionType.TALLYING)
 		{
+			Vector<CInspectItemToCount> m_arrItemToCount = a.m_arrItemToCount;
 			eInsp = root.createElement("InspectEnum") ;
 			Element eVar = root.createElement("Variable");
 			m_idStringVariable.ExportTo(eVar, root);
@@ -509,11 +542,8 @@ public class CInspect extends CCobolElement
 		public CTerminal m_ValToReplaceFirst = null ;
 		public CTerminal m_ValNew = null ;
 	}
-	protected Vector<CInspectValueToReplace> m_arrItemToReplace = new Vector<CInspectValueToReplace>() ;
 	protected CIdentifier m_idStringVariable = null ; 
-	protected CInspectActionType m_Method = null ; 
-	protected CInspectConverting m_Converting = null ;
-	protected Vector<CInspectItemToCount> m_arrItemToCount = new Vector<CInspectItemToCount>() ;
+	protected List<CInspectAction> m_Actions = new ArrayList<CInspectAction>() ;
 	protected static class CInspectActionType
 	{
 		public static CInspectActionType REPLACING = new CInspectActionType() ;
@@ -536,5 +566,12 @@ public class CInspect extends CCobolElement
 	{
 		CTerminal m_From = null ;
 		CTerminal m_To = null ;
+	}
+	protected class CInspectAction
+	{
+		protected CInspectActionType m_Method = null ; 
+		protected CInspectConverting m_Converting = null ;
+		protected Vector<CInspectItemToCount> m_arrItemToCount = new Vector<CInspectItemToCount>() ;
+		protected Vector<CInspectValueToReplace> m_arrItemToReplace = new Vector<CInspectValueToReplace>() ;
 	}
 }
