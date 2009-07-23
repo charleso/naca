@@ -129,6 +129,7 @@ public class CString extends CCobolElement
 			if (tok.GetType() == CTokenType.IDENTIFIER || tok.GetType() == CTokenType.STRING || tok.GetType() == CTokenType.CONSTANT)
 			{
 				CTerminal id = ReadTerminal() ;
+				SkipComma();
 				tok = GetCurrentToken();
 				if (tok.GetKeyword() == CCobolKeywordList.DELIMITED)
 				{
@@ -162,11 +163,7 @@ public class CString extends CCobolElement
 					arrTerms.add(id) ;
 //					m_arrConcatItems.add(new CStringConcatItem(id, null));	
 				}
-				tok = GetCurrentToken() ;
-				if (tok.GetType() == CTokenType.COMMA)
-				{
-					tok = GetNext();
-				}
+				SkipComma();
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.INTO)
 			{
@@ -217,6 +214,14 @@ public class CString extends CCobolElement
 		else
 		{
 			return false ;
+		}
+	}
+
+	private void SkipComma()
+	{
+		if (GetCurrentToken().GetType() == CTokenType.COMMA)
+		{
+			GetNext();
 		}
 	}
 
