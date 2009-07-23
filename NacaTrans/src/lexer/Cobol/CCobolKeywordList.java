@@ -232,6 +232,7 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword REDEFINES = new CReservedKeyword(List, "REDEFINES") ; 
 	public static CReservedKeyword OCCURS = new CReservedKeyword(List, "OCCURS") ; 
 	public static CReservedKeyword COMP = new CReservedKeyword(List, "COMP") ;
+	public static CReservedKeyword COMP_2 = new CReservedKeyword(List, "COMP-2") ;
 	public static CReservedKeyword COMP_5 = new CReservedKeyword(List, "COMP-5") ;
 	public static CReservedKeyword COPY = new CReservedKeyword(List, "COPY") ; 
 	public static CReservedKeyword EXEC = new CReservedKeyword(List, "EXEC") ; 

@@ -104,6 +104,10 @@ public class CJavaStructure extends CEntityStructure
 			{
 				line += ".comp()" ;
 			}
+			else if (m_Comp.equalsIgnoreCase("Comp2"))
+			{
+				line += ".comp2()" ;
+			}
 		}
 		WriteWord(line) ;
 		if (m_bSync)
