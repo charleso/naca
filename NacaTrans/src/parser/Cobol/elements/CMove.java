@@ -33,8 +33,6 @@ import semantic.CBaseEntityFactory;
 import semantic.Verbs.CEntityAssign;
 import semantic.Verbs.CEntityAssignWithAccessor;
 import utils.CGlobalEntityCounter;
-import utils.LevelKeywordStackManager;
-import utils.LevelKeywords;
 import utils.Transcoder;
 
 /**
@@ -81,6 +79,7 @@ public class CMove extends CCobolElement
 		}
 		m_valueFrom = ReadTerminal() ;
 
+		IgnoreComma();
 		// read the 'TO'
 		CBaseToken tokTo = GetCurrentToken();
 		if (tokTo.GetKeyword() != CCobolKeywordList.TO)

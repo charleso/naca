@@ -424,7 +424,7 @@ public abstract class CCobolElement extends CLanguageElement
 		else
 		{
 			CBaseToken tok = GetCurrentToken() ;
-			tok = IgnoreComma(tok);
+			tok = IgnoreComma();
 			if (tok.GetKeyword() == CCobolKeywordList.OR)
 			{
 				tok = GetNext() ;
@@ -456,7 +456,7 @@ public abstract class CCobolElement extends CLanguageElement
 		else
 		{
 			CBaseToken tok = GetCurrentToken() ;
-			tok = IgnoreComma(tok);
+			tok = IgnoreComma();
 			if (tok.GetKeyword() == CCobolKeywordList.AND)
 			{
 				int line = tok.getLine() ;
@@ -475,8 +475,9 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 	}
 
-	private CBaseToken IgnoreComma(CBaseToken tok)
+	protected CBaseToken IgnoreComma()
 	{
+		CBaseToken tok = GetCurrentToken();
 		if(tok.GetType() == CTokenType.COMMA)
 			tok = GetNext() ;
 		return tok;
