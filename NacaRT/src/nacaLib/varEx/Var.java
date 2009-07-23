@@ -14,13 +14,11 @@ package nacaLib.varEx;
 
 import java.math.BigDecimal;
 
-import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.mathSupport.MathBase;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.tempCache.CStr;
 import nacaLib.tempCache.TempCache;
 import nacaLib.tempCache.TempCacheLocator;
-import jlib.misc.*;
 
 /**
  * @author U930DI
@@ -642,8 +640,13 @@ public abstract class Var extends VarAndEdit
 
 	public Var subString(int start, int length)
 	{
-		Assert("Var.subString(int, int) not implemented") ;
-		return this;
+		Var num = (Var) allocCopy();
+		VarDefBuffer def = m_varDef.allocCopy();
+		start--;
+		def.m_nTotalSize = Math.min(m_varDef.m_nTotalSize, length - start);
+		num.m_varDef = def;
+		num.m_bufferPos = new VarBufferPos(m_bufferPos, m_varDef.m_nDefaultAbsolutePosition + start);
+		return num;
 	}
 
 }

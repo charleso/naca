@@ -90,17 +90,6 @@ public class VarAlphaNum extends Var
 	{
 		return VarType.VarAlphaNum;
 	}
-	
-	@Override
-	public Var subString(int start, int length) {
-		VarAlphaNum num = new VarAlphaNum();
-		VarDefBuffer def = m_varDef.allocCopy();
-		start--;
-		def.m_nTotalSize = Math.min(m_varDef.m_nTotalSize, length - start);
-		num.m_varDef = def;
-		num.m_bufferPos = new VarBufferPos(m_bufferPos, m_varDef.m_nDefaultAbsolutePosition + start);
-		return num;
-	}
 }
 
 
