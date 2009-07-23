@@ -642,7 +642,7 @@ public class CWorkingEntry extends CCobolElement
 					m_bEdited = true ;
 					cRepeatPattern = 'Z' ;
 				}
-				else if (c == '-' && m_Type == CWorkingPicType.NUMBER)
+				else if (c == '-' && (m_Type == CWorkingPicType.NUMBER || m_Type == CWorkingPicType.DECIMAL))
 				{
 					m_Length ++ ;
 					m_Format += c ;

@@ -16,6 +16,7 @@ public class Math extends CalledProgram                                         
 	Var w50_Mult = declare.level(1).picS9(5).comp3().var() ;                    // (12)  01  W50-MULT                         PIC S9(5) COMP-3.
 	Var w50_Rem = declare.level(1).picS9(8).comp3().var() ;                     // (13)  01  W50-REM                          PIC S9(8) COMP-3.
 	Var w50_Meas_Value_9 = declare.level(1).picS9(7,6).comp3().var() ;          // (14)  01  W50-MEAS-VALUE-9                 PIC S9(7)V9(6) COMP-3.
+	Var w50_Reten_Atax_9 = declare.level(1).pic("9999999999999V99-").var() ;
 	Var w50_Derived_Val_1_9 = declare.level(1).picS9(7,6).comp3().var() ;       // (15)  01  W50-DERIVED-VAL-1-9              PIC S9(7)V9(6) COMP-3.
 	Var w50_Derived_Val_2_9 = declare.level(1).picS9(7,6).comp3().var() ;       // (16)  01  W50-DERIVED-VAL-2-9              PIC S9(7)V9(6) COMP-3.
 	                                                                            // (17) 
@@ -48,6 +49,10 @@ public class Math extends CalledProgram                                         
 		                                                                        // (40)                                 W50-DERIVED-VAL-2-9
 		display(w50_Meas_Value_9) ;                                             // (41)      DISPLAY W50-MEAS-VALUE-9
 		                                                                        // (42) 
+		move(1, w50_Reten_Atax_9);
+		display(w50_Reten_Atax_9);
+		move(-1, w50_Reten_Atax_9);
+		display(w50_Reten_Atax_9);
 		stopRun();                                                              // (43)      STOP RUN RETURNING 0.
 	}
 	Paragraph a000_Exit = new Paragraph(this);                                  // (44)  A000-EXIT.

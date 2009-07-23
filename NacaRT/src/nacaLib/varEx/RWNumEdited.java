@@ -30,7 +30,7 @@ public class RWNumEdited
 		for(int n=0; n<csFormat.length(); n++)
 		{
 			char c = csFormat.charAt(n);
-			if(!(c == 'Z' || c == '.' || c == ',' || c == '*' || c == '+' || c == '-' || c == 'C' || c == 'R' || c == 'D' || c == 'B'))
+			if(!(c == 'Z' || c == '.' || c == 'V' || c == ',' || c == '*' || c == '+' || c == '-' || c == 'C' || c == 'R' || c == 'D' || c == 'B'))
 				return false;
 		}
 		return true;
@@ -67,7 +67,7 @@ public class RWNumEdited
 		
 		boolean bDoDecPart = false;
 
-		int nDecimalSeparatorFormatPos = csFormat.indexOf('.');
+		int nDecimalSeparatorFormatPos = Math.max(csFormat.indexOf('.'), csFormat.indexOf('V'));
 		if(nDecimalSeparatorFormatPos == -1)	// dot (special insertion char) in format, then we will have a decimal part
 			nDecimalSeparatorFormatPos = nLgFormat-1;
 		else  
@@ -78,7 +78,6 @@ public class RWNumEdited
 			nPos$ = csFormat.indexOf('£');
 		
 		// Integer part
-		boolean bSignSet = false;
 		boolean bSuppressLeading0 = false;
 		for(int nFormatIndex=nDecimalSeparatorFormatPos; nFormatIndex>=0; nFormatIndex--)	// From right to left for integer part
 		{
@@ -217,7 +216,7 @@ public class RWNumEdited
 					sDest.setCharAt(nFormatIndex, cSource);			
 					nPosSource++;
 				}
-				else if(cFormat == '.')	// Insert dot 
+				else if(cFormat == '.' || cFormat == 'V')	// Insert dot 
 					sDest.setCharAt(nFormatIndex, '.');
 				else if(cFormat == 'B')	// Insert char
 					sDest.setCharAt(nFormatIndex, ' ');	
