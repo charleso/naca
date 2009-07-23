@@ -88,6 +88,10 @@ public class MathBase extends CJMapObject
 	{
 		Dec dec = MathBase.toDec(m_d);
 		varDest.set(dec);
+		if(varDest.getVarDef().getLength() < dec.toString().length())
+		{
+			m_bError = true;
+		}
 		return this;
 	}
 	

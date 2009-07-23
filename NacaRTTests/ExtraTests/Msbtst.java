@@ -130,9 +130,10 @@ public class Msbtst extends CalledProgram                                       
 			 + " message.") ;
 		                                                                        // (109)        ' into PIC 9(2) variable which should cause SIZE ERROR'
 		                                                                        // (110)        ' message.'
-		subtract(w50_Amt_4, w50_Amt_3).to(w50_Amt_Total) ;                      // (111)      SUBTRACT W50-AMT-3 FROM W50-AMT-4 GIVING W50-AMT-TOTAL
+		if(subtract(w50_Amt_4, w50_Amt_3).to(w50_Amt_Total).isError()) {        // (111)      SUBTRACT W50-AMT-3 FROM W50-AMT-4 GIVING W50-AMT-TOTAL
+			display("SIZE ERROR on SUBTRACT");                                  // (112)         ON SIZE ERROR DISPLAY 'SIZE ERROR on SUBTRACT'.
+		}
 	}
-	                                                                            // (112)         ON SIZE ERROR DISPLAY 'SIZE ERROR on SUBTRACT'.
 	                                                                            // (113) 
 	                                                                            // (114)      DISPLAY ' '.
 	                                                                            // (115) 

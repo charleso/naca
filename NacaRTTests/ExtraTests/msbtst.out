@@ -3,6 +3,7 @@ Subtracting 07, 05 from 20
 Answer -> 08
  
 Subtracting 02 from 999 into PIC 9(2) variable which should cause SIZE ERROR message.
+SIZE ERROR on SUBTRACT
 String before INSPECT CONVERTING:
 The lazy brown FOX jumped over the fence
 String after INSPECT CONVERTING:

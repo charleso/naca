@@ -60,9 +60,10 @@ public class CSubtract extends CCobolElement
 		{
 			eValues.add(value.GetDataEntity(getLine(), factory));
 		}
+		CEntitySubtractTo eSub = null;
 		for (int i=0; i<m_arrVariables.size(); i++)
 		{
-			CEntitySubtractTo eSub = factory.NewEntitySubtractTo(getLine());
+			eSub = factory.NewEntitySubtractTo(getLine());
 			parent.AddChild(eSub) ;
 
 			CTerminal variable = m_arrVariables.get(i) ;
@@ -81,6 +82,11 @@ public class CSubtract extends CCobolElement
 			}
 			eVar.RegisterWritingAction(eSub) ;
 			eSub.SetSubstract(eVar, eValues, eRess);
+		}
+		if (m_OnErrorBloc != null)
+		{
+			CBaseLanguageEntity eBloc = m_OnErrorBloc.DoSemanticAnalysis(eSub, factory) ;
+			eSub.SetOnErrorBloc(eBloc);
 		}
 		return null;
 	}
@@ -140,6 +146,17 @@ public class CSubtract extends CCobolElement
 		{
 			tok = GetNext() ;
 		}
+		if(tok.GetKeyword() == CCobolKeywordList.ON)
+		{
+			GetNext() ;
+			Assert(CCobolKeywordList.SIZE);
+			Assert(CCobolKeywordList.ERROR);
+			m_OnErrorBloc = new CGenericBloc("OnError", tok.getLine()) ;
+			if (!Parse(m_OnErrorBloc))
+			{
+				return false ;
+			}
+		}
 		return true;
 	}
 
@@ -174,4 +191,5 @@ public class CSubtract extends CCobolElement
 	protected boolean m_bRounded ;
 	protected Vector<CTerminal> m_arrVariables = new Vector<CTerminal>() ;
 	protected Vector<CIdentifier> m_arrResult = new Vector<CIdentifier>() ;
+	private CGenericBloc m_OnErrorBloc ;
 }

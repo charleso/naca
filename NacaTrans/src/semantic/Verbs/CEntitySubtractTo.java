@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import semantic.CBaseActionEntity;
+import semantic.CBaseLanguageEntity;
 import semantic.CDataEntity;
 import utils.CObjectCatalog;
 
@@ -92,8 +93,12 @@ public abstract class CEntitySubtractTo extends CBaseActionEntity
 		m_Values.addAll(val);
 		m_Destination.addAll(dest) ;
 	}
+	public void SetOnErrorBloc(CBaseLanguageEntity error) {
+		m_OnErrorBloc = error;
+	}
 	
 	protected CDataEntity m_Variable ;
+	protected CBaseLanguageEntity m_OnErrorBloc ;
 	protected final List<CDataEntity> m_Values = new ArrayList<CDataEntity>();
 	protected final List<CDataEntity> m_Destination = new ArrayList<CDataEntity>();
 	public void Clear()

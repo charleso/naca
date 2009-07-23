@@ -101,7 +101,7 @@ public class Dec extends DecBase
 			cs = "-";
 		long l = getUnsignedLong();
 		cs += String.valueOf(l);
-		if(m_csDec != "")
+		if(!m_csDec.equals(""))
 			cs += "." + m_csDec;
 		return cs;
 	}
@@ -168,5 +168,11 @@ public class Dec extends DecBase
 		if(m_lInt == 0 && NumberParser.getAsInt(m_csDec) == 0)
 			return true;
 		return false;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getAsString();
 	}
 }

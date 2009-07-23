@@ -3518,25 +3518,16 @@ public abstract class BaseProgram extends CJMapObject
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(var);
 	}
-	protected void dec(Var varStep, Var var)
+	protected MathBase dec(Var varStep, Var var)
 	{
-		dec(varStep, null, new Var[] { var });
+		return subtract(var, varStep).to(var);
 	}
-	protected void dec(Var varStep, Var varStep2, Var... vars)
+	protected MathBase dec(Var varStep, Var varStep2, Var... vars)
 	{
-		Var var = vars[vars.length - 1];
-		if(IsSTCheck)
-			Log.logFineDebug("dec_V_V:" + varStep.getSTCheckValue() + ":" + var.getSTCheckValue() + ":" + vars);
-		
-		var.dec(varStep);
-		if(varStep2 != null)
-			var.dec(varStep2);
-		for (int i = 0; i < vars.length - 1; i++)
-		{
-			var.dec(vars[i]);
-		}
-		if(m_bUsedTempVarOrCStr)
-			m_tempCache.resetTempIndex(varStep, var);
+		int i = vars.length - 1;
+		Var from = vars[i];
+		vars[i] = varStep;
+		return subtract(from, varStep2, vars).to(from);
 	}
 
 	/**

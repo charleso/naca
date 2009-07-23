@@ -36,6 +36,10 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 	}
 	protected void DoExport()
 	{
+		if (m_OnErrorBloc != null)
+		{
+			WriteWord("if (") ;
+		}
 		if (!m_Destination.isEmpty())
 		{
 			String cs = "subtract(" + m_Variable.ExportReference(getLine()) ;
@@ -49,24 +53,23 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 			{
 				WriteWord(".to(" + value.ExportReference(getLine()) + ")") ;
 			}
-			WriteWord(" ;");
 		} 
 		else if(m_Values.size() == 1)
 		{
 			CDataEntity m_Value = m_Values.get(0);
 			if (m_Value.GetConstantValue().equals("1"))
 			{
-				String cs = "dec(" + m_Variable.ExportReference(getLine()) + ") ;" ;
+				String cs = "dec(" + m_Variable.ExportReference(getLine()) + ")" ;
 				WriteLine(cs) ;
 			}
 			else  if (m_Value.GetConstantValue().equals("-1"))
 			{
-				String cs = "inc(" + m_Variable.ExportReference(getLine()) + ") ;" ;
+				String cs = "inc(" + m_Variable.ExportReference(getLine()) + ")" ;
 				WriteLine(cs) ;
 			}
 			else
 			{
-				String cs = "dec(" + m_Value.ExportReference(getLine()) + ", " + m_Variable.ExportReference(getLine()) +") ;" ;
+				String cs = "dec(" + m_Value.ExportReference(getLine()) + ", " + m_Variable.ExportReference(getLine()) +")" ;
 				WriteWord(cs) ;
 			}
 		} 
@@ -77,9 +80,21 @@ public class CJavaSubtractTo extends CEntitySubtractTo
 			{
 				cs += m_Value.ExportReference(getLine()) + ", " ;
 			}
-			cs += m_Variable.ExportReference(getLine()) +") ;" ;
+			cs += m_Variable.ExportReference(getLine()) +")" ;
 			WriteWord(cs) ;
 		}
-		WriteEOL() ;
+		if (m_OnErrorBloc != null)
+		{
+			WriteWord(".isError()") ;
+			WriteWord(") {") ;
+			WriteEOL() ;
+			DoExport(m_OnErrorBloc) ;
+			WriteLine("}");
+		}
+		else
+		{
+			WriteWord(" ;");
+			WriteEOL() ;
+		}
 	}
 }
