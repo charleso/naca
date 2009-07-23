@@ -41,6 +41,10 @@ public class CJavaCallProgram extends CEntityCallProgram
 	 */
 	protected void DoExport()
 	{
+		if (m_OnErrorBloc != null)
+		{
+			WriteWord("if (") ;
+		}
 		String name = m_Reference.ExportReference(getLine());
 		if (name.startsWith("\"") && m_bChecked)
 		{
@@ -89,6 +93,15 @@ public class CJavaCallProgram extends CEntityCallProgram
 					
 				}
 			}
+		}
+		if (m_OnErrorBloc != null)
+		{
+			WriteWord(".executeCallSafe()") ;
+			WriteWord(") {") ;
+			WriteEOL() ;
+			DoExport(m_OnErrorBloc) ;
+			WriteLine("}");
+			return;
 		}
 		WriteWord(".executeCall() ;");
 		WriteEOL();

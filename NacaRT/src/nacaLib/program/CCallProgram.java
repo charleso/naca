@@ -8,9 +8,13 @@ package nacaLib.program;
 
 import java.util.ArrayList;
 
+import jlib.log.AssertException;
+import jlib.log.Log;
+
 import nacaLib.base.*;
 import nacaLib.basePrgEnv.BaseEnvironment;
 import nacaLib.basePrgEnv.BaseProgramLoader;
+import nacaLib.exceptions.AbortSessionException;
 import nacaLib.varEx.CCallParam;
 import nacaLib.varEx.CallParamByLength;
 import nacaLib.varEx.CallParamByRef;
@@ -67,6 +71,19 @@ public class CCallProgram extends CJMapObject
 		m_baseProgramLoader.runSubProgram(m_csProgramClassName, m_arrCallParam, m_Environment);
 	}
 
+	public boolean executeCallSafe()
+	{
+		try
+		{
+			executeCall();
+			return true;
+		}
+		catch (AssertException t)
+		{
+			return false;
+		}
+	}
+	
 	/**
 	 * @param Var var: Variable to pass by value to the called program
 	 * @return this

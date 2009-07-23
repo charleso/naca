@@ -92,6 +92,9 @@ public class Msbtst extends CalledProgram                                       
 		                                                                        // (81) 
 		perform($88lvl_Indexed_Var_Test) ;                                      // (82)      PERFORM 88LVL-INDEXED-VAR-TEST.
 		                                                                        // (83) 
+		if(call("INVALID").executeCallSafe()) {
+			display("Execute call with error");
+		}
 		stopRun();                                                              // (84)      STOP RUN RETURNING 0.
 	}
 	                                                                            // (85) 

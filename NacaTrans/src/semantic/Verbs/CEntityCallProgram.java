@@ -17,6 +17,7 @@ import generate.CBaseLanguageExporter;
 import java.util.Vector;
 
 import semantic.CBaseActionEntity;
+import semantic.CBaseLanguageEntity;
 import semantic.CDataEntity;
 import utils.*;
 
@@ -63,6 +64,7 @@ public abstract class CEntityCallProgram extends CBaseActionEntity
 	
 	protected boolean m_bChecked = false ;
 	protected CDataEntity m_Reference = null ;
+	protected CBaseLanguageEntity m_OnErrorBloc ;
 	protected Vector<CCallParameter> m_arrParameters = new Vector<CCallParameter>() ;
 	public void Clear()
 	{
@@ -147,5 +149,10 @@ public abstract class CEntityCallProgram extends CBaseActionEntity
 	public void UpdateProgramReference(CDataEntity newProgram)
 	{
 		m_Reference = newProgram ;		
+	}
+
+	public void SetOnErrorBloc(CBaseLanguageEntity error)
+	{
+		m_OnErrorBloc = error;
 	}
 }

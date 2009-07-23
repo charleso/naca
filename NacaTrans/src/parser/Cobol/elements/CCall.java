@@ -251,8 +251,8 @@ public class CCall extends CCobolElement
 					Transcoder.logError(getLine(), "Expecting 'EXCEPTION' keyword") ;
 					return false ;
 				}
-				CExceptionBloc e = new CExceptionBloc(tok.getLine());
-				if (!Parse(e))
+				m_OnErrorBloc = new CExceptionBloc(tok.getLine());
+				if (!Parse(m_OnErrorBloc))
 				{
 					return false ;
 				}
@@ -283,6 +283,7 @@ public class CCall extends CCobolElement
 	}
 	
 	protected CTerminal m_Reference = null ;
+	private CExceptionBloc m_OnErrorBloc ;
 	protected Vector<CCallParameter> m_arrParams = new Vector<CCallParameter>();
 	/* (non-Javadoc)
 	 * @see parser.CBaseElement#DoCustomSemanticAnalysis(semantic.CBaseSemanticEntity, semantic.CBaseSemanticEntityFactory)
@@ -404,6 +405,11 @@ public class CCall extends CCobolElement
 				eParam.RegisterReadingAction(e);
 				eParam.RegisterWritingAction(e);
 			}
+		}
+		if (m_OnErrorBloc != null)
+		{
+			CBaseLanguageEntity eBloc = m_OnErrorBloc.DoSemanticAnalysis(e, factory) ;
+			e.SetOnErrorBloc(eBloc);
 		}
 		return e;
 	}
