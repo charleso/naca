@@ -76,11 +76,11 @@ public class CCallProgram extends CJMapObject
 		try
 		{
 			executeCall();
-			return true;
+			return false;
 		}
 		catch (AssertException t)
 		{
-			return false;
+			return true;
 		}
 	}
 	
