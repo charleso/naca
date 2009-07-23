@@ -101,6 +101,7 @@ public class CPerform extends CBlocElement
 				GetNext() ;
 			}
 		}
+		IgnoreComma();
 		return true;
 	}
 	/* (non-Javadoc)
