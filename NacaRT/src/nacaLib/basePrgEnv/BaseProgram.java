@@ -3417,7 +3417,7 @@ public abstract class BaseProgram extends CJMapObject
 	protected void goTo(CJMapRunnable[] functors, Var dependingOn)
 	{
 		int i = dependingOn.getInt() - 1;
-		if (i >= 0)
+		if (0 <= i && i < functors.length)
 		{
 			CJMapRunnable f = functors[i];
 			if (f instanceof Section)
