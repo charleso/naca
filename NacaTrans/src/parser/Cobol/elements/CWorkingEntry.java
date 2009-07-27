@@ -595,6 +595,7 @@ public class CWorkingEntry extends CCobolElement
 					m_Type = CWorkingPicType.NUMBER ;
 					m_Length = 0 ;
 					m_bEdited = true ;
+					cRepeatPattern = '+' ;
 				}
 				else if (c == '-')
 				{
