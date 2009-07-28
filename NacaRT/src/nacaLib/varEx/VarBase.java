@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import jlib.misc.AsciiEbcdicConverter;
 import jlib.misc.LineRead;
 import nacaLib.base.CJMapObject;
-import nacaLib.base.JmxGeneralStat;
 import nacaLib.basePrgEnv.BaseProgram;
 import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.fpacPrgEnv.FPacVarManager;
@@ -742,7 +741,7 @@ public abstract class VarBase extends CJMapObject
 	
 	public void set(byte[] tBytes)
 	{
-		setFromByteArray(tBytes, 0, tBytes.length);
+		setFromByteArray(tBytes, 0, Math.min(m_varDef.m_nTotalSize, tBytes.length));
 	}
 
 	public void setFromByteArray(byte[] tBytes, int nOffsetSource, int nLength)
