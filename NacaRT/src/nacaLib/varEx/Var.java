@@ -645,7 +645,7 @@ public abstract class Var extends VarAndEdit
 		start--;
 		def.m_nTotalSize = Math.min(m_varDef.m_nTotalSize, length - start);
 		num.m_varDef = def;
-		num.m_bufferPos = new VarBufferPos(m_bufferPos, m_varDef.m_nDefaultAbsolutePosition + start);
+		num.m_bufferPos = new VarBufferPos(m_bufferPos, m_bufferPos.m_nAbsolutePosition + start);
 		return num;
 	}
 
