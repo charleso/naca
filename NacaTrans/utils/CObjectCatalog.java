@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,15 +20,19 @@ package utils;
 
 import generate.CBaseLanguageExporter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import parser.Cobol.elements.CCopyDeepReplacing;
+
 import jlib.engine.BaseNotification;
 import jlib.engine.BaseNotificationHandler;
 import jlib.engine.NotificationEngine;
+import jlib.misc.IntegerRef;
 import jlib.xml.Tag;
 
 import semantic.CBaseActionEntity;
@@ -36,9 +46,11 @@ import semantic.CEntityDataSection;
 import semantic.CEntityExternalDataStructure;
 import semantic.CEntityFileDescriptor;
 import semantic.CEntityFileSelect;
+import semantic.CEntityIOSection;
 import semantic.CEntityProcedure;
 import semantic.CEntityProcedureDivision;
 import semantic.CEntityProcedureSection;
+import semantic.CEntityStructure;
 import semantic.CICS.CEntityCICSLink;
 import semantic.SQL.CEntitySQLCursor;
 import semantic.SQL.CEntitySQLDeclareTable;
@@ -50,6 +62,7 @@ import semantic.forms.CEntityResourceField;
 import semantic.forms.CEntityResourceForm;
 import semantic.forms.CEntityResourceFormContainer;
 import utils.CobolTranscoder.ProcedureCallTree;
+import utils.DCLGenConverter.DCLGenConverter;
 
 
 /**
@@ -67,6 +80,7 @@ public class CObjectCatalog
 	protected CEntityResourceFormContainer m_FormContainer = null ;
 	protected boolean m_bUseCICSPreprocessor = false ;
 	private NotificationEngine m_Engine;
+	private boolean m_bUsesTally = false;
 	
 	public CObjectCatalog(
 		CGlobalCatalog cat, 
@@ -112,11 +126,15 @@ public class CObjectCatalog
 			}
 			return mapset ; 
 		}
+		else
+		{
+			int gg = 0;
+		}
 	
 		CEntityExternalDataStructure ext = m_Global.GetExternalDataStructure(id) ;
 		if (ext == null)
 		{
-			m_bMissingIncludeStructure = true ;
+			setMissingIncludeStructure();
 			return null ;
 		}
 		String csName = ext.GetName() ;
@@ -206,6 +224,7 @@ public class CObjectCatalog
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			de = null ;
 		}
 
@@ -235,6 +254,7 @@ public class CObjectCatalog
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			item = null ;
 		}
 		
@@ -242,17 +262,25 @@ public class CObjectCatalog
 		
 		enumere = cat.m_tabSQLTables.elements() ;
 		CEntitySQLDeclareTable sql = null ;
-		try {sql = (CEntitySQLDeclareTable)enumere.nextElement() ;}
+		try 
+		{
+			sql = (CEntitySQLDeclareTable)enumere.nextElement() ;
+		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			sql = null ;
 		}
 		while (sql != null)
 		{
 			RegisterSQLTable(sql.GetName(), sql) ;
-			try {sql = (CEntitySQLDeclareTable)enumere.nextElement() ;}
+			try 
+			{
+				sql = (CEntitySQLDeclareTable)enumere.nextElement() ;
+			}
 			catch (NoSuchElementException e)
 			{
+				//e.printStackTrace();
 				sql = null ;
 			}
 		}
@@ -278,6 +306,10 @@ public class CObjectCatalog
 	// data entity
 	public void RegisterDataEntity(String name, CDataEntity eCont)
 	{
+		if(name.equals("MA-TYPE-INFO") || name.equals("MA-TEXTE-INFO")) 
+		{
+			int b = 0;
+		}
 		if (!name.equals(""))
 		{
 			CDataEntity eAlready = m_tabDataEntities.get(name);
@@ -308,6 +340,14 @@ public class CObjectCatalog
 	
 	public CDataEntity GetDataEntity(int nLine, String name, String of)
 	{
+		if(name.equals("MA-TEXTE-INFO"))
+		{
+			int gg = 0;
+		}
+		if(name.equals("MA-TYPE-INFO"))
+		{
+			int gg = 0;
+		}
 		CDataEntity eData = m_tabDataEntities.get(name) ;
 		if (eData == null)
 		{
@@ -458,6 +498,7 @@ public class CObjectCatalog
 		}
 		catch (NoSuchElementException ex)
 		{
+			//ex.printStackTrace();
 		}
 	}
 	protected Hashtable<String, CEntityClass> m_tabContainers = new Hashtable<String, CEntityClass>() ; 
@@ -766,9 +807,14 @@ public class CObjectCatalog
 	 * @param string
 	 * @param string2
 	 */
-	public void RegisterRoutineEmulation(String alias, String display)
+	public void RegisterRoutineEmulation(String alias, String display, String csRequiredToolsLib)
 	{
-		CEntityRoutineEmulation emul = new CEntityRoutineEmulation(alias, display) ;
+		CEntityRoutineEmulation emul = new CEntityRoutineEmulation(alias, display, csRequiredToolsLib) ;
+		m_tabRoutineEmulation.put(alias, emul) ;
+	}
+	public void RegisterRoutineEmulation(String alias, String display, boolean external)
+	{
+		CEntityRoutineEmulation emul = new CEntityRoutineEmulation(alias, display, external) ;
 		m_tabRoutineEmulation.put(alias, emul) ;
 	}
 	public CEntityRoutineEmulation getRoutineEmulation(String alias) 
@@ -798,7 +844,8 @@ public class CObjectCatalog
 	{
 		m_bMissingIncludeStructure = true ;
 	}
-	protected boolean m_bMissingIncludeStructure = false ;
+	//protected boolean m_bMissingIncludeStructure = false ;
+	private  boolean m_bMissingIncludeStructure = false ;
 	public boolean isMissingIncludeStructure()
 	{
 		return m_bMissingIncludeStructure ;
@@ -828,6 +875,20 @@ public class CObjectCatalog
 		m_csSQLErrorArg = csArg;		
 	}
 	
+	public void RegisterSQLNotFoundContinue(String csArg)
+	{
+		m_SQLNotFound = SQLWarningErrorType.NotFoundContinue;
+		m_csSQLNotFoundArg = csArg;		
+	}
+	
+	public void registerSQLNotFoundGoto(String csArg)
+	{
+		m_SQLNotFound = SQLWarningErrorType.NotFoundGoto;
+		m_csSQLNotFoundArg = csArg;		
+	}
+	
+
+	
 	public String getSQLWarningErrorStatement()
 	{
 		String cs = "" ;
@@ -835,15 +896,24 @@ public class CObjectCatalog
 			cs += SQLWarningErrorType.getSQLWarningErrorStatement(m_SQLWarning, m_csSQLWarningArg);
 		if (m_SQLError != null)
 			cs += SQLWarningErrorType.getSQLWarningErrorStatement(m_SQLError, m_csSQLErrorArg);
+		if (m_SQLNotFound != null)
+			cs += SQLWarningErrorType.getSQLWarningErrorStatement(m_SQLNotFound, m_csSQLNotFoundArg);
 		if (cs.equals(""))
 			return null ;
 		return cs;
 	}
 	
-	protected SQLWarningErrorType m_SQLError = null;
 	protected SQLWarningErrorType m_SQLWarning = null;
-	protected String m_csSQLErrorArg = null;
 	protected String m_csSQLWarningArg = null;
+	
+	protected SQLWarningErrorType m_SQLError = null;
+	protected String m_csSQLErrorArg = null;
+	
+	protected SQLWarningErrorType m_SQLNotFound = null;
+	protected String m_csSQLNotFoundArg = null;
+	
+	
+	
 	/**
 	 * @param section
 	 */
@@ -865,6 +935,18 @@ public class CObjectCatalog
 	{
 		return m_WorkingSection ;
 	}
+	
+	
+	public void RegisterIOSection(CEntityIOSection section)
+	{
+		m_IOSection = section ;
+	}
+	protected CEntityIOSection m_IOSection = null ;
+	public CEntityIOSection getIOSection()
+	{
+		return m_IOSection ;
+	}
+	
 
 	/**
 	 * @param division
@@ -1060,6 +1142,13 @@ public class CObjectCatalog
 		return m_tabFileSelect.get(name) ;
 	}
 	protected Hashtable<String, CEntityFileSelect> m_tabFileSelect = new Hashtable<String, CEntityFileSelect>() ;
+	
+	public Collection<CEntityFileSelect> getFileSelects()
+	{
+		return m_tabFileSelect.values() ;
+	}
+	
+	
 	public void RegisterFileDescriptor(CEntityFileDescriptor descriptor)
 	{
 		String name = descriptor.GetName() ;
@@ -1116,10 +1205,15 @@ public class CObjectCatalog
 			while (enm.hasMoreElements())
 			{
 				eFD = enm.nextElement() ;
-				CDataEntity r = eFD.GetRecord() ;
-				if (r == record)
+				
+				IntegerRef iIndex = new IntegerRef(0); 
+				CDataEntity r = eFD.enumRecords(iIndex);
+				while(r != null)
 				{
-					return eFD ;
+					if (r == record)
+						return eFD ;
+					else
+						r = eFD.enumRecords(iIndex);
 				}
 			}
 		}
@@ -1151,6 +1245,82 @@ public class CObjectCatalog
 	{
 		m_Engine.RegisterNotificationHandler(handler) ;
 	}
-
-
+	
+	public void GenerateDeepCopyCobolFile(String csSourceCopy, CCopyDeepReplacing copyDeepReplacing)
+	{
+		m_Global.GenerateDeepCopyCobolFile(csSourceCopy, copyDeepReplacing);
+	}
+	
+	public void generateFromDCGLGEN(DCLGenConverter dclgenConverter)
+	{
+		if(dclgenConverter == null)
+			return;
+		if(m_tabSQLTables == null)
+			return ;
+		Enumeration<String> enumere = m_tabSQLTables.keys() ;
+		try 
+		{
+			String csName = enumere.nextElement() ;
+			while (csName != null)
+			{
+				CEntitySQLDeclareTable declareTable = m_tabSQLTables.get(csName);
+				if(declareTable != null)
+					dclgenConverter.generate(declareTable);
+				else
+					dclgenConverter.addMissingTable(csName);
+				csName = enumere.nextElement() ;
+			}
+		}
+		catch (NoSuchElementException e)
+		{
+		}
+	}
+	
+	// PJReady added
+	public boolean HasExternalReferenceWithName(String csName)
+	{
+		if(csName == null)
+			return false;
+		
+		CBaseExternalEntity ext = m_tabExternalStructures.get(csName);
+		if(ext != null)
+			return true;
+		return false;
+	}		
+	
+	public void setUsesTally()
+	{
+		m_bUsesTally = true;
+	}
+		
+	public boolean getAndResetTallyUsage()
+	{
+		boolean b = m_bUsesTally;
+		m_bUsesTally = false;
+		return b;
+	}
+	
+	public void registerForwardIdentifierContainer(CEntityStructure eStruct)
+	{
+		if(m_arrForwardIdentifierContainer == null)
+			m_arrForwardIdentifierContainer = new ArrayList<CEntityStructure>();
+		m_arrForwardIdentifierContainer.add(eStruct);
+	}
+	public boolean isForwarded(CEntityStructure eForwarded)
+	{
+		if(m_arrForwardIdentifierContainer == null || eForwarded == null)
+			return false;
+		for(int n=0; n<m_arrForwardIdentifierContainer.size(); n++)
+		{
+			CEntityStructure eStructReferer = m_arrForwardIdentifierContainer.get(n);
+			if(eStructReferer != null)
+			{
+				String csName = eForwarded.GetName();
+				eStructReferer.addIfNeededTableSortKey(csName, eForwarded);
+			}
+		}
+		return false;
+	}
+	private ArrayList<CEntityStructure> m_arrForwardIdentifierContainer = null;
+	// PJReady end
 }

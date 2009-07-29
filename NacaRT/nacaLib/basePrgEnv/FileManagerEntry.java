@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,28 +15,31 @@
  */
 package nacaLib.basePrgEnv;
 
+import jlib.log.Log;
+import jlib.misc.AdvancedFileDescriptorMode;
 import jlib.misc.BaseDataFile;
 import jlib.misc.DataFileLineReader;
 import jlib.misc.DataFileReadWrite;
 import jlib.misc.DataFileWrite;
 import jlib.misc.EnvironmentVar;
-import jlib.misc.FileEndOfLine;
 import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.LittleEndingSignBinaryBufferStorage;
 import jlib.misc.LogicalFileDescriptor;
 import jlib.misc.RecordLengthDefinition;
 import jlib.misc.StringUtil;
 import nacaLib.base.CJMapObject;
+import nacaLib.batchPrgEnv.BatchResourceManager;
 import nacaLib.exceptions.CannotOpenFileException;
 import nacaLib.exceptions.FileDescriptorNofFoundException;
 import nacaLib.exceptions.InputFileNotFoundException;
 import nacaLib.exceptions.TooManyCloseFileException;
 import nacaLib.varEx.FileDescriptorOpenStatus;
+import nacaLib.varEx.FileOrganization;
 
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: FileManagerEntry.java,v 1.28 2007/10/25 15:10:27 u930di Exp $
+ * @version $Id$
  */
 public class FileManagerEntry extends CJMapObject
 {
@@ -39,6 +48,7 @@ public class FileManagerEntry extends CJMapObject
 	private LogicalFileDescriptor m_logicalFileDescriptor = null;
 	private int m_nNbRecordRead = 0;
 	private int m_nNbRecordWrite = 0;
+	private FileOrganization m_fileOrganization = null;
 
 	public FileManagerEntry()
 	{
@@ -50,6 +60,22 @@ public class FileManagerEntry extends CJMapObject
 	{
 		m_logicalFileDescriptor.setVariableLength();
 	}
+	
+	private String manageDefaultFileModeForPhysicalDesc(String csPhysicalDesc, String csDefaultFileMode)
+	{
+		if(csPhysicalDesc != null)
+		{
+			int nIndex = csPhysicalDesc.indexOf(",");
+			if(nIndex < 0)	// Non specifications: Append default file mode
+			{
+				if(!StringUtil.isEmpty(csDefaultFileMode))
+					csPhysicalDesc += "," + csDefaultFileMode;
+			}
+		}
+		return csPhysicalDesc;
+	}
+	
+
 		
 	public String getPhysicalName(String csLogicalName, BaseSession baseSession)
 	{
@@ -64,11 +90,26 @@ public class FileManagerEntry extends CJMapObject
 			else	// Logical name not already defines
 			{			
 				String csPhysicalDesc = EnvironmentVar.getParamValue(csLogicalName);
+				if(StringUtil.isEmpty(csPhysicalDesc))	
+				{
+					// Can define the logical name as dd_xxx
+					String csDDLogicalName = "dd_" + csLogicalName;
+					csPhysicalDesc = EnvironmentVar.getParamValue(csDDLogicalName);
+				}
 				if(StringUtil.isEmpty(csPhysicalDesc))
 					csPhysicalDesc = EnvironmentVar.getParamValue("File_" + csLogicalName);
 				if(csPhysicalDesc != null && !StringUtil.isEmpty(csPhysicalDesc))
 				{
-					m_logicalFileDescriptor = new LogicalFileDescriptor(csLogicalName, csPhysicalDesc);
+					String csDefaultFileMode = null;
+					if(m_fileOrganization != null)
+						csDefaultFileMode = BatchResourceManager.getDefaultFileModesByOrganization(m_fileOrganization);
+					else
+						csDefaultFileMode = BatchResourceManager.getDefaultFileMode();
+						
+					csPhysicalDesc = manageDefaultFileModeForPhysicalDesc(csPhysicalDesc, csDefaultFileMode);
+					
+					String csDefaultFilePath = BatchResourceManager.getDefaultFilePath();
+					m_logicalFileDescriptor = new LogicalFileDescriptor(csLogicalName, csPhysicalDesc, csDefaultFilePath);
 					baseSession.putLogicalFileDescriptor(csLogicalName, m_logicalFileDescriptor);
 				}
 			}
@@ -146,10 +187,12 @@ public class FileManagerEntry extends CJMapObject
 			bOpened = dataFile.openInAppend(m_logicalFileDescriptor);			
 			if(!bOpened)
 			{
+				Log.logDebug("Error: Could not OpenExtend logical file " + csLogicalName + ": " + toString());
 				JVMReturnCodeManager.setExitCode(8);
 				CannotOpenFileException e = new CannotOpenFileException(csLogicalName, m_logicalFileDescriptor);
 				throw(e);
-			}			
+			}		
+			Log.logDebug("OpenExtend logical file " + csLogicalName + ": " + toString());
 			reportFileDescriptorStatus(FileDescriptorOpenStatus.OPEN);
 		}
 		return bOpened;
@@ -183,10 +226,12 @@ public class FileManagerEntry extends CJMapObject
 			}			
 			if(!bOpened)
 			{
+				Log.logDebug("Error: Could not OpenOutput logical file " + csLogicalName + ": " + toString());
 				JVMReturnCodeManager.setExitCode(8);
 				CannotOpenFileException e = new CannotOpenFileException(csLogicalName, m_logicalFileDescriptor);
 				throw(e);
 			}			
+			Log.logDebug("OpenOutput logical file " + csLogicalName + ": " + toString());
 			reportFileDescriptorStatus(FileDescriptorOpenStatus.OPEN);
 				
 			String csDdname = baseSession.getDynamicAllocationInfo("DDNAME");
@@ -224,7 +269,7 @@ public class FileManagerEntry extends CJMapObject
 		return bOpened;
 	}
 	
-	public boolean doOpenInput(String csLogicalName, BaseSession baseSession, boolean bVariableLength)
+	public boolean doOpenInput(String csLogicalName, BaseSession baseSession, boolean bVariableLength, String csDefaulFileMode)
 	{		
 		boolean bOpened = false;
 		if(checkCanOpen())
@@ -236,14 +281,19 @@ public class FileManagerEntry extends CJMapObject
 			if(bVariableLength)
 				setVariableLength();
 			
+//			if(m_logicalFileDescriptor.isUsingFromMFCobolFormat())
+//				m_logicalFileDescriptor.decodedFromMFCobolFormatFile();
+			
 			m_dataFile = new DataFileLineReader(m_logicalFileDescriptor.getPath(), 65536, 0);
-			bOpened = m_dataFile.open(m_logicalFileDescriptor);
+			bOpened = m_dataFile.open(m_logicalFileDescriptor);			
 			if(!bOpened)
-			{				
+			{
+				Log.logDebug("Error: Could not OpenInput logical file " + csLogicalName + ": " + toString());
 				JVMReturnCodeManager.setExitCode(8);
 				InputFileNotFoundException e = new InputFileNotFoundException(csLogicalName, m_logicalFileDescriptor);
 				throw(e);
 			}
+			Log.logDebug("OpenInput logical file " + csLogicalName + ": " + toString());
 			reportFileDescriptorStatus(FileDescriptorOpenStatus.OPEN);
 		}
 		else
@@ -271,10 +321,12 @@ public class FileManagerEntry extends CJMapObject
 			bOpened = m_dataFile.open(m_logicalFileDescriptor);
 			if(!bOpened)
 			{
+				Log.logDebug("Error: Could not OpenInputOutput logical file " + csLogicalName + ": " + toString());
 				JVMReturnCodeManager.setExitCode(8);
 				InputFileNotFoundException e = new InputFileNotFoundException(csLogicalName, m_logicalFileDescriptor);
 				throw(e);
 			}
+			Log.logDebug("OpenInputOutput logical file " + csLogicalName + ": " + toString());
 			reportFileDescriptorStatus(FileDescriptorOpenStatus.OPEN);
 		}
 		return bOpened;
@@ -288,10 +340,16 @@ public class FileManagerEntry extends CJMapObject
 		if(checkCanClose())
 		{
 			m_dataFile.close();
+			Log.logDebug("Closed Logical File " + csLogicalName + ": " + toString());
+			
+//			if(m_logicalFileDescriptor.isUsingToMFCobolFormat())
+//				m_logicalFileDescriptor.encodeToMFCobolFormatFile();
+			
 			m_dataFile = null;
 			baseSession.removeLogicalFileDescriptor(csLogicalName);
 			return true;
 		}
+		Log.logDebug("Error: Could not close Logical File " + csLogicalName + ": " + toString());
 		
 		TooManyCloseFileException e = new TooManyCloseFileException();
 		throw e;
@@ -301,6 +359,7 @@ public class FileManagerEntry extends CJMapObject
 	{
 		if(m_dataFile == null)
 			return true;
+		Log.logDebug("Error: Failed CheckCanOpen file " + toString());
 		return false;
 	}
 	
@@ -370,4 +429,20 @@ public class FileManagerEntry extends CJMapObject
 			return m_dataFile.isEOF();
 		return true;
 	}
+	
+	public boolean isStandardMode()
+	{
+		return m_logicalFileDescriptor.isStandardMode();
+	}
+	
+	public AdvancedFileDescriptorMode getAdvancedFileDescriptorMode()
+	{
+		return m_logicalFileDescriptor.getAdvancedFileDescriptorMode();		
+	}
+	
+	public void setOrganization(FileOrganization fileOrganization)
+	{
+		m_fileOrganization = fileOrganization;
+	}
+	 
 }

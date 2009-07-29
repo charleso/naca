@@ -1,10 +1,18 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
  * Licensed under LGPL (LGPL-LICENSE.txt) license.
  */
 package nacaLib.varEx;
+
+import nacaLib.debug.BufferSpy;
 
 public class Pic9Comp0BufferSupport
 {
@@ -37,16 +45,18 @@ public class Pic9Comp0BufferSupport
 		int nPosDigit = nPosition+nOffset+nNbDigitInteger-1;
 		if(bSigned && !bSignLeading)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDigit, 1);
 			buffer.m_acBuffer[nPosDigit] = cSign;
-			//buffer.setCharAt(nPosDigit, cSign);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosDigit--;
 		}
 		
 		do
 		{
 			char cDigit = (char)((nValue % 10) + '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDigit, 1);
 			buffer.m_acBuffer[nPosDigit] = cDigit;
-			//buffer.setCharAt(nPosDigit, cDigit);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosDigit--;
 			nValue /= 10;
 		}
@@ -55,16 +65,18 @@ public class Pic9Comp0BufferSupport
 		// Fill leftmost 0
 		while(nPosDigit >= nMinIndex)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDigit, 1);
 			buffer.m_acBuffer[nPosDigit] = '0';
-			//buffer.setCharAt(nPosDigit, '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosDigit--;
 		}
 		
 		// Add optional sign		
 		if(bSigned && bSignLeading)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition+nOffset, 1);
 			buffer.m_acBuffer[nPosition+nOffset] = cSign;
-			//buffer.setCharAt(nPosition+nOffset, cSign);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	
@@ -84,16 +96,18 @@ public class Pic9Comp0BufferSupport
 		int nPosDigit = nPosition+nOffset+nNbDigitInteger-1;
 		if(bSigned && !bSignLeading)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDigit, 1);
 			buffer.m_acBuffer[nPosDigit] = cSign;
-			//buffer.setCharAt(nPosDigit, cSign);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosDigit--;
 		}
 		
 		do
 		{
 			char cDigit = (char)((lValue % 10) + '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDigit, 1);
 			buffer.m_acBuffer[nPosDigit] = cDigit;
-			//buffer.setCharAt(nPosDigit, cDigit);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosDigit--;
 			lValue /= 10;
 		}
@@ -102,59 +116,20 @@ public class Pic9Comp0BufferSupport
 		// Fill leftmost 0
 		while(nPosDigit >= nMinIndex)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDigit, 1);
 			buffer.m_acBuffer[nPosDigit] = '0';
-			//buffer.setCharAt(nPosDigit, '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosDigit--;
 		}
 		
 		// Add optional sign		
 		if(bSigned && bSignLeading)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition+nOffset, 1);
 			buffer.m_acBuffer[nPosition+nOffset] = cSign;
-			//buffer.setCharAt(nPosition+nOffset, cSign);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
-	
-	/* old version
-	static public void setFromRightToLeft(VarBufferPos buffer, int nPosition, int nNbDigitInteger, int nTotalSize, int nOffset, boolean bSigned, boolean bSignLeading, int nValue)
-	{		
-		// Fill the buffer with '0' on each byte
-		buffer.fillBlankComp0AtOffset(nTotalSize, nOffset);
-		
-		int nMinIndex = 0;
-		if(bSigned && bSignLeading)
-			nMinIndex = 1;
-		
-		char cSign = '+';
-		if(nValue < 0)
-		{
-			nValue = -nValue;
-			cSign = '-';
-		}
-
-		int nNibblePos = nNbDigitInteger-1;
-		if(bSigned && !bSignLeading)
-		{
-			buffer.setCharAt(nPosition+nNibblePos+nOffset, cSign);
-			nNibblePos--;
-		}
-		do
-		{
-			char cDigit = (char)((nValue % 10) + '0');
-			buffer.setCharAt(nPosition+nNibblePos+nOffset, cDigit);
-			nNibblePos--;
-			nValue /= 10;
-		}
-		while (nValue != 0 && nNibblePos >= nMinIndex);
-		
-		if(bSigned && bSignLeading)
-		{
-			nNibblePos = 0;
-			buffer.setCharAt(nPosition+nNibblePos+nOffset, cSign);
-			nNibblePos--;
-		}
-	}
-	*/
 	
 	static public void setFromRightToLeftSignEmbedded(VarBufferPos buffer, int nPosition, int nNbDigitInteger, int nTotalSize, int nOffset, int nValue)
 	{		
@@ -177,25 +152,26 @@ public class Pic9Comp0BufferSupport
 		
 		int nMinPosition = nPosition + nOffset;
 		int nDigitPosition = nMinPosition + nNibblePos;	
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDigitPosition, 1);
 		buffer.m_acBuffer[nDigitPosition] = (char)nDigitWithSign;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAt(nDigitPosition, (char)nDigitWithSign);
 		nDigitPosition--;
 		nValue /= 10;		
 		while (nValue != 0 && nDigitPosition >= nMinPosition)
 		{
 			char cDigit = (char)((nValue % 10) + '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDigitPosition, 1);
 			buffer.m_acBuffer[nDigitPosition] = cDigit;
-			//buffer.setCharAt(nDigitPosition, cDigit);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nDigitPosition--;
 			nValue /= 10;
 		}
-		
-//		if(nDigitPosition >= nMinPosition)
-//			buffer.fillBlankComp0AtOffset(nDigitPosition - nMinPosition + 1, nOffset);
 		while(nDigitPosition >= nMinPosition)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDigitPosition, 1);
 			buffer.m_acBuffer[nDigitPosition] = '0';
-			//buffer.setCharAt(nDigitPosition, '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nDigitPosition--;			
 		}
 	}
@@ -215,8 +191,9 @@ public class Pic9Comp0BufferSupport
 		do
 		{
 			char cDigit = (char)((nValue % 10) + '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 			buffer.m_acBuffer[nDestPos] = cDigit;
-			//buffer.setCharAt(nPosition+nNibblePos+nOffset, cDigit);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nNibblePos--;
 			nDestPos--;
 			nValue /= 10;

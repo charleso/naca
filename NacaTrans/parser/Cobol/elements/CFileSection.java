@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,6 +19,7 @@
 package parser.Cobol.elements;
 
 import lexer.CBaseToken;
+import lexer.CTokenType;
 import lexer.Cobol.CCobolKeywordList;
 
 import org.w3c.dom.Document;
@@ -22,6 +29,7 @@ import parser.CCommentContainer;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
 import semantic.CEntityDataSection;
+import utils.Transcoder;
 
 /**
  * @author sly
@@ -59,9 +67,31 @@ public class CFileSection extends CCommentContainer
 		while (!bDone)
 		{
 			CBaseToken tok = GetCurrentToken() ;
-			if (tok.GetKeyword() == CCobolKeywordList.SKIP2)
+			if (tok.GetType() == CTokenType.DOT)
 			{
 				GetNext();
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.SKIP1)
+			{
+				GetNext();
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.SKIP2)
+			{
+				GetNext();
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.SKIP3)
+			{
+				GetNext();
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.COPY)
+			{
+				Transcoder.logError("ERROR: Found COPY in File section; should be declared as to inline");
+//				CCopyInWorking copy = new CCopyInWorking(tok.getLine());
+//				if (!Parse(copy))
+//				{
+//					return false ;
+//				}
+//				AddChild(copy) ;
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.FD || tok.GetKeyword() == CCobolKeywordList.SD)
 			{

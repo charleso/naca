@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -20,9 +26,16 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import jlib.log.Log;
+import jlib.misc.FileSystem;
+import jlib.misc.StringUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import parser.Cobol.elements.CCopyDeepReplacing;
+import parser.Cobol.elements.CStandAloneWorking;
 
 import semantic.CBaseEntityFactory;
 import semantic.CEntityExternalDataStructure;
@@ -81,6 +94,7 @@ public class CGlobalCatalog
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			return false ;
 		}
 	}
@@ -233,6 +247,10 @@ public class CGlobalCatalog
 		{
 			return ext ;
 		}
+		if(name.equals("F0CZZX4W"))
+		{
+			int gg = 0;
+		}
 		
 		// else do transcoding ;
 		CTransApplicationGroup grpIncludes = m_Transcoder.getGroup(m_csIncludeGroupName) ;
@@ -250,6 +268,9 @@ public class CGlobalCatalog
 			else
 			{
 				Transcoder.logError("Missing include file : "+name) ;
+				MissingFileManager missingFileManager = MissingFileManager.getInstance();
+				missingFileManager.logMissingFiles();	
+				missingFileManager.reset();
 			}
 			
 			return ext ;
@@ -291,6 +312,7 @@ public class CGlobalCatalog
 		}
 		catch (NoSuchElementException e)
 		{
+			e.printStackTrace();
 		}
 	}
 	public void ImportTransID(Element eRoot)
@@ -431,4 +453,50 @@ public class CGlobalCatalog
 		m_tabFormContainers.clear() ;
 	}
 	
+	
+	public boolean GenerateDeepCopyCobolFile(String csSourceCopy, CCopyDeepReplacing copyDeepReplacing)
+	{
+		CTransApplicationGroup grpIncludes = m_Transcoder.getGroup(m_csIncludeGroupName) ;
+		if (grpIncludes != null)
+		{
+			String csCopySourcePath = grpIncludes.m_csInputPath;
+			
+			// Read source file 
+			String csSourcePathName = FileSystem.appendFilePath(csCopySourcePath, csSourceCopy); 
+			StringBuilder sbSource = FileSystem.readWholeFile(csSourcePathName);
+			if(sbSource == null)
+			{
+				Transcoder.logError("Missing Copy file: "+csSourcePathName + "; cannot do deep copy");
+				return false;
+			}
+			
+			String csOut = copyDeepReplacing.replaceData(sbSource);
+		
+			String csDestinationCopy = copyDeepReplacing.GetCopyReference(csSourceCopy);
+			String csDestinationPathName = FileSystem.appendFilePath(csCopySourcePath, csDestinationCopy);
+			//csDestinationPathName = StringUtil.replace(csDestinationPathName, "-", "_", true);
+			
+			FileSystem.writeFile(csDestinationPathName, csOut);
+			
+			return true;
+		}
+		return false;
+	}
+	
+//	public BaseEngine getTranscoderCopyEngine()
+//	{
+//		CTransApplicationGroup grpIncludes = m_Transcoder.getGroup(m_csIncludeGroupName) ;
+//		if (grpIncludes != null)
+//		{
+//			BaseEngine engine = grpIncludes.getEngine() ;
+//			return engine;
+//		}
+//		return null;
+//	}
+	
+	public CTransApplicationGroup getGroupIncludes()
+	{
+		CTransApplicationGroup grpIncludes = m_Transcoder.getGroup(m_csIncludeGroupName) ;
+		return grpIncludes;
+	}
 }

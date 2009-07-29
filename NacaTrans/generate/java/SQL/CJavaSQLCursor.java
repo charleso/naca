@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -41,7 +47,22 @@ public class CJavaSQLCursor extends CEntitySQLCursor
 
 	public String ExportReference(int nLine)
 	{
-		return FormatIdentifier(GetName());
+		String csCurName = GetName();
+		// PJReady starts: support for conflict betwen curosr and copy names
+		boolean bConflict = m_ProgramCatalog.HasExternalReferenceWithName(csCurName);
+		if(bConflict)
+		{
+			int n = 0;
+			while(bConflict && n < 99999)	// Not infinite loop...
+			{
+				csCurName = csCurName + "$" + n; 
+				bConflict = m_ProgramCatalog.HasExternalReferenceWithName(csCurName);
+				n++;				
+			}
+		}
+		// PJReady ends
+		String csValue = FormatIdentifier(csCurName);
+		return csValue;
 	}
 	protected void DoExport()
 	{

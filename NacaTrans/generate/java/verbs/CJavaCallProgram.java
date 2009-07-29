@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,6 +19,8 @@
 package generate.java.verbs;
 
 import generate.CBaseLanguageExporter;
+import generate.java.CJavaArrayReference;
+import generate.java.CJavaStructure;
 import semantic.CDataEntity;
 import semantic.Verbs.CEntityCallProgram;
 import utils.CObjectCatalog;
@@ -51,7 +59,14 @@ public class CJavaCallProgram extends CEntityCallProgram
 		}
 		else
 		{
-			WriteWord("call(\"" +  name + "\")") ;
+			if (m_Reference  instanceof CJavaArrayReference)
+				WriteWord("call(" + name + ")") ;	
+			else if (m_Reference  instanceof CJavaStructure)
+				WriteWord("call(" + name + ")") ;	
+			else if(name.endsWith(".class"))
+				WriteWord("call(\"" +  name + "\")") ;
+			else
+				WriteWord("call(\"" +  name + "\")") ;
 		}
 		if (m_arrParameters.size()>0)
 		{

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,7 +19,7 @@ import utils.NacaTransAssertException;
 
 /**
  * @author S. Charton
- * @version $Id: CFPacJavaLoopIter.java,v 1.3 2007/06/28 16:33:58 u930bm Exp $
+ * @version $Id$
  */
 public class CFPacJavaLoopIter extends CEntityLoopIter
 {

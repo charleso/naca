@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,16 +15,17 @@
  */
 package jlib.misc;
 
+
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: LogicalFileDescriptor.java,v 1.16 2007/10/25 15:13:11 u930di Exp $
+ * @version $Id$
  */
 public class LogicalFileDescriptor
 {
 	private boolean m_bDummyFile = false;
 	private String m_csLogicalName = null;
-	private String m_csPath = null;
+	private String m_csPathFileName = null;
 	private boolean m_bExt = false;
 	private boolean m_bEbcdic = false;
 	private boolean m_bVariableLength = false;
@@ -27,7 +34,25 @@ public class LogicalFileDescriptor
 	private int m_nFileHeaderLength = 0;
 	private RecordLengthInfoDefinitionType m_recordLengthInfoDefinitionType = null;
 	
+	private AdvancedFileDescriptorMode m_advancedFileDescriptorMode = null; 
+	private boolean m_bCompatibleMode = false;
+
+//	private boolean m_bHasRecordLengthHeader = false;	// true if the record starts with a binary 4 bytes header giving the record's length 
+//	private boolean m_bRecordHasTrailingLF = false;			// true if the record is terminated by a LF. This byte is not counted in the optional record header.
+//	private boolean m_bRecordHasTrailingCRLF = false;		// true if the record is terminated by a CR/LF couple of bytes. Thess bytes are not counted in the optional record header.
+
+	
+	public LogicalFileDescriptor(String csLogicalName, String csPhysicalDesc, String csDefaultFilePath)
+	{
+		init(csLogicalName, csPhysicalDesc, csDefaultFilePath);		
+	}
+	
 	public LogicalFileDescriptor(String csLogicalName, String csPhysicalDesc)
+	{
+		init(csLogicalName, csPhysicalDesc, null);
+	}
+	
+	private void init(String csLogicalName, String csPhysicalDesc, String csDefaultFilePath)
 	{
 		m_csLogicalName = csLogicalName;
 		if(BaseDataFile.isNullFile(csPhysicalDesc))	//	if(m_csLogicalName.equalsIgnoreCase("wrk/nullfile"))
@@ -35,7 +60,7 @@ public class LogicalFileDescriptor
 		else
 		{
 			m_bDummyFile = false;
-			fill(csPhysicalDesc);			
+			fill(csPhysicalDesc, csDefaultFilePath);			
 		}			
 	}
 	
@@ -56,9 +81,9 @@ public class LogicalFileDescriptor
 
 	public String getPath()
 	{
-		return m_csPath;
+		return m_csPathFileName;
 	}
-	
+		
 	public RecordLengthDefinition getRecordLengthDefinition()
 	{
 		return m_recordLengthDefinition;
@@ -69,12 +94,14 @@ public class LogicalFileDescriptor
 		m_recordLengthDefinition = recLengthDefSource;
 	}
 	
-	public void fill(String csPhysicalDesc)
+	private void fill(String csPhysicalDesc, String csDefaultFilePath)
 	{
+		m_bCompatibleMode = true;	// 
+		
 		int nIndex = csPhysicalDesc.indexOf(",");
 		if(nIndex >= 0)
 		{
-			m_csPath = csPhysicalDesc.substring(0, nIndex).trim();
+			m_csPathFileName = csPhysicalDesc.substring(0, nIndex).trim();
 			csPhysicalDesc = csPhysicalDesc.substring(nIndex+1);
 			nIndex = csPhysicalDesc.indexOf(",");
 			while(nIndex != -1)
@@ -88,17 +115,43 @@ public class LogicalFileDescriptor
 			manageOptionalWord(csPhysicalDesc);
 		}
 		else
-			m_csPath = csPhysicalDesc.trim();
+			m_csPathFileName = csPhysicalDesc.trim();
+		
+		if(csDefaultFilePath != null)
+		{
+			String csPath = FileSystem.getPath(m_csPathFileName);
+			if(csPath == null) 
+				m_csPathFileName = FileSystem.appendFilePath(csDefaultFilePath, m_csPathFileName); 
+		}
+		
+		if(m_advancedFileDescriptorMode != null)
+		{
+			if(m_advancedFileDescriptorMode.getMFCobolLineSequential())	// No CRLF / LF Specified: if win, then set CRLF, else set LF only
+			{
+				if(!m_advancedFileDescriptorMode.isEndingCRLF() && !m_advancedFileDescriptorMode.isEndingLF())
+				{
+					String csOs = System.getProperty("os.name").toLowerCase();
+					if(csOs.indexOf("win") >= 0)	// windows
+						m_advancedFileDescriptorMode.setCRLF();
+					else
+						m_advancedFileDescriptorMode.setLF();
+				}
+			}
+		}
 	}
 	
 	private void manageOptionalWord(String csWord)
 	{
+		
+		// All modes
 		if(csWord.equalsIgnoreCase("ext"))
 			m_bExt = true;
 		else if(csWord.equalsIgnoreCase("ebcdic"))
 			m_bEbcdic = true;
 		else if(csWord.equalsIgnoreCase("ascii"))
 			m_bEbcdic = false;	
+		
+		// Compatible mode only
 		else if(csWord.equalsIgnoreCase("fb"))
 		{
 			m_bVariableLength = false;
@@ -111,12 +164,88 @@ public class LogicalFileDescriptor
 			m_bVariableLength4BytesLF = true;
 			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
 		}
-		else if(csWord.equalsIgnoreCase("vh"))
-		{	
+		else if(csWord.equalsIgnoreCase("vh"))	// Unused flag
+		{
 			m_bVariableLength = true;
 			m_bVariableLength4BytesLF = false;
 			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
 		}
+		
+		else if(csWord.equalsIgnoreCase("advancedMode"))	// Activates Advanced Mode 
+		{
+			if(m_advancedFileDescriptorMode == null)
+				m_advancedFileDescriptorMode = new AdvancedFileDescriptorMode(); 
+		}
+
+		
+		// AdvancedMode
+		else if(csWord.equalsIgnoreCase("variable"))
+		{			
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setVariable();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}		
+		else if(csWord.equalsIgnoreCase("fixed"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setFixed();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+		else if(csWord.equalsIgnoreCase("RecordLengthHeader"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setRecordLengthHeader();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+		else if(csWord.equalsIgnoreCase("NoRecordLengthHeader"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setNoRecordLengthHeader();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+		else if(csWord.equalsIgnoreCase("CRLF"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setCRLF();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+		else if(csWord.equalsIgnoreCase("LF"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setLF();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+//		else if(csWord.equalsIgnoreCase("TextMode"))
+//		{
+//			if(m_advancedFileDescriptorMode != null)
+//				m_advancedFileDescriptorMode.setTextMode();
+//			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+//		}
+		else if(csWord.equalsIgnoreCase("NoRecordEnd"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setNoRecordEnd();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+//		else if(csWord.equalsIgnoreCase("FromMFCobol"))
+//		{
+//			if(m_advancedFileDescriptorMode != null)
+//				m_advancedFileDescriptorMode.setFromMFCobol();
+//			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+//		}		
+//		else if(csWord.equalsIgnoreCase("ToMFCobol"))
+//		{
+//			if(m_advancedFileDescriptorMode != null)
+//				m_advancedFileDescriptorMode.setToMFCobol();
+//			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+//		}
+		else if(csWord.equalsIgnoreCase("MFCobolLineSequential"))
+		{
+			if(m_advancedFileDescriptorMode != null)
+				m_advancedFileDescriptorMode.setMFCobolLineSequential();
+			m_recordLengthInfoDefinitionType = RecordLengthInfoDefinitionType.FileDescriptorDef;
+		}
+		
 		else	// Maybe record length if all digits
 		{
 			if(StringUtil.isAllDigits(csWord))
@@ -145,16 +274,23 @@ public class LogicalFileDescriptor
 	public String toString()
 	{
 		String cs = "";
-		if(m_csPath != null)
-			cs += "Path="+m_csPath;
-		cs += " Ext="+m_bExt;
-		cs += " Ebcdic="+m_bEbcdic;
-		cs += " VariableLength="+m_bVariableLength;
-		cs += " HAs 4 bytes header and LF="+m_bVariableLength4BytesLF;
-		if(m_recordLengthDefinition != null)
-			cs += " RecordLength="+m_recordLengthDefinition.toString();
+		if(m_csPathFileName != null)
+			cs += "PathFileName="+m_csPathFileName;
+		if(m_advancedFileDescriptorMode != null)
+		{
+			cs += " "+m_advancedFileDescriptorMode.toString();;
+		}
 		else
-			cs += " NoRecordLengthDefined";
+		{
+			cs += " Ext="+m_bExt;
+			cs += " Ebcdic="+m_bEbcdic;
+			cs += " VariableLength="+m_bVariableLength;
+			cs += " HAs 4 bytes header and LF="+m_bVariableLength4BytesLF;
+			if(m_recordLengthDefinition != null)
+				cs += " RecordLength="+m_recordLengthDefinition.toString();
+			else
+				cs += " NoRecordLengthDefined";
+		}
 		return cs;
 	}
 	
@@ -178,8 +314,8 @@ public class LogicalFileDescriptor
 	{
 		if (m_bDummyFile)
 			return " (Dummy file) ";
-		if(m_csPath != null)
-			return " (" + m_csPath + ") ";
+		if(m_csPathFileName != null)
+			return " (" + m_csPathFileName + ") ";
 		return " (Unkown physical path) ";
 	}
 	
@@ -442,5 +578,66 @@ public class LogicalFileDescriptor
 		else
 			return false;
 	}
-
+	
+	public boolean isStandardMode()
+	{
+		if(m_advancedFileDescriptorMode == null)
+			return true;
+		return false;
+	}
+	
+	public AdvancedFileDescriptorMode getAdvancedFileDescriptorMode()
+	{
+		return m_advancedFileDescriptorMode;
+	}
+	
+//	public boolean isUsingFromMFCobolFormat()
+//	{
+//		if(m_advancedFileDescriptorMode != null)
+//			return m_advancedFileDescriptorMode.isUsingFromMFCobolFormat();
+//		return false;
+//	}
+//	
+//	public boolean isUsingToMFCobolFormat()
+//	{
+//		if(m_advancedFileDescriptorMode != null)
+//			return m_advancedFileDescriptorMode.isUsingToMFCobolFormat();
+//		return false;
+//	}
+	
+//	public boolean decodedFromMFCobolFormatFile()
+//	{
+//		if(!isUsingFromMFCobolFormat())
+//			return false;
+//		
+//		String csFile = getPath();	// Encoded file is given in logical name path
+//		String csEncodedFile = csFile + ".encodedMFCobol";
+//		FileSystem.copy(csFile, csEncodedFile);	// backup as .encodedMFCobol
+//		
+//		String csDecodedFile = getPath() + ".decodedMFCobol";
+//		MFCobolFileEncoder MFCobolFileEncoder = new MFCobolFileEncoder();
+//		int n = MFCobolFileEncoder.decode(csEncodedFile, csDecodedFile);
+//		if(n >= 0)	// The file is now decoded
+//		{
+//			m_csPathFileName = csDecodedFile;	// Use the .decodedMFCobol as working file
+//			return true;
+//		}
+//		return false;		
+//	}
+	
+//	public boolean encodeToMFCobolFormatFile()
+//	{
+//		if(!isUsingToMFCobolFormat())
+//			return false;
+//		
+//		String csEncodedFile = getPath();
+//		if(csEncodedFile.endsWith(".decodedMFCobol"))
+//			csEncodedFile = csEncodedFile.substring(0, csEncodedFile.length()-15);
+//
+//		MFCobolFileEncoder MFCobolFileEncoder = new MFCobolFileEncoder();
+//		int n = MFCobolFileEncoder.encode(getPath(), csEncodedFile);
+//		if(n >= 0)
+//			return true;
+//		return false;		
+//	}
 }

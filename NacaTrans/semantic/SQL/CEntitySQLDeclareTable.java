@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -29,7 +35,7 @@ import utils.CObjectCatalog;
 
 public abstract class CEntitySQLDeclareTable extends CBaseActionEntity
 {
-	public CEntitySQLDeclareTable(int line, CObjectCatalog cat, CBaseLanguageExporter out, String csTableName, String csViewName, ArrayList arrTableColDescription)
+	public CEntitySQLDeclareTable(int line, CObjectCatalog cat, CBaseLanguageExporter out, String csTableName, String csViewName, ArrayList<CSQLTableColDescriptor> arrTableColDescription)
 	{
 		super(line, cat, out);
 		m_csViewName = csViewName ;
@@ -43,7 +49,7 @@ public abstract class CEntitySQLDeclareTable extends CBaseActionEntity
 	}
 	protected String m_csTableName = "";
 	protected String m_csViewName = "" ;
-	protected ArrayList m_arrTableColDescription = null;
+	private ArrayList<CSQLTableColDescriptor> m_arrTableColDescription = null;
 	public void Clear()
 	{
 		super.Clear();
@@ -52,6 +58,16 @@ public abstract class CEntitySQLDeclareTable extends CBaseActionEntity
 	/* (non-Javadoc)
 	 * @see semantic.CBaseLanguageEntity#RegisterMySelfToCatalog()
 	 */
+	
+	public void fillArrayColNames(ArrayList<String> arrColNames)
+	{
+		for (int i=0; i<m_arrTableColDescription.size();i++)
+		{
+			CSQLTableColDescriptor desc = (CSQLTableColDescriptor)m_arrTableColDescription.get(i);
+			String csName = desc.GetName();
+			arrColNames.add(csName);
+		}
+	}
 
 	public String ExportColReferences()
 	{
@@ -94,6 +110,13 @@ public abstract class CEntitySQLDeclareTable extends CBaseActionEntity
 	{
 		return m_arrTableColDescription.size();
 	}
+	
+	public CSQLTableColDescriptor getColumDescriptionAtIndex(int n)
+	{
+		CSQLTableColDescriptor desc = (CSQLTableColDescriptor)m_arrTableColDescription.get(n);
+		return desc;
+	}
+	
 	public boolean ignore()
 	{
 		return false ;

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -22,14 +28,22 @@ import jlib.misc.StringUtil;
 import jlib.sql.SQLTypeOperation;
 import jlib.xml.Tag;
 import jlib.xml.TagCursor;
+import lexer.CTokenList;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import parser.Cobol.elements.SQL.CExecSQLDeclareTable;
+import parser.Cobol.elements.SQL.CSQLTableColDescriptor;
+
+import utils.DCLGenConverter.DCLGenConverter;
+import utils.SQLSyntaxConverter.SQLSyntaxConverter;
+import utils.modificationsReporter.Reporter;
+
 /**
  * @author S. Charton
- * @version $Id: Transcoder.java,v 1.17 2007/12/06 07:24:07 u930bm Exp $
+ * @version $Id$
  */
 public class Transcoder
 {
@@ -45,6 +59,9 @@ public class Transcoder
 	private Tag m_eConf = null ;
 	private Hashtable<String, BaseEngine> m_tabEngines = null ;
 	private TranscoderAction m_transcoderAction = TranscoderAction.All;
+	//private DCLGenConverter m_DCLGenConverter = null;
+	private static DCLGenConverter ms_DCLGenConverter = null;
+	private static SQLSyntaxConverter ms_SQLSyntaxConverter = null; 
 	
 	private static int ms_nReportLineCounter = 0;	
 
@@ -56,11 +73,25 @@ public class Transcoder
 	
 	private static boolean m_bSQLCheck = false;
 	private static Connection m_connection = null;
-
+	private static int ms_nSentenceIndex = -1;
+	private static boolean ms_bNextSentenceToLocate = false;
+	private static boolean ms_bRecreateCobolSourceFile = false;	// Set to true to create the cobol source file
+	
+	public static String getVersion()
+	{
+		return "1.2.11";
+	}
+	
 	public boolean Init(Tag eConf)
 	{
+		PathsManager.Load(eConf);
+		
+		Tag tagPaths = eConf.getChild("Paths") ;
+		
 		m_eConf = eConf ;
 		String log4jConf = eConf.getVal("Log4jConf");
+		log4jConf = PathsManager.adjustPath(log4jConf);
+		
 		File f = new File(log4jConf) ;
 		if (f.isFile())
 		{
@@ -68,16 +99,20 @@ public class Transcoder
 		}
 		ms_logger = Logger.getLogger("LogFile");
 		ms_logger.setLevel(Level.INFO);
-		logInfo("Starting NacaTrans");
+		logInfo("Starting NacaTrans Version " + getVersion());
 		
 		logInfo("Init rules...");
 		InitGlobals(eConf) ;
-
+		
+		logInfo("Loading DCLGEN converter settings ...");
+		LoadDCLGENConverter(eConf) ;
+		
 		logInfo("Init Engines...");
 		if (!LoadEngines())
 		{
 			return false ;
 		}
+
 		
 		logInfo("Loading paths...");
 		LoadGroups(eConf) ;
@@ -89,6 +124,26 @@ public class Transcoder
 		
 		return true ;
 	}
+	
+	public void LoadSQLSyntaxConverter(Tag eConf)
+	{
+		logInfo("Loading SQLSyntax converter settings ...");
+		Tag tagEngines = eConf.getChild("Engines");
+		if(tagEngines == null)
+			return ;
+		
+		Tag tag = tagEngines.getChild("SQLSyntaxConverter");
+		if(tag == null)
+			return ;
+		
+		ms_SQLSyntaxConverter = new SQLSyntaxConverter();
+		boolean b = ms_SQLSyntaxConverter.fill(tag);
+		if(b)
+		{
+			ms_SQLSyntaxConverter.doLexing(this);
+		}
+	}
+
 	/**
 	 * 
 	 */
@@ -108,6 +163,9 @@ public class Transcoder
 				{
 					BaseEngine engine = (BaseEngine)Class.forName(cl).newInstance() ;
 					engine.setRulesManager(m_RulesManager);
+					engine.setDCLGenConverter(ms_DCLGenConverter);
+					engine.setSQLSyntaxConverter(ms_SQLSyntaxConverter);
+					
 					engine.setTranscoder(this) ;
 					if (!engine.MainInit(tagTrans))
 					{
@@ -142,12 +200,15 @@ public class Transcoder
 		if (ePaths != null)
 		{
 			String path = ePaths.getVal("RuleFilePath") ;
+			path = PathsManager.adjustPath(path);
+			
 			if (path != null && !path.equals(""))
 			{
 				m_RulesManager.LoadRulesFile(path);
 			}
 			
-			m_csInfoDir = ePaths.getVal("InfoPath") ; 
+			m_csInfoDir = ePaths.getVal("InfoPath") ;
+			m_csInfoDir = PathsManager.adjustPath(m_csInfoDir);
 		}
 	}
 
@@ -162,6 +223,8 @@ public class Transcoder
 			while (eGroup != null)
 			{
 				String csOutputDir = eGroup.getVal("OutputPath") ;
+				csOutputDir = PathsManager.adjustPath(csOutputDir);
+				
 				String csName = eGroup.getVal("Name") ;
 				String engineName = eGroup.getVal("Engine") ;
 				
@@ -178,7 +241,11 @@ public class Transcoder
 					grp.m_csOutputPath = csOutputDir ;
 					new File(csOutputDir).mkdirs() ;
 					grp.m_csInputPath = eGroup.getVal("InputPath") ;
+					grp.m_csInputPath = PathsManager.adjustPath(grp.m_csInputPath);
+					
 					grp.m_csInterPath = eGroup.getVal("InterPath") ;
+					grp.m_csInterPath = PathsManager.adjustPath(grp.m_csInterPath);
+					
 					new File(grp.m_csInterPath).mkdirs() ;
 					String csType = eGroup.getVal("Type") ;
 					if (csType.equalsIgnoreCase("Online"))
@@ -299,10 +366,13 @@ public class Transcoder
 		Tag eFile = eApp.getFirstChild(cur, "File") ;
 		while (eFile != null)
 		{
+			Transcoder.resetNewSentenceIndex();
+			
 			String fileName = eFile.getVal("Name") ;
 			boolean bResources = false;
 			if (eFile.isValExisting("Resources"))
 				bResources = eFile.getValAsBoolean("Resources");
+			
 			grp.getEngine().doFileTranscoding(fileName, csCurrentApplication, grp, bResources);
 			eFile = eApp.getNextChild(cur) ;
 		}
@@ -350,9 +420,11 @@ public class Transcoder
 			{
 				return ;
 			}
+			LoadSQLSyntaxConverter(eConf);
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			Transcoder.logError(ms_nLastLine, "Transcode ERROR: Catched global exception: "+e.toString() + "; please correct other previous errors before transcoding again");
 		}
 	}
@@ -390,6 +462,7 @@ public class Transcoder
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			Transcoder.logError(ms_nLastLine, "Transcode ERROR: Catched global exception: "+e.toString() + "; please correct other previous errors before transcoding again");
 		}
 
@@ -416,6 +489,7 @@ public class Transcoder
 			{
 				return ;
 			}
+			LoadSQLSyntaxConverter(eConf);
 			
 			if (groupToTranscode != null && !groupToTranscode.equals(""))
 			{
@@ -430,6 +504,9 @@ public class Transcoder
 			
 			logInfo("Exporting Infos...");
 			CGlobalEntityCounter.GetInstance().Export(m_csInfoDir+"ItemCount");
+			if(ms_DCLGenConverter != null)
+				ms_DCLGenConverter.close();
+			Reporter.export(m_csInfoDir+"ReportModifictions.xml");
 		}
 		catch (Exception e)
 		{
@@ -494,6 +571,20 @@ public class Transcoder
 				DoAllApplications() ;
 			}
 		}
+	}
+	
+	public CTokenList doTextTranscoding(String csGroup, String csText, boolean bFromSource)
+	{
+		CTransApplicationGroup grp = m_tabGroups.get(csGroup) ;
+		if(grp != null)
+		{
+			if(grp.getEngine() != null)
+			{
+				CTokenList lst = grp.getEngine().doTextTranscoding(csText, bFromSource);
+				return lst;
+			}
+		}
+		return null;
 	}
 	
 	public String[] getProgramsForApplication(String group, String appName)
@@ -641,6 +732,11 @@ public class Transcoder
 		if(ms_stackTranscodedUnits.size() > 0)
 			return ms_stackTranscodedUnits.lastElement();
 		return "";
+	}
+	
+	public static boolean getRecreateCobolSourceFile()
+	{
+		return ms_bRecreateCobolSourceFile;
 	}
 	
 	public static void setAnalyseExpressionCurrentLine(int nLine)
@@ -808,6 +904,11 @@ public class Transcoder
 		return ms_nLastLine;
 	}
 	
+//	public static DCLGenConverter getDCLGenConverter()
+//	{
+//		return ms_DCLGenConverter;
+//	}
+	
 	
 	// PJD: Management of save maps
 	private static CObjectCatalog ms_CurrentObjectCatalog = null; 
@@ -843,6 +944,7 @@ public class Transcoder
 			}
 			catch (SQLException ex)
 			{
+				ex.printStackTrace();
 				if (csQuery.indexOf("SESSION.") == -1)
 				{	
 					logError(nLine, ex.getMessage());
@@ -871,6 +973,7 @@ public class Transcoder
 			}
 			catch (Exception ex)
 			{
+				ex.printStackTrace();
 				throw new RuntimeException(ex);
 			}
 		}
@@ -888,8 +991,100 @@ public class Transcoder
 			}
 			catch (Exception ex)
 			{
+				ex.printStackTrace();
 				throw new RuntimeException(ex);
 			}
 		}
 	}
+	
+	private void LoadDCLGENConverter(Tag eConf)
+	{
+		Tag tagEngines = eConf.getChild("Engines");
+		if(tagEngines == null)
+			return ;
+		
+		Tag tagDCLGDENConverter = tagEngines.getChild("DCLGDENConverter");
+		if(tagDCLGDENConverter == null)
+			return ;
+		
+		ms_DCLGenConverter = new DCLGenConverter();
+		ms_DCLGenConverter.fill(tagDCLGDENConverter); 
+	}
+	
+	
+	public static SQLSyntaxConverter getSQLSyntaxConverter()
+	{
+		return ms_SQLSyntaxConverter;
+	}
+	
+	public static int getNewSentenceIndex()
+	{
+		if(ms_bNextSentenceToLocate == false)
+		{			
+			ms_bNextSentenceToLocate = true;
+			ms_nSentenceIndex++;
+		}
+		return ms_nSentenceIndex;
+	}
+		
+	public static void resetNewSentenceIndex()
+	{
+		ms_nSentenceIndex = -1;
+		ms_bNextSentenceToLocate = false;
+	}
+	
+	public static void resetNextSentenceToLocate()
+	{
+		ms_bNextSentenceToLocate = false;
+	}
+	
+	public static boolean isOracleTarget()
+	{
+		if(ms_DCLGenConverter  != null)
+			return ms_DCLGenConverter.isOracleTarget();
+		return false;			
+	}
+	
+//	public static void registerOnceExecSQLDeclareTable(String csTableName, CExecSQLDeclareTable sqlDeclareTable)
+//	{
+//		if(ms_hashSQLDeclareTableByName == null)
+//			ms_hashSQLDeclareTableByName = new Hashtable<String, CExecSQLDeclareTable>();
+//		
+//		if(csTableName.equals("TINTAMO"))
+//		{
+//			int gg =0;
+//		}
+//		CExecSQLDeclareTable table = ms_hashSQLDeclareTableByName.get(csTableName);
+//		if(table == null)
+//			ms_hashSQLDeclareTableByName.put(csTableName, sqlDeclareTable);
+//		else
+//		{
+//			int gg = 0;
+//		}
+//	}
+//	
+//	public static CSQLTableColDescriptor getTableColumnDescription(String csTableName, String csColName)
+//	{
+//		if(ms_hashSQLDeclareTableByName == null)
+//			return null;
+//		
+//		CExecSQLDeclareTable table = ms_hashSQLDeclareTableByName.get(csTableName);
+//		if(table == null)
+//			return null;
+//		
+//		CSQLTableColDescriptor colDescriptor = table.getColDescriptor(csColName);
+//		return colDescriptor;
+//	}
+//	
+//	private static CExecSQLDeclareTable getRegisteredExecSQLDeclareTable(String csTableName)
+//	{
+//		if(ms_hashSQLDeclareTableByName != null)
+//		{
+//			CExecSQLDeclareTable table = ms_hashSQLDeclareTableByName.get(csTableName);
+//			return table;
+//		}
+//		return null;
+//	}
+//	
+//	private static Hashtable<String, CExecSQLDeclareTable> ms_hashSQLDeclareTableByName = null;
 }

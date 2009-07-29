@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -31,6 +37,7 @@ import semantic.CDataEntity;
 import semantic.CICS.CEntityCICSAssign;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -68,7 +75,10 @@ public class CExecCICSAssign extends CCobolElement
 				cs = (String)iter.nextElement() ;				
 			}		
 		}
-		catch (NoSuchElementException e){}
+		catch (NoSuchElementException e)
+		{
+			//e.printStackTrace();
+		}
 		return eAss ;
 	}
 
@@ -95,6 +105,11 @@ public class CExecCICSAssign extends CCobolElement
 			else if (cs.equals("TCTUALENG"))
 			{
 				CGlobalEntityCounter.GetInstance().CountCICSCommandOptions("ASSIGN", "TCTUALENG") ;
+			}
+			else if (cs.equals("OPID"))		// PJD Added
+			{
+				Reporter.Add("Modif_PJ", "CExecCICS OPID");
+				CGlobalEntityCounter.GetInstance().CountCICSCommandOptions("OPID", "$$$UNMANAGED_OPID") ;
 			}
 			else
 			{
@@ -147,6 +162,7 @@ public class CExecCICSAssign extends CCobolElement
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 		}
 		return eass;
 	}

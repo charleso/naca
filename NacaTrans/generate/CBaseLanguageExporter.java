@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -23,6 +29,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import jlib.misc.FileSystem;
+import jlib.misc.StringRef;
+
 import parser.CGlobalCommentContainer;
 //
 //import javax.xml.parsers.*;
@@ -34,6 +43,8 @@ import parser.CGlobalCommentContainer;
 
 import semantic.CEntityComment;
 import utils.COriginalLisiting;
+import utils.SQLSyntaxConverter.SQLFunctionConvertion;
+import utils.SQLSyntaxConverter.SQLSyntaxConverter;
 
 /**
  * @author sly
@@ -44,7 +55,7 @@ import utils.COriginalLisiting;
 public abstract class CBaseLanguageExporter
 {
 	protected CGlobalCommentContainer m_CommentContainer = null ;
-	protected String m_IndentItem = "\t" ;
+	protected String m_IndentItem = "\t";
 	protected int m_IndentWidth = 4 ;
 	protected int m_WidthBeforeOriginalCode = 80 ;
 
@@ -93,6 +104,7 @@ public abstract class CBaseLanguageExporter
 					String blankline = new String(c) ;
 					blankline += "// (" + m_nLastOriginalLineWritten + ") " + csCurrentLine;
 					DoWriteLine(blankline);
+					DoWriteAgainSourceLine(csCurrentLine);
 				}
 			}	
 			m_nLastOriginalLineWritten ++ ;
@@ -104,6 +116,7 @@ public abstract class CBaseLanguageExporter
 	public abstract void OpenBracket() ;
 	protected int m_nLastOriginalLineWritten = 0 ;
 	protected abstract void DoWriteLine(String line) ;
+	public abstract void DoWriteAgainSourceLine(String line);
 	protected void DoWriteComment(String line, int n)
 	{
 		String fullLine = line ;
@@ -125,6 +138,10 @@ public abstract class CBaseLanguageExporter
 			m_nLastOriginalLineWritten = n;
 		}
 		DoWriteLine(fullLine) ;
+		
+		if(line.startsWith("// "))
+			line = line.substring(3); 
+		DoWriteAgainSourceLine("* " + line) ;
 	}
 	protected void DoWriteLine(String line, int n)
 	{
@@ -156,11 +173,15 @@ public abstract class CBaseLanguageExporter
 			}
 			else if (m_nLastOriginalLineWritten < n)  
 			{ //m_nLastOriginalLineWritten == n-1
+				String cs ="";
 				csOrigLine = "// (" + n + ") " ;
 				if (m_catalog.GetOriginalLine(n) != null)
 				{
 					csOrigLine += m_catalog.GetOriginalLine(n);
+					cs += m_catalog.GetOriginalLine(n);
 				}
+				DoWriteAgainSourceLine(cs) ;
+				
 				m_nLastOriginalLineWritten = n;
 			}
 			if (!line.equals("") || !csOrigLine.equals(""))
@@ -200,11 +221,16 @@ public abstract class CBaseLanguageExporter
 				if (cs != null)
 				{
 					int blanksize = m_WidthBeforeOriginalCode - m_Indent.length()*m_IndentWidth;
+					if(blanksize < 0)
+					{
+						int gg = 0 ;
+					}
 					char[] c = new char[blanksize] ; // COBOL comments starts on line 60
 					Arrays.fill(c, ' ') ;
 					String blankline = new String(c) ;
 					blankline += "// (" + i + ") " + m_catalog.GetOriginalLine(i);
 					DoWriteLine(blankline);
+					DoWriteAgainSourceLine(m_catalog.GetOriginalLine(i)) ;
 					m_nLastOriginalLineWritten = i ;
 				}
 			}				
@@ -358,10 +384,12 @@ public abstract class CBaseLanguageExporter
 			fst.close() ;
 			scd.close() ;
 			return bDiff ;
-		} catch (FileNotFoundException e)
+		} 
+		catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
-		} catch (IOException e)
+		} 
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -385,6 +413,34 @@ public abstract class CBaseLanguageExporter
 	public abstract String getOutputDir() ;
 
 	public abstract boolean isResources() ;
+	
+	private SQLDumper m_sqlDumper;
+	//private SQLSyntaxConverter m_sqlSyntaxConverter = null;
+	
+	public SQLDumper getSQLDumper()
+	{
+		return m_sqlDumper;
+	}
+	
+//	public SQLSyntaxConverter getSQLSyntaxConverter()
+//	{
+//		return m_sqlSyntaxConverter;
+//	}
+	
+	public void setSQLDumper(SQLDumper sqlDumper, String csFilePath)
+	{
+		m_sqlDumper = sqlDumper;
+		
+		StringRef rcsPath = new StringRef();
+		StringRef rcsExt = new StringRef();
+		String csFileName = FileSystem.splitFilePathExt(csFilePath, rcsPath, rcsExt);
+		m_sqlDumper.setFileName(csFileName);		
+	}
+	
+//	public void setSQLSyntaxConverter(SQLSyntaxConverter sqlSyntaxConverter)
+//	{
+//		m_sqlSyntaxConverter = sqlSyntaxConverter;
+//	}
 	
 	
 	// XML exporter

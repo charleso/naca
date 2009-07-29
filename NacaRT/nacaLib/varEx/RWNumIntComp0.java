@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -11,6 +17,8 @@
  * Window - Preferences - Java - Code Style - Code Templates
  */
 package nacaLib.varEx;
+
+import nacaLib.debug.BufferSpy;
 
 /**
  * @author PJD
@@ -180,8 +188,9 @@ public class RWNumIntComp0
 		do
 		{
 			char cDigit = (char)((nValue % 10) + '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nRelativePos, 1);
 			buffer.m_acBuffer[nRelativePos] = cDigit;
-			//buffer.setCharAt(nRelativePos, cDigit);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nRelativePos--;
 			nValue /= 10;
 		}
@@ -189,8 +198,9 @@ public class RWNumIntComp0
 		
 		while(nRelativePos >= nRelativePosStart)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nRelativePos, 1);
 			buffer.m_acBuffer[nRelativePos] = '0';
-			//buffer.setCharAt(nRelativePos, '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nRelativePos--;
 		}
 	}
@@ -208,9 +218,9 @@ public class RWNumIntComp0
 		do
 		{
 			char cDigit = (char)((lValue % 10) + '0');
-			
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nRelativePos, 1);
 			buffer.m_acBuffer[nRelativePos] = cDigit;
-			//buffer.setCharAt(nRelativePos, cDigit);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nRelativePos--;
 			lValue /= 10;
 		}
@@ -218,8 +228,9 @@ public class RWNumIntComp0
 		
 		while(nRelativePos >= nRelativePosStart)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nRelativePos, 1);
 			buffer.m_acBuffer[nRelativePos] = '0';
-			//buffer.setCharAt(nRelativePos, '0');
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nRelativePos--;
 		}
 	}

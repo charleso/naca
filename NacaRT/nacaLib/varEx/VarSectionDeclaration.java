@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -23,6 +29,7 @@ import jlib.log.Log;
 import nacaLib.basePrgEnv.BaseProgram;
 import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.program.Section;
+import nacaLib.program.SpecialName;
 import nacaLib.programStructure.DataSectionFile;
 import nacaLib.programStructure.Division;
 import nacaLib.sqlSupport.SQLCursor;
@@ -67,6 +74,11 @@ public class VarSectionDeclaration extends VarDeclarationInMap
 	public DataSection cursorSection()	// can be omitted
 	{
 		return null;
+	}
+	
+	public SpecialName decimalPointIsComma()
+	{
+		return m_ProgramManager.decimalPointIsComma();
 	}
 	
 	public SQLCursor cursor()
@@ -126,4 +138,8 @@ public class VarSectionDeclaration extends VarDeclarationInMap
 		return null;
 	}
 	
+	public FileSelectStatus fileSelectStatus(FileDescriptor fileDesc, Var varStatus)
+	{
+		return new FileSelectStatus(fileDesc, varStatus);
+	}
 }

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,6 +20,7 @@ package semantic.Verbs;
 
 import generate.CBaseLanguageExporter;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import parser.expression.CStringTerminal;
@@ -41,6 +48,10 @@ public abstract class CEntityAssign extends CBaseActionEntity
 	public CEntityAssign(int l, CObjectCatalog cat, CBaseLanguageExporter out)
 	{
 		super(l, cat, out);
+		if(l == 244 || l == 245)
+		{
+			int ff = 0;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -56,6 +67,7 @@ public abstract class CEntityAssign extends CBaseActionEntity
 	{
 		m_arrRefTo.add(id) ;
 	}
+	
 	protected CDataEntity GetRefTo(int i)
 	{
 		if (i >= m_arrRefTo.size())
@@ -75,7 +87,8 @@ public abstract class CEntityAssign extends CBaseActionEntity
 	protected CDataEntity m_Value = null ;
 	protected boolean m_bFillAll = false ;
 	protected boolean m_bMoveCorresponding = false ;
-	private Vector<CDataEntity> m_arrRefTo = new Vector<CDataEntity>() ;
+	private ArrayList<CDataEntity> m_arrRefTo = new ArrayList<CDataEntity>() ;
+	
 	public void Clear()
 	{
 		super.Clear();
@@ -180,9 +193,11 @@ public abstract class CEntityAssign extends CBaseActionEntity
 	{
 		return m_Value ;
 	}
-	public Vector getVarsAssigned()
+	public Vector<CDataEntity> getVarsAssigned()
 	{
-		return m_arrRefTo ;
+		Vector<CDataEntity> vec = new Vector<CDataEntity>();
+		vec.addAll(m_arrRefTo);
+		return vec;
 	}
 
 }

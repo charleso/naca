@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -59,6 +65,10 @@ public class CMove extends CCobolElement
 	
 	protected boolean DoParsing()
 	{
+		if(getLine() == 244)
+		{
+			int gg = 0;
+		}
 		CBaseToken tokMove = GetCurrentToken();
 		if (tokMove.GetType()!=CTokenType.KEYWORD|| tokMove.GetKeyword()!=CCobolKeywordList.MOVE)
 		{
@@ -120,6 +130,10 @@ public class CMove extends CCobolElement
 	 */
 	protected Element ExportCustom(Document root)
 	{
+		if(getLine() == 244)
+		{
+			int gg = 0;
+		}
 		Element eMove ;
 		if (m_bMoveCorresponding)
 		{
@@ -154,6 +168,7 @@ public class CMove extends CCobolElement
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			// nothing 
 		}
 		return eMove;
@@ -168,6 +183,11 @@ public class CMove extends CCobolElement
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
+		int line = getLine();
+		if(line == 245 || line == 244)
+		{
+			int gg = 0;
+		}
 		Vector<CDataEntity> vDest = new Vector<CDataEntity>() ;
 		if (!m_valueFrom.IsReference())
 		{ // no value to used a MOVE, it needs a special assignement function
@@ -290,8 +310,12 @@ public class CMove extends CCobolElement
 									eFrom.RegisterReadingAction(eAcc) ;
 								}
 								else
-								{
+								{									
 									eAsgn.AddRefTo(e);
+									if(getLine() == 245)
+									{
+										int gg = 0;
+									}
 									eAsgn.SetFillAll(m_bFillAll) ;
 									eAsgn.SetAssignCorresponding(m_bMoveCorresponding);
 									e.RegisterWritingAction(eAsgn);

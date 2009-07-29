@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -138,6 +144,18 @@ public class FileSystem
 				rcsExt.set("");
 		}
 		return csFileName;
+	}
+	
+	public static String getPath(String csFilePath)
+	{
+		String csFileName = csFilePath.replace('\\', '/') ; 
+		int nSep = csFileName.lastIndexOf('/') ;
+		if(nSep != -1)
+		{
+			String csPath = csFileName.substring(0, nSep);
+			return csPath;
+		}
+		return null;
 	}
 	
 	public static void createPath(String csPath)	// The path can be a path or full file name
@@ -319,6 +337,27 @@ public class FileSystem
 	{
 		File file = new File(csFile);
 		return file.delete();
+	}
+	
+	public static boolean swapFiles(String csFile1, String csFile2)
+	{
+		File file1 = new File(csFile1);
+		File file2 = new File(csFile1);
+		if(file1.exists() && file2.exists())
+		{
+			String csTemp1 = csFile1 + ".temp";
+			File fileTemp1 = new File(csTemp1);
+			boolean b = file1.renameTo(fileTemp1);	// 1 becomes 1.temp
+			if(b)
+				b = copy(file2, file1);				// 2 -> 1
+			if(b)
+				b = copy(fileTemp1, file2);			// 1.temp -> 2
+			if(b)
+				fileTemp1.delete();					// 1.temp is deleted
+			return b;
+		}
+		return false;
+		
 	}
 	
 	public static boolean moveOrCopy(String csFileSource, String csFileDest)
@@ -769,7 +808,7 @@ public class FileSystem
 		BufferedInputStream buf = openRead(csFile);
 		if(buf == null)
 			return null;
-	
+
 		StringBuilder sbOut = new StringBuilder();
 		boolean bContinue = true;
 		try
@@ -778,13 +817,6 @@ public class FileSystem
 			while(bContinue && buf.available() > 0)
 			{
 				char cChar = (char)buf.read();
-//				if(n == 1140 || cChar== 'Ã' || cChar== '¼')
-//				{
-//					int gg =0 ;
-//				}
-//				
-//				
-//				
 				sbOut.append(cChar);
 				n++;
 			}

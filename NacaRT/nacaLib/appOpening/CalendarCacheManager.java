@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -16,7 +22,7 @@ import jlib.misc.CurrentDateInfo;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CalendarCacheManager.java,v 1.1 2006/05/05 12:15:53 cvsadmin Exp $
+ * @version $Id$
  */
 public class CalendarCacheManager
 {

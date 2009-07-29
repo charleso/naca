@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -6,11 +12,13 @@
  */
 package nacaLib.varEx;
 
+import jlib.log.Log;
 import jlib.misc.BaseDataFile;
 import jlib.misc.FileEndOfLine;
 import jlib.misc.RecordLengthDefinition;
 import nacaLib.base.CJMapObject;
 import nacaLib.basePrgEnv.BaseEnvironment;
+import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.basePrgEnv.BaseSession;
 import nacaLib.basePrgEnv.FileManagerEntry;
 
@@ -151,6 +159,8 @@ public abstract class BaseFileDescriptor extends CJMapObject
 			bVariableLength = true;
 		
 		boolean bOpened = m_fileManagerEntry.doOpenOutput(m_csLogicalName, m_baseSession, bVariableLength, bCanAuthoriseFileHeaderWrite);
+		if(isLogFile)
+			Log.logDebug("openOutput File=" + m_csLogicalName + " Opened="+bOpened);
 		if(bOpened)
 			return this;
 		return null;
@@ -161,8 +171,11 @@ public abstract class BaseFileDescriptor extends CJMapObject
 		boolean bVariableLength = false;
 		if(hasVarVariableLengthMarker())
 			bVariableLength = true;
-
+		
 		boolean bOpened = m_fileManagerEntry.doOpenInputOutput(m_csLogicalName, m_baseSession, bVariableLength);
+		if(isLogFile)
+			Log.logDebug("openInputOutput File=" + m_csLogicalName + " Opened="+bOpened);
+
 		if(bOpened)
 			return this;
 		return null;
@@ -174,7 +187,14 @@ public abstract class BaseFileDescriptor extends CJMapObject
 		if(hasVarVariableLengthMarker())
 			bVariableLength = true;
 		
-		boolean bOpened = m_fileManagerEntry.doOpenInput(m_csLogicalName, m_baseSession, bVariableLength);
+		String csDefaultFileMode = null;
+		
+//		if(m_fileOrganization != null)
+//			csDefaultFileMode = BaseResourceManager.getDefaultFileModesByOrganization(m_fileOrganization);
+		
+		boolean bOpened = m_fileManagerEntry.doOpenInput(m_csLogicalName, m_baseSession, bVariableLength, csDefaultFileMode);
+		if(isLogFile)
+			Log.logDebug("openInput File=" + m_csLogicalName + " Opened="+bOpened);
 		if(bOpened)
 			return this;
 		return null;
@@ -196,16 +216,30 @@ public abstract class BaseFileDescriptor extends CJMapObject
 			bVariableLength = true;
 		
 		boolean bOpened = m_fileManagerEntry.doOpenExtend(m_csLogicalName, m_baseSession, bVariableLength);
+		if(isLogFile)
+			Log.logDebug("openExtend File=" + m_csLogicalName + " Opened="+bOpened);
+
 		if(bOpened)
 			return this;
 		return null;
 	}
 	
-	public void close()
+	public boolean close()
 	{
 		boolean b = m_fileManagerEntry.doClose(m_csLogicalName, m_baseSession);
+		if(isLogFile)
+		{
+			if(b)
+				Log.logDebug("Close File=" + m_csLogicalName);
+			else
+				Log.logDebug("Could not close File=" + m_csLogicalName);
+		}
 		if(b)
+		{
 			m_fileManagerEntry.reportFileDescriptorStatus(FileDescriptorOpenStatus.CLOSE);
+			return true;
+		}
+		return false;
 	}
 	
 	public void write(byte[] tBytes, int nOffset, int nLength, boolean bWriteEndOfRecordMarker)
@@ -261,6 +295,12 @@ public abstract class BaseFileDescriptor extends CJMapObject
 		if(m_fileManagerEntry != null)
 			return m_fileManagerEntry.isEOF();
 		return true;
+	}
+	
+	public void setOrganization(FileOrganization fileOrganization)
+	{
+		if(m_fileManagerEntry != null)
+			m_fileManagerEntry.setOrganization(fileOrganization);
 	}
 }
 

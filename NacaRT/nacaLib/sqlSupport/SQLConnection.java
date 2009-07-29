@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -36,8 +42,13 @@ public class SQLConnection extends DbConnectionBase
 	}
 	
 	public DbPreparedStatement createAndPrepare(String csQuery, boolean bHoldability)
-	{
-		CSQLPreparedStatement preparedStatement = new CSQLPreparedStatement(/*this*/);
+	{		
+		CSQLPreparedStatement preparedStatement = null;
+		if(isOracle())
+			preparedStatement = new CSQLPreparedStatementOracle();
+		else
+			preparedStatement = new CSQLPreparedStatementDB2();
+		
 		if(preparedStatement.prepare(this, csQuery, bHoldability))
 		{
 			//preparedStatement.setSemanticContextDef(BaseResourceManager.getSemanticContextDef()); 

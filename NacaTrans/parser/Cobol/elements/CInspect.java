@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,7 +20,11 @@ package parser.Cobol.elements;
 
 import java.util.Vector;
 
+import jlib.xml.Tag;
+
 import lexer.CBaseToken;
+import lexer.CTokenConstant;
+import lexer.CTokenList;
 import lexer.CTokenType;
 import lexer.Cobol.CCobolConstantList;
 import lexer.Cobol.CCobolKeywordList;
@@ -29,9 +39,11 @@ import semantic.CDataEntity;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
 import semantic.Verbs.CEntityCount;
+import semantic.Verbs.CEntityInspectConverting;
 import semantic.Verbs.CEntityReplace;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -155,7 +167,9 @@ public class CInspect extends CCobolElement
 		}
 		else if (m_Method == CInspectActionType.TALLYING)
 		{
+			Reporter.Add("Modif_PJ", "Inspect Tallying");
 			CEntityCount eCount = factory.NewEntityCount(getLine());
+			eCount.setFunctionReverse(m_bFunctionReverse);
 			CDataEntity eVar = m_idStringVariable.GetDataReference(getLine(), factory) ;
 			eVar.RegisterReadingAction(eCount) ;
 			eCount.SetCount(eVar);
@@ -187,6 +201,24 @@ public class CInspect extends CCobolElement
 			} 
 			return eCount ;
 		}
+		else if (m_Method == CInspectActionType.CONVERTING)
+		{		
+			Reporter.Add("Modif_PJ", "Inspect Converting");
+			CEntityInspectConverting eEntityInspectConverting = factory.NewEntityInspectConverting(getLine());
+			
+			CDataEntity eVariable = m_idStringVariable.GetDataReference(getLine(), factory);
+			eVariable.RegisterReadingAction(eEntityInspectConverting) ;
+			eEntityInspectConverting.SetVariable(eVariable);			
+
+			CDataEntity eFrom = m_inspectConverting.m_from.GetDataEntity(getLine(), factory) ;
+			CDataEntity eTo = m_inspectConverting.m_to.GetDataEntity(getLine(), factory) ;
+			eFrom.RegisterReadingAction(eEntityInspectConverting) ;
+			eTo.RegisterWritingAction(eEntityInspectConverting) ;		
+			eEntityInspectConverting.SetFromTo(eFrom, eTo);
+				
+			parent.AddChild(eEntityInspectConverting) ;
+			return eEntityInspectConverting;
+		}
 		else
 		{
 			Transcoder.logError(getLine(), "No Semantic Analysis yet for INSPECT");
@@ -206,7 +238,32 @@ public class CInspect extends CCobolElement
 		}
 		CGlobalEntityCounter.GetInstance().CountCobolVerb(tok.GetKeyword().m_Name) ;
 		tok = GetNext(); 
-		m_idStringVariable = ReadIdentifier() ;
+		if (tok.GetKeyword() == CCobolKeywordList.FUNCTION)
+		{
+			Reporter.Add("Modif_PJ", "Inspect Function");
+			boolean bFunction = false;
+			// INSPECT FUNCTION REVERSE(WS-ENCOURS) TALLYING LONG FOR LEADING SPACES
+			tok = GetNext();
+			if (tok.GetKeyword() == CCobolKeywordList.REVERSE)
+			{
+				tok = GetNext();
+				if (tok.GetType() == CTokenType.LEFT_BRACKET)	// (
+				{
+					tok = GetNext();		
+					m_idStringVariable = ReadIdentifier() ;
+					m_bFunctionReverse = true;
+					tok = GetNext();		// TALLYING
+					bFunction = true;
+				}				
+			}
+			if(!bFunction)
+			{
+				Transcoder.logError(tok.getLine(), "Unexpecting situation while parsing INSPECT FUNCTION");
+				return false;
+			}
+		}
+		else		
+			m_idStringVariable = ReadIdentifier() ;
 		tok = GetCurrentToken();
 		if (tok.GetKeyword() == CCobolKeywordList.REPLACING)
 		{
@@ -331,7 +388,9 @@ public class CInspect extends CCobolElement
 									{
 										tok = GetNext() ;
 									} 
-									if (tok.GetType() == CTokenType.STRING || tok.GetType() == CTokenType.CONSTANT || tok.GetType() == CTokenType.NUMBER)
+									if (tok.GetType() == CTokenType.STRING || 
+										tok.GetType() == CTokenType.CONSTANT || 
+										tok.GetType() == CTokenType.NUMBER)
 									{
 										t = ReadTerminal();
 									}
@@ -359,7 +418,28 @@ public class CInspect extends CCobolElement
 		}
 		else if (tok.GetKeyword() == CCobolKeywordList.CONVERTING)
 		{
+			Reporter.Add("Modif_PJ", "Inspect Converting");
 			m_Method = CInspectActionType.CONVERTING ;
+			m_inspectConverting = new CInspectConverting();
+			tok = GetNext();
+			
+//			if(tok.equals(CCobolConstantList.LOW_VALUE.m_Name))
+//				
+//			
+//			CCobolConstantList.LOW_VALUE
+			
+			m_inspectConverting.m_from = ReadTerminal();
+			tok = GetCurrentToken();
+			if (tok.GetKeyword() == CCobolKeywordList.TO)
+			{
+				tok = GetNext();
+				m_inspectConverting.m_to = ReadTerminal();
+			}
+			else
+			{
+				Transcoder.logError(tok.getLine(), "Unexpecting INSPECT CONVERTING syntax");
+				return false ;
+			}				
 		}
 		else 
 		{
@@ -407,7 +487,19 @@ public class CInspect extends CCobolElement
 		}
 		else if (m_Method == CInspectActionType.CONVERTING)
 		{
-			eInsp = root.createElement("InspectConvert") ;
+			Reporter.Add("Modif_PJ", "Inspect Converting");
+			Tag tagRoot = new Tag(root);
+			Tag tagInspectConvert = tagRoot.addTag("InspectConvert");
+			Tag tagVariable = tagInspectConvert.addTag("Variable");
+			m_idStringVariable.ExportTo(tagVariable);
+			
+			Tag tagConverting = tagInspectConvert.addTag("Converting");
+			Tag tagFrom = tagConverting.addTag("From");
+			m_inspectConverting.m_from.ExportTo(tagFrom);
+							
+			Tag tagTo = tagConverting.addTag("To");
+			m_inspectConverting.m_from.ExportTo(tagTo);
+			eInsp = tagInspectConvert.getElement();
 		}
 		else if (m_Method == CInspectActionType.TALLYING)
 		{
@@ -461,9 +553,11 @@ public class CInspect extends CCobolElement
 		public CTerminal m_ValNew = null ;
 	}
 	protected Vector<CInspectValueToReplace> m_arrItemToReplace = new Vector<CInspectValueToReplace>() ;
+	protected boolean m_bFunctionReverse = false;
 	protected CIdentifier m_idStringVariable = null ; 
 	protected CInspectActionType m_Method = null ; 
 	protected Vector<CInspectItemToCount> m_arrItemToCount = new Vector<CInspectItemToCount>() ;
+	
 	protected static class CInspectActionType
 	{
 		public static CInspectActionType REPLACING = new CInspectActionType() ;
@@ -477,5 +571,12 @@ public class CInspect extends CCobolElement
 		boolean m_bCharactersAfter = false ;
 		Vector<CTerminal> m_TokenToCount = new Vector<CTerminal>() ;
 		CIdentifier m_Variable = null ;
+	}
+	
+	protected CInspectConverting m_inspectConverting = null;
+	protected class CInspectConverting
+	{
+		/*CIdentifier*/ CTerminal m_from = null;
+		/*CIdentifier*/ CTerminal m_to = null;		
 	}
 }

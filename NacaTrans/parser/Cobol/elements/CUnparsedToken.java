@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -42,7 +48,7 @@ public class CUnparsedToken extends CCobolElement
 		m_Token = tok.GetValue() ;
 		GetNext() ;
 		m_Token += ReadStringUntilEOL() ;
-		Transcoder.logWarn(tok.getLine(), "Unparsed Token : " + m_Token);
+		Transcoder.logWarn(tok.getLine(), "3. Unparsed Token : " + m_Token);
 		return true ;
 	}
 

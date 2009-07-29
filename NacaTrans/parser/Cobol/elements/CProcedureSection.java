@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -60,7 +66,13 @@ public class CProcedureSection extends CCommentContainer
 
 	protected Element ExportCustom(Document root)
 	{
-		Element e = root.createElement("ProcedureSection") ;
+		Element e = null;
+		
+		if(m_bLabelSentence)
+			e = root.createElement("ProcedureLabelSentence") ;
+		else
+			e = root.createElement("ProcedureSection") ;
+		
 		if (!m_Name.equals(""))
 		{
 			e.setAttribute("Name", m_Name) ;
@@ -85,14 +97,15 @@ public class CProcedureSection extends CCommentContainer
 		CEntityProcedureSection eSection ;
 		if (m_Name.equals(""))
 		{
-			eSection = factory.NewEntityProcedureSection(0, "") ;
+			eSection = factory.NewEntityProcedureSection(0, "", m_bLabelSentence) ;
 		}
 		else
 		{
-			eSection = factory.NewEntityProcedureSection(getLine(), m_Name) ;
+			eSection = factory.NewEntityProcedureSection(getLine(), m_Name, m_bLabelSentence) ;
 			factory.m_ProgramCatalog.RegisterProcedureSection(eSection) ;
 		}
 		parent.AddChild(eSection);
+		//eSection.setLabelSentence(m_bLabelSentence);
 
 		if (m_SectionBloc != null)
 		{
@@ -101,4 +114,11 @@ public class CProcedureSection extends CCommentContainer
 		}		
 		return eSection;
 	}
+	
+	public void setForcedLabelSentence()
+	{
+		m_bLabelSentence = true;
+	}
+	
+	private boolean m_bLabelSentence = false;
 }

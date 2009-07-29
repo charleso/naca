@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,15 +15,18 @@
  */
 package utils;
 
+import jlib.misc.NumberParser;
 import jlib.misc.StringUtil;
 
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: NacaTransLauncher.java,v 1.3 2007/12/06 07:24:07 u930bm Exp $
+ * @version $Id$
  */
 public class NacaTransLauncher extends Transcoder
 {
+	private static boolean ms_bDumpInlinedSourceFile = false;
+	
 	public static void launchMain(String[] args)
 	{
 		String csCfg = "NacaTrans.cfg" ;
@@ -45,6 +54,17 @@ public class NacaTransLauncher extends Transcoder
 					String csAction = sArgUpper.substring(7); 
 					transcoderAction = getTranscoderAction(csAction);
 				}
+				else if (sArgUpper.startsWith("CONFIGFILE="))
+				{
+					csCfg = sArg.substring(11); 
+					bCfgSet = true;
+				}
+				else if (sArgUpper.startsWith("DUMPINLINEDSOURCEFILE="))
+				{
+					String cs = sArg.substring(22);
+					if(NumberParser.getAsBoolean(cs))
+						ms_bDumpInlinedSourceFile = true;
+				}				
 			}
 			else
 			{
@@ -80,5 +100,9 @@ public class NacaTransLauncher extends Transcoder
 
 		obj.Start("", csCfg, csGroupToTranscode) ;
 	}
-
+	
+	public static boolean getDumpInlinedSourceFile()
+	{
+		return ms_bDumpInlinedSourceFile;
+	}
 }

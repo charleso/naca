@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,19 +18,180 @@
  */
 package semantic;
 
-import semantic.CICS.*;
-import semantic.SQL.*;
-import semantic.Verbs.*;
-import semantic.expression.*;
-import semantic.forms.*;
-import utils.*;
-
-
-import generate.*;
+import generate.CBaseLanguageExporter;
+import generate.java.CJavaFileSelect;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Vector;
+
+import parser.CIdentifier;
+import parser.Cobol.elements.SQL.CSQLTableColDescriptor;
+import parser.Cobol.elements.SQL.SQLSetDateTimeType;
+import semantic.CICS.CEntityCICSAbend;
+import semantic.CICS.CEntityCICSAddress;
+import semantic.CICS.CEntityCICSAskTime;
+import semantic.CICS.CEntityCICSAssign;
+import semantic.CICS.CEntityCICSDeQ;
+import semantic.CICS.CEntityCICSDelay;
+import semantic.CICS.CEntityCICSDeleteQ;
+import semantic.CICS.CEntityCICSEnQ;
+import semantic.CICS.CEntityCICSGetMain;
+import semantic.CICS.CEntityCICSHandleAID;
+import semantic.CICS.CEntityCICSHandleCondition;
+import semantic.CICS.CEntityCICSIgnoreCondition;
+import semantic.CICS.CEntityCICSInquire;
+import semantic.CICS.CEntityCICSLink;
+import semantic.CICS.CEntityCICSReWrite;
+import semantic.CICS.CEntityCICSRead;
+import semantic.CICS.CEntityCICSReadQ;
+import semantic.CICS.CEntityCICSReceiveMap;
+import semantic.CICS.CEntityCICSRetrieve;
+import semantic.CICS.CEntityCICSReturn;
+import semantic.CICS.CEntityCICSSendMap;
+import semantic.CICS.CEntityCICSSetTDQueue;
+import semantic.CICS.CEntityCICSStart;
+import semantic.CICS.CEntityCICSStartBrowse;
+import semantic.CICS.CEntityCICSSyncPoint;
+import semantic.CICS.CEntityCICSWrite;
+import semantic.CICS.CEntityCICSWriteQ;
+import semantic.CICS.CEntityCICSXctl;
+import semantic.SQL.CEntityCondIsSQLCode;
+import semantic.SQL.CEntitySQLCall;
+import semantic.SQL.CEntitySQLCloseStatement;
+import semantic.SQL.CEntitySQLCode;
+import semantic.SQL.CEntitySQLCommit;
+import semantic.SQL.CEntitySQLCursor;
+import semantic.SQL.CEntitySQLCursorSelectStatement;
+import semantic.SQL.CEntitySQLDeclareTable;
+import semantic.SQL.CEntitySQLDeleteStatement;
+import semantic.SQL.CEntitySQLExecute;
+import semantic.SQL.CEntitySQLFetchStatement;
+import semantic.SQL.CEntitySQLInsertStatement;
+import semantic.SQL.CEntitySQLLock;
+import semantic.SQL.CEntitySQLOpenStatement;
+import semantic.SQL.CEntitySQLRollBack;
+import semantic.SQL.CEntitySQLSelectStatement;
+import semantic.SQL.CEntitySQLSessionDeclare;
+import semantic.SQL.CEntitySQLSessionDrop;
+import semantic.SQL.CEntitySQLSet;
+import semantic.SQL.CEntitySQLSingleStatement;
+import semantic.SQL.CEntitySQLUpdateStatement;
+import semantic.SQL.CEntitySqlOnErrorGoto;
+import semantic.Verbs.CEntityAccept;
+import semantic.Verbs.CEntityAddTo;
+import semantic.Verbs.CEntityAssign;
+import semantic.Verbs.CEntityAssignSpecial;
+import semantic.Verbs.CEntityAssignWithAccessor;
+import semantic.Verbs.CEntityBreak;
+import semantic.Verbs.CEntityCalcul;
+import semantic.Verbs.CEntityCallFunction;
+import semantic.Verbs.CEntityCallProgram;
+import semantic.Verbs.CEntityCase;
+import semantic.Verbs.CEntityCaseSearchAll;
+import semantic.Verbs.CEntityCloseFile;
+import semantic.Verbs.CEntityConstantReturn;
+import semantic.Verbs.CEntityContinue;
+import semantic.Verbs.CEntityConvertReference;
+import semantic.Verbs.CEntityCount;
+import semantic.Verbs.CEntityDisplay;
+import semantic.Verbs.CEntityDivide;
+import semantic.Verbs.CEntityExec;
+import semantic.Verbs.CEntityGoto;
+import semantic.Verbs.CEntityInc;
+import semantic.Verbs.CEntityInitialize;
+import semantic.Verbs.CEntityInspectConverting;
+import semantic.Verbs.CEntityLabelNextSentence;
+import semantic.Verbs.CEntityLoopIter;
+import semantic.Verbs.CEntityLoopWhile;
+import semantic.Verbs.CEntityMultiply;
+import semantic.Verbs.CEntityNextSentence;
+import semantic.Verbs.CEntityOpenFile;
+import semantic.Verbs.CEntityParseString;
+import semantic.Verbs.CEntityReadFile;
+import semantic.Verbs.CEntityReplace;
+import semantic.Verbs.CEntityReturn;
+import semantic.Verbs.CEntityRewriteFile;
+import semantic.Verbs.CEntityRoutineEmulationCall;
+import semantic.Verbs.CEntitySearch;
+import semantic.Verbs.CEntitySetConstant;
+import semantic.Verbs.CEntitySort;
+import semantic.Verbs.CEntitySortRelease;
+import semantic.Verbs.CEntitySortReturn;
+import semantic.Verbs.CEntityStringConcat;
+import semantic.Verbs.CEntitySubtractTo;
+import semantic.Verbs.CEntitySwitchCase;
+import semantic.Verbs.CEntityWriteFile;
+import semantic.expression.CBaseEntityExpression;
+import semantic.expression.CEntityAddress;
+import semantic.expression.CEntityAddressOf;
+import semantic.expression.CEntityBoolean;
+import semantic.expression.CEntityConcat;
+import semantic.expression.CEntityCondAnd;
+import semantic.expression.CEntityCondCompare;
+import semantic.expression.CEntityCondEquals;
+import semantic.expression.CEntityCondIsAll;
+import semantic.expression.CEntityCondIsBoolean;
+import semantic.expression.CEntityCondIsConstant;
+import semantic.expression.CEntityCondIsKindOf;
+import semantic.expression.CEntityCondNot;
+import semantic.expression.CEntityCondOr;
+import semantic.expression.CEntityConstant;
+import semantic.expression.CEntityCurrentDate;
+import semantic.expression.CEntityCurrentTimeStampSQLFunction;
+import semantic.expression.CEntityCurrentDateSQLFunction;
+import semantic.expression.CEntityDigits;
+import semantic.expression.CEntityExprLengthOf;
+import semantic.expression.CEntityExprOpposite;
+import semantic.expression.CEntityExprProd;
+import semantic.expression.CEntityExprSum;
+import semantic.expression.CEntityExprTerminal;
+import semantic.expression.CEntityFunctionCall;
+import semantic.expression.CEntityInsertSQLFunction;
+import semantic.expression.CEntityInternalBool;
+import semantic.expression.CEntityIsFileEOF;
+import semantic.expression.CEntityIsNamedCondition;
+import semantic.expression.CEntityLengthOf;
+import semantic.expression.CEntityList;
+import semantic.expression.CEntityNamedSQLFunction;
+import semantic.expression.CEntityNumber;
+import semantic.expression.CEntitySQLNull;
+import semantic.expression.CEntityString;
+import semantic.expression.CEntityTally;
+import semantic.forms.CEntityFieldArrayReference;
+import semantic.forms.CEntityFieldAttribute;
+import semantic.forms.CEntityFieldAttributeReference;
+import semantic.forms.CEntityFieldColor;
+import semantic.forms.CEntityFieldData;
+import semantic.forms.CEntityFieldFlag;
+import semantic.forms.CEntityFieldHighlight;
+import semantic.forms.CEntityFieldLength;
+import semantic.forms.CEntityFieldOccurs;
+import semantic.forms.CEntityFieldRedefine;
+import semantic.forms.CEntityFieldValidated;
+import semantic.forms.CEntityFormRedefine;
+import semantic.forms.CEntityGetKeyPressed;
+import semantic.forms.CEntityIsFieldAttribute;
+import semantic.forms.CEntityIsFieldColor;
+import semantic.forms.CEntityIsFieldCursor;
+import semantic.forms.CEntityIsFieldFlag;
+import semantic.forms.CEntityIsFieldHighlight;
+import semantic.forms.CEntityIsFieldModified;
+import semantic.forms.CEntityIsKeyPressed;
+import semantic.forms.CEntityKeyPressed;
+import semantic.forms.CEntityResetKeyPressed;
+import semantic.forms.CEntityResourceField;
+import semantic.forms.CEntityResourceFieldArray;
+import semantic.forms.CEntityResourceForm;
+import semantic.forms.CEntityResourceFormContainer;
+import semantic.forms.CEntitySetAttribute;
+import semantic.forms.CEntitySetColor;
+import semantic.forms.CEntitySetCursor;
+import semantic.forms.CEntitySetFlag;
+import semantic.forms.CEntitySetHighligh;
+import semantic.forms.CEntitySkipFields;
+import semantic.forms.CResourceStrings;
+import utils.CObjectCatalog;
 
 
 
@@ -118,7 +285,9 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityStringConcat NewEntityStringConcat(int l) ;
 	public abstract CEntityIsFieldHighlight NewEntityIsFieldHighlight(CDataEntity ref) ;
 	public abstract CEntityReplace NewEntityReplace(int l) ;
+	public abstract CEntityInspectConverting NewEntityInspectConverting(int l) ;
 	public abstract CEntityDataSection NewEntityDataSection(int l, String name) ;
+	public abstract CEntityIOSection NewEntityIOSection(int l, String name) ;
 	public abstract CEntityIsNamedCondition NewEntityIsNamedCondition() ;
 	public abstract CEntitySubtractTo NewEntitySubtractTo(int l) ;
 	public abstract CEntityMoveReference NewEntityMoveReference(int l) ;
@@ -136,12 +305,23 @@ public abstract class CBaseEntityFactory
 		char arr[] = value.toCharArray() ;
 		return NewEntityString(arr) ;
 	}
+	
+	public abstract CEntityCurrentTimeStampSQLFunction NewEntityCurrentTimeStampSQLFunction(String csOriginalValue);
+	public abstract CEntityCurrentDateSQLFunction NewEntityCurrentDateSQLFunction(String csOriginalValue);
+	public abstract CEntityNamedSQLFunction NewEntityNamedSQLFunction(String csValue);
+	public abstract CEntityInsertSQLFunction NewEntityInsertSQLFunction(CIdentifier id, String csFormat);
+	
+	public abstract CEntitySQLNull NewEntitySQLNull();
+	
 	public abstract CEntityCondOr NewEntityCondOr() ;
 	public abstract CEntityNumber NewEntityNumber(String value) ;
 	public CEntityNumber NewEntityNumber(int value)
 	{
 		return NewEntityNumber(String.valueOf(value)) ;
 	}
+	
+	public abstract CEntityBoolean NewEntityBoolean(boolean bValue) ;
+	
 	public abstract CEntityExprTerminal NewEntityExprTerminal(CDataEntity eData) ;
 	public abstract CEntityExprSum NewEntityExprSum() ;
 	public abstract CEntityExprProd NewEntityExprProd() ;
@@ -154,7 +334,7 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityAttribute NewEntityAttribute(int l, String name) ;
 	public abstract CEntityStructure NewEntityStructure(int l, String name, String Level) ;
 	public abstract CEntityProcedure NewEntityProcedure(int l, String name, CEntityProcedureSection section) ;
-	public abstract CEntityProcedureSection NewEntityProcedureSection(int l, String name) ;
+	public abstract CEntityProcedureSection NewEntityProcedureSection(int l, String name, boolean bLabelSentence) ;
 	public abstract CEntityAssign NewEntityAssign(int l) ;
 	public abstract CEntityAssignSpecial NewEntityAssignSpecial(int l) ;
 	public abstract CEntityExternalDataStructure NewEntityExternalDataStructure(int l, String name) ;
@@ -164,6 +344,7 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityCalcul NewEntityCalcul(int l) ;
 	public abstract CEntitySqlOnErrorGoto NewEntitySQLOnErrorGoto(int l, String ref) ;
 	public abstract CEntitySqlOnErrorGoto NewEntitySQLOnWarningGoto(int l, String ref) ;
+	public abstract CEntitySqlOnErrorGoto NewEntitySQLOnNotFoundGoto(int l, String ref) ;	// PJD Added
 	public abstract CEntityExec NewEntityExec(int l, String statement) ;
 	public abstract CEntityResourceFormContainer NewEntityFormContainer(int l, String name, boolean bSavCopy) ;
 	public abstract CEntityResourceForm NewEntityForm(int l, String name, boolean bSavCopy) ;
@@ -175,6 +356,7 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityCallProgram NewEntityCallProgram(int l, CDataEntity reference) ;
 	public abstract CEntitySwitchCase NewEntitySwitchCase(int l) ;
 	public abstract CEntityCase NewEntityCase(int l, int endline) ;
+	public abstract CEntityCaseSearchAll NewEntityCaseSearchAll(int l, int endline) ;
 	public abstract CSubStringAttributReference NewEntitySubString(int l) ;
 	public abstract CEntityArrayReference NewEntityArrayReference(int l) ;
 	public abstract CEntityGoto NewEntityGoto(int l, String Reference, CEntityProcedureSection section) ;
@@ -182,7 +364,7 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityLoopIter NewEntityLoopIter(int l) ;
 	public abstract CEntityAddTo NewEntityAddTo(int l) ;
 	public abstract CEntityContinue NewEntityContinue(int l) ;
-	public abstract CEntityNextSentence NewEntityNextSentence(int l) ;
+	public abstract CEntityNextSentence NewEntityNextSentence(int l, String csReference) ;
 	public abstract CEntityNamedCondition NewEntityNamedCondition(int l, String name) ;
 	public abstract CEntitySQLSingleStatement NewEntitySQLSingleStatement(int l, String name) ;
 
@@ -193,9 +375,11 @@ public abstract class CBaseEntityFactory
 	public abstract CEntitySQLOpenStatement NewEntitySQLOpenStatement(int l, CEntitySQLCursor cur) ;
 	public abstract CEntitySQLCloseStatement NewEntitySQLCloseStatement(int l, CEntitySQLCursor cur) ;
 	public abstract CEntitySQLDeleteStatement NewEntitySQLDeleteStatement(int l, String csStatement, Vector<CDataEntity> arrParameters) ;
-	public abstract CEntitySQLUpdateStatement NewEntitySQLUpdateStatement(int l, String csStatement, Vector<CDataEntity> arrSets, Vector<CDataEntity> arrParameters) ;
+	public abstract CEntitySQLUpdateStatement NewEntitySQLUpdateStatement(int l, String csStatement, Vector<CDataEntity> arrSets, Vector<CDataEntity> arrSetsIndicators, Vector<CDataEntity> arrParameters, Vector<CDataEntity> arrParametersIndicators) ;
 	public abstract CEntitySQLInsertStatement NewEntitySQLInsertStatement(int l) ;
-	public abstract CEntitySQLDeclareTable NewEntitySQLDeclareTable(int nLine, String csTableName, String csViewName, ArrayList arrTableColDescription);
+	public abstract CEntitySQLDeclareTable NewEntitySQLDeclareTable(int nLine, String csTableName, String csViewName, ArrayList<CSQLTableColDescriptor> arrTableColDescription);
+	
+	public abstract CEntitySQLSet NewEntitySQLSet(int nLine);
 	
 
 	public abstract CEntitySetColor NewEntitySetColor(int l, CDataEntity field) ;
@@ -238,9 +422,11 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityBreak NewEntityBreak(int line) ;
 	public abstract CEntityFileDescriptor NewEntityFileDescriptor(int line, String name) ;
 	public abstract CEntitySortedFileDescriptor NewEntitySortedFileDescriptor(int line, String name) ;
-	public CEntityFileSelect NewEntityFileSelect(String ref) {
-		return new CEntityFileSelect(ref, m_ProgramCatalog, m_LangOutput);
-	}
+	public abstract CEntityFileSelect NewEntityFileSelect(String ref);
+	public abstract CEntityConfigurationSection NewEntityConfigurationSection();
+//	{
+//		return new CJavaFileSelect(ref, m_ProgramCatalog, m_LangOutput);
+//	}
 	public abstract CEntityOpenFile NewEntityOpenFile(int line) ;
 	public abstract CEntityCloseFile NewEntityCloseFile(int line) ;
 	public abstract CEntityReadFile NewEntityReadFile(int line) ;
@@ -275,7 +461,11 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityConvertReference NewEntityConvert(int line) ;
 	public abstract CEntityIsFileEOF NewEntityIsFileEOF(CEntityFileDescriptor fb) ;
 	public abstract CEntityConstant NewEntityConstant(CEntityConstant.Value val) ;
+	public abstract CEntityTally NewEntityTally(); 
 	public abstract CEntityFileDescriptorLengthDependency NewEntityFileDescriptorLengthDependency(String name) ;
 	public abstract CEntitySQLCall NewEntitySQLCall(int line) ;
-
+	
+	public abstract CEntityExprLengthOf NewEntityExprLengthOf(int line);
+	public abstract CEntityConstantReturn NewEntityConstantReturn(int line, String cs);
+	
 }

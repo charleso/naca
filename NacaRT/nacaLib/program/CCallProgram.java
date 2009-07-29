@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -11,9 +17,12 @@ import java.util.ArrayList;
 import nacaLib.base.*;
 import nacaLib.basePrgEnv.BaseEnvironment;
 import nacaLib.basePrgEnv.BaseProgramLoader;
+import nacaLib.basePrgEnv.BaseProgramManager;
+import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.varEx.CCallParam;
 import nacaLib.varEx.CallParamByLength;
 import nacaLib.varEx.CallParamByRef;
+import nacaLib.varEx.CallParamByStringValue;
 import nacaLib.varEx.CallParamByValue;
 import nacaLib.varEx.Edit;
 import nacaLib.varEx.Var;
@@ -40,9 +49,10 @@ public class CCallProgram extends CJMapObject
 	 * @param Class classPrgToCall: class to load dynamically and call
 	 * Internal usage only
 	 */
-	public CCallProgram(BaseEnvironment env, Class classPrgToCall)
+	public CCallProgram(BaseProgramManager programManager, Class classPrgToCall)
 	{
-		m_Environment = env ;
+		m_programManager = programManager;
+		m_Environment = programManager.getEnv();
 		m_csProgramClassName = classPrgToCall.getName();
 	}
 
@@ -51,10 +61,24 @@ public class CCallProgram extends CJMapObject
 	 * @param String csPrgClassName: class name to load dynamically and call
 	 * Internal usage only
 	 */
-	public CCallProgram(BaseEnvironment env, String csPrgClassName)
+	public CCallProgram(BaseProgramManager programManager, String csPrgClassName)
 	{
-		m_Environment = env ;
+		m_programManager = programManager;
+		m_Environment = programManager.getEnv();
 		m_csProgramClassName = csPrgClassName ;
+	}
+	
+	/**
+	 * @param CESMEnv Runtime environnement
+	 * @param String csPrgClassName: class name to load dynamically and call
+	 * Internal usage only
+	 */
+	public CCallProgram(BaseProgramManager programManager, Var varPrgClassName)
+	{
+		m_programManager = programManager;
+		m_Environment = programManager.getEnv();
+		m_csProgramClassName = varPrgClassName.getString() ;
+		m_csProgramClassName = m_csProgramClassName.trim();	// PJD Added trim
 	}
 	
 	
@@ -62,8 +86,8 @@ public class CCallProgram extends CJMapObject
 	 * Must be called explicitly to terminate all arguments passing to a called program
 	 */
 	public void executeCall()
-	{
-		m_baseProgramLoader.runSubProgram(m_csProgramClassName, m_arrCallParam, m_Environment);
+	{		
+		m_baseProgramLoader.runSubProgram(m_csProgramClassName, m_arrCallParam, m_Environment, m_programManager);
 	}
 
 	/**
@@ -77,6 +101,22 @@ public class CCallProgram extends CJMapObject
 		if(m_arrCallParam == null)
 			m_arrCallParam = new ArrayList<CCallParam>();
 		CallParamByValue CallParam = new CallParamByValue(var);
+				  
+		m_arrCallParam.add(CallParam);
+		return this;
+	}
+	
+	/**
+	 * @param Var var: Variable to pass by value to the called program
+	 * @return this
+	 * The variable var will be passed by value, so even if modified in called prog., it's value will stay unmodified in caller prog.
+	 * They do not share the same variable.
+	 */
+	public CCallProgram usingValue(String cs)
+	{
+		if(m_arrCallParam == null)
+			m_arrCallParam = new ArrayList<CCallParam>();
+		CallParamByStringValue CallParam = new CallParamByStringValue(cs);
 				  
 		m_arrCallParam.add(CallParam);
 		return this;
@@ -145,6 +185,7 @@ public class CCallProgram extends CJMapObject
 		m_baseProgramLoader = baseProgramLoader; 
 	}
 
+	private BaseProgramManager m_programManager = null;
 	protected BaseEnvironment m_Environment = null ;
 	protected String m_csProgramClassName = "" ;
 	private ArrayList<CCallParam> m_arrCallParam = null;	// Array of all call parameters

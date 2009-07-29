@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package nacaLib.callPrg;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CalledEnvironment.java,v 1.1 2007/09/18 08:22:28 u930di Exp $
+ * @version $Id$
  */
 
 import idea.manager.CESMManager;

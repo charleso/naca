@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package jlib.misc;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: BaseDataFileBuffered.java,v 1.4 2006/07/31 11:58:46 u930di Exp $
+ * @version $Id$
  */
 public abstract class BaseDataFileBuffered extends BaseDataFile
 {

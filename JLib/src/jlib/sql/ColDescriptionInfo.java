@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,11 +20,12 @@ import java.sql.Types;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: ColDescriptionInfo.java,v 1.1 2006/08/30 15:31:22 u930di Exp $
+ * @version $Id$
  */
 public class ColDescriptionInfo
 {
 	public String m_csColName = null;
+	public String m_csTypeName = null;
 	public int m_nTypeId = 0;
 	public int m_nPrecision = 0;
 	public int m_nScale = 0;

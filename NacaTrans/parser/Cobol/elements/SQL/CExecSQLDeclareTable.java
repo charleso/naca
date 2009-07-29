@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,6 +21,7 @@ import lexer.*;
 import lexer.Cobol.CCobolKeywordList;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import jlib.xml.Tag;
 
@@ -29,6 +36,7 @@ import semantic.CBaseLanguageEntity;
 
 import semantic.SQL.CEntitySQLDeclareTable;
 import utils.CRulesManager;
+import utils.Transcoder;
 
 /**
  * @author U930DI
@@ -160,12 +168,13 @@ public class CExecSQLDeclareTable extends CBaseExecSQLAction
 	{
 		// Parse until reaching END-EXEC.
 		boolean bDone = false ;
-						
+			
+		//CBaseToken firstToken = GetCurrentToken() ;
 		while (!bDone)
 		{
 			CSQLTableColDescriptor SQLTableColDescriptor = new CSQLTableColDescriptor();
 			
-			CBaseToken tok = GetCurrentToken() ;
+			CBaseToken tok = GetCurrentToken() ;			
 			
 			if (tok.GetType() == CTokenType.IDENTIFIER || tok.GetType() == CTokenType.STRING)
 			{
@@ -187,6 +196,12 @@ public class CExecSQLDeclareTable extends CBaseExecSQLAction
 				else if (tok.GetKeyword() == CCobolKeywordList.TIME)
 				{
 					String csType = "TIME" ;
+					SQLTableColDescriptor.SetType(csType);
+					tok = GetNext();
+				}
+				else if (tok.GetKeyword() == CCobolKeywordList.TIMESTAMP)
+				{
+					String csType = "TIMESTAMP" ;
 					SQLTableColDescriptor.SetType(csType);
 					tok = GetNext();
 				}
@@ -225,7 +240,7 @@ public class CExecSQLDeclareTable extends CBaseExecSQLAction
 				tok = GetNext();
 				if (tok.GetKeyword() == CCobolKeywordList.NULL)
 				{
-					SQLTableColDescriptor.SetNull(false);
+					SQLTableColDescriptor.SetNotNull(true);
 					tok = GetNext();
 				}
 				else
@@ -255,11 +270,72 @@ public class CExecSQLDeclareTable extends CBaseExecSQLAction
 				bDone = true ;
 				break;
 			}
-		}		
+		}	
+//		CBaseToken lastToken = GetCurrentToken() ;
+//		rebuildDB2Description(firstToken, lastToken);
+		
+//			int nInitialIndex = m_iter.nextIndex();
+//			
+//			// Act
+//			ListIterator iter = m_lstTokens.listIterator() ;
+//			int nIndex = iter.nextIndex();
+//			while(nIndex != nInitialIndex)
+//			{
+//				iter.next();
+//				nIndex = iter.nextIndex();
+//			}
+		
+		//Transcoder.generateDCLGenConvertions(this)
 		return true ;
 	}
+//	public void UpdateKewyordsByIdentifers()
+//	{		
+//		ListIterator iter = m_lstTokens.getCustomTokenListIterator();
+//		
+//
+//	}
 	
-	protected ArrayList<CSQLTableColDescriptor> m_arrTableColDescription = new ArrayList<CSQLTableColDescriptor>();
-	protected String m_csTableName = "" ;
+//	private void rebuildDB2Description(CBaseToken firstToken, CBaseToken lastToken)
+//	{
+//		m_sbOriginalDeclaration = new StringBuilder();	
+//		ListIterator iter = m_lstTokens.getCustomTokenListIterator();
+//		CBaseToken tok = (CBaseToken)iter.next() ;
+//		while(tok != firstToken)
+//		{
+//			tok = (CBaseToken)iter.next() ;
+//		}
+//		if(tok == firstToken)
+//		{
+//			boolean b = true;
+//			while(b)
+//			{
+//				m_sbOriginalDeclaration.append(tok.GetValue());
+//				tok = (CBaseToken)iter.next() ;
+//				if(tok == lastToken)
+//					b = false;
+//			}		
+//		}
+//		int gg = 0;
+//	}
+	
+	private StringBuilder m_sbOriginalDeclaration = null;
+	
+	
+	private ArrayList<CSQLTableColDescriptor> m_arrTableColDescription = new ArrayList<CSQLTableColDescriptor>();
+	private String m_csTableName = "" ;
+	
+//	public CSQLTableColDescriptor getColDescriptor(String csColName)
+//	{
+//		if(m_arrTableColDescription == null)
+//			return null;
+//		
+//		for(int n=0; n<m_arrTableColDescription.size(); n++)
+//		{
+//			CSQLTableColDescriptor colDescriptor = m_arrTableColDescription.get(n);
+//			if(colDescriptor.hasName(csColName))
+//				return colDescriptor; 
+//		}
+//		return null;
+//	}
 }
 

@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,21 +15,12 @@
  */
 package jlib.misc;
 
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-
-import jlib.log.Log;
 import jlib.xml.Tag;
 
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: TempFileManager.java,v 1.5 2007/11/16 13:56:21 u930di Exp $
+ * @version $Id$
  */
 public class TempFileManager
 {

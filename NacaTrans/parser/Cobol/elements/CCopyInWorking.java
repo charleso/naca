@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,7 +21,10 @@ package parser.Cobol.elements;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import jlib.xml.Tag;
+
 import lexer.CBaseToken;
+import lexer.CReservedKeyword;
 import lexer.CTokenType;
 import lexer.Cobol.CCobolKeywordList;
 
@@ -31,7 +40,9 @@ import semantic.CBaseLanguageEntity;
 import semantic.CBaseEntityFactory;
 import semantic.CEntityInline;
 import utils.CGlobalEntityCounter;
+import utils.CRulesManager;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -41,16 +52,97 @@ import utils.Transcoder;
  */
 public class CCopyInWorking extends CCobolElement
 {
+	private CCopyDeepReplacing m_copyDeepReplacing = null;
+	
 	/**
 	 * @param line
 	 */
-	public CCopyInWorking(int line) {
+	public CCopyInWorking(int line)
+	{
 		super(line);
+		Reporter.Add("Modif_PJ", "CCopyInWorking");
 	}
 
 	/* (non-Javadoc)
 	 * @see parser.CLanguageElement#Parse(lexer.CTokenList)
 	 */
+	
+
+	private boolean eatToken(CTokenType tokenType)
+	{
+		CBaseToken tok = GetCurrentToken();
+		if((tok.GetType() != tokenType))
+		{
+			GetNext();
+			return false;
+		}
+		GetNext();
+		return true;
+	}
+	
+	private boolean eatDoubleEquals()
+	{
+		if(!eatToken(CTokenType.EQUALS))	// 1st =
+			return false;
+		if(!eatToken(CTokenType.EQUALS))	// 2nd =
+			return false;
+		
+		return true;
+	}
+	
+	// Handle ==(COM)== BY ==FMAJP==
+	private boolean TrySpecialPGCopyReplacing()
+	{
+		if(!eatDoubleEquals())
+			return false;
+		
+		CBaseToken tok = GetCurrentToken();
+		String csMarkerLeft = tok.GetType().GetSourceValue();
+		if(csMarkerLeft.length() != 1)	// 1 single marker char 
+			return false;		
+		tok = GetNext();
+		
+		String csSourceValue = tok.GetValue();
+		tok = GetNext();
+
+		String csMarkerRight = tok.GetType().GetSourceValue();
+		if(csMarkerRight.length() != 1)	// 1 single marker char 
+			return false;
+		tok = GetNext();
+		
+		if(!eatDoubleEquals())
+			return false;
+		
+		tok = GetCurrentToken();
+		if(tok.GetKeyword() != CCobolKeywordList.BY)	// BY
+			return false;
+		
+		tok = GetNext();
+		if(!eatDoubleEquals())
+			return false;
+		tok = GetCurrentToken();
+		
+		String csDestinationValue = tok.GetValue();
+		tok = GetNext();
+		if(!eatDoubleEquals())
+			return false;
+		
+		tok = GetCurrentToken();
+		if (tok.GetType() == CTokenType.DOT)
+		{
+			GetNext();
+		}
+		
+		//m_arrReplace.addElement(csSourceValue);
+		//m_arrReplaceBy.addElement(csDestinationValue);
+		
+		tok = GetCurrentToken();
+		
+		m_copyDeepReplacing = new CCopyDeepReplacing(csSourceValue, csDestinationValue, csMarkerLeft, csMarkerRight);
+		
+		return true;
+	}
+	
 	protected boolean DoParsing()
 	{
 		CBaseToken tokCopy = GetCurrentToken() ;
@@ -61,7 +153,7 @@ public class CCopyInWorking extends CCobolElement
 		}
 		CGlobalEntityCounter.GetInstance().CountCobolVerb(tokCopy.GetKeyword().m_Name) ;
 		CBaseToken tokRef = GetNext();
-		if (tokRef.GetType() != CTokenType.IDENTIFIER)
+		if (tokRef.GetType() != CTokenType.IDENTIFIER  && tokRef.GetType() != CTokenType.STRING)	// Support for String Quoted copy (Thanks Charles O'Farrell) 
 		{
 			Transcoder.logError(getLine(), "Expecting an identifier after COPY, instead of : " + tokRef.toString()) ;
 			return false ;
@@ -77,21 +169,28 @@ public class CCopyInWorking extends CCobolElement
 		if (tokSuppr.GetKeyword() == CCobolKeywordList.REPLACING)
 		{
 			CBaseToken tok = GetNext();
-			while (tok.GetType() == CTokenType.NUMBER || tok.GetType() == CTokenType.STRING || tok.GetType() == CTokenType.IDENTIFIER)
+			if(tok.GetType() == CTokenType.EQUALS)// Special case PG: COPY F0CREDRP REPLACING ==(COM)== BY ==FMAJP==
 			{
-				String csReplace = tok.GetValue();
-				m_arrReplace.addElement(csReplace);
-				tok = GetNext();
-				if (tok.GetKeyword() != CCobolKeywordList.BY)
+				TrySpecialPGCopyReplacing();
+			}
+			else	// Normal case
+			{
+				while (tok.GetType() == CTokenType.NUMBER || tok.GetType() == CTokenType.STRING || tok.GetType() == CTokenType.IDENTIFIER)
 				{
-					Transcoder.logError(getLine(), "Expecting 'BY' keyword") ;
-					Transcoder.popTranscodedUnit();
-					return false ;
+					String csReplace = tok.GetValue();
+					m_arrReplace.addElement(csReplace);
+					tok = GetNext();
+					if (tok.GetKeyword() != CCobolKeywordList.BY)
+					{
+						Transcoder.logError(getLine(), "Expecting 'BY' keyword") ;
+						Transcoder.popTranscodedUnit();
+						return false ;
+					}
+					tok = GetNext();
+					String csReplaceBy = tok.GetValue();
+					m_arrReplaceBy.addElement(csReplaceBy);
+					tok = GetNext();
 				}
-				tok = GetNext();
-				String csReplaceBy = tok.GetValue();
-				m_arrReplaceBy.addElement(csReplaceBy);
-				tok = GetNext();
 			}
 		} 
 		tokSuppr = GetCurrentToken() ;
@@ -100,9 +199,22 @@ public class CCopyInWorking extends CCobolElement
 			GetNext();
 		}
 		
-		boolean b = ParseContent();
+		//CBaseToken tokCurrent = GetCurrentToken() ;	// Just debug
+
+		// PJD 03/04/2009: next line could be commented:
+		// If commented, then it works for
+		//COPY TOTO.
+		//01 var PIC X(10)	
+		// but not for 
+		//COPY TOTO.
+		//77 var PIC X(10): Pic X Is included in the copy, in the output XML data, and it's not set on the program working
+		// We can keep it uncommented if at line 212: if (level > 1 && level <= 49) // PJD Pb Copy indent and following levels
+		//boolean b = ParseContent();					
+		//tokCurrent = GetCurrentToken() ;			// Just debug
+		
 		Transcoder.popTranscodedUnit();
-		return b;
+		//return b;	// See comment below
+		return true;
 	}
 
 	protected boolean ParseContent()
@@ -114,7 +226,7 @@ public class CCopyInWorking extends CCobolElement
 			if (tokEntry.GetType()==CTokenType.NUMBER)
 			{
 				int level = tokEntry.GetIntValue();
-				if (level > 1)
+				if (level > 1 && level <= 49) // PJD 03/04/2009 Pb Copy indent and following levels; it was if (level > 1)
 				{
 					CCobolElement eEntry = new CWorkingEntry(tokEntry.getLine()) ;
 					if (!Parse(eEntry))
@@ -144,6 +256,11 @@ public class CCopyInWorking extends CCobolElement
 	{
 		Element eCopy = root.createElement("Copy") ;
 		eCopy.setAttribute("Reference", m_csCopyReference);
+		if(m_copyDeepReplacing != null)
+		{
+			Element eCopyReplacing = m_copyDeepReplacing.getAsElement(root);
+			eCopy.appendChild(eCopyReplacing);
+		}
 		if (m_bSuppress)
 		{
 			eCopy.setAttribute("Suppress", "true") ;
@@ -167,7 +284,16 @@ public class CCopyInWorking extends CCobolElement
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		CGlobalEntityCounter.GetInstance().RegisterCopy(parent.GetProgramName(), m_csCopyReference) ;
+		if(m_copyDeepReplacing != null)	// We have a deep copy replacing
+		{
+			String csNewCopyReference = m_copyDeepReplacing.GetCopyReference(m_csCopyReference);
+			Transcoder.logWarn(getLine(), "COPY DEEP REPLACING found; Generating source Cobol COPY file " + csNewCopyReference + " from " + m_csCopyReference);
+			CGlobalEntityCounter.GetInstance().RegisterDeepCopy(parent.GetProgramName(), m_csCopyReference, csNewCopyReference) ;
+			factory.m_ProgramCatalog.GenerateDeepCopyCobolFile(m_csCopyReference, m_copyDeepReplacing);
+			m_csCopyReference = csNewCopyReference;
+		}
+		else
+			CGlobalEntityCounter.GetInstance().RegisterCopy(parent.GetProgramName(), m_csCopyReference) ;
 		CBaseExternalEntity e = factory.m_ProgramCatalog.GetExternalDataReference(m_csCopyReference, factory) ;
 		if (e == null)
 		{			
@@ -207,6 +333,7 @@ public class CCopyInWorking extends CCobolElement
 		}
 		catch (NoSuchElementException ex)
 		{
+			//ex.printStackTrace();
 		}
 		while (le != null)
 		{
@@ -228,6 +355,7 @@ public class CCopyInWorking extends CCobolElement
 			}
 			catch (NoSuchElementException exp)
 			{
+				//exp.printStackTrace();
 				le = null ;
 			}
 		}

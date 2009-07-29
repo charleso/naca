@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ import semantic.expression.CEntityCondOr;
 
 /**
  * @author S. Charton
- * @version $Id: CFPacJavaCondOr.java,v 1.1 2006/03/06 13:43:52 U930CV Exp $
+ * @version $Id$
  */
 public class CFPacJavaCondOr extends CEntityCondOr
 {

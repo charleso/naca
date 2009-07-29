@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -66,20 +72,31 @@ public class CWrite extends CCobolElement
 		}
 		if  (m_bWriteAfterPositioning)
 		{
-			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ WriteAfterPositioning ");
+			CDataEntity eNbLinesPositioning = m_NbLinesPositioning.GetDataEntity/*GetDataReference*/(getLine(), factory) ;
+			if(m_bPage)
+				eWrite.setWriteBeforeAfterPage(false);
+			else
+				eWrite.setWriteBeforeAfterPositioningLine(false, eNbLinesPositioning);
+
+			//Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ WriteAfterPositioning ");
 		}
 		if (m_bWriteBeforePositioning)
 		{
-			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ WriteBeforePositioning");
+			CDataEntity eNbLinesPositioning = m_NbLinesPositioning.GetDataReference(getLine(), factory) ;
+			if(m_bPage)
+				eWrite.setWriteBeforeAfterPage(true);
+			else
+				eWrite.setWriteBeforeAfterPositioningLine(true, eNbLinesPositioning);
+			//Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ WriteBeforePositioning");
 		}
 		if (m_blocInvalidKey != null)
 		{
 			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ InvalidKeyBloc");
 		}
-		if (m_NbLinesPositioning != null)
-		{
-			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ NbLinesPositioning");
-		}
+//		if (m_NbLinesPositioning != null)
+//		{
+//			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ NbLinesPositioning");
+//		}
 		return eWrite;
 	}
 	protected boolean DoParsing()
@@ -121,6 +138,7 @@ public class CWrite extends CCobolElement
 			{
 				GetNext() ;
 				m_NbLinesPositioning = new CNumberTerminal("-1") ;
+				m_bPage = true;
 			}
 			else
 			{
@@ -217,6 +235,7 @@ public class CWrite extends CCobolElement
 	protected CIdentifier m_DataFrom = null ;
 	protected boolean m_bWriteAfterPositioning = false ;
 	protected boolean m_bWriteBeforePositioning = false ;
+	protected boolean m_bPage = false;
 	protected CTerminal m_NbLinesPositioning = null ; // -1 means PAGE
 	protected CGenericBloc m_blocInvalidKey = null ;
 }

@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -37,7 +43,20 @@ public class PatternLayoutConsole extends LogPatternLayout
 	String format(LogParams logParams, int n)
 	{
 		String cs = m_csFormat;
-		cs = StringUtil.replace(cs, "%Message", logParams.toString(), true);
+		if(m_csFormat.indexOf("%SourceFile") >= 0)
+		{
+			StackTraceElement stackElem = logParams.m_caller;
+			if(stackElem != null)
+			{
+				String csFile = stackElem.getFileName();
+				if(csFile != null)
+					csFile = csFile + "(" + stackElem.getLineNumber() + ")";
+				cs = StringUtil.replace(cs, "%SourceFile", csFile, true);
+			}
+			else
+				cs = StringUtil.replace(cs, "%SourceFile", "[Unknown SourceFile] ", true);
+		}
+		cs = StringUtil.replace(cs, "%Message", logParams.toStringNoEvent(), true);
 		cs = StringUtil.replace(cs, "%ThreadName", logParams.getThreadName(), true);
 		cs = StringUtil.replace(cs, "%ThreadId", logParams.getThreadId(), true);
 		cs = StringUtil.replace(cs, "%StartTime", logParams.getStartTime(), true);

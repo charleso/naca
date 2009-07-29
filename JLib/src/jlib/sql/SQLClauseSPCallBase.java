@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -10,16 +16,16 @@
 package jlib.sql;
 
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import jlib.exception.TechnicalException;
-import jlib.log.Log;
 
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SQLClauseSPCallBase.java,v 1.1 2007/10/16 09:47:08 u930di Exp $
+ * @version $Id$
  */
 public class SQLClauseSPCallBase
 {
@@ -125,12 +131,20 @@ public class SQLClauseSPCallBase
 		
 		try
 		{
-			CallableStatement call = connection.m_dbConnection.prepareCall(csSql);
-			if(call != null)
+			Connection dbConnection = connection.getDbConnection();
+			if(dbConnection != null)
 			{
-				DbPreparedCallableStatement preparedCallableStatement = new DbPreparedCallableStatement(call); 
-				registerInOutParameters(preparedCallableStatement, paramsDesc);
-				return preparedCallableStatement;
+				CallableStatement call = dbConnection.prepareCall(csSql);
+				if(call != null)
+				{
+					DbPreparedCallableStatement preparedCallableStatement = new DbPreparedCallableStatement(call); 
+					registerInOutParameters(preparedCallableStatement, paramsDesc);
+					return preparedCallableStatement;
+				}
+			}
+			else
+			{
+				TechnicalException.throwException(TechnicalException.STORED_PROC_CALL_PREPARE_ERROR, "Could nor prepare stored proc: connection is NULL");
 			}
 		}
 		catch (SQLException e)

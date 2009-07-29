@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,8 @@
  */
 package nacaLib.sqlSupport;
 
+import jlib.log.Log;
+import nacaLib.base.CJMapObject;
 import nacaLib.program.Paragraph;
 import nacaLib.program.Section;
 import nacaLib.tempCache.TempCache;
@@ -41,17 +49,16 @@ public class SQLCursorFetch
 //		//if(m_bOpen && m_SQL != null)
 //		{
 //			// PJD ROWID Support:
-//			/*
+//			
 //			if(m_SQL.hasRowIdGenerated())
 //			{
 //				m_sqlItemRowId = new CSQLIntoItem();	
 //				m_SQL.into(m_sqlItemRowId);
 //			}
-//			*/
+//			
 //		}
 //		return this;
 //	}
-
 
 	public SQLCursorFetch into(VarAndEdit varInto)
 	{
@@ -59,6 +66,24 @@ public class SQLCursorFetch
 		{
 			m_SQL.into(varInto, null);
 		}	
+		return this;
+	}
+	
+	public SQLCursorFetch ignoredInto(VarAndEdit varInto)
+	{
+		// Nothing to do
+		return this;
+	}
+
+	public SQLCursorFetch ignoredInto(VarAndEdit varInto, Var varIndicator)
+	{
+		// Nothing to do
+		return this;
+	}
+
+	public SQLCursorFetch missingFetchVariables(int nNbMissingVariables)
+	{
+		m_SQL.missingFetchVariables(nNbMissingVariables);
 		return this;
 	}
 	
@@ -93,6 +118,13 @@ public class SQLCursorFetch
 		m_SQL.onErrorContinue();
 		return this;
 	}
+
+	public SQLCursorFetch onNotFoundContinue()
+	{
+		m_SQL.onNotFoundContinue();
+		return this;
+	}
+	
 	public SQLCursorFetch onWarningGoto(Paragraph paragraphSQGErrorGoto)
 	{
 		// TODO
@@ -112,6 +144,12 @@ public class SQLCursorFetch
 	}
 	
 	
+	public boolean mustFillRowId()
+	{
+		if(m_SQL != null)
+			return m_SQL.hasRowIdGenerated();
+		return false;
+	}
 	// PJD ROWID Support:
 	/*
 	public ROWID getCurrentRowId()
@@ -122,7 +160,24 @@ public class SQLCursorFetch
 	}
 	*/
 	
-	// PJD ROWID Support:private CSQLIntoItem m_sqlItemRowId = null;	// Used for updatable cursor that use RowId
+	public SQLCursorFetch intoGeneratedRowId()
+	{		
+//		if(m_sqlItemRowId == null)
+//			m_sqlItemRowId = new CSQLIntoItemRowId();
+		//m_SQL.intoRowId(m_sqlItemRowId);
+		
+		m_sqlItemRowId = m_SQL.getOrAddIntoRowId();
+		m_SQL.afterIntoRowId(m_sqlItemRowId);
+		return this;
+	}
+	
+	public CSQLIntoItemRowId getGeneratedRowId()
+	{
+		return (CSQLIntoItemRowId)m_sqlItemRowId;		 
+	}
+
+	
+	private CSQLIntoItem m_sqlItemRowId = null;	// Used for updatable cursor that use RowId
 	//protected SQL m_SQL = null;
 	private boolean m_bOpen = false;
 	public /*must be private */SQL m_SQL = null;

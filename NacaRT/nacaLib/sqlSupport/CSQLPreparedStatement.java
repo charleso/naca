@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -6,27 +12,44 @@
  */
 package nacaLib.sqlSupport;
 
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import jlib.log.Log;
-import jlib.misc.CurrentDateInfo;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.sql.DbPreparedStatement;
-import jlib.sql.LogSQLException;
+import nacaLib.base.CJMapObject;
 import nacaLib.base.JmxGeneralStat;
 import nacaLib.basePrgEnv.BaseResourceManager;
+import nacaLib.exceptions.SQLErrorException;
 import nacaLib.misc.SemanticContextDef;
+import oracle.jdbc.OraclePreparedStatement;
+import oracle.sql.ROWID;
 
-public class CSQLPreparedStatement extends DbPreparedStatement
+public abstract class CSQLPreparedStatement extends DbPreparedStatement
 {
+	public abstract void setVarParamValue(SQL sql, String csSharpName, int nMarkerIndex, CSQLItem param, PreparedStmtColumnTypeManager preparedStmtColumnTypeManager);
+	//private boolean m_bLiteralStatement = false;
+	
 	SemanticContextDef m_semanticContextDef = null;
+	//PreparedStmtColumnTypeManager m_preparedStmtColumnTypeManager = null;
 		
-	CSQLPreparedStatement(/*DbConnectionBase dbConnection*/)
+	CSQLPreparedStatement()
 	{
-		super(/*dbConnection*/);
+		super();
 		JmxGeneralStat.incNbPreparedStatement(1);
 	}
+	
+//	public void setLiteralStatement(boolean b)
+//	{
+//		m_bLiteralStatement = b;
+//	}
+//	
+//	public boolean getLiteralStatement()
+//	{
+//		return m_bLiteralStatement;
+//	}
 	
 	public void finalize()
 	{
@@ -39,65 +62,37 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 		return doClose();
 	}
 	
-	public void setVarParamValue(SQL sql, int nParamIndex, CSQLItem param)
+	public boolean setRowId(SQL sql, ROWID rowIdValue)
 	{
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
-				String sTrimmed = param.getValue();
-				if(BaseResourceManager.isUpdateCodeJavaToDb())
-					sTrimmed = BaseResourceManager.updateCodeJavaToDb(sTrimmed);
-				m_PreparedStatement.setObject(nParamIndex+1, sTrimmed);
-			}
-			catch(IllegalArgumentException e)
-			{
-				// Data Time support
-				String cs = param.getValue();
-				if(cs.length() == 8)	// Time hh.mm.ss
-				{
-					CurrentDateInfo cd = new CurrentDateInfo();
-					cd.setHourHHDotMMDotSS(cs);	// csValue must be of type HH.MM.SS
-					long lValue = cd.getTimeInMillis();				
-					Date date = new Date(lValue);							
-					try
-					{
-						m_PreparedStatement.setDate(nParamIndex+1, date);
-					}
-					catch (SQLException e1)
-					{
-						LogSQLException.log(e1);
-						sql.m_sqlStatus.setSQLCode("setVarParamValue with autodefined time column", e1, m_csQueryString/*, m_csSourceFileLine*/, sql);
-					}
-				}
-				else if(cs.length() == 10)	// Date dd.mm.yyyy
-				{					
-					CurrentDateInfo cd = new CurrentDateInfo();
-					cd.setDateDDDotMMDotYYYY(cs);	// csValue must be of type DD.MM.YYYY
-					long lValue = cd.getTimeInMillis();				
-					Date date = new Date(lValue);							
-					try
-					{
-						m_PreparedStatement.setDate(nParamIndex+1, date);
-					}
-					catch (SQLException e1)
-					{
-						LogSQLException.log(e1);
-						sql.m_sqlStatus.setSQLCode("setVarParamValue with autodefined date column", e1, m_csQueryString/*, m_csSourceFileLine*/, sql);
-					}
-				}
-				else
-				{
-					Log.logImportant("setVarParamValue: Exception "+ e.toString());
-					sql.m_sqlStatus.setSQLCode("setVarParamValue with autodefined date/time column", -1, e.toString(), m_csQueryString/*, m_csSourceFileLine*/);
-				}
+				((OraclePreparedStatement)m_PreparedStatement).setROWID(1, rowIdValue);
 			}
 			catch (SQLException e)
 			{
-				LogSQLException.log(e);
-				sql.m_sqlStatus.setSQLCode("setVarParamValue", e, m_csQueryString/*, m_csSourceFileLine*/, sql);
+				e.printStackTrace();
+				sql.m_sqlStatus.setSQLCode("setRowId", e, m_csQueryString/*, m_csSourceFileLine*/, sql);
+				return false;
 			}
 		}
+		return true;
+	}
+	
+	protected int getPositionQestionMark(int nParamIndex1Based)
+	{
+		int nPos = 0;
+		while(nPos >= 0 && nParamIndex1Based > 0)
+		{
+			nPos = m_csQueryString.indexOf('?', nPos);
+			if(nPos >= 0)
+				nParamIndex1Based--;
+			if(nParamIndex1Based > 0)
+				nPos++;
+			
+		}
+		return nPos;
 	}
 	
 	public CSQLResultSet executeQueryAndFillInto(SQL sql, int nNbFetch)
@@ -122,7 +117,7 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	
 	public CSQLResultSet executeQuery(SQL sql)	//CSQLStatus sqlStatus, ArrayFixDyn<Integer> arrColSelectType, AccountingRecordTrans accountingRecordManager, HashMap<String, CSQLItem> hashParam, HashMap<String, CSQLItem> hashValue)
 	{
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeQuery:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
@@ -131,7 +126,9 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 				//JmxGeneralStat.incNbSelect(1);
 				
 				sql.startDbIO();
+				DBIOAccounting.startDBIO(DBIOAccountingType.Select);
 				ResultSet r = m_PreparedStatement.executeQuery();
+				DBIOAccounting.endDBIO();
 				sql.endDbIO();
 				
 				if(r != null)
@@ -141,11 +138,12 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 				}
 				else
 				{
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND.getMainCode()) ;
 				}
 			}
 			catch (SQLException e)
 			{
+				DBIOAccounting.endDBIO();
 				sql.endDbIO();
 				manageSQLException("executeQuery", e, sql);
 			}
@@ -155,24 +153,26 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 		
 	public CSQLResultSet executeQueryCursor(SQL sql)
 	{
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeQueryCursor:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
 				sql.startDbIO();
+				DBIOAccounting.startDBIO(DBIOAccountingType.OpenCursor);
 				ResultSet r = m_PreparedStatement.executeQuery();
+				DBIOAccounting.endDBIO();
 				if(r != null)
 				{
 					CSQLResultSet rs = new CSQLResultSet(r, m_semanticContextDef, sql);
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 					sql.endDbIO();
 					return rs ;
 				}
 				else
 				{
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND.getMainCode()) ;
 					sql.endDbIO();
 				}
 			}
@@ -184,7 +184,7 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 		}
 		return null;
 	}
-
+	
 	private void manageSQLException(String csMethod, SQLException e, SQL sql)
 	{
 		CSQLStatus sqlStatus = sql.m_sqlStatus;
@@ -198,33 +198,44 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 		{
 			Log.logCritical("SQL EXCEPTION in " + csMethod + ": "+e.getErrorCode() + "; "+ e.getMessage() + " Clause="+getQueryString());
 		}
+		if(BaseResourceManager.ms_bBreakOnAllSQLExceptions)
+		{
+//			LiteralStmtManager literalStmtManager = new LiteralStmtManager(sql);
+//			literalStmtManager.tryExecuteLiteralStmt();
+//			
+			SQLErrorException eSQLErrorException = new SQLErrorException(csMethod, e, sql); 
+			throw(eSQLErrorException);
+		}
 	}
-	
+
 	public int executeDelete(SQL sql)
 	{
 		sql.m_sqlStatus.setLastNbRecordUpdatedInsertedDeleted(0);
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeDelete:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
 				//JmxGeneralStat.incNbDelete(1);
+				DBIOAccounting.startDBIO(DBIOAccountingType.Delete);
 				int n = m_PreparedStatement.executeUpdate();
+				DBIOAccounting.endDBIO();
 				if (n > 0)
 				{
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				}
 				else
 				{
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND.getMainCode()) ;
 				}
 				sql.m_sqlStatus.setLastNbRecordUpdatedInsertedDeleted(n);
 				return n;
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("executeDelete", e, sql);
 			}
 		}
@@ -234,28 +245,31 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	public int executeUpdate(SQL sql)
 	{
 		sql.m_sqlStatus.setLastNbRecordUpdatedInsertedDeleted(0);
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeUpdate:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
 				//JmxGeneralStat.incNbUpdate(1);
+				DBIOAccounting.startDBIO(DBIOAccountingType.Update);
 				int n = m_PreparedStatement.executeUpdate();
+				DBIOAccounting.endDBIO();
 				if (n > 0)
 				{
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				}
 				else
 				{
-					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND) ;
+					sql.m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND.getMainCode()) ;
 				}
 				sql.m_sqlStatus.setLastNbRecordUpdatedInsertedDeleted(n);
 				return n;
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("executeUpdate", e, sql);
 			}
 		}
@@ -265,20 +279,23 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	public int executeInsert(SQL sql)
 	{
 		sql.m_sqlStatus.setLastNbRecordUpdatedInsertedDeleted(0);
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeInsert:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
 				//JmxGeneralStat.incNbInsert(1);
+				DBIOAccounting.startDBIO(DBIOAccountingType.Update);
 				int n = m_PreparedStatement.executeUpdate();
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				sql.m_sqlStatus.setLastNbRecordUpdatedInsertedDeleted(n);
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("executeInsert", e, sql);
 			}
 		}
@@ -287,19 +304,22 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	
 	public int executeLock(SQL sql)
 	{
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeLock:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
+				DBIOAccounting.startDBIO(DBIOAccountingType.Lock);
 				m_PreparedStatement.execute();
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				return 0;
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("execute", e, sql);
 			}
 		}
@@ -308,19 +328,22 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	
 	public int executeCreateTable(SQL sql)
 	{
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeCreateTable:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
+				DBIOAccounting.startDBIO(DBIOAccountingType.CreateTable);
 				m_PreparedStatement.execute();
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				return 0;
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("execute", e, sql);
 			}
 		}
@@ -329,19 +352,22 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	
 	public int executeDropTable(SQL sql)
 	{
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeDropTable:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
+				DBIOAccounting.startDBIO(DBIOAccountingType.DropTable);
 				m_PreparedStatement.execute();
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				return 0;
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("execute", e, sql);
 			}
 		}
@@ -350,19 +376,22 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 	
 	public int executeDeclareOrder(SQL sql)
 	{
-		if(isLogSql())
+		if(CJMapObject.isLogSql)
 			Log.logDebug("CSQLPreparedStatement::executeDeclareOrder:"+m_csQueryString);
 		if(m_PreparedStatement != null)
 		{
 			try
 			{
+				DBIOAccounting.startDBIO(DBIOAccountingType.Declare);
 				boolean b = m_PreparedStatement.execute();
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 				return 0;
 			}
 			catch (SQLException e)
 			{
-				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR) ;
+				DBIOAccounting.endDBIO();
+				sql.m_sqlStatus.setSQLCode(SQLCode.SQL_ERROR.getMainCode()) ;
 				manageSQLException("execute", e, sql);				
 			}
 		}
@@ -381,8 +410,18 @@ public class CSQLPreparedStatement extends DbPreparedStatement
 		}
 	}
 	
-	boolean isLogSql()
-	{
-		return true;
-	}	
+//	boolean isLogSql()
+//	{
+//		return false;
+//	}
+	
+//	void setColumnTypeManager(PreparedStmtColumnTypeManager preparedStmtColumnTypeManager)
+//	{
+//		m_preparedStmtColumnTypeManager = preparedStmtColumnTypeManager;
+//	}
+//	
+//	PreparedStmtColumnTypeManager getColumnTypeManager()
+//	{
+//		return m_preparedStmtColumnTypeManager;
+//	}
 }

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -30,6 +36,11 @@ public class CJavaString extends CEntityString
 	}
 	public String ExportReference(int nLine)
 	{
+		String csDebug = new String(m_carrValue);
+		if(csDebug.equals("CURRENT_TIMESTAMPXXX"))
+		{
+			int gg = 0;
+		}
 		String cs = "" ;
 		boolean bSpecialCharacters = false ;
 		for (int i=0; i<m_carrValue.length;i++)

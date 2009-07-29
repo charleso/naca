@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -27,6 +33,7 @@ import semantic.CBaseEntityFactory;
 import semantic.CEntityBloc;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -52,6 +59,10 @@ public abstract class CBlocElement extends CCommentContainer
 			if (tokVerb == null)
 			{
 				return true ;
+			}
+			if(tokVerb.getLine() == 381)
+			{
+				int gg = 0;
 			}
 			if (tokVerb.GetType()==CTokenType.KEYWORD)
 			{
@@ -251,6 +262,10 @@ public abstract class CBlocElement extends CCommentContainer
 	protected boolean ParseVerb()
 	{
 		CBaseToken tokVerb = GetCurrentToken() ;
+		if(tokVerb.getLine() == 174)
+		{
+			int gg = 0;
+		}
 		if (m_fCheckForNextSentence.ISSet())
 		{
 			if (tokVerb.GetKeyword() == CCobolKeywordList.END_IF ||
@@ -263,7 +278,7 @@ public abstract class CBlocElement extends CCommentContainer
 			}
 			else if (!isTopLevelBloc())
 			{
-				Transcoder.logError(tokVerb.getLine(), "Unrecommanded usage of NEXT SENTENCE");
+				Transcoder.logWarn(tokVerb.getLine(), "Unrecommanded usage of NEXT SENTENCE, using nextSentence");
 				m_nRewriteLine = tokVerb.getLine() ;
 			}
 		}
@@ -293,6 +308,10 @@ public abstract class CBlocElement extends CCommentContainer
 		}
 		else if (tokVerb.GetKeyword()==CCobolKeywordList.MOVE)
 		{
+			if(tokVerb.getLine()==363)
+			{
+				int gg = 0;
+			}
 			CCobolElement eExec = new CMove(tokVerb.getLine()) ;
 			AddChild(eExec) ;
 			return Parse(eExec) ;
@@ -309,6 +328,16 @@ public abstract class CBlocElement extends CCommentContainer
 			return true ;
 		}
 		else if (tokVerb.GetKeyword()==CCobolKeywordList.SKIP3)
+		{
+			GetNext() ;
+			return true ;
+		}
+		else if (tokVerb.GetKeyword()==CCobolKeywordList.SKIP2)
+		{
+			GetNext() ;
+			return true ;
+		}
+		else if (tokVerb.GetKeyword()==CCobolKeywordList.SKIP1)
 		{
 			GetNext() ;
 			return true ;
@@ -550,8 +579,33 @@ public abstract class CBlocElement extends CCommentContainer
 			//m_Logger.info("INFO Line " +getLine()+ " : " + "Keyword is end-of-bloc : '" + tokVerb.GetValue() + "'") ;
 			return true ;
 		}
+		else if(tokVerb.GetKeyword()==CCobolKeywordList.LENGTH)
+		{
+			CCobolElement eVerb = new CLength(tokVerb.getLine()) ;
+			AddChild(eVerb) ;
+			return Parse(eVerb);
+		}
+		else if(tokVerb.GetKeyword()==CCobolKeywordList.COPY)	// PJD COPY Including code (PG POC)
+		{
+			Reporter.Add("Modif_PJ", "COPY Including code");
+			String cs = tokVerb.GetValue();
+			CBaseToken tokDrop = GetNext();
+			Transcoder.logWarn(tokVerb.getLine(), "COPY Including code detected; Currently ignored; File="+tokDrop.GetDisplay());
+			while (tokDrop != null && !tokDrop.m_bIsNewLine)
+			{
+				//Transcoder.logWarn(tokDrop.getLine(), "Keyword not parsed : '" + tokDrop.GetValue() + "'") ;
+				tokDrop = GetNext();
+				if(tokDrop == null)
+				{
+					int gg  = 0;
+				}
+			}
+			return true;
+		}
 		else
 		{
+			// PJD Maybe an identifier has the name of a reserved keyword
+			String cs = tokVerb.GetValue();
 			Transcoder.logWarn(tokVerb.getLine(), "Keyword not parsed : '" + tokVerb.GetValue() + "'") ;
 			CBaseToken tokDrop = GetNext();
 			while (!tokDrop.m_bIsNewLine)

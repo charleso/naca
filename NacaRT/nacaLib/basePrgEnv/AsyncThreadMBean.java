@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,7 +20,7 @@ import nacaLib.base.JmxGeneralStat;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: AsyncThreadMBean.java,v 1.2 2006/12/20 13:59:53 u930bm Exp $
+ * @version $Id$
  */
 public class AsyncThreadMBean extends BaseCloseMBean
 {

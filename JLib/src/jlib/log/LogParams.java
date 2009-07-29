@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -105,6 +111,17 @@ public class LogParams
 		return cs;
 	}
 	
+	public String toStringNoEvent()
+	{
+		if (!StringUtil.isEmpty(getMessage()))
+		{
+			String cs = getMessage();
+			return cs;
+		} 
+		String cs = m_logEvent.getAsString();
+		return cs;
+	}
+	
 	public String getTextItem(int n)
 	{
 		return m_logEvent.getTextAsString(n);
@@ -171,18 +188,26 @@ public class LogParams
 		String method = null;
 		if(m_caller != null)
 			method = m_caller.getMethodName();
-// If application is compiled without debug information, the method name
-// is not available:
+		
+		// If application is compiled without debug information, the method name
+		// is not available:
 		if (method==null)
 			method="N/A";
 		return method;
 	}
-
+	
 	int getLine()
 	{
-		if(m_caller != null)
-			return m_caller.getLineNumber();
-		return 0;
+		int lineNb = 0;
+		if(m_caller != null) 
+			lineNb = m_caller.getLineNumber();
+			
+		//  If application is compiled without debug information, the line numrer is -1.
+		//  -1 is not possible in db LogCenter, force to 0    
+	    if (lineNb < 0)
+			lineNb = 0;
+    
+		return lineNb;
 	}
 	
 	String getEventName()

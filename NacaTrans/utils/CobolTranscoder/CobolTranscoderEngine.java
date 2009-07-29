@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -53,6 +59,7 @@ import utils.CGlobalEntityCounter;
 import utils.CObjectCatalog;
 import utils.CSpecialActionContainer;
 import utils.CTransApplicationGroup;
+import utils.PathsManager;
 import utils.Transcoder;
 import utils.TranscoderEngine;
 
@@ -90,7 +97,11 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 		if (eCSD != null)
 		{
 			String csdFile = eCSD.getVal("File");
+			csdFile = PathsManager.adjustPath(csdFile);
+			
 			String csdOutput = eCSD.getVal("Output");
+			csdOutput = PathsManager.adjustPath(csdOutput);
+			
 			if (!csdFile.equals("") && !csdOutput.equals(""))
 			{
 				DoCSDParsing(csdFile, csdOutput) ;
@@ -107,6 +118,8 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 		if (eCSD != null)
 		{
 			String csdOutput = eCSD.getVal("Output");
+			csdOutput = PathsManager.adjustPath(csdOutput);
+			
 			if (!csdOutput.equals(""))
 			{
 				DoCSDRegistering(csdOutput) ;
@@ -121,7 +134,8 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 	 */
 	protected @Override CBaseLexer getLexer()
 	{
-		return new CCobolLexer();
+		CBaseLexer lexer = new CCobolLexer();
+		return lexer;
 	}
 
 	protected CParser<CProgram> doParsing(CTokenList lst)
@@ -175,10 +189,12 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 		}
 		catch (FileNotFoundException e)
 		{
+			e.printStackTrace();
 			return ;
 		}
 		catch (IOException e)
 		{
+			e.printStackTrace();
 			return ;
 		}
 		try
@@ -197,27 +213,35 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 		}
 		catch (DOMException e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (FileNotFoundException e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (TransformerConfigurationException e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (IllegalArgumentException e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (ParserConfigurationException e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (FactoryConfigurationError e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (TransformerFactoryConfigurationError e1)
 		{
+			e1.printStackTrace();
 		}
 		catch (TransformerException e1)
 		{
+			e1.printStackTrace();
 		}
 	}
 
@@ -242,7 +266,8 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 			}
 		}
 		catch (Exception e)
-		{			
+		{	
+			e.printStackTrace();
 		}
 		
 	}
@@ -250,6 +275,12 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 	protected CEntityClass doSemanticAnalysis(CParser<CProgram> parser, String fileName, CObjectCatalog cat, CTransApplicationGroup grp, boolean bResources)
 	{
 		CJavaExporter out = new CJavaExporter(cat.m_Listing, fileName, parser.m_CommentContainer, bResources) ;
+		if(m_DCLGenConverter != null)
+			out.setSQLDumper(m_DCLGenConverter.getSQLDumper(), fileName);
+		
+//		if(m_sqlSyntaxConverter != null)
+//			out.setSQLSyntaxConverter(m_sqlSyntaxConverter);
+		
 		cat.setExporter(out) ;
 		CJavaEntityFactory factory = new CJavaEntityFactory(cat, out) ;
 		InitCustomCICSEntriesFromRules(factory) ;
@@ -336,7 +367,16 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 			Tag e = m_RulesManager.getRule("routineEmulation", i) ;
 			String name = e.getVal("routine") ;
 			String method = e.getVal("method") ;
-			factory.m_ProgramCatalog.RegisterRoutineEmulation(name, method) ;
+			String csRequiredToolsLib = e.getVal("requiredToolsLib", null) ;
+			factory.m_ProgramCatalog.RegisterRoutineEmulation(name, method, csRequiredToolsLib);	//, csRequiredToolsLib) ;
+		}
+		nb = m_RulesManager.getNbRules("routineEmulationExternal") ;
+		for (int i=0; i<nb; i++)
+		{
+			Tag e = m_RulesManager.getRule("routineEmulationExternal", i) ;
+			String name = e.getVal("routine") ;
+			String method = e.getVal("method") ;
+			factory.m_ProgramCatalog.RegisterRoutineEmulation(name, method, true) ;
 		}
 		
 		nb = m_RulesManager.getNbRules("NoExportResource") ;
@@ -388,6 +428,7 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 		container.DoReplaceMapName(cat, factory) ;
 		container.DoSimplifyDFHCommArea(cat) ;
 		container.DoSimplifyFDVariableZones(cat, factory) ;
+		//container.DoSimplifyFileSelect(cat, factory) ;
 		//container.DoReduceSections(cat, factory) ;
 	}
 	
@@ -395,7 +436,7 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 	@Override
 	protected void doLogs(String csInput, String csOutput)
 	{
-		Transcoder.logInfo("Start transcoding file to "+ csOutput);
+		Transcoder.logInfo("Start transcoding top level file from " + csInput + " to "+ csOutput);
 	}
 
 	@Override
@@ -417,7 +458,7 @@ public class CobolTranscoderEngine extends TranscoderEngine<CProgram, CEntityCla
 	 * @see utils.TranscoderEngine#generateInputFileName(java.lang.String)
 	 */
 	@Override
-	protected String generateInputFileName(String filename)
+	public String generateInputFileName(String filename)
 	{
 		return ReplaceExtensionFileName(filename, "cbl");
 	}

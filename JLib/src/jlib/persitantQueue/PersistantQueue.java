@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -27,7 +33,7 @@ import jlib.xml.Tag;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: PersistantQueue.java,v 1.2 2007/02/08 06:26:40 u930di Exp $
+ * @version $Id$
  */
 
 /*

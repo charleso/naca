@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,6 +19,7 @@ import java.math.BigDecimal;
 
 
 import nacaLib.bdb.BtreeSegmentKeyTypeFactory;
+import nacaLib.debug.BufferSpy;
 import nacaLib.fpacPrgEnv.DeclareTypeFPacRaw;
 import nacaLib.sqlSupport.CSQLItemType;
 import nacaLib.tempCache.CStr;
@@ -20,7 +27,7 @@ import nacaLib.tempCache.CStr;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: VarDefFPacRaw.java,v 1.9 2007/03/15 10:14:49 u930di Exp $
+ * @version $Id$
  */
 public class VarDefFPacRaw extends VarDefVariable
 {
@@ -206,7 +213,9 @@ public class VarDefFPacRaw extends VarDefVariable
 			nPositionSource++;
 			if(nPositionSource == nNbCharSource)
 				nPositionSource = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, 1);
 			buffer.m_acBuffer[nPositionDest] = cSource;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	
@@ -224,7 +233,9 @@ public class VarDefFPacRaw extends VarDefVariable
 			nPositionSource++;
 			if(nPositionSource == nNbCharSource)
 				nPositionSource = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, 1);
 			buffer.m_acBuffer[nPositionDest] = cSource;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	
@@ -242,7 +253,9 @@ public class VarDefFPacRaw extends VarDefVariable
 			nPositionSource++;
 			if(nPositionSource == nNbCharSource)
 				nPositionSource = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, 1);
 			buffer.m_acBuffer[nPositionDest] = cSource;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	

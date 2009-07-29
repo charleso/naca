@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,8 @@
  */
 package nacaLib.varEx;
 
+import nacaLib.basePrgEnv.BaseProgramManager;
+import nacaLib.tempCache.TempCacheLocator;
 import jlib.misc.StringUtil;
 
 /**
@@ -38,6 +46,21 @@ public class RWNumEdited
 	
 	static String internalFormatAndWrite(Dec dec, String csFormat, boolean bBlankWhenZero)
 	{
+		boolean bDecimalPointIsComma = false;
+		BaseProgramManager programManager = TempCacheLocator.getTLSTempCache().getProgramManager();
+		if(programManager != null)
+			bDecimalPointIsComma = programManager.getDecimalPointIsComma();
+		
+		char cDecimalSeprator = '.';
+		char c1000Separator = ',';
+		if(bDecimalPointIsComma)
+		{
+			cDecimalSeprator = ',';
+			c1000Separator = '.';
+		}
+		
+		
+		
 		boolean bSignFilled = false;
 		if(csFormat == null)
 			return "";
@@ -67,7 +90,7 @@ public class RWNumEdited
 		
 		boolean bDoDecPart = false;
 
-		int nDecimalSeparatorFormatPos = csFormat.indexOf('.');
+		int nDecimalSeparatorFormatPos = csFormat.indexOf(cDecimalSeprator);
 		if(nDecimalSeparatorFormatPos == -1)	// dot (special insertion char) in format, then we will have a decimal part
 			nDecimalSeparatorFormatPos = nLgFormat-1;
 		else  
@@ -93,7 +116,7 @@ public class RWNumEdited
 				sDest.setCharAt(nFormatIndex, ' ');
 			else if(cFormat == ' ')
 				sDest.setCharAt(nFormatIndex, ' ');
-			else if(cFormat == '0' || cFormat == '/' || cFormat == ',' || cFormat == '\'')	// Warning, ',' stands for 1000 separator, not decimal dot !!!
+			else if(cFormat == '0' || cFormat == '/' || cFormat == c1000Separator || cFormat == '\'')	// Warning, ',' stands for 1000 separator, not decimal dot !!!
 			{
 				if(cFormat == '\'')
 					sDest.setCharAt(nFormatIndex, ',');

@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -24,10 +30,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import oracle.jdbc.driver.OracleConnection;
+
 import jlib.exception.ProgrammingException;
 import jlib.exception.TechnicalException;
 import jlib.log.Log;
 import jlib.misc.BaseJmxGeneralStat;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.StopWatch;
 import jlib.misc.StringUtil;
 import jlib.misc.Time_ms;
@@ -38,7 +48,7 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	private boolean m_bUseJmx = true;
 	private String m_csPrefId = null;
 	private String m_csEnvironment = "" ;
-	protected Connection m_dbConnection = null;
+	private Connection m_dbConnection = null;
 	private boolean m_bUseRowId = false;	// true if must use RowId to support updates in cursors "select for update" (Oracle needs it)
 	private Hashtable<String, DbPreparedStatement> m_hashStatement = new Hashtable<String, DbPreparedStatement>();	// Hsah collection of statement; Vey=int (hashed statement string), Value=Statement
 	private boolean m_bUseCachedStatements = true;	// true if a cache of all met statements is kept by the current connection, false if the statement is recreated
@@ -49,6 +59,7 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	private boolean m_bUseExplain = false;
 	private DbDriverId m_dbDriverId = null;
 	private String m_csUUID = null;
+	private boolean m_bOracle = false;
 	
 	public DbConnectionBase(Connection conn, String csPrefId, String csEnv, boolean bUseCachedStatements, boolean bUseJmx, DbDriverId dbDriverId)
 	{
@@ -57,7 +68,13 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 		m_csPrefId = csPrefId;
 		m_bUseCachedStatements = bUseCachedStatements;
 		m_dbConnection = conn ;
-		if(csEnv.equals("OracleTest"))	// Tests have no prefixe
+		m_bOracle = false;
+		if(conn instanceof OracleConnection)
+		{
+			m_bUseRowId = true;
+			m_bOracle = true;
+		}
+		else if(csEnv.equals("OracleTest"))	// Tests have no prefixe
 		{
 			m_bUseRowId = true;
 		}
@@ -255,11 +272,16 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	
 	boolean checkWithQuery(String csValidationQuery)
 	{
+		if(m_dbConnection == null)
+			   return false;
+		
 		if(StringUtil.isEmpty(csValidationQuery))
 			return true;
 		
 		boolean b = false;
+		DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
 		DbPreparedStatement sqlStatement = prepareStatement(csValidationQuery, 0, false);
+		DBIOAccounting.endDBIO();
 		if(sqlStatement != null)
 		{
 			ResultSet r = sqlStatement.executeSelect();			
@@ -360,7 +382,7 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	
 	public DbPreparedStatement prepareStatement(SQLClause sqlStatement)
 	{
-		String csQuery = sqlStatement.getQuery();
+		String csQuery = sqlStatement.completeQuery();
 		DbPreparedStatement preparedStatement = prepareStatement(csQuery, 0, false);
 		sqlStatement.fillParameters(preparedStatement);
 		
@@ -393,7 +415,7 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	int prepareAndExecuteWithException(SQLClause sqlClause)
 		throws TechnicalException
 	{
-		String csQuery = sqlClause.getQuery();
+		String csQuery = sqlClause.completeQuery();
 
 		TechnicalException.throwIfNullOrEmpty(csQuery, TechnicalException.DB_ERROR_PREPARE_STATEMENT,"Query is not set. Call 'SQLClause.set' before trying to execute the query.");
 		
@@ -406,14 +428,18 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 			sqlClause.fillParameters(preparedStatement);
 			if(typeOperation == SQLTypeOperation.Select || typeOperation==null)
 			{
-				try {
+				try 
+				{
 					ResultSet resultSet = preparedStatement.executeSelectWithException();
 					sqlClause.setResultSetSet(resultSet);
 				}
-				catch (ProgrammingException e) {
-					if (e.getCause() instanceof SQLException) {
+				catch (ProgrammingException e)
+				{
+					if (e.getCause() instanceof SQLException) 
+					{
 						ProgrammingException.throwException(ProgrammingException.DB_ERROR_SELECT, sqlClause, (SQLException)e.getCause());
-					} else
+					}
+					else
 						throw e;
 				}
 				return 1;
@@ -481,6 +507,13 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 		return null;
 	}
 	
+	public boolean supportDefaultValue()
+	{
+		if(m_bOracle)
+			return true;
+		return false;
+	}
+	
 	public abstract DbPreparedStatement createAndPrepare(String csQuery, boolean bHoldability);
 	public abstract DbPreparedStatement createAndPrepareWithException(String csQuery, boolean bHoldability) throws TechnicalException;
 	
@@ -488,7 +521,6 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	
 	public int rollBack()
 	{
-		//markLastTimeStamp();
 		if (m_dbConnection != null)
 		{
 			try
@@ -507,7 +539,6 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	
 	public int commit()
 	{
-		//markLastTimeStamp();
 		if (m_dbConnection != null)
 		{
 			try
@@ -604,22 +635,22 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 	 * @return
 	 */
 
-	public void Release()
-	{
-		if (m_dbConnection != null)
-		{
-			try
-			{
-				m_dbConnection.close() ;
-			} 
-			catch (SQLException e)
-			{
-				LogSQLException.log(e);
-				e.printStackTrace();
-			}
-			m_dbConnection = null ;
-		}
-	}
+//	public void Release()
+//	{
+//		if (m_dbConnection != null)
+//		{
+//			try
+//			{
+//				m_dbConnection.close() ;
+//			} 
+//			catch (SQLException e)
+//			{
+//				LogSQLException.log(e);
+//				e.printStackTrace();
+//			}
+//			m_dbConnection = null ;
+//		}
+//	}
 	
 	public void returnConnectionToPool()
 	{
@@ -725,5 +756,16 @@ public abstract class DbConnectionBase //extends BaseOpenMBean
 			JMXBeanOwner.add(dbConnectionBaseStmtJMXBean);
 			n++;
 		}	
+	}
+	
+	void clearJDBCConnection()
+	{
+		//logger.info("clearJDBCConnection called");
+		m_dbConnection = null;
+	}
+	
+	public boolean isOracle()
+	{
+		return m_bOracle;
 	}
 }

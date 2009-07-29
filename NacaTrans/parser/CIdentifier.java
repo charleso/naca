@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,6 +19,8 @@
 package parser;
 
 import java.util.Vector;
+
+import jlib.xml.Tag;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,7 +53,12 @@ public class CIdentifier
 	{
 		return m_Name ;
 	}
-		
+	
+	public void ExportTo(Tag tag)
+	{
+		ExportTo(tag.getElement(), tag.getDoc());
+	}
+	
 	public void ExportTo(Element e, Document root)
 	{
 		if (m_arrArrayIndex != null && m_arrArrayIndex.size()>0 && m_exprStringLengthReference != null && m_exprStringStartReference != null)
@@ -142,6 +155,10 @@ public class CIdentifier
 				return fact.NewEntityUnknownReference(nLine, m_Name) ;
 			}
 		}
+		else if(m_Name.equalsIgnoreCase("TALLY"))
+		{
+			e = fact.NewEntityTally();			
+		}
 		else
 		{
 			e = fact.m_ProgramCatalog.GetDataEntity(nLine, m_Name, m_MemberOf) ;
@@ -159,6 +176,12 @@ public class CIdentifier
 			CBaseEntityExpression expLen = m_exprStringLengthReference.AnalyseExpression(fact); 
 			e = e.GetSubStringReference(expStart, expLen, fact);
 		}
+		else if (m_exprStringStartReference != null && m_exprStringLengthReference == null)
+		{
+			CBaseEntityExpression expStart = m_exprStringStartReference.AnalyseExpression(fact);
+			e = e.GetSubStringReference(expStart, null, fact);
+		}
+
 		
 		return e ;
 	}

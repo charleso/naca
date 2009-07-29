@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,6 +20,7 @@ package semantic;
 
 import generate.*;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import parser.expression.CTerminal;
@@ -42,12 +49,15 @@ public abstract class CDataEntity extends CBaseLanguageEntity
 		FORM,
 		CONSTANT,
 		NUMBER,
+		BOOLEAN,
 		STRING,
 		CONDITION,
 		CONSOLE_KEY,
 		IGNORE,
 		VIRTUAL_FORM, 
 		EXPRESSION,
+		SQL_FUNCTION,
+		SQL_FUNCTION_WITH_PARAMETER,
 		ADDRESS,
 		UNKNWON
 	} 
@@ -67,6 +77,15 @@ public abstract class CDataEntity extends CBaseLanguageEntity
 	protected CDataEntity(int l, String name, CObjectCatalog cat, CBaseLanguageExporter out)
 	{
 		super(l, name, cat, out);
+		if(name.equals("LE-MOT"))
+		{
+			int gg = 0;
+		}
+		if(name.equals("UN-MOT-DOU"))
+		{
+			int gg = 0;
+		}
+
 	}
 
 	/* (non-Javadoc)
@@ -297,8 +316,10 @@ public abstract class CDataEntity extends CBaseLanguageEntity
 		if (ignore)
 		{
 			return true ;
+			//return false;	// PJD 16/10/08
 		}
 		return m_bIgnore ;
+		//return false;	// PJD 16/10/08
 	}
 	public void ReplaceBy(CDataEntity var)
 	{
@@ -390,5 +411,20 @@ public abstract class CDataEntity extends CBaseLanguageEntity
 		m_arrAccessAsValue.remove(attribute) ;
 	}
 
-
+	public CEntityIndex getOccursIndex()	// Overloaded in CEntityStructure
+	{
+		return null;
+	}
+	
+	public ArrayList<COrderedEntityStructure> getArrTableSortKeys()	// Overloaded in CEntityStructure
+	{
+		return null;
+	}
+	
+	public CDataEntity getTableSizeDepending()		// Overloaded in CEntityStructure
+	{
+		return null;
+	}
+	
+	
 }

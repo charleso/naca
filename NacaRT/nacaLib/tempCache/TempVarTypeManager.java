@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -17,7 +23,7 @@ import nacaLib.varEx.VarDefBuffer;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: TempVarTypeManager.java,v 1.2 2006/08/04 12:17:32 u930di Exp $
+ * @version $Id$
  */
 //public class TempVarTypeManager<T>
 //{

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -11,6 +17,8 @@ import java.util.ArrayList;
 import jlib.log.Log;
 import jlib.misc.BaseDataFile;
 import jlib.misc.BasePic9Comp3BufferSupport;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.DataFileLineReader;
 import jlib.misc.IntegerRef;
 import jlib.misc.LineRead;
@@ -29,7 +37,7 @@ import nacaLib.varEx.FileDescriptor;
 
 /**
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SQLLoad.java,v 1.34 2008/01/21 10:39:39 u930bm Exp $
+ * @version $Id$
  */
 public class SQLLoad extends BaseSQLUtils
 {
@@ -120,7 +128,9 @@ public class SQLLoad extends BaseSQLUtils
 			csInsertClause = csInsertClause.substring(0, csInsertClause.length()-1);
 		
 		csInsertClause = SQLTypeOperation.addEnvironmentPrefix(m_dbConnection.getEnvironmentPrefix(), csInsertClause, typeOperation, "");
+		DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
 		DbPreparedStatement stmt = m_dbConnection.prepareStatement(csInsertClause, 0, false);
+		DBIOAccounting.endDBIO();
 		if(stmt == null)
 		{
 			Log.logCritical("Could not prepare statement; SQL load aborted" + csInsertClause);

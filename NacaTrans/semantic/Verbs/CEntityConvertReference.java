@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,7 +19,7 @@ import utils.CObjectCatalog;
 
 /**
  * @author S. Charton
- * @version $Id: CEntityConvertReference.java,v 1.2 2006/09/28 09:10:06 u930di Exp $
+ * @version $Id$
  */
 public abstract class CEntityConvertReference extends CBaseDataReference
 {

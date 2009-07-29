@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -16,6 +22,7 @@ import java.math.BigDecimal;
 
 
 import nacaLib.bdb.BtreeSegmentKeyTypeFactory;
+import nacaLib.debug.BufferSpy;
 import nacaLib.sqlSupport.CSQLItemType;
 import nacaLib.tempCache.CStr;
 
@@ -249,10 +256,12 @@ public class VarDefX extends VarDefVariable
 			{
 				int nPositionDest = buffer.m_nAbsolutePosition;
 				int nPositionSource = bufferSource.m_nAbsolutePosition;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, m_nTotalSize);
 				for(int n=0; n<m_nTotalSize; n++)
 				{
 					buffer.m_acBuffer[nPositionDest++] = bufferSource.m_acBuffer[nPositionSource++];
-				}			
+				}
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				return ;
 //				buffer.copyBytes(nPosDest, m_nTotalSize, nPosSource, bufferSource);
 //				return ;
@@ -264,7 +273,9 @@ public class VarDefX extends VarDefVariable
 				nPosDest += varDefSource.m_nTotalSize;
 				while(nNbSpacesToPadOnRight > 0)
 				{
+					if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDest, 1);
 					buffer.m_acBuffer[nPosDest] = ' ';
+					if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 					nNbSpacesToPadOnRight--;
 					nPosDest++;
 				}
@@ -287,10 +298,12 @@ public class VarDefX extends VarDefVariable
 			{
 				int nPositionDest = buffer.m_nAbsolutePosition;
 				int nPositionSource = bufferSource.m_nAbsolutePosition;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, m_nTotalSize);
 				for(int n=0; n<m_nTotalSize; n++)
 				{
 					buffer.m_acBuffer[nPositionDest++] = bufferSource.m_acBuffer[nPositionSource++];
-				}			
+				}
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				return ;
 //				buffer.copyBytes(nPosDest, m_nTotalSize, nPosSource, bufferSource);
 //				return ;
@@ -302,7 +315,9 @@ public class VarDefX extends VarDefVariable
 				nPosDest += varDefSource.m_nTotalSize;
 				while(nNbSpacesToPadOnRight > 0)
 				{
+					if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosDest, 1);
 					buffer.m_acBuffer[nPosDest] = ' ';
+					if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 					nNbSpacesToPadOnRight--;
 					nPosDest++;
 				}
@@ -1191,7 +1206,9 @@ public class VarDefX extends VarDefVariable
 	
 	boolean isNumeric(VarBufferPos buffer)
 	{
-		return internalIsRawStringNumeric(buffer);
+		CStr cs = buffer.getBodyCStr(this);
+		boolean b = cs.isOnlyNumericPicX();
+		return b;
 	}
 	
 	public boolean isAlphabetic(VarBufferPos buffer)
@@ -1252,14 +1269,18 @@ public class VarDefX extends VarDefVariable
 			nLength = cs.length();
 			if(m_nTotalSize < nLength)
 				nLength = m_nTotalSize;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition, nLength);
 			cs.getChars(0, nLength, buffer.m_acBuffer, nPosition);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosition += nLength;
 		}
 		if(nLength < m_nTotalSize)	// Padding with spaces on the right
 		{
 			int nNbChars = m_nTotalSize-nLength;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition, nNbChars);
 			for(int n=0; n<nNbChars; n++)
 				buffer.m_acBuffer[nPosition++] = ' ';
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}	
 	
@@ -1275,8 +1296,10 @@ public class VarDefX extends VarDefVariable
 		if(nLength < m_nTotalSize)	// Padding with BLANK on the right
 		{
 			int nNbChars = m_nTotalSize-nLength;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition, nNbChars);
 			for(int n=0; n<nNbChars; n++)
 				buffer.m_acBuffer[nPosition++] = ' ';
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	

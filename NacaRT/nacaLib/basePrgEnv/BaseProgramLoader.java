@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,15 +20,19 @@ import jlib.classLoader.ClassDynLoaderFactory;
 import jlib.classLoader.CodeManager;
 import jlib.log.AssertException;
 import jlib.log.Log;
+import jlib.log.LogLevel;
 import jlib.misc.DateUtil;
+import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.Mail;
 import jlib.misc.MailService;
 import jlib.misc.StringArray;
+import jlib.misc.StringUtil;
 import jlib.sql.DbConnectionManagerBase;
 import jlib.xml.Tag;
 import nacaLib.CESM.CESMStartData;
 import nacaLib.accounting.CriteriaEndRunMain;
 import nacaLib.asyncTasks.CAsynchronousTask;
+import nacaLib.callPrg.SubProgramCallLogger;
 import nacaLib.calledPrgSupport.BaseCalledPrgPublicArgPositioned;
 import nacaLib.exceptions.AbortSessionException;
 import nacaLib.exceptions.CESMAbendException;
@@ -34,7 +44,10 @@ import nacaLib.exceptions.CannotOpenFileException;
 import nacaLib.exceptions.DumpProgramException;
 import nacaLib.exceptions.FileDescriptorNofFoundException;
 import nacaLib.exceptions.InputFileNotFoundException;
+import nacaLib.exceptions.SQLErrorException;
 import nacaLib.exceptions.TooManyCloseFileException;
+import nacaLib.program.StatCoverage;
+import nacaLib.program.StatCoverageType;
 import nacaLib.programPool.ProgramInstancesPool;
 import nacaLib.programPool.ProgramPoolManager;
 import nacaLib.programPool.SharedProgramInstanceData;
@@ -300,14 +313,20 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		try
 		{
 			runProgram(env, arrCallerCallParam) ;
-			Exception e = env.commitSQL();
-			if (e != null)
+			boolean bMustCommit = BaseResourceManager.getCommitAfterMainProgramRun();
+			if(bMustCommit)
 			{
-				Log.logImportant("Commit Exception occured");
-				String csProgramName = handleExceptionCatched(e, env);
-				throwAbortSession(e, csProgramName);
+				Exception e = env.commitSQL();
+				if (e != null)
+				{
+					Log.logImportant("Commit Exception occured");
+					String csProgramName = handleExceptionCatched(e, env);
+					throwAbortSession(e, csProgramName);
+				}
+				Log.logVerbose("Transaction finished; Commit");
 			}
-			Log.logVerbose("Transaction finished; Commit");
+			else
+				Log.logImportant("Transaction finished; Not committed due to commitAfterMainProgramRun set to false");
 		}
 		catch (AbortSessionException e)
 		{
@@ -359,7 +378,7 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		}
 		catch (Exception e)
 		{
-			Log.logImportant("Exception occured");
+			Log.logCritical("Exception occured: " + e.toString());
 			String csProgramName = handleExceptionCatched(e, env);
 			throwAbortSession(e, csProgramName);
 		}
@@ -389,7 +408,7 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 			csClassName = prgLast.getSimpleName();
 			sqlStatus = prgLast.m_BaseProgramManager.getSQLStatus();
 		}
-		logMail(env, csClassName, "FATAL occured", e, sqlStatus);
+		logMail(env, csClassName, "FATAL occured", e, sqlStatus, "");
 		
 		env.cleanupOnExceptionCatched();
 		return csClassName;
@@ -406,7 +425,7 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 			csClassName = prgLast.getSimpleName();
 			sqlStatus = prgLast.m_BaseProgramManager.getSQLStatus();
 		}
-		logMail(env, csClassName, "FATAL occured", e, sqlStatus);
+		logMail(env, csClassName, "FATAL occured", e, sqlStatus, "");
 
 		env.cleanupOnExceptionCatched();
 		return csClassName;
@@ -543,6 +562,12 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 					returnProgramInstanceToPool(currentProgram);	// Return program to pool
 					throw e;
 				}
+				catch (SQLErrorException e)
+				{
+					env.endRunProgram(CriteriaEndRunMain.Abort);
+					returnProgramInstanceToPool(currentProgram);	// Return program to pool
+					throw e;
+				}
 				catch(Exception e)
 				{
 					env.endRunProgram(CriteriaEndRunMain.Abort);
@@ -572,14 +597,52 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		}
 	}
 	
-	public void runSubProgram(String csProgramID, ArrayList<CCallParam> arrCallerCallParam, BaseEnvironment CESMEnv)
+	public void runSubProgram(String csProgramID, ArrayList<CCallParam> arrCallerCallParam, BaseEnvironment CESMEnv, BaseProgramManager programManager)
+	{
+		if(isLogFlow)
+			Log.logCallStack("Calling sub program: "+csProgramID, LogLevel.Critical);
+		
+		doRunSubProgram(csProgramID, arrCallerCallParam, CESMEnv, programManager);
+		
+		if(isLogFlow)
+			Log.logCallStack("Returning from callCall stack: ", LogLevel.Critical);
+		
+		if(isLogCalls)
+			SubProgramCallLogger.reportReturnToCaller(programManager.getProgramName());
+	}
+	
+	private void doRunSubProgram(String csProgramID, ArrayList<CCallParam> arrCallerCallParam, BaseEnvironment CESMEnv, BaseProgramManager programManager)
 	{
 		BaseProgram currentProgram = null ;
 		
 		ms_lock.lock();
+		CallInterceptor callInterceptor = BaseResourceManager.getCallInterceptorClass(csProgramID);
+		if(callInterceptor != null)	// execute the call against an interceptor, not against specified class 
+		{
+			String csSubProgramName = callInterceptor.getSubProgramName();
+			if(isLogCalls)
+				SubProgramCallLogger.reportCalling(csSubProgramName);
+			
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverageSubProgram(StatCoverageType.Call, csSubProgramName);
+			
+			callInterceptor.run(programManager, arrCallerCallParam);
+			
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverageSubProgram(StatCoverageType.ReturnFromCall, csSubProgramName);
+
+			ms_lock.unlock();
+			return ;
+		}
+		
 		currentProgram = LoadProgramInstance(csProgramID, BaseResourceManager.getUseProgramPool()) ;
 		if (currentProgram == null)
 		{
+			if(isLogCalls)
+				SubProgramCallLogger.reportFailedCalling("ERROR: Cannot load sub program instance", csProgramID);
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverageSubProgram(StatCoverageType.CallFailed, csProgramID);
+			
 			Log.logImportant("ERROR: Cannot load sub program instance:"+csProgramID);
 			ms_lock.unlock();
 			throw new AssertException("Cannot load sub program instance : " +csProgramID);
@@ -596,21 +659,40 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		catch (AssertException e)
 		{
 			TempCacheLocator.getTLSTempCache().popCurrentProgram();
-			
+			if(isLogCalls)
+				SubProgramCallLogger.reportFailedCalling("ERROR: Cannot prepare program call", csProgramID);
 			Log.logImportant("ERROR: Cannot prepare program call :"+csProgramID);
+			
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverageSubProgram(StatCoverageType.CallPrepareFailed, csProgramID);
+			
 			ms_lock.unlock();
 			throw e ;
 		}
 		
 		try
 		{
+			String csSubProgramName = currentProgram.getSimpleName();
 			if(isLogFlow)
-				Log.logVerbose("Calling program: "+currentProgram.getSimpleName());
-			CESMEnv.startRunProgram(currentProgram.getSimpleName());
+				Log.logVerbose("Calling program: "+csSubProgramName);
+			
+			if(isLogCalls)
+				SubProgramCallLogger.reportCalling(csSubProgramName);
+			
+			CESMEnv.startRunProgram(csSubProgramName);
 			currentProgram.getProgramManager().prepareRunMain(currentProgram);
+
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverageSubProgram(StatCoverageType.Call, csSubProgramName);
+
 			currentProgram.getProgramManager().runMain();
+			
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverageSubProgram(StatCoverageType.ReturnFromCall, csSubProgramName);
+			
 			TempCacheLocator.getTLSTempCache().popCurrentProgram();
 			CESMEnv.endRunProgram(CriteriaEndRunMain.Normal);
+			
 		}
 		catch (CESMReturnException e)
 		{
@@ -629,9 +711,11 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 				Log.logVerbose("Program finished: "+currentProgram.getSimpleName());
 		}
 		catch (AbortSessionException e)
-		{
+		{			
 			CESMEnv.endRunProgram(CriteriaEndRunMain.Abort);
 			e.m_ProgramName = currentProgram.getSimpleName();
+			if(isLogCalls)
+				SubProgramCallLogger.reportAbort(e.m_ProgramName);
 			doNotReturnProgramInstanceToPool(currentProgram);
 			currentProgram = null;
 			throw e;
@@ -640,6 +724,8 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		{
 			CESMEnv.endRunProgram(CriteriaEndRunMain.Abort);
 			String csProgramName = currentProgram.getSimpleName();
+			if(isLogCalls)
+				SubProgramCallLogger.reportAbort(csProgramName);
 			doNotReturnProgramInstanceToPool(currentProgram);
 			currentProgram = null;
 			throwAbortSession(e, csProgramName);
@@ -648,6 +734,8 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		{
 			CESMEnv.endRunProgram(CriteriaEndRunMain.Abort);
 			String csProgramName = currentProgram.getSimpleName();
+			if(isLogCalls)
+				SubProgramCallLogger.reportAbort(csProgramName);
 			doNotReturnProgramInstanceToPool(currentProgram);
 			currentProgram = null;
 			throwAbortSession(e, csProgramName);
@@ -657,17 +745,20 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		currentProgram = null; 
 	}
 
-	public void logMail(BaseEnvironment env, String className, String label, Throwable e, CSQLStatus sqlStatus) 
+	public void logMail(BaseEnvironment env, String className, String csSubject, Throwable e, CSQLStatus sqlStatus, String csMessage) 
 	{
 	    DateUtil date = new DateUtil();
-		String subject = date.toString() + " - " + m_csAlertMailSubjectTitle + " - " + className + " - " + label;
+		String subject = date.toString() + " - " + m_csAlertMailSubjectTitle + " - " + className + " - " + csSubject;
 		if (m_MailService != null) 
 		{
-			if (e instanceof AbortSessionException && ((AbortSessionException)e).m_Reason != null) {
+			if (e instanceof AbortSessionException && ((AbortSessionException)e).m_Reason != null)
+			{
 				e = ((AbortSessionException)e).m_Reason;
 			}
-				
-		    StringBuffer sb = new StringBuffer();
+			
+			StringBuffer sb = new StringBuffer();
+			
+			TempCache tempCache = TempCacheLocator.getTLSTempCache();
 		    String text = e.getMessage();
 		    if (text == null)
 		    {
@@ -677,15 +768,23 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		    {
 		    	text = e.toString() + " : " + text;
 		    }
-		    sb.append("" + text + "\r\n");
+		    
+		    sb.append(text + "\r\n");
 		    Log.logImportant("Dump-" + "Error:       " + text);
+
 		    sb.append("Time:        " + date.toString() + "\r\n");
 		    Log.logImportant("Dump-" + "Time:        " + date.toString());
-			sb.append("Program:     " + className + "\r\n") ;
+		    
+			if(!StringUtil.isEmpty(csMessage))
+				sb.append("Message:     " + csMessage + "\r\n");
+			
+		    sb.append("Program:     " + className + "\r\n") ;
 			Log.logImportant("Dump-" + "Program:     " + className);
+			
 			sb.append("Context:    \r\n") ;
 			Log.logImportant("Dump-" + "Context:");
-		    for (int i=0; i<e.getStackTrace().length; i++)
+		    
+			for (int i=0; i<e.getStackTrace().length; i++)
 		    {
 				StackTraceElement te = e.getStackTrace()[i] ;
 				sb.append("             ");
@@ -694,7 +793,6 @@ public abstract class BaseProgramLoader extends ProgramSequencer	//ProgramSequen
 		    }
 		    
 		    sb.append("\r\n");
-		    TempCache tempCache = TempCacheLocator.getTLSTempCache();
 		    String csLastSQLCodeErrorText = tempCache.getLastSQLCodeErrorText();
 		    if(csLastSQLCodeErrorText != null && !csLastSQLCodeErrorText.equals(""))
 		    {

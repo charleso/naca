@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -71,9 +77,9 @@ public class CESMSendMap extends CJMapObject
 		m_varFrom = map;
 		return this;
 	}
-	public CESMSendMap dataFrom(Var map)
+	public CESMSendMap dataFrom(Var from)
 	{
-		assertIfFalse(map == null);
+		assertIfFalse(from == null);
 		// this function may not be called : in this case, a COPY is missing defining a map
 		return this;
 	}

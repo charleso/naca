@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ import java.util.Properties;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: DbConnectionParam.java,v 1.7 2008/07/02 12:44:21 u930di Exp $
+ * @version $Id$
  */
 public class DbConnectionParam
 {
@@ -38,5 +44,10 @@ public class DbConnectionParam
 	void setEnvironment(String cs)
 	{
 		m_csEnvironment = cs;
+	}
+	
+	void setPackage(String cs)
+	{
+		m_csPackage = cs;
 	}
 }

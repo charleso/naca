@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -47,6 +53,8 @@ public class CustomClassDynLoader extends ClassDynLoader
 			if(csClassName.startsWith("nacaLib"))	// All nacalib classes are directly loaded by promordial class loader
 				return tryLoadWithPrimordialClassLoader(csClassName);
 			if(csClassName.startsWith("idea"))	// All nacalib classes are directly loaded by promordial class loader
+				return tryLoadWithPrimordialClassLoader(csClassName);
+			if(csClassName.startsWith("jlib"))	// All nacalib classes are directly loaded by promordial class loader
 				return tryLoadWithPrimordialClassLoader(csClassName);
 			if(csClassName.startsWith("pub2000Utils"))	// All nacalib classes are directly loaded by promordial class loader
 				return tryLoadWithPrimordialClassLoader(csClassName);

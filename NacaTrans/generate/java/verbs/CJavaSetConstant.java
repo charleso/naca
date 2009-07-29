@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -43,11 +49,45 @@ public class CJavaSetConstant extends CEntitySetConstant
 		}
 		else 
 		{
+			// Before PJReady
+//			cs = "move" ;
+//			if (m_SubStringRefLength != null && m_SubStringRefStart != null)
+//			{
+//				cs += "SubString" ;
+//			}
+//			if (m_bSetToLowValue)
+//			{
+//				cs += "LowValue(";
+//			}
+//			else if (m_bSetToHighValue)
+//			{
+//				cs += ("HighValue(");
+//			}
+//			else if (m_bSetToSpace)
+//			{
+//				cs += ("Space(");
+//			}
+//			else if (m_bSetToZero)
+//			{
+//				cs += ("Zero(");
+//			}
+//			else if (m_bSetToTrue)
+//			{
+//				cs += ("True(");
+//			}
+//			else if (m_bSetToFalse)
+//			{
+//				cs += ("False(");
+//			}
+//			cs += m_Variable.ExportReference(getLine()) ;
+//			if (m_SubStringRefStart != null && m_SubStringRefLength != null)
+//			{
+//				cs += ", " + m_SubStringRefStart.Export() + ", " + m_SubStringRefLength.Export();
+//			}
+//			cs += ") ;" ;
+			
+			// After PJReady
 			cs = "move" ;
-			if (m_SubStringRefLength != null && m_SubStringRefStart != null)
-			{
-				cs += "SubString" ;
-			}
 			if (m_bSetToLowValue)
 			{
 				cs += "LowValue(";
@@ -75,7 +115,11 @@ public class CJavaSetConstant extends CEntitySetConstant
 			cs += m_Variable.ExportReference(getLine()) ;
 			if (m_SubStringRefStart != null && m_SubStringRefLength != null)
 			{
-				cs += ", " + m_SubStringRefStart.Export() + ", " + m_SubStringRefLength.Export();
+//				cs += ", " + m_SubStringRefStart.Export() + ", " + m_SubStringRefLength.Export();
+				cs += ".subString(" ;
+				cs += m_SubStringRefStart.Export();
+				cs += ", ";
+				cs += m_SubStringRefLength.Export() + ")" ;
 			}
 			cs += ") ;" ;
 		}

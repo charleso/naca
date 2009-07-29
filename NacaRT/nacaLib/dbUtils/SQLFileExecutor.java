@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -18,7 +24,7 @@ import nacaLib.varEx.FileDescriptor;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SQLFileExecutor.java,v 1.9 2006/08/08 05:53:12 u930di Exp $
+ * @version $Id$
  */
 public class SQLFileExecutor extends BaseSQLUtils
 {

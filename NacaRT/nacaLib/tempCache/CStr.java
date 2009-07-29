@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,13 +15,14 @@ package nacaLib.tempCache;
 import java.math.BigDecimal;
 
 import jlib.misc.AsciiEbcdicConverter;
+import nacaLib.debug.BufferSpy;
 import nacaLib.varEx.Pic9Comp3BufferSupport;
 
 
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CStr.java,v 1.10 2007/01/23 15:04:18 u930di Exp $
+ * @version $Id$
  */
 public class CStr
 {
@@ -69,9 +76,13 @@ public class CStr
 		int nNbCharRight = m_nLength-nPosition;
 		for(int n=nNbCharRight-2; n>=0; n--)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nStartPos + n+1, 1);
 			m_acBuffer[m_nStartPos + n+1] = m_acBuffer[m_nStartPos + n];
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, 1);
 		m_acBuffer[nPosition] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 
 	
@@ -87,7 +98,9 @@ public class CStr
 	
 	public void setCharAt(int nPosition, char cDigit)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nStartPos + nPosition, 1);
 		m_acBuffer[m_nStartPos + nPosition] = cDigit;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 	public void setLength(int n)
@@ -97,18 +110,23 @@ public class CStr
 	
 	public void append(char c)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nStartPos + m_nLength, 1);
 		m_acBuffer[m_nStartPos + m_nLength] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		m_nLength++;		
 	}
 	
 	public void append(CStr csInt)
 	{
-		for(int n=0; n<csInt.length(); n++)
+		int nLength = csInt.length();
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nStartPos + m_nLength, nLength);
+		for(int n=0; n<nLength; n++)
 		{
 			char c = csInt.charAt(n);
 			m_acBuffer[m_nStartPos + m_nLength] = c;
 			m_nLength++;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 	public void guaranteeMinialSize(int nMinimalSize)
@@ -120,7 +138,9 @@ public class CStr
 			{
 				acNewBuffer[n] = m_acBuffer[n]; 
 			}
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, 0, nMinimalSize);
 			m_acBuffer = acNewBuffer;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	
@@ -185,6 +205,19 @@ public class CStr
 		}
 		return true;
 	}
+	
+	public boolean isOnlyNumericPicX()
+	{		
+		int nMax = m_nStartPos+m_nLength;
+		for(int n=m_nStartPos; n<nMax; n++)
+		{
+			char c = m_acBuffer[n];
+			if(c < '0' || c > '9')
+				return false;  
+		}
+		return true;
+	}
+
 
 	public boolean isOnlyNumericComp0(boolean bSigned, boolean bDec)
 	{		
@@ -263,7 +296,7 @@ public class CStr
 		return false;
 	}
 	
-	public boolean isOnlyNumericComp0SignTrailing(boolean bDec)
+	public boolean isOnlyNumericComp0SignTrailingDec()
 	{
 		int nNbDec = 0;
 		
@@ -277,7 +310,7 @@ public class CStr
 				return false;  
 		}
 		
-		if(bDec && (nNbDec == 0 || nNbDec == 1))	// Maximum 1 . for decimals
+		if(nNbDec == 0 || nNbDec == 1)	// Maximum 1 . for decimals
 		{
 			char c = m_acBuffer[nMax-1];
 			if(c != '-' && c != '+')
@@ -285,6 +318,21 @@ public class CStr
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isOnlyNumericComp0SignTrailingInt()
+	{
+		int nMax = m_nStartPos+m_nLength;
+		for(int n=m_nStartPos; n<nMax-1; n++)
+		{
+			char c = m_acBuffer[n];
+			if(c < '0' || c > '9')
+				return false;  
+		}
+		char c = m_acBuffer[nMax-1];
+		if(c != '-' && c != '+')
+			return false;
+		return true;
 	}
 	
 	public int getAsInt()
@@ -400,12 +448,14 @@ public class CStr
 	
 	public void setEbcdic()
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nStartPos, m_nLength);
 		for(int n=0; n<m_nLength; n++)
 		{
 			char cAscii = m_acBuffer[n + m_nStartPos];
 			char cEbcdic1 = AsciiEbcdicConverter.getEbcdicChar(cAscii);
 			m_acBuffer[m_nStartPos + n] = cEbcdic1;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 
 	

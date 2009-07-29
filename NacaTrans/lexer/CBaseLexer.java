@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -17,7 +23,13 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Vector;
 
+import parser.CBaseElement;
+import parser.Cobol.elements.CProgram;
+import parser.Cobol.elements.CStandAloneWorking;
+
 import jlib.misc.AsciiEbcdicConverter;
+import jlib.misc.FileSystem;
+import jlib.misc.StringUtil;
 
 import lexer.CBaseToken;
 import lexer.CConstantList;
@@ -33,10 +45,22 @@ import lexer.CTokenNumber;
 import lexer.CTokenString;
 import lexer.CTokenType;
 import lexer.CTokenUnrecognized;
+import lexer.Cobol.CCobolKeywordList;
 
+import semantic.CBaseLanguageEntity;
+import semantic.CEntityClass;
+import semantic.CEntityExternalDataStructure;
+import utils.BaseEngine;
+import utils.CGlobalCatalog;
 import utils.CGlobalEntityCounter;
 import utils.COriginalLisiting;
+import utils.CRulesManager;
+import utils.CTransApplicationGroup;
+import utils.FileContentBuffer;
 import utils.NacaTransAssertException;
+import utils.Transcoder;
+import utils.TranscoderEngine;
+import utils.CTransApplicationGroup.EProgramType;
 
 
 /**
@@ -52,12 +76,17 @@ public abstract class CBaseLexer
 	protected int m_nCurrentPositionInLine = 0;
 	protected int m_nCurrentLineLength = 0;
 	protected char[] m_arrCurrentLine = null ;
+	//private boolean m_bCanBeDottedDecimal = true;
 	private int m_nbCharsIgnoredAtBegining = 0 ;
 	private int m_nbCharsUtils = 80 ;
 	//protected boolean m_bHandleLabel = true ;
 	protected COriginalLisiting m_prgmListing = null ;
 	private CKeywordList m_lstKW ;
 	private CConstantList m_lstCste ;
+	private boolean m_bSetLabelSentenceAtNextDot = false;
+	
+	//private TranscoderEngine<CProgram, CEntityClass> m_engine = null;
+	private CGlobalCatalog m_cat = null;
 
 	public CBaseLexer(int ignored, int utils, CKeywordList lstKW, CConstantList lstCste)
 	{
@@ -65,9 +94,21 @@ public abstract class CBaseLexer
 		m_nbCharsUtils = utils ;
 		m_lstKW = lstKW ;
 		m_lstCste = lstCste ;
+		m_bSetLabelSentenceAtNextDot = false;
 	}
 	
-	protected boolean ReadLineEnd(InputStream buffer)
+	public void setModeString()
+	{
+		m_nbCharsIgnoredAtBegining = 0;
+		m_nbCharsUtils = 65536;
+	}
+	
+	public void setCopyCodeInliningSupport(CGlobalCatalog cat)
+	{
+		m_cat = cat;
+	}
+	
+	protected boolean ReadLineEnd(FileContentBuffer buffer)
 	{
 		int nReadChar = m_nCurrentLineLength + m_nbCharsIgnoredAtBegining +1; // +1 counts the \n character
 		int nLineChar = m_nCurrentLineLength ;
@@ -80,14 +121,17 @@ public abstract class CBaseLexer
 			int nbStringMarks = 0 ;
 			char[] nextline = new char[m_nbCharsUtils+m_nbCharsIgnoredAtBegining] ;
 			Arrays.fill(nextline, '\0');
-			while (b != '\n' && buffer.available()>0)
-			{
+			while (b != '\n' && buffer.available()>0)	// PJD Added support for \r\n terminated lines
+			{				
 				b = (char)buffer.read() ;
-				nextline[nReadNextLine] = b ;
-				nReadNextLine ++ ;
-				if (b == '\'')
+				if(b != '\r')	// PJD: Ignore \r
 				{
-					nbStringMarks ++ ;
+					nextline[nReadNextLine] = b ;
+					nReadNextLine ++ ;
+					if (b == '\'')
+					{
+						nbStringMarks ++ ;
+					}
 				}
 //				nReadChar ++ ;
 //				if (nReadChar <= m_nbCharsUtils+m_nbCharsIgnoredAtBegining
@@ -187,17 +231,19 @@ public abstract class CBaseLexer
 				return false ;
 			}
 		}
-		catch (IOException e)
-		{
-			return false ;
-		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//			return false ;
+//		}
 		catch (IndexOutOfBoundsException e)
 		{
+			e.printStackTrace();
 			return false ;
 		}
 	}
 	
-	protected boolean ReadLine(InputStream buffer)
+	protected boolean ReadLine(FileContentBuffer buffer)
 	{
 		int nReadChar = 0 ;
 		try
@@ -257,12 +303,14 @@ public abstract class CBaseLexer
 				return ReadLine(buffer) ;
 			}
 		}
-		catch (IOException e)
-		{
-			return false ;
-		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//			return false ;
+//		}
 		catch (IndexOutOfBoundsException e)
 		{
+			e.printStackTrace();
 			return false ;
 		}
 	}
@@ -288,7 +336,9 @@ public abstract class CBaseLexer
 		return true ;
 	}
 	
-	public boolean StartLexer(InputStream buffer, COriginalLisiting prgmCatalog)
+	
+	private int m_nProcedureDivision = 0;
+	public boolean StartLexer(FileContentBuffer buffer, COriginalLisiting prgmCatalog, EProgramType eProgramType)
 	{
 		m_prgmListing = prgmCatalog ;
 		if (buffer == null)
@@ -297,6 +347,7 @@ public abstract class CBaseLexer
 		}
 		try 
 		{
+			m_nProcedureDivision = 0;
 			while (ReadLine(buffer))
 			{
 				DoLine(buffer) ;
@@ -315,13 +366,34 @@ public abstract class CBaseLexer
 		return true ;
 	}
 	private boolean ignoreOriginalListing = false ;
+	private boolean m_bDecimalPointIsComma = false;
 	
-	private void DoLine(InputStream buffer)
+	private CBaseToken handleComma(boolean bIsNewLine)
 	{
+		CBaseToken tok = new CTokenGeneric(CTokenType.COMMA, getLine(), bIsNewLine);
+		m_nCurrentPositionInLine ++ ;
+		return tok ;
+	}
+	
+	private void DoLine(FileContentBuffer buffer)
+	{
+		boolean bWillHandleCopyName = false;
+		boolean bCopyCode = false;
+		boolean bIncludeCode = false;
+		int nIncludeCode = 0;
 		//CBaseTranscoder.ms_logger.info("Lexing line "+getLine()) ;
 		boolean bIsNewLine = true ; // this flag is true if lexer is at the begining of a line
 		while (m_nCurrentPositionInLine < m_nCurrentLineLength)
 		{
+			int nLine = getLine();
+			if(nLine == 1136)
+			{
+				int gg = 0;
+			}
+			if(nLine == 4)
+			{
+				int gg = 0;
+			}
 			m_cCurrent = m_arrCurrentLine[m_nCurrentPositionInLine] ;
 			CBaseToken tok = null ;
 			if (IsCommentMarker(m_cCurrent, bIsNewLine))
@@ -341,20 +413,45 @@ public abstract class CBaseLexer
 							tok.m_bIsNewLine = bIsNewLine ;
 							break;
 						case '.':
-							if (m_nCurrentPositionInLine<m_nCurrentLineLength-1)
-							{
-								if (m_arrCurrentLine[m_nCurrentPositionInLine+1] >= '0' && m_arrCurrentLine[m_nCurrentPositionInLine+1] <= '9')
-								{ // dotted-decimal number
-									tok = ReadNumber();
-									break ;
-								}
-							}
+							// PJD Commented because DATE-WRITTEN.05-12-09 --> gets number .05
+//							if (m_nCurrentPositionInLine<m_nCurrentLineLength-1)
+//							{
+//								if (m_bCanBeDottedDecimal && m_arrCurrentLine[m_nCurrentPositionInLine+1] >= '0' && m_arrCurrentLine[m_nCurrentPositionInLine+1] <= '9')
+//								{ // dotted-decimal number
+//									//m_bCanBeDottedDecimal = false;
+//									tok = ReadNumber();									
+//									break ;
+//								}
+//							}
 							tok = new CTokenGeneric(CTokenType.DOT, getLine(), bIsNewLine);
 							m_nCurrentPositionInLine ++ ;
 							break;
 						case ',':
-							tok = new CTokenGeneric(CTokenType.COMMA, getLine(), bIsNewLine);
-							m_nCurrentPositionInLine ++ ;
+							if (m_bDecimalPointIsComma)
+							{
+								if (m_nCurrentPositionInLine>0 && m_arrCurrentLine[m_nCurrentPositionInLine-1] >= '0' && m_arrCurrentLine[m_nCurrentPositionInLine-1] <= '9')	// 9,
+								{
+									if(m_nCurrentPositionInLine+1 < m_nCurrentLineLength && m_arrCurrentLine[m_nCurrentPositionInLine+1] >= '0' && m_arrCurrentLine[m_nCurrentPositionInLine+1] <= '9')	// 9,9
+									{ // dotted-decimal number
+										m_cCurrent='.';
+										m_arrCurrentLine[m_nCurrentPositionInLine]='.';
+										tok = ReadNumber();
+										break;
+									}
+									else 
+									{
+										tok = handleComma(bIsNewLine);
+									}
+								} 
+								else 
+								{
+									tok = handleComma(bIsNewLine);
+								}
+							} 
+							else 
+							{
+								tok = handleComma(bIsNewLine);
+							}
 							break;
 						case ';':
 							tok = new CTokenGeneric(CTokenType.SEMI_COLON, getLine(), bIsNewLine);
@@ -439,12 +536,82 @@ public abstract class CBaseLexer
 								m_cCurrent = Character.toUpperCase(m_cCurrent);
 							if (m_cCurrent >= 'A' && m_cCurrent <= 'Z')
 							{
+								boolean bAddKw = true;
 								int pos = m_nCurrentPositionInLine ;
 								String word = ReadWord();
 								CReservedKeyword kw = m_lstKW.GetKeyword(word);
 								if (kw != null)
 								{
-									tok = new CTokenKeyword(kw, getLine(), bIsNewLine) ;
+									if(kw.toString().equals("COPY"))	// PJReady start: Support for Nested copy and nested replacing copy
+									{
+										EProgramType eProgramType = buffer.getEProgramType();
+										if(eProgramType == EProgramType.TYPE_INCLUDED)
+										{
+											if(m_nProcedureDivision == 0)	// We have a copy inside another copy; inline the copy within it's parent
+											{
+												// Read internal copy name
+												String csInternalCopyName = ReadWord().trim();
+												String csDot = ReadWord().trim();												
+												if(csDot.equals("REPLACING"))	// Nested copy REPLACING within a copy ...
+												{
+													String cs = new String(m_arrCurrentLine);
+													cs = cs.substring(m_nCurrentPositionInLine).trim();
+													int nPos = cs.indexOf(" BY ");
+													if(nPos >= 0)
+													{
+														String csPatternSearch = cs.substring(0, nPos).trim();
+														String csPatternReplacement = cs.substring(nPos+4).trim();
+														while(csPatternReplacement.endsWith("."))
+															csPatternReplacement = csPatternReplacement.substring(0, csPatternReplacement.length()-1);
+														
+														csPatternSearch = cleanupReplacingPattern(csPatternSearch);
+														csPatternReplacement = cleanupReplacingPattern(csPatternReplacement);
+														
+														InlineCopyCodeWithReplacing(buffer, csInternalCopyName, csPatternSearch, csPatternReplacement, "Nested copy replacing");
+
+														nIncludeCode = 11;
+														m_nCurrentPositionInLine = m_nCurrentLineLength; // end of line
+													}
+												}
+												else	// Nested COPY
+												{	
+													InlineCopyCode(buffer, csInternalCopyName, "Nested copy");
+													nIncludeCode = 10;
+												}												
+											}
+										}
+										else if(eProgramType == EProgramType.TYPE_BATCH || eProgramType == EProgramType.TYPE_ONLINE)
+										{
+											if(m_nProcedureDivision == 0)	// We have a copy inside another copy; inline the copy within it's parent
+											{
+												bWillHandleCopyName = true;
+											}
+										}
+									}
+									if(kw.toString().equals("PROCEDURE"))	// PJReady: Support for COPY or EXEC SQL INCLUDE within PROCEDURE DIVISION
+										m_nProcedureDivision += 10;
+									else if(m_nProcedureDivision == 10 && kw.toString().equals("DIVISION"))
+										m_nProcedureDivision += 1;
+									if(m_nProcedureDivision == 11)	// inside PROCEDURE DIVISION:
+									{
+										if(kw.toString().equals("COPY"))	// Found COPY inside PROCEDURE DIVISION: It's a copy of code, not data 
+											bCopyCode = true;
+										else if(kw.toString().equals("EXEC"))
+											nIncludeCode = 1;
+										else if(kw.toString().equals("SQL") && nIncludeCode == 1)
+											nIncludeCode = 2;
+										else if(kw.toString().equals("INCLUDE") && nIncludeCode == 2)	// EXEC SQL INCLUDE inside a PROCEDURE DIVISION: It's a copy of code, not data
+										{
+											bIncludeCode = true;
+											nIncludeCode = 3;						
+										}
+										else if(kw.toString().equals("END-EXEC") && nIncludeCode == 3)	// EXEC SQL INCLUDE inside a PROCEDURE DIVISION: It's a copy of code, not data
+											nIncludeCode = 4;
+										else
+											nIncludeCode = 0;
+									}
+									if(bAddKw)
+										tok = new CTokenKeyword(kw, getLine(), bIsNewLine) ;
 								}
 								else 
 								{
@@ -460,6 +627,30 @@ public abstract class CBaseLexer
 											m_lstTokens.Add(new CTokenGeneric(CTokenType.END_OF_BLOCK, getLine(), false));
 										}
 										tok = new CTokenIdentifier(word, getLine(), bIsNewLine) ;
+										if(bWillHandleCopyName)	// We have just read to name of a copy
+										{
+											String csCopyFileName = tok.GetValue();
+											CRulesManager manager = CRulesManager.getInstance() ;
+											boolean bToInline = manager.isToInline(csCopyFileName);
+											if(bToInline)
+											{
+												InlineCopyCode(buffer, csCopyFileName, "Copy declared to inline");
+												nIncludeCode = 12;
+											}
+											bWillHandleCopyName = false;
+										}
+										if(bCopyCode)	// We have just read to name of the copy code
+										{
+											String csCopyCodeFileName = tok.GetValue();
+											InlineCopyCode(buffer, csCopyCodeFileName, "Copy");
+											bCopyCode = false;
+										}
+										if(bIncludeCode)
+										{
+											String csCopyCodeFileName = tok.GetValue();
+											InlineCopyCode(buffer, csCopyCodeFileName, "Include");
+											bIncludeCode = false;
+										}
 									}
 								}
 							}
@@ -482,7 +673,78 @@ public abstract class CBaseLexer
 							m_nbCodeLines ++ ;
 						}
 					} 
-					m_lstTokens.Add(tok);
+					if ("COMMA".equals(tok.m_Value))
+					{
+						CBaseToken tokLast =m_lstTokens.getFromLastToken(0);
+						if (tokLast!=null && "IS".equals(tokLast.m_Value))
+						{
+							 tokLast =m_lstTokens.getFromLastToken(1);
+							 if (tokLast!=null && "DECIMAL-POINT".equals(tokLast.m_Value)) 
+							 {
+								 m_bDecimalPointIsComma =true;
+							 }		
+						}
+					}
+					
+					if(tok.GetKeyword() == CCobolKeywordList.SENTENCE)
+					{
+						CBaseToken lastTok = m_lstTokens.getInternalList().getLast();
+						if(lastTok.GetKeyword() == CCobolKeywordList.NEXT)
+						{
+							m_bSetLabelSentenceAtNextDot = true;
+							tok.m_bIsNewLine = false;
+							m_lstTokens.Add(tok);
+							String csLabel = getNextSentenceCurrentLabel();
+							CBaseToken tokLabelSentenceId = new CTokenIdentifier(csLabel, getLine(), false);
+							m_lstTokens.Add(tokLabelSentenceId);
+						}
+					}
+					else
+						m_lstTokens.Add(tok);
+					if (tok.GetType()== CTokenType.DOT && m_bSetLabelSentenceAtNextDot)
+					{
+						// Insert fake LabelSentence
+						m_lstTokens.Add(new CTokenGeneric(CTokenType.END_OF_BLOCK, getLine(), false));
+						
+						String csLabel = getNextSentenceCurrentLabel();
+						Transcoder.resetNextSentenceToLocate();
+						CBaseToken tokLabelSentenceId = new CTokenIdentifier(csLabel, getLine(), true);
+						m_lstTokens.Add(tokLabelSentenceId);
+						CBaseToken tokLabelSentence = new CTokenKeyword(CCobolKeywordList.LABEL_SENTENCE, getLine(), false);
+						m_lstTokens.Add(tokLabelSentence);
+						m_lstTokens.Add(new CTokenGeneric(CTokenType.DOT, getLine(), bIsNewLine));
+						m_bSetLabelSentenceAtNextDot = false;
+					}
+					
+					if(nIncludeCode == 4)	// EXEC SQL INCLUDE inside a PROCEDURE DIVISION: It's a copy of code, not data
+					{
+						//m_lstTokens.dump();
+						m_lstTokens.removeLast(5);	// Remove last 4 entries: We don't reference anymore the EXEC SQL INCLUDE xxx END-EXEC
+						//m_lstTokens.dump();
+						nIncludeCode = 0;
+					}
+					else if(nIncludeCode == 10)	// nested copy: COPY inside another COPY
+					{
+						//m_lstTokens.dump();
+						m_lstTokens.removeLast(1);	// Remove last entry
+						//m_lstTokens.dump();
+						nIncludeCode = 0;
+					}
+					else if(nIncludeCode == 11)	// nested copy replacing: COPY replacing inside another COPY
+					{
+						//m_lstTokens.dump();
+						m_lstTokens.removeLast(1);	// Remove last entry
+						//m_lstTokens.dump();
+						nIncludeCode = 0;
+					}
+					else if(nIncludeCode == 12)	// COPY declared as to inline
+					{
+						//m_lstTokens.dump();
+						m_lstTokens.removeLast(2);	// Remove last entry
+						//m_lstTokens.dump();
+						nIncludeCode = 0;
+					}
+						
 					bIsNewLine = false ;
 				}
 				if (tok.GetType() == CTokenType.NEWLINE)
@@ -497,6 +759,83 @@ public abstract class CBaseLexer
 				m_nCurrentPositionInLine ++ ;
 			}
 		}
+	}
+	
+	private String getNextSentenceCurrentLabel()
+	{
+		String csLabel = "sentence_" + Transcoder.getNewSentenceIndex();
+		return csLabel;
+	}
+	
+
+	private String cleanupReplacingPattern(String csPattern)
+	{
+		// Remove leading and trailing ==
+		if(csPattern.startsWith("=="))
+			csPattern = csPattern.substring(2);
+		if(csPattern.endsWith("=="))
+			csPattern = csPattern.substring(0, csPattern.length()-2);
+		return csPattern;
+	}
+	
+	private boolean InlineCopyCodeWithReplacing(FileContentBuffer buffer, String csCopyCodeFileName, String csPatternSearch, String csPatternReplacement, String csInlineType)
+	{
+		Transcoder.logWarn(getLine(), csInlineType + " implies inlining file " + csCopyCodeFileName + " with replacing " + csPatternSearch + " by " + csPatternReplacement);
+		StringBuilder sb = DoInlineCopyCode(csCopyCodeFileName);
+		if(sb != null)
+		{
+			StringUtil.replace(sb, csPatternSearch, csPatternReplacement);
+			buffer.insertInlinedCodeAtReadPosition(sb);
+			return true;
+		}
+		Transcoder.logError(getLine(), "Could not inline file " + csCopyCodeFileName);
+		return false;
+	}
+	
+	private boolean InlineCopyCode(FileContentBuffer buffer, String csCopyCodeFileName, String csInlineType)
+	{
+		Transcoder.logWarn(getLine(), csInlineType + " implies inlining file " + csCopyCodeFileName);
+		StringBuilder sb = DoInlineCopyCode(csCopyCodeFileName);
+		if(sb == null)
+		{
+			Transcoder.logError(getLine(), "Could not inline file " + csCopyCodeFileName);
+			sb = new StringBuilder(); 
+		}
+		sb.insert(0, "      *[NacaTrans comment; Copy file " + csCopyCodeFileName + ": inlining starts]\n");
+		sb.append(   "      *[NacaTrans comment; Copy file " + csCopyCodeFileName + ": inlining ends]\n");
+		buffer.insertInlinedCodeAtReadPosition(sb);			
+		return true;
+	}
+	
+	private StringBuilder DoInlineCopyCode(String csCopyCodeFileName)
+	{
+		CTransApplicationGroup groupIncludes = m_cat.getGroupIncludes();
+		if(groupIncludes == null)
+		{
+			Transcoder.logError("No group includes defined; cannot inline copy code file "+csCopyCodeFileName);
+			return null;
+		}
+		
+		BaseEngine engine = groupIncludes.getEngine() ;
+		if(engine == null)
+		{
+			Transcoder.logError("No include engine found: cannot inline copy code file "+csCopyCodeFileName);
+			return null;
+		}
+		//grp.m_csInputPath + filename
+		
+		String csFileName = groupIncludes.m_csInputPath + csCopyCodeFileName;
+		String csFullFileName = engine.generateInputFileName(csFileName);
+		
+		if(!FileSystem.exists(csFullFileName))
+		{
+			Transcoder.logError("Copy code file not found: "+csCopyCodeFileName + "; cannot inline it");
+			return null;
+		}
+		
+		StringBuilder sb = FileSystem.readWholeFile(csFullFileName);		
+		
+		return sb;		
 	}
 	
 	/**
@@ -593,11 +932,12 @@ public abstract class CBaseLexer
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			return null ;
 		}
 	}
 
-	protected CBaseToken ReadComment(InputStream buffer)
+	protected CBaseToken ReadComment(FileContentBuffer buffer)
 	{
 		String val = new String() ;
 		try 
@@ -611,6 +951,7 @@ public abstract class CBaseLexer
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 		}
 		CBaseToken tok = new CTokenComment(val, getLine(), true);
 		return tok ;
@@ -634,6 +975,7 @@ public abstract class CBaseLexer
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			return null ;
 		}
 	}
@@ -653,7 +995,7 @@ public abstract class CBaseLexer
 				{
 					val += m_cCurrent ;
 				}
-				else if (m_cCurrent == '.' && !bDoted && m_arrCurrentLine[m_nCurrentPositionInLine+1]>='0' && m_arrCurrentLine[m_nCurrentPositionInLine+1]<='9')
+				else if (m_cCurrent == '.' && !bDoted && m_nCurrentPositionInLine+1  < m_nCurrentLineLength && m_arrCurrentLine[m_nCurrentPositionInLine+1]>='0' && m_arrCurrentLine[m_nCurrentPositionInLine+1]<='9')
 				{
 					if (val.equals(""))
 					{
@@ -683,13 +1025,14 @@ public abstract class CBaseLexer
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 		}
 
 		CBaseToken tok = new CTokenNumber(val, getLine(), false);
 		return tok ;
 	}
 	
-	protected CBaseToken ReadString(InputStream buffer)
+	protected CBaseToken ReadString(FileContentBuffer buffer)
 	{
 		Vector<Character> val = new Vector<Character>() ;
 		char delimit = m_cCurrent ;
@@ -790,7 +1133,7 @@ public abstract class CBaseLexer
 		return tok ;
 	}
 	
-	protected CBaseToken ReadWhiteSpace(InputStream buffer)
+	protected CBaseToken ReadWhiteSpace(FileContentBuffer buffer)
 	{
 		boolean bIsNewline = false ;
 		boolean bFound = false ;
@@ -878,6 +1221,7 @@ public abstract class CBaseLexer
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 		}
 		return val ;
 	}

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -30,7 +36,10 @@ import utils.TranscoderEngine;
 
 public class CobolIncludeTranscoderEngine extends TranscoderEngine<CStandAloneWorking, CEntityExternalDataStructure>
 {
-	
+	public CobolIncludeTranscoderEngine()
+	{
+		int gg =0 ;
+	}
 
 	@Override
 	protected CParser<CStandAloneWorking> doParsing(CTokenList lst)
@@ -61,12 +70,17 @@ public class CobolIncludeTranscoderEngine extends TranscoderEngine<CStandAloneWo
 		{
 			finalName += finalName+"$Copy" ;
 		}
+		
 		String javafilePath = filePath.replaceAll(fileName, finalName) ;
 		CJavaExporter exp = new CJavaExporter(cat.m_Listing, javafilePath, parser.m_CommentContainer, bResources) ;
 		CJavaEntityFactory factory = new CJavaEntityFactory(cat, exp) ;
 		
 		CStandAloneWorking working = parser.GetRootElement() ;
 		CEntityExternalDataStructure eFile = working.DoSemanticAnalysis(factory);
+		
+		if(eFile != null)
+			if(eFile.m_ProgramCatalog != null)
+				eFile.m_ProgramCatalog.generateFromDCGLGEN(m_DCLGenConverter);
 		
 		String replace = m_tabRulesReplaceCopy.get(fileName) ;
 		if (replace == null)
@@ -184,7 +198,7 @@ public class CobolIncludeTranscoderEngine extends TranscoderEngine<CStandAloneWo
 	 * @see utils.TranscoderEngine#generateInputFileName(java.lang.String)
 	 */
 	@Override
-	protected String generateInputFileName(String filename)
+	public String generateInputFileName(String filename)
 	{
 		return filename;
 	}

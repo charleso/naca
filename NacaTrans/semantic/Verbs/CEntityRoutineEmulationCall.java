@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -55,6 +61,7 @@ public abstract class CEntityRoutineEmulationCall extends CBaseActionEntity
 	}
 
 	protected String m_csDisplay = "" ;
+	protected boolean m_bExternal = false;
 	protected Vector<CDataEntity> m_arrParameters = new Vector<CDataEntity>() ;
 	public void Clear()
 	{
@@ -64,6 +71,10 @@ public abstract class CEntityRoutineEmulationCall extends CBaseActionEntity
 	public void SetDisplay(String disp)
 	{
 		m_csDisplay = disp ;
+	}
+	public void setExternal(boolean external)
+	{
+		m_bExternal = external;
 	}
 	public void AddParameter(CDataEntity e)
 	{

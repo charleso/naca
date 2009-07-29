@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -22,11 +28,17 @@ public class CJavaReadFile extends CEntityReadFile
 	protected void DoExport()
 	{
 		//String cs = m_eFileDescriptor.ExportReference(getLine()) + ".read" ;
+		String csFD;
+		if(m_eFileDescriptor != null)
+			csFD = m_eFileDescriptor.ExportReference(getLine());
+		else
+			csFD = "[Unknown FileDescriptor]";
+		
 		String cs = "";
 		if (m_eDataInto != null)
-			cs = "readInto(" + m_eFileDescriptor.ExportReference(getLine()) + ", " + m_eDataInto.ExportReference(getLine()) + ")";
+			cs = "readInto(" + csFD + ", " + m_eDataInto.ExportReference(getLine()) + ")";
 		else
-			cs = "read(" + m_eFileDescriptor.ExportReference(getLine()) + ")";
+			cs = "read(" + csFD + ")";
 		//WriteLine(cs) ;
 		if (m_eAtEndBloc != null)
 		{

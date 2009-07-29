@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,10 +15,12 @@
  */
 package jlib.misc;
 
+import jlib.log.Log;
+
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: LineRead.java,v 1.11 2007/10/25 15:13:11 u930di Exp $
+ * @version $Id$
  */
 public class LineRead
 {
@@ -23,6 +31,30 @@ public class LineRead
 	
 	LineRead()
 	{
+	}
+	
+	public LineRead getAsDeserializedFromMFCobol()
+	{
+		LineRead lineReadDest = new LineRead();
+		lineReadDest.resetAndGaranteeBufferStorage(m_nTotalLength, m_nTotalLength);
+		int nSourceLength = getTotalLength();
+		int nMaxSourceIndex = nSourceLength+m_nOffset;
+		int nDestIndex=0;
+		for(int nSourceIndex=m_nOffset; nSourceIndex<nMaxSourceIndex; nDestIndex++, nSourceIndex++)
+		{
+			if(m_tbLine[nSourceIndex] != 0)
+				lineReadDest.m_tbLine[nDestIndex] = m_tbLine[nSourceIndex];
+			else	// Skip leading 0
+			{
+				nSourceIndex++;
+				if(nSourceIndex<nMaxSourceIndex)	
+					lineReadDest.m_tbLine[nDestIndex] = m_tbLine[nSourceIndex];	// Write real byte's value	
+				else
+					Log.logCritical("Leading 00 has no suffix byte !");
+			}				
+		}
+		lineReadDest.m_nTotalLength = nDestIndex;
+		return lineReadDest; 	
 	}
 	
 	void resetAndGaranteeBufferStorage(int nMinBufferStorageLength, int nBufferStorageLengthToAlloc)
@@ -131,6 +163,17 @@ public class LineRead
 		{
 			m_nBodyLength--;	// Do not use the trailing LF; just consume it
 			m_nTotalLength--;
+			return true;
+		}		
+		return false;
+	}
+	
+	public boolean manageTrailingCRLF()
+	{
+		if(m_tbLine[m_nOffset+m_nTotalLength-2] == 0x0D && m_tbLine[m_nOffset+m_nTotalLength-1] == 0x0A)
+		{
+			m_nBodyLength -= 2;	// Do not use the trailing CRLF; just consume it
+			m_nTotalLength -= 2;
 			return true;
 		}		
 		return false;

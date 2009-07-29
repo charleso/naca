@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -60,7 +66,12 @@ public abstract class CEntityComment extends CBaseLanguageEntity
 	
 	public String getOriginalComment()
 	{
-		return m_csComment.replaceAll("\n", "0x000A").replaceAll("\r", "0x000D") ;
+		if(m_csComment.indexOf("VALUE 'RS0333D'") >= 0)
+		{
+			int gg = 0;
+		}
+		String csOut = m_csComment.replaceAll("\n", "0x000A").replaceAll("\r", "0x000D") ;
+		return csOut;
 	}
 
 }

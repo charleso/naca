@@ -5,8 +5,8 @@
        PROGRAM-ID.                ONLINE1.
        AUTHOR.                    XXXXXXXXX.
        DATE-WRITTEN.              2008.
-      
-      *REMARKS.                   
+
+      *REMARKS.
       *
       * Programme demo ONLINE
       *
@@ -69,7 +69,7 @@
            05 W-MI                PIC XX.
            05 FILLER              PIC X            VALUE ':'.
            05 W-SS                PIC XX.
-       
+
        01  W-LIBEL.
            03 W-LIB               PIC X OCCURS 5.
        01  W-LIBEL1.
@@ -81,7 +81,7 @@
 
            EXEC SQL INCLUDE ONLINM1S END-EXEC.
 
-      * COPY IO CALLMSG    
+      * COPY IO CALLMSG
            COPY MSGZONE.
 
       * COPY DB2
@@ -132,7 +132,7 @@
        1ER-PASSAGE SECTION.
       **********************
            MOVE LOW-VALUE         TO ONLINEFS
-           
+
            MOVE CIXJOUR           TO W-JJ W-JOUR
            MOVE CIXMOIS           TO W-MM W-MOIS
            MOVE CIXAN             TO W-AA W-ANNEE
@@ -142,9 +142,9 @@
            ELSE
               MOVE 19             TO W-SIECLE.
            MOVE W-DATE-N          TO TUA-I-DTJOUR
-           
+
            MOVE TUA-I-DTJOURF     TO SDTEXECI DTEXECI
-      
+
            MOVE -1                TO SRECOLLL RECOLLL
            PERFORM                ENVOI-MASQUE.
 
@@ -166,7 +166,7 @@
                 INTO(ONLINEFI)
            END-EXEC.
 
-           PERFORM P-MERGE-MASQUE.           
+           PERFORM P-MERGE-MASQUE.
 
       **** TEST DES DIFFERENTES TOUCHES FONCTIONS :
            IF EIBAID              = DFHPF2
@@ -181,17 +181,17 @@
                     PERFORM       P-ANYKEY.
 
            PERFORM                PLAUS-REL.
-           
+
       /*******************
        TEST-SQL SECTION.
       ********************
            MOVE '1234'            TO NO OF DVTBMSGA
-           EXEC SQL
-                SELECT *
-                  INTO :DVTBMSGA
-                  FROM VTBMSGA
-                  WHERE NO = :DVTBMSGA.NO
-           END-EXEC
+      *     EXEC SQL
+      *          SELECT *
+      *            INTO :DVTBMSGA
+      *            FROM VTBMSGA
+      *            WHERE NO = :DVTBMSGA.NO
+      *     END-EXEC
            IF SQLCODE             = 0
               MOVE TEXT OF DVTBMSGA TO LIERRI SLIERRI
            ELSE
@@ -199,7 +199,7 @@
               MOVE -1             TO RECOLLL
               PERFORM             RECH-MSGERR
            END-IF
-           
+
            PERFORM                ENVOI-MASQUE.
 
       /*******************
@@ -211,7 +211,7 @@
               MOVE 'H'            TO RECOLLA
               MOVE '2'            TO RECOLLC
               PERFORM             RECH-MSGERR.
-              
+
            PERFORM                ENVOI-MASQUE.
 
       /**********************
@@ -256,13 +256,13 @@
        P-MERGE-MASQUE.
       *---------------
            MOVE SPACE             TO LIERRI SLIERRI.
-           
+
            IF RECOLLL             > ZERO
               OR RECOLLF           = HEX80
               MOVE '6'            TO RECOLLC
               MOVE 'D'            TO RECOLLA
               MOVE RECOLLI        TO SRECOLLI
-              MOVE LOW-VALUE      TO RECOLLI.           
+              MOVE LOW-VALUE      TO RECOLLI.
 
        P-MASQUE-VIDE.
       *--------------
@@ -277,7 +277,7 @@
            MOVE -1                TO RECOLLL
            PERFORM                RECH-MSGERR
            PERFORM                ENVOI-MASQUE.
-           
+
        RECH-MSGERR.
       *------------
            EXEC CICS LINK

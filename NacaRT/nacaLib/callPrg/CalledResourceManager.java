@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,11 +19,12 @@ import jlib.log.Log;
 import jlib.xml.Tag;
 import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.misc.LogFlowCustomNacaRT;
+import nacaLib.pathManager.PathsManager;
 
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CalledResourceManager.java,v 1.1 2007/09/18 08:22:28 u930di Exp $
+ * @version $Id$
  */
 public class CalledResourceManager extends BaseResourceManager
 {
@@ -42,6 +49,7 @@ public class CalledResourceManager extends BaseResourceManager
 		if(tagRoot != null)
 		{
 			String csLogCfg = tagRoot.getVal("LogSettingsPathFile");
+			csLogCfg = PathsManager.adjustPath(csLogCfg);
 			
 			LogFlowCustomNacaRT.declare();
 			Tag tagLogSettings = Log.open("NacaRT", csLogCfg);

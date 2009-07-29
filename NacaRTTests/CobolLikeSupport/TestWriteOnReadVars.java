@@ -1,4 +1,10 @@
 /*
+ * NacaRTTests - Naca Tests for NacaRT support v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ import nacaLib.varEx.Var;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: TestWriteOnReadVars.java,v 1.1 2007/04/02 16:58:24 u930di Exp $
+ * @version $Id$
  */
 public class TestWriteOnReadVars extends OnlineProgram
 {

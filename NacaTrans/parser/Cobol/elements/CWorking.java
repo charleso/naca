@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -52,6 +58,7 @@ public class CWorking extends CCommentContainer
 	{	
 		LevelKeywords levelKeywords = LevelKeywordStackManager.getAndPushNewLevelKeywords();
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.EJECT);
+		levelKeywords.registerManagedKeyword(CCobolKeywordList.SKIP1);
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.SKIP2);
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.SKIP3);
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.WORKING_STORAGE);
@@ -77,6 +84,13 @@ public class CWorking extends CCommentContainer
 			bLoop = false;
 			b = internalDoParsing();
 			CBaseToken tokEntry = GetCurrentToken();
+			if(tokEntry != null)
+			{
+				if(tokEntry.getLine() == 11)
+				{
+					int gg = 0;
+				}
+			}
 			if(!LevelKeywordStackManager.isTokenManagedByAnyParents(tokEntry))
 			{
 				Transcoder.logError(tokEntry.getLine(), "Consuming token " + tokEntry.toString());
@@ -100,10 +114,17 @@ public class CWorking extends CCommentContainer
 			{
 				return true ;
 			}
-			if (tokEntry.GetType() == CTokenType.KEYWORD)
+		
+			if (tokEntry.GetKeyword() == CCobolKeywordList.FD || tokEntry.GetKeyword() == CCobolKeywordList.SD)	// PJFull
 			{
-				int gg = 0;
+				CFileDescriptor fd = new CFileDescriptor(tokEntry.getLine());
+				AddChild(fd);
+				if (!Parse(fd))
+				{
+					return false ;
+				}
 			}
+
 			if (tokEntry.GetType() == CTokenType.NUMBER)
 			{
 				int n = tokEntry.GetIntValue();
@@ -143,12 +164,11 @@ public class CWorking extends CCommentContainer
 			}
 			else if (tokEntry.GetKeyword()==CCobolKeywordList.COPY)
 			{
-				CCobolElement eCopy = new CCopyInWorking(tokEntry.getLine()) ;
+				CCopyInWorking eCopy = new CCopyInWorking(tokEntry.getLine()) ;
 				AddChild(eCopy) ;
 				if (!Parse(eCopy))
-				{
 					return false ;
-				}
+				int gg = 0;
 			}
 			else if (tokEntry.GetKeyword()==CCobolKeywordList.COPYREC)
 			{
@@ -159,7 +179,7 @@ public class CWorking extends CCommentContainer
 					return false ;
 				}
 			}
-			else if (tokEntry.GetKeyword()==CCobolKeywordList.EJECT)
+			else if (tokEntry.GetKeyword()==CCobolKeywordList.EJECT || tokEntry.GetKeyword() == CCobolKeywordList.SKIP1 || tokEntry.GetKeyword() == CCobolKeywordList.SKIP2 || tokEntry.GetKeyword() == CCobolKeywordList.SKIP3)
 			{
 				GetNext();
 			}
@@ -250,6 +270,7 @@ public class CWorking extends CCommentContainer
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 		}
 		while (le != null)
 		{
@@ -267,7 +288,7 @@ public class CWorking extends CCommentContainer
 				}
 				else
 				{
-					CBaseLanguageEntity eNew = eLast.FindLastEntityAvailableForLevel(level);
+//					CBaseLanguageEntity eNew = eLast.FindLastEntityAvailableForLevel(level);
 //					if (eNew != null)
 //					{
 //						eNew.AddChild(e);
@@ -280,6 +301,7 @@ public class CWorking extends CCommentContainer
 			}
 			catch (NoSuchElementException ee)
 			{
+				//ee.printStackTrace();
 				le = null ;
 			}
 		}

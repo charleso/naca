@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,14 +20,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import jlib.log.Log;
-import jlib.sql.DbConnectionBase;
-import jlib.sql.StoredProcParamDescBase;
-
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SQLClauseSPSupport.java,v 1.4 2008/04/01 11:45:06 u930bm Exp $
+ * @version $Id$
  */
 public class SQLClauseSPSupport
 {

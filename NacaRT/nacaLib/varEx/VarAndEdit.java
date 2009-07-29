@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,6 +19,7 @@
 package nacaLib.varEx;
 
 import jlib.misc.IntegerRef;
+import jlib.misc.StringUtil;
 import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.programPool.SharedProgramInstanceData;
 import nacaLib.tempCache.CStr;
@@ -46,6 +53,7 @@ public abstract class VarAndEdit extends VarBase
 			CStr cstr = m_bufferPos.getOwnCStr(m_varDef.getLength());
 			String csValue = cstr.getAsString();
 			String cs = m_varDef.toDump(sharedProgramInstanceData) + "={\"" + csValue + "\"} ";
+			cs = StringUtil.setAsPrintableAstring(cs);
 			//cstr.resetManagerCache();
 			return cs;
 		}

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -28,6 +34,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import jlib.engine.NotificationEngine;
+import jlib.log.Log;
+import jlib.misc.FileSystem;
+import jlib.misc.StringRef;
 import jlib.xml.Tag;
 import lexer.CBaseLexer;
 import lexer.CBaseToken;
@@ -38,6 +47,9 @@ import org.w3c.dom.Document;
 import parser.CBaseElement;
 import parser.CParser;
 import semantic.CBaseLanguageEntity;
+import utils.CTransApplicationGroup.EProgramType;
+import utils.SQLSyntaxConverter.SQLSyntaxConverter;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -74,9 +86,18 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		return m_cat ;
 	}
 	
+	
+	public CTokenList doTextTranscoding(String csText, boolean bFromSource)
+	{
+		COriginalLisiting listing = new COriginalLisiting() ;
+		CTokenList lst = doLexingString(csText, listing, EProgramType.TYPE_BATCH, bFromSource);
+		return lst;
+	}
+	
 	@Override
 	public void doFileTranscoding(String filename, String csApplication, CTransApplicationGroup grp, boolean bResources)
 	{
+		Reporter.setCurrentFileName(filename);
 		T_Entity eSem = doAllAnalysis(filename, csApplication,  grp, bResources) ;
 		if (eSem == null)
 		{
@@ -91,6 +112,7 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		eSem.Clear();
 		
 		m_cat.registerProgram(filename);
+		Reporter.resetCurrentFileName();
 		Transcoder.dumpUnboundReferences();
 	}
 	
@@ -113,16 +135,36 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		
 		doLogs(grp.m_csInputPath + filename, csOutputDir + outname) ;
 		COriginalLisiting listing = new COriginalLisiting() ;
-		CTokenList lst = doLexing(grp.m_csInputPath + filename, listing);
+		if(filename.equals("ZZXAF12"))
+		{
+			int gg = 0;
+		}
+		CTokenList lstSource = doLexing(filename, grp.m_csInputPath, listing, grp.m_eType);
+		if(lstSource == null)
+		{
+			Log.logImportant("Could not lex file "+filename);
+		}
+		CTokenList lst = null;
+		
+		SQLSyntaxConverter sqlSyntaxConverter = Transcoder.getSQLSyntaxConverter();
+		if(sqlSyntaxConverter != null)
+			lst = sqlSyntaxConverter.updateSQLStatements(filename, lstSource);
+		else
+			lst = lstSource;
+
 		String csFullFileName = generateInputFileName(filename);
 		if (lst != null)
-		{			
+		{						
+			if(filename.equals("AFCFERR"))
+			{
+				int gg =0 ;
+			}
+			Reporter.setCurrentFileName(filename);
 			Transcoder.logInfo("Transcoding " + filename);
 			ExportTokens(lst, grp.m_csInterPath + ReplaceExtensionFileName(filename, "lex"));
 			CParser<T_Elem> p = doParsing(lst) ;
 			if (p!= null)
 			{
-
 				if(m_Transcoder.mustGenerate())
 				{
 					String csFileNameOut = grp.m_csInterPath + ReplaceExtensionFileName(filename, "xml");
@@ -134,10 +176,12 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 					try
 					{
 						T_Entity eSem = doSemanticAnalysis(p, csOutputDir + outname, cat, grp, bResources) ;
+						Reporter.resetCurrentFileName();
 						return eSem ;
 					}
 					catch (NacaTransAssertException e)
 					{
+						e.printStackTrace();
 						Transcoder.logError("Failure while transcoding "+filename+" : "+e.m_csMessage) ;
 					}
 					p.Clear() ;
@@ -145,7 +189,9 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 					cat.Clear() ;
 				}
 			}
+			Reporter.resetCurrentFileName();
 		}
+		
 		return null ;
 	}
 	
@@ -154,7 +200,7 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 	 * @return
 	 */
 	protected abstract String generateOutputFileName(String filename) ;
-	protected abstract String generateInputFileName(String filename) ;
+	public abstract String generateInputFileName(String filename) ;
 
 	protected void ExportTokens(CTokenList lst, String filename)
 	{
@@ -188,6 +234,7 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			Transcoder.logError(e.toString() + "\n" + e.getStackTrace());
 		}
 	}
@@ -197,67 +244,131 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 
 	protected abstract void doLogs(String csInput, String csOutput) ;
 
-	protected String ReplaceExtensionFileName(String filename, String ext)
+
+	protected String ReplaceExtensionFileName(String csPathFilenameExt/*filename*/, String ext)
 	{
-		int nPos = filename.lastIndexOf('.') ;
+		StringRef rcsPath = new StringRef();
+		StringRef rcsExt = new StringRef();
+		String csPathFileName = FileSystem.splitFilePathExt(csPathFilenameExt, rcsPath, rcsExt);
+		if(rcsPath.get() != null)
+			csPathFileName = FileSystem.appendFilePath(rcsPath.get(), csPathFileName);
+		String cs = csPathFileName + "." + ext ;
+		return cs;
+		
+		/*
+		int nPos = csFileName.lastIndexOf('.') ;
 		if (nPos > 0)
 		{
-			return filename.substring(0, nPos) + "." + ext ;	// Modification PJD 14/06/07; was return filename.substring(0, nPos) + ext ;  
+			return csPathFilename.substring(0, nPos) + "." + ext ;	// Modification PJD 14/06/07; was return filename.substring(0, nPos) + ext ;  
 		}
 		else
 		{
-			return filename + "." + ext ;
+			return csPathFilename + "." + ext ;
 		}
+		*/
 	}
 	
-	protected String ReplaceExtensionFileNameWithSuffix(String filename, String csSuffix, String ext)
+	protected String ReplaceExtensionFileNameWithSuffix(String csPathFilenameExt/*filename*/, String csSuffix, String ext)
 	{
-		int nPos = filename.lastIndexOf('.') ;
-		if (nPos > 0)
+		StringRef rcsPath = new StringRef();
+		StringRef rcsExt = new StringRef();
+		String csPathFileName = FileSystem.splitFilePathExt(csPathFilenameExt, rcsPath, rcsExt);
+		if(rcsPath.get() != null)
+			csPathFileName = FileSystem.appendFilePath(rcsPath.get(), csPathFileName);
+		
+		String cs;
+		if(rcsExt.get() != null)
+			cs = csPathFileName + csSuffix + "." + ext ;
+		else
+			cs = csPathFileName + "." + ext ;
+		return cs;
+//		int nPos = filename.lastIndexOf('.') ;
+//		if (nPos > 0)
+//		{
+//			return filename.substring(0, nPos) + csSuffix + "." + ext ;	// Modification PJD 14/06/07; was return filename.substring(0, nPos) + ext ;  
+//		}
+//		else
+//		{
+//			return filename + csSuffix + "." + ext ;
+//		}
+	}
+	
+	protected CTokenList doLexing(String csFileName, String csGroupSourcePath, COriginalLisiting cat, EProgramType eProgramType)
+	{
+		String filename = csGroupSourcePath + csFileName; 
+		CTokenList lst = null ;
+		String csFullFileName = generateInputFileName(filename);
+		
+		MissingFileManager missingFileManager = MissingFileManager.getInstance();
+		if(!FileSystem.exists(csFullFileName))
 		{
-			return filename.substring(0, nPos) + csSuffix + "." + ext ;	// Modification PJD 14/06/07; was return filename.substring(0, nPos) + ext ;  
+			missingFileManager.addFileNotFound(csFileName, csFullFileName);
+			return null ;
+		}
+		missingFileManager.reset();
+		
+		CBaseLexer lexer = getLexer();
+		lexer.setCopyCodeInliningSupport(m_cat);
+		
+		StringBuilder sb = FileSystem.readWholeFile(csFullFileName);
+		
+		FileContentBuffer buffer = new FileContentBuffer(eProgramType);
+		buffer.initialLoad(sb);
+		
+		boolean b = lexer.StartLexer(buffer, cat, eProgramType) ;
+		if (b)
+		{
+			if (m_cat.canCount(filename))
+			{
+				lexer.DoCount() ;
+			}
+			lexer.DoCount() ;
+			lst = lexer.GetTokenList() ;
 		}
 		else
 		{
-			return filename + csSuffix + "." + ext ;
+			Transcoder.logError("Lexing failed"); 
 		}
-	}
-
-	protected CTokenList doLexing(String filename, COriginalLisiting cat)
-	{
-		CTokenList lst = null ;
-		String csFullFileName = generateInputFileName(filename);
-		try
+		
+		if(NacaTransLauncher.getDumpInlinedSourceFile())
 		{
-			CBaseLexer lexer = getLexer() ;			
-			FileInputStream file = new FileInputStream(csFullFileName) ;
-			boolean b = lexer.StartLexer(file, cat) ;
-			if (b)
-			{
-				if (m_cat.canCount(filename))
-				{
-					lexer.DoCount() ;
-				}
-				lexer.DoCount() ;
-				lst = lexer.GetTokenList() ;
-			}
-			else
-			{
-				Transcoder.logError("Lexing failed"); 
-			}
-		}
-		catch (FileNotFoundException e)
-		{
-			//Transcoder.error("File not found : "+csFullFileName); 
-			return null ;
-		}
-		catch (Exception e)
-		{
-			Transcoder.logError(e.toString() + "\n" + e.getStackTrace());
+			csFullFileName += ".dumpInlined";
+			buffer.dumpIfNeeded(csFullFileName);
 		}
 		return lst ;
 	}
 	
+	protected CTokenList doLexingString(String csText, COriginalLisiting cat, EProgramType eProgramType, boolean bFromSource)
+	{
+		CBaseLexer lexer = getLexer();
+		lexer.setModeString();
+		
+		CTokenList lst = null ;
+		lexer.setCopyCodeInliningSupport(m_cat);
+		
+		FileContentBuffer buffer = new FileContentBuffer(eProgramType);
+		if(!bFromSource)	// The text is not formatted using Cobol source conventions 
+		{
+			StringBuilder sb = new StringBuilder("      " + csText);
+			buffer.initialLoad(sb);
+		}
+		else	// The text is formatted using Cobol source conventions
+		{
+			// Remove line heder (columns 0 to 5) and >= 72
+			StringBuilder sb = new StringBuilder(csText);
+			buffer.initialLoad(sb);
+			buffer.removeCobolLineFormatting();
+		}
+		
+		boolean b = lexer.StartLexer(buffer, cat, eProgramType) ;
+		if (b)
+		{
+			lst = lexer.GetTokenList() ;
+			return lst ;
+		}
+		Transcoder.logError("Text lexing failed");
+		return null;
+	}
 
 	protected abstract CParser<T_Elem> doParsing(CTokenList lst) ;
 
@@ -289,15 +400,19 @@ public abstract class TranscoderEngine<T_Elem extends CBaseElement, T_Entity ext
 		}
 		catch (FileNotFoundException e)
 		{
+			e.printStackTrace();
 		}
 		catch (TransformerConfigurationException e)
 		{
+			e.printStackTrace();
 		}
 		catch (TransformerException e)
 		{
+			e.printStackTrace();
 			Transcoder.logError(e.toString() + "\n" + e.getStackTrace());
 		}	
 	}
+
 	
 	protected abstract T_Entity doSemanticAnalysis(CParser<T_Elem> parser, String fileName, CObjectCatalog cat, CTransApplicationGroup grp, boolean bResources) ;
 	

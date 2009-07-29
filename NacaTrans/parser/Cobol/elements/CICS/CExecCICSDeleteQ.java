@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -26,6 +32,7 @@ import semantic.CBaseLanguageEntity;
 import semantic.CICS.CEntityCICSDeleteQ;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -119,6 +126,12 @@ public class CExecCICSDeleteQ extends CCobolElement
 					}
 				}
 			}
+			else if (tok.GetValue().equals("NOHANDLE"))	// PJD Added
+			{
+				Reporter.Add("Modif_PJ", "CExecCICSDeleteQ NOHANDLE");
+				m_bNoHandle = true;	// PJD Added
+				tok = GetNext();
+			}
 			else
 			{
 				bDone = true ;
@@ -166,4 +179,5 @@ public class CExecCICSDeleteQ extends CCobolElement
 	protected boolean m_bPersistant = false ;
 	protected CTerminal m_QueueName= null ;
 	protected CTerminal m_SysID = null ;
+	protected boolean m_bNoHandle = false;	// PJD Added
 }

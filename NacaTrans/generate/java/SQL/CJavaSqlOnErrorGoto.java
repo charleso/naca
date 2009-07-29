@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,6 +21,7 @@ package generate.java.SQL;
 import generate.CBaseLanguageExporter;
 import semantic.SQL.CEntitySqlOnErrorGoto;
 import utils.CObjectCatalog;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -30,9 +37,10 @@ public class CJavaSqlOnErrorGoto extends CEntitySqlOnErrorGoto
 	 * @param out
 	 * @param Reference
 	 */
-	public CJavaSqlOnErrorGoto(int l, CObjectCatalog cat, CBaseLanguageExporter out, String Reference, boolean OnWarning)
+	public CJavaSqlOnErrorGoto(int l, CObjectCatalog cat, CBaseLanguageExporter out, String Reference, SQLErrorType errorType) // PJD: Generalized SQLErrorType errorType
 	{
-		super(l, cat, out, Reference, OnWarning);
+		super(l, cat, out, Reference, errorType);
+		Reporter.Add("Modif_PJ", "CJavaSqlOnErrorGoto ctor");
 	}
 
 	/* (non-Javadoc)
@@ -40,7 +48,9 @@ public class CJavaSqlOnErrorGoto extends CEntitySqlOnErrorGoto
 	 */
 	protected void DoExport()
 	{
-		if (m_bOnWarning)
+		//if (m_bOnWarning)
+		Reporter.Add("Modif_PJ", "CJavaSqlOnErrorGoto generation generalized");
+		if(m_errorType == SQLErrorType.OnWarningGoto)
 		{
 			if (m_csRef.equals(""))
 			{
@@ -53,7 +63,7 @@ public class CJavaSqlOnErrorGoto extends CEntitySqlOnErrorGoto
 				m_ProgramCatalog.registerSQLWarningGoto(FormatIdentifier(m_csRef));
 			}
 		}
-		else
+		else if(m_errorType == SQLErrorType.OnErrorGoto)
 		{
 			if (m_csRef.equals(""))
 			{
@@ -64,6 +74,18 @@ public class CJavaSqlOnErrorGoto extends CEntitySqlOnErrorGoto
 			{
 				// WriteLine("// onSQLErrorGoto(" + FormatIdentifier(m_csRef) + ") ;") ;
 				m_ProgramCatalog.registerSQLErrorGoto(FormatIdentifier(m_csRef));
+			}
+		}
+		else if(m_errorType == SQLErrorType.OnNotFoundGoto)	// PJD Added
+		{
+			Reporter.Add("Modif_PJ", "CJavaSqlOnErrorGoto added SQLErrorType.OnNotFoundGoto");
+			if (m_csRef.equals(""))
+			{
+				m_ProgramCatalog.RegisterSQLNotFoundContinue(null);
+			}
+			else
+			{
+				m_ProgramCatalog.registerSQLNotFoundGoto(FormatIdentifier(m_csRef));
 			}
 		}
 	}

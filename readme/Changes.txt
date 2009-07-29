@@ -1,0 +1,503 @@
+Version 1.1.0
+
+- NacaTrans: No changes
+- JLib: No changes
+
+- NacaRT: 
+	Easier support for Online application sample.
+	New flags are added into nacaRT.cfg configuration file
+		AlternateResourcePath. Gives a 2nd path to a resource directory. It completes ResourcePath parameter.
+		SimulateRealEnvironment. Set it to true only to disable DB accesses. It must be set to must or removed if DB access is used.
+
+- CobolAppOnline: New directory; it contains standard resource definition for error and login screen. 
+	They can be customized depending on target application.
+
+- NacaSamples: New directory: It contains a sample online program. 
+	The original cobol files are in NacaSamples\cobol
+	The transcoded files are in NacaSamples\src
+	The transcoder configuration is in NacaSamples\trans
+	It's documented in NacaSample.doc
+	
+	
+	
+Version 1.2.0
+
+Generalities:
+- The default path of the project refers now to D:\Dev\NacaOSS instead of D:\Dev\Naca. 
+All hard coded absolute path have been changed on that new path.
+
+- Licence for Berkeley DB for Java Edition has been added in NacaRT\lib\BerkeleyDbForJavaEditionLicence.txt
+
+- NacaTrans and NacaRT configuration files:
+New optional tag <Paths>:
+It can contains a list of tags <Path> that have 2 arguments:
+	- String Name
+	- String Value
+
+Example:
+<Paths>
+	<Path Name="%DefaultPath%" Value="d:/dev/nacaOSS" />
+</Paths>
+
+This declaration is used to replace an abslute path chink with a value:
+Exemple, the NacaTrans.cfg declaration 
+	HelpXSLFilePath="%DefaultPath%/NacaRT/idea/web/help.xsl
+is handled after replacement as 
+	HelpXSLFilePath="d:/dev/nacaOSS/NacaRT/idea/web/help.xsl"
+
+This management is valid for all file/paths arguments of NacaRT.cfg and NacaTrans.cfg.
+It's filled by default as 
+<Paths>
+	<Path Name="%DefaultPath%" Value="d:/dev/nacaOSS" />
+</Paths>
+Please replace the Value by your current Naca root directory if you haven't installed it in the default directory (d:/dev/nacaOSS)
+
+- Cleanup of Missing include files. NacaTrans tries BMS and copy files, and genetared an error when trying to lex a BMS file, that was a copy.
+
+- BMS Lexing / parsing updated
+
+- Decimal point is Comma handled in transcoder. It's corrected. It generated wrong get indexes.
+
+- Level 77 immediatly below a COPY were set in the Copy file, instead of the program. This has been corrected: they are now correctly set in the program, not in the copy anymore.
+This has a side effect: a level 02 (or more) followed a copy, it was indented with 1 tab in the program java source code. It's now aligned with the copy declaration. This is only a presentation artifact.
+
+
+
+- New flag MultiLanguagePub2000Standard in nacaTrans.cfg tag <Engines><Transcoder Name="BMSTranscoder"><BMSSpec>.
+This flag is defaulted to "true" which is probably not the correct value. It indicate how translated labels are managed by NacaTrans.
+Open source project should set this value to "false". Future release may change the default value to false, instead of true.
+If Set to true, the language code is identified by convention by the last letter of the map. See CJavaEntityFactory.getSpecialConstantValue, CResourceStrings.getOfficialLanguageCode and CMapElement.DoSemanticAnalysis methods.
+
+- New Tag  <DCLGDENConverter> inside <Engines> of NacaTrans.cfg
+This tag is used to help targeting an Oracle instead of DB/2 engine.
+It takes 3 parameters:
+	-- Target="Oracle". Currently, only Oracle is supported.
+	-- OutputPath="xxx": Path where to store generated .sql files. These files are generated during trans phase, and will contain sql CREATE statements extracted from DCLGEN files.
+	The .sql files are intended to create the tables of a new Oracle DB.
+	-- SQLDumpFile="yyy/TestSQLDump.java" : Identifies a java test that can execute all statements of all transcoded programs againt the new Oracle DB tables. 
+	The DCLGEN Files input files must be included by COPY in a transcoded program.
+	The execution of this program generates 2 results files in the current directory: sqlDumpSuccessResult.txt and sqlDumpFailureResult.txt.
+	
+	
+NacaRT:
+- Bug in nested performThrough corrected
+- XMLMerger.java debug support. It's now possible to dump the XML data, XML Structure and the merged XML file in a specified directory. 
+Use for debug only. The directory must be indicated by variable "XMLMergerDebugOutputPath" of tag <conf> of NacaRT.cfg.
+If this variable is missing, as it should be in production environment or if it's an empty string, then the output files are not generated.
+
+- TO DO: New default screen when the site is closed due to calendar settings (see StandardCalendar and CustomCalendar of NacaRT.cfg)
+
+
+Version 1.2 Changes for Naca - PJReady
+NacaRT::BaseProgram: new signature: /*Naca PJReady*/ protected String subString(Var varSource, MathBase nStart, MathBase nNbChars)
+NacaRT::BaseProgram: new signature: /*Naca PJReady*/ protected void moveSubStringZero(VarAndEdit v, int nOffsetPosition, MathBase mathNbchar)
+NacaRT::BaseProgram: new signature: /*Naca PJReady*/public void setReturnCode(MathBase mReturnCode)
+NacaRT::BaseProgram: new signature: /*Naca PJReady*/public String getInputBatch()
+NacaRT::InspectTallying: new signature: /*Naca PJReady*/ public InspectTallying countAll(Var vSearchForAll, VarAndEdit result)
+NacaTrans: Management of name conflict between cursor and copy (CObjectCatalog::HasExternalReferenceWithName)
+NacaTrans: Inspect Converting support
+NacaRT: new class InspectConverting and method in BaseProgram
+NacaTrans & NacaRT: Substring are now managed by Var, not anymore by BaseProgram (see Var.java Var subString(VarAndEdit vStart1Based, VarAndEdit vNbChars))
+NacaRT: BaseProgram: new signature /*Naca PJReady*/ protected MathPower power(VarAndEdit var1, int n)
+NacaRT: BaseProgram: new signature /*Naca PJReady*/ protected MathPower power(int n, VarAndEdit vPow)
+NacaTrans: Support for INSPECT FUNCTION REVERSE(WS-ENCOURS)
+NacaRT: BaseProgram: functionReverse(Var var) added
+NacaTrans: moveSubStringSpace(var, ..) , moveSubStringZero(var, ..) , moveSubStringXXX(var, ..) are changed to moveXXX(var.subString(..))
+NacaRT: moveSubStringSpace, moveSubStringZero, moveSubStringXXX are deprecated
+NacaTrans: Support for nested COPY
+NacaTrans: Support for nested COPY RECPLACING, using PJ syntax: COPY F0CZZ36 REPLACING ==(COM)== BY ==ZC36==. with variable's copy defined as 05  (COM)-COMMAREA.
+NacaTrans: support for copy that redfines a variable of a previous copy. the copy that redefines the variable must be inlined. A rule inlinedCopy must be used to declare the file as to inline
+NacaTrans: Rules: inlinedCopy has been added
+Syntax is:
+	<category id="inlinedCopy">
+		<rule copyName="F0CTMAIL"/>
+	</category>
+NacaTrans + NacaRT: Support for SEARCH ALL. Only one key is supported, with only one condition (No AND)
+
+NacaTrans: Support for convertion of SQLFunctions:
+this tag can be declared inside <Engines>:
+<SQLSyntaxConverter Group="PagesJaunes" Target="Oracle"	FileStatementsToReplace="D:\Dev\PagesJaunesFr\POCPMU\PagesJaunesPOC\ConfigNacaTrans\PJStatements.xml">
+	<SQLFunctions>
+		<SQLFunction Source="CURRENT_TIMESTAMP" TargetDB2="CURRENT TIMESTAMP" TargetOracle="systimestamp"/>
+		<SQLFunction Source="CURRENT_DATE" TargetDB2="CURRENT DATE" TargetOracle="to_char(sysdate,'YYYY-MM-DD')"/>
+		<!-- Supported Cobol values:
+		CURRENT_DATE; works also for CURRENT DATE
+		CURRENT_TIMESTAMP; works also for CURRENT TIMESTAMP
+		-->
+	</SQLFunctions>
+</SQLSyntaxConverter>
+
+Source can be:
+- CURRENT_TIMESTAMP
+- CURRENT_DATE
+
+NacaTrans: Support for replacement of SQL statement at trancoding time. The statements to convert, and their equivalent, are declared in the file indicated by FileStatementsToReplace of tag SQLSyntaxConverter
+This file has the following structure:
+<StatementsToReplace>
+	<StatementToReplace [FromSource="true"]>
+	<Pattern>
+		SELECT DAYOFWEEK_ISO(CURRENT DATE) INTO :1                    
+		FROM 
+		SYSIBM.SYSDUMMY1
+	</Pattern>
+	<Replacement>
+		Select cast(to_char(sysdate-1, 'D') as integer) as dayofweek_iso into :1 from sys.dual
+	</Replacement>
+	</StatementToReplace>
+</StatementsToReplace>
+
+The ':1' is replaced at trancode time by the correspong parameter of the source SQL statement; it's thus a placeholder.
+The statement is localized through it's lexed value, not it's textual value. Thus, indications and white spaces are not significant.
+FromSource is optional; 
+if it is set to true, then both Pattern and Replacement contents must be formatted as a cobol source file: chars at column 0 to 6 and after column 72 are ignored.
+if it is not defined, ot set to false, then both Pattern and Replacement contents must be formatted correctly: no line prefix or suffix is removed. 
+
+NacaTrans: Warning generated when a cursor is declared with more columns than specified in the fetch statement. A .missingFetchVariables() method is added at the end of the fetch statement to fill correctly the first variables that matches correctly the cursor.
+NacaTrans: Erreur generated when a cursor is declared with less columns than specified in the fetch statement. A .ignoredInto() method is generated for each variable that is not bound to a cursor's column.
+NacaTrans: When generyted CursorFetch for a dynamic cursor, the number of .into parameters is not managed. Thus, there is no .ignoredInto() methods called. this is needed as the transcoder as no information on the SQL statement at transcode time.
+NacaTrans: Parsing of cursor having count(*) as a column's name resulted in wrong number of variables. It's corrected.
+
+NacaTrans + RT: Support for NEXT SENTENCE
+NacaRT: A section is now processed in a perfrom through
+
+NacaTrans: Support for AFTER|BEFORE ADVANCING x LINE|PAGE
+NacaRT: Support for write[After|Before]Advancing[Line|Page]. 
+NacaRT.cfg support a new tag below root:
+<conf>
+...
+	<PrinterCodes NewLineCode="xxx" NewPageCode="yyy" />
+</conf>
+The line positioning is done by wrting NewLineCode or NewPageCode strings into the file.
+This PrinterCodes is optional, but if defined both attributes must be set. If PrinterCodes is not defined, the following default values are used:
+NewLineCode="\n" 
+NewPageCode="\f"
+
+NacaTrans: Generation of FileSelectStatus FileDescriptorName$FSStatus = declare.fileSelectStatus(FileDescriptor, Var);
+These lines are generated just before the ProcedureDivision instead of original Cobol line. This is needed, as Var is referenced, but undefined. If it lines were generated at the original place, it would give a Java compile error.
+
+NacaRT: Usage of : FileSelectStatus : Done for Open, Close, Read. Returns 0 if success, 10 for end of file, 42 for close error, 41 for open error.
+To do for Writes.
+
+NacaRT: Support for -StdIn="xx" Command line argument. Multiple -StdIn can be specified. They are consummed by ACCEPT verbs, and emulates the SYSIN on the command line.
+Ease Eclispe debugging with stdin parameters.
+
+NacaRT: New flag optional CommitAfterMainProgramRun flag; If set to true, a correct execution of the top program does a commit; a failed exec doen't do a commit.
+If false, the commit is never done automatically; If not specified, then it's true by default.
+
+NacaTrans: Call with program name given in a variable is now supported. Some wrong dead code optimization has been removed.
+
+NacaRT: support for dynamic replacement of called program by another instance.
+Declare in the nacaRT.cfg file the following section (within <conf>):
+Sample:
+	<CallInterceptor>
+		<Call Name="dsntiar" StatelessClass="CustomDsntiar"/>
+	</CallInterceptor>
+A call to dsntiar is rereouted to a call to CustomDsntiar class. This class is direclty written in java, and must be stateless. Only 1 instance of the class is ever created, and it can be executed concurrently in CICS programs.
+CustomDsntiar must derive from CallInterceptor base class. 
+This method is used if the program name is given by the cobol file through a variable name. 
+If the cobol file specify a constant string, then the NacaTransRules.xml file is used. The category "routineEmulation" can contain rules like:
+<rule routine="DSNTIAR" method="m_PJTools.dsntiar" requiredToolsLib="PJTools"/>
+where DSNTIAR is the static name of the called program. Method gives the name of a method to call instead of transcoded DSNTIAR. This method can optionally be declared inside custom tools library, whose type is given by requiredToolsLib.
+
+NacaRT: Config file: New optional boolean flag "ThrowOccursOverflowException". Default to true.
+Set it to false to NOT send an excpetion when OccursOverflowException is detected.
+
+NacaRT: New optional configuration parameter tag:
+<DbSQLCodes>
+	<Code Name="SQL_DUPLICATE_INDEX_KEY" Values="-803"/>
+	<Code Name="SQL_MORE_THAN_ONE_ROW" Values="-1427,-2112"/>); !-- Used in PJPOC -->
+	<Code Name="SQL_OK" Values="0"/>
+	<Code Name="SQL_ERROR" Values="-1"/> 
+	<Code Name="SQL_NOT_FOUND" Values="100"/>	<!-- Used in PJPOC -->
+	<Code Name="SQL_CURSOR_NOT_OPEN" Values="-501"/>);
+	<Code Name="SQL_CURSOR_ALREADY_OPENED" Values="-502"/>
+	<Code Name="SQL_VALUE_NULL" Values="-1405"/>
+</DbSQLCodes>
+If not set, the codes are filled for DB/2 - UDB. The value can contain a list of codes, separated by comma (,). there is a maximum of 5 values for a single sql code;
+
+NacaRT: New config parameter:
+BreakOnAllSQLExceptions=true|false; default to false
+If true, rethrow a SQL exception, crashing the program.
+
+NacaRT: Oracle support; Oracle support for select for update, and update where current of, in case of cursors.
+
+NacaRT: Coverage executionStatistics
+	in LogSettings.cfg file, add optional argument "StatCoverage" in <Settings>.
+	If set to true, then a stat of all paragraphs executed is filled and displayed after program execution
+	If set to false (default value), then the stat is not created, not displayed
+	
+
+	
+
+Points à traiter:
+CESMAssign ? cf CSM
+Attention à la méthode BaseProgram::subString  et Var::subString
+
+
+NacaTrans: 
+COPY can be set in the FILE  SECTION
+
+Batch LogicalFileDescriptor
+NacaRT File rules
+
+File declaration:
+
+There is 2 different syntax:
+Standard declaration: -File_<LogicalName>=<Path and physical file name>[,vb|fb][,ascii|ebcdic][,ext][,nnn]
+Advanced declaration: -<LogicalName>=<Path and physical file name>,advancedMode[,variable|fixed][RecordLengthHeader|NoRecordLengthHeader][,CRLF|LF][,][,ascii|ebcdic][,ext][,nnn]
+Advanced declaration using Microfocus sequential fiel compatibility: -<LogicalName>=<Path and physical file name>,advancedMode,MFCobolLineSequential,[CRLF|LF]*
+
+These values can be sepecified either:
+- by calling the program with the command line argument. Example: -File_Client=D:/Files/2007/Clients/ClientFile.txt,advancedMode,variable,ascii,CRLF,NoRecordLengthHeader
+- or by exporting a system variable named Client, having value D:/Files/2007/Clients/ClientFile.txt,advancedMode,variable,ascii,CRLF,NoRecordLengthHeader
+
+1. Standard declaration
+
+1.1 Physical file name
+
+<Path and physical file name> must be the first parameter. It's mandatory. 
+If it is empty, or set to wrk/nullfile or NULLFILE (both case insensitive), then the file is marked as dummy, and is not written not read.
+In other case, the path and file name must be valid under current plateform.
+
+The other parameters are optional.
+
+1.2 Mode identification
+
+- advancedMode must not be defined. If it is defined, then the file descriptor is setup as advanced mode. This parameter must be defined before any other advanced mode parameter.
+
+1.3 File encoding : [,ascii|ebcdic]
+
+- ascii: the file is encoded in ascii
+- ebcdic: the file is encoded in ascii
+Both values are incompatible. If none is specified, then the file is considered by default as encoded in ascii.
+
+1.4 Extended open mode : [,ext]
+
+- ext: activates the extended open mode: when a file is open in output mode, it sometimes desirable to append new records, or the erase the file.
+By defaut, when writing the 1st record after open in output mode, the file is erased. but, if the extended mode is declared in the file definition, then records are appended at the end of file.
+
+1.5 Record structure : [,vb|fb][,nnn]
+
+- vb: Indicates a variable record size file. The records are prefixed with a 4 bytes binary header, specifying the record length. Every record is terminated with a LF (0x0A) character. The record header doesn't count itselft, nor the trailing LF.
+- fb: Indicates a fix record size file. A supplementary option -nnn, where n is a digit can optionnally define the record size, in byte. No record header is used. Every record is terminated with a LF (0x0A) character.
+vb and fb an are mutually exclusive. If none is specified, then the file is considered by default as using fix record length.
+A numeric only parameter can be specified (e.g. 123). It defines the length of the records, and is usied only fix record size files.
+
+
+2. Advanced declaration
+
+2.1 Physical file name
+
+<Path and physical file name> must be the first parameter. It's mandatory. 
+If it is empty, or set to wrk/nullfile or NULLFILE (both case insensitive), then the file is marked as dummy, and is not written not read.
+In other case, the path and file name must be valid under current plateform.
+
+2.2 Mode identification
+
+- advancedMode must be defined to activate the advanced mode file descriptor.
+
+The other parameters are optional.
+
+2.3 File encoding : [,ascii|ebcdic]
+
+- ascii: the file is encoded in ascii
+- ebcdic: the file is encoded in ascii
+Both values are incompatible. If none is specified, then the file is considered by default as encoded in ascii.
+This has the same meaning as standard file descriptor.
+
+2.4 Extended open mode : [,ext]
+
+- ext: activates the extended open mode: when a file is open in output mode, it sometimes desirable to append new records, or the erase the file.
+By defaut, when writing the 1st record after open in output mode, the file is erased. but, if the extended mode is declared in the file definition, then records are appended at the end of file.
+This has the same meaning as standard file descriptor.
+
+2.5 Record structure
+
+- variable: Indicates a variable record size file. Contrary to vb mode, the 4 binary byte header is optionnal. Contrary to vb mode, the trailing LF is also optionnal. 
+- fixed: Indicates a fix record size file. Contrary to fb mode, the trailing LF is optionnal. 
+If none of these parameters if specified, then fixed is taken by default.
+
+A supplementary option -nnn, where n is a digit can optionnally define the record size, in byte. 
+variable and fixed an are mutually exclusive. 
+A numeric only parameter can be specified (e.g. 123). It defines the length of the records, and is usied only fix record size files.
+
+2.6 Record length header
+
+- RecordLengthHeader: Indicates that all records are prefixed by a binary 4 bytes length. 
+- NoRecordLengthHeader: Indicates records are not prefixed by a binary 4 bytes length.
+If none of these parameters if specified, then NoRecordLengthHeader is taken by default.
+
+2.7 Record end of line marker
+
+-CRLF: Indicates that every record is terminated by 2 bytes CR/LF (0x0D/0x0A).
+-LF: Indicates that every record is terminated by a single bytes LF (0x0A).
+Both value are mutually exclusive. If none is specified, then no record end of line is defined.
+
+3. Advanced declaration using Microfocus sequential file compatibility
+
+Syntax: -<LogicalName>=<Path and physical file name>,advancedMode,MFCobolLineSequential,[CRLF|LF]*
+
+To activate the sequential record structure, compatible with Microfocus sequential files, then set the MFCobolLineSequential option.
+the only valid other option is LF or CRLF to indicate required record terminaison convention.
+If CRLF and LF are missing, then the current OS line terminaison code is used. It's CRLF for windows, LF for other palteforms.
+The record won't have binary 4 byte header. It's termintaed either by a CRLF or LF, depending on record terminaison choice.
+
+The bytes with value less than 0x20 are prefixed by a leading byte set to 0x00. The record terminaison bytes are not prefixed. 
+Record trailing spaces are also removed. This format is compatible with Micro focus and Cobol IT line sequential file format.
+
+4. Default values
+
+4.1. Default file path
+
+A default file path can be specified on the program command line by setting the argument "-DefaultFilePath=xxx", where xxx is a valid path.
+The path can be use either \ or / subdirectory separators. There is no need to terminate the path by a trailing subdirectory separator (ie c:\toto/files\ equals c:/toto/files).
+Characters are case sensitive in Unix file system.
+This default path is used when a file has no path specification in it's physical file name. 
+If it's needed to set the file in the current working directory, set it into ./ directory.
+
+Examples of file definitions, using the default file path c:\toto\files\:
+
+- abc.txt: The default file path will be used: The complete physical file name will be c:\toto\files\abc.txt
+- ./abc.txt: The default file path will not be used. This file will be set in the current working directory (whatever it's value)
+- d:/xxx\abc.txt: The default file path will not be used. The complete file name will be d:\xxx\abc.txt
+
+4.2. Default file mode
+
+There are 3 differents manners to define the file mode.
+In the example, we define the argument for logical file name ABC. It's located in file system as d:\files\abc001.txt and is advancedMode,MFCobolLineSequential,LF
+
+4.2.1 By making it explicit in the logical file name's value. 
+
+Example:
+-File_abc=d:\files\abc001.txt,advancedMode,MFCobolLineSequential,LF
+
+4.2.2 By defining a default value on the command line. 
+
+All files without specific settings will share the default arguments
+
+Example:
+	-DefaultFileMode=advancedMode,MFCobolLineSequential,LF
+	-File_abc=d:\files\abc001.txt
+
+4.2.3 Base upon ORGANIZATION SEQUENTIAL usage
+
+If the File is declared as ORGANIZATION SEQUENTIAL in the cobol source code, and if NacaRT.cfg contains the following definition:
+	<FileOrganizationSequential DefaultFileMode="advancedMode,MFCobolLineSequential,LF"/>
+
+then the command line argument can only be:
+-File_abc=d:\files\abc001.txt
+In that case, the DefaultFileMode command line argument is ignored.
+
+To sum-up:
+If a file specifies explicitly it's file mode, they are used.
+If a file doesn't define explicitly it's file mode, but is defined as ORGANIZATION SEQUENTIAL in the Cobol source code, and if the NacaRT.cfg defines the tag <FileOrganizationSequential>, then the value of tha argument "DefaultFileMode" of this tag is used to provide the file mode for this file.
+If a file doesn't define explicitly it's file mode, and is not defined as ORGANIZATION SEQUENTIAL, or there is not <FileOrganizationSequential> tag is the nacaRT.cfg, then the value of the command line argument -DefaultFileMode is taken.
+
+Note: these defautl file modes are shared by all files, within their own definition limits:
+- All file without explicit file mode without ORGANIZATION SEQUENTIAL statements uses the same default command line argument -DefaultFileMode.
+
+
+5. Remarks
+
+Combinaison fixed,RecordLengthHeader cannot be used for read operations
+Combinaison variable,RecordLengthHeader, equals standard vb declaration
+Combinaison fixed,NoRecordLengthHeader,  equals standard fb declaration
+
+
+6. Samples
+
+6.1 Fixed record length files 
+
+6.1.1 Without record header
+
+Ascii, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader,CRLF
+
+Ascii, terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader,LF
+
+Ascii, not terminated:  
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader
+
+Ebcdic, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,NoRecordLengthHeader,CRLF
+
+Ebcdic, terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,NoRecordLengthHeader,CRLF
+
+Ebcdic, not terminated: 
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader
+
+6.1.2 With record header
+
+Ascii terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,RecordLengthHeader,CRLF
+
+Ascii terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,RecordLengthHeader,LF
+
+Ascii not terminated: 
+export file d:\test\file.data,advancedMode,fixed,ascii,RecordLengthHeader
+
+Ebcdic terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,RecordLengthHeader,CRLF
+
+Ebcdic terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,RecordLengthHeader,CRLF
+
+Ebcdic not terminated:
+export file d:\test\file.data,advancedMode,fixed,ebcdic,RecordLengthHeader
+
+6.2 Variable record length files
+
+6.2.1 Without header
+
+Ascii, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ascii,NoRecordLengthHeader,CRLF
+
+Ascii, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ascii,NoRecordLengthHeader,LF
+
+Ascii, not terminated: <-- WARNING: The records cannot be recognized !
+export file d:\test\file.data,advancedMode,variable,ascii,NoRecordLengthHeader
+
+Ebcdic, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,NoRecordLengthHeader,CRLF
+
+Ebcdic, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,NoRecordLengthHeader,LF
+
+Ebcdic, not terminated: <-- WARNING: The records cannot be recognized !
+export file d:\test\file.data,advancedMode,variable,ebcdic,NoRecordLengthHeader
+
+
+6.2.2 With header
+
+Ascii, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ascii,RecordLengthHeader,CRLF
+
+Ascii, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ascii,RecordLengthHeader,LF
+
+Ascii, not terminated: 
+export file d:\test\file.data,advancedMode,variable,ascii,RecordLengthHeader
+
+Ebcdic, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,RecordLengthHeader,CRLF
+
+Ebcdic, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,RecordLengthHeader,LF
+
+Ebcdic, not terminated: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,RecordLengthHeader
+
+6.3 Sequential line MicroFocus compatible
+
+Ascii, terminated by LF:
+export file d:\test\file.data,advancedMode,MFCobolLineSequential,LF
+
+Ascii, terminated by CRLF:
+export file d:\test\file.data,advancedMode,MFCobolLineSequential,CRLF
+
+Ascii, terminated by OS record terminaison code (CRLF for windows, LF for other systems):
+export file d:\test\file.data,advancedMode,MFCobolLineSequential

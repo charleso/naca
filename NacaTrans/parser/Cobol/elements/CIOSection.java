@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -22,7 +28,10 @@ import org.w3c.dom.Element;
 import parser.CCommentContainer;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
+import semantic.CEntityDataSection;
+import semantic.CEntityIOSection;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -46,8 +55,16 @@ public class CIOSection extends CCommentContainer
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		return parent;
+		CEntityIOSection eIOSection = factory.NewEntityIOSection(getLine(), "IOSection") ;		
+		parent.AddChild(eIOSection) ;
+		parent.registerDeferredChildren(eIOSection, this);	// The children are also handled just before procedure division, because file status is unknown at current point: the variable is defined after the IOSection
+		return eIOSection;
 	}
+	
+//	protected void DoSemanticAnalysisForChildren(CBaseLanguageEntity parent, CBaseEntityFactory factory)
+//	{
+//		int gg =0 ;
+//	}
 
 	/* (non-Javadoc)
 	 * @see parser.CBaseElement#Parse(lexer.CTokenList)
@@ -62,6 +79,18 @@ public class CIOSection extends CCommentContainer
 //			{
 //				ParseComment() ;
 //			}
+			
+			if (tok.GetKeyword() == CCobolKeywordList.I_O_CONTROL)	// PJD Added parsing I_O_CONTROL 
+			{
+				Reporter.Add("Modif_PJ", "I_O_CONTROL");
+				tok = GetNext() ;
+				if (tok.GetType() != CTokenType.DOT)
+				{
+					Transcoder.logError(getLine(), "Expecting DOT");
+					return false ;
+				}
+				tok = GetNext();
+			}
 			if (tok.GetKeyword() == CCobolKeywordList.FILE_CONTROL)
 			{
 				tok = GetNext() ;

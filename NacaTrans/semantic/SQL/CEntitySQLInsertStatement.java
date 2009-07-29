@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -22,18 +28,30 @@ public abstract class CEntitySQLInsertStatement extends CBaseActionEntity
 		super(line, cat, out);
 	}
 	
-	public void SetInsert(CEntitySQLDeclareTable table, Vector arrVal)
+	public void SetInsert(CEntitySQLDeclareTable table, Vector arrVal, Vector arrIndicators, boolean bSingleIndicatorInOccurs)
 	{
 		m_table = table ;
 		m_arrValues = arrVal;
+		m_arrIndicators = arrIndicators; 
+		m_bSingleIndicatorInOccurs = bSingleIndicatorInOccurs;
+		if(this.getLine() == 4984)
+		{
+			int gg = 0;
+		}
 	}
-	public void SetInsert(String tableName, StringVector arrColumns, Vector arrVal)
+	public void SetInsert(String tableName, StringVector arrColumns, Vector arrVal, Vector arrIndicators, boolean bSingleIndicatorInOccurs)
 	{
 		m_csTable = tableName;
 		ASSERT(arrColumns) ;
 		m_arrCollumns = arrColumns ;
 		ASSERT(arrVal) ;
 		m_arrValues = arrVal ;
+		if(this.getLine() == 1313)
+		{
+			int gg = 0;
+		}
+		m_arrIndicators = arrIndicators;
+		m_bSingleIndicatorInOccurs = bSingleIndicatorInOccurs;
 	}
 	public void SetInsert(String tablename, String clause, Vector arrParam)
 	{
@@ -52,6 +70,8 @@ public abstract class CEntitySQLInsertStatement extends CBaseActionEntity
 	protected CEntitySQLDeclareTable m_table = null ;
 	protected StringVector m_arrCollumns = null;
 	protected Vector m_arrValues = null;
+	protected Vector m_arrIndicators = null;
+	protected boolean m_bSingleIndicatorInOccurs = false;
 	protected String m_SelectClause = "" ;
 	protected Vector m_arrSelectParameters = null ;
 	

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -53,14 +59,17 @@ public class SQLRecordSetVarFiller
 	
 	void compress()
 	{
-		if(m_arrItem.isDyn())
+		if(m_arrItem != null)
 		{
-			int nSize = m_arrItem.size();
-			SQLRecordSetVarFillerItem arr[] = new SQLRecordSetVarFillerItem[nSize];
-			m_arrItem.transferInto(arr);
-			
-			ArrayFix<SQLRecordSetVarFillerItem> arrFix = new ArrayFix<SQLRecordSetVarFillerItem>(arr);
-			m_arrItem = arrFix;	// replace by a fix one (uning less memory)
+			if(m_arrItem.isDyn())
+			{
+				int nSize = m_arrItem.size();
+				SQLRecordSetVarFillerItem arr[] = new SQLRecordSetVarFillerItem[nSize];
+				m_arrItem.transferInto(arr);
+				
+				ArrayFix<SQLRecordSetVarFillerItem> arrFix = new ArrayFix<SQLRecordSetVarFillerItem>(arr);
+				m_arrItem = arrFix;	// replace by a fix one (uning less memory)
+			}
 		}
 	}
 	

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -16,6 +22,8 @@ import java.util.ArrayList;
 import jlib.log.Log;
 import jlib.misc.AsciiEbcdicConverter;
 import jlib.misc.BaseDataFile;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.StringUtil;
 import jlib.sql.BaseDbColDefinition;
@@ -30,7 +38,7 @@ import nacaLib.varEx.FileDescriptor;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SQLUnload.java,v 1.12 2007/05/23 07:39:58 u930bm Exp $
+ * @version $Id$
  */
 public class SQLUnload extends BaseSQLUtils
 {
@@ -88,7 +96,9 @@ public class SQLUnload extends BaseSQLUtils
 			csClause = csClause.substring(0, csClause.length()-1);
 		
 		csClause = SQLTypeOperation.addEnvironmentPrefix(m_dbConnection.getEnvironmentPrefix(), csClause, typeOperation, "");
+		DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
 		DbPreparedStatement stmt = m_dbConnection.prepareStatement(csClause, 0, false);
+		DBIOAccounting.endDBIO();
 		if(stmt != null)
 		{
 			if(typeOperation == SQLTypeOperation.Select)

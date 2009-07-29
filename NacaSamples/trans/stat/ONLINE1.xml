@@ -267,7 +267,6 @@
 <Of Ascendant="DVTBMSGA"/>
 </To>
 </Move>
-<SQLSelect Clause=" SELECT * FROM VTBMSGA WHERE NO = #1" Line="189"/>
 <IF Line="195">
 <Condition>
 <Equals>

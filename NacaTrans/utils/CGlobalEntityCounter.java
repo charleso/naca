@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -80,6 +86,7 @@ public class CGlobalEntityCounter
 	
 	// dependences
 	protected Hashtable<String, CDepCounter> m_tabCopyForPrograms = new Hashtable<String, CDepCounter>();
+	protected Hashtable<String, CDepCounter> m_tabDeepCopyForPrograms = new Hashtable<String, CDepCounter>();
 	protected Hashtable<String, CDepCounter> m_tabProgramsUsingCopy = new Hashtable<String, CDepCounter>();
 	protected Hashtable<String, CDepCounter> m_tabMissingCopy = new Hashtable<String, CDepCounter>();
 	protected Hashtable<String, CDepCounter> m_tabProgramCalled = new Hashtable<String, CDepCounter>();
@@ -156,6 +163,7 @@ public class CGlobalEntityCounter
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			return null ;
 		}
 	}
@@ -167,6 +175,7 @@ public class CGlobalEntityCounter
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			return null ;
 		}
 	}
@@ -219,6 +228,7 @@ public class CGlobalEntityCounter
 				}
 				catch (NoSuchElementException exp)
 				{
+					//exp.printStackTrace();
 				}
 				ic = (CItemCounter)GetNextCount(enumere);
 			}
@@ -256,6 +266,7 @@ public class CGlobalEntityCounter
 				}
 				catch (NoSuchElementException exp)
 				{
+					//exp.printStackTrace();
 				}
 				ic = (CItemCounter)GetNextCount(enumere);
 			}
@@ -293,6 +304,7 @@ public class CGlobalEntityCounter
 				}
 				catch (NoSuchElementException exp)
 				{
+					//exp.printStackTrace();
 				}
 				ic = (CItemCounter)GetNextCount(enumere);
 			}
@@ -330,6 +342,7 @@ public class CGlobalEntityCounter
 				}
 				catch (NoSuchElementException exp)
 				{
+					//exp.printStackTrace();
 				}
 				ic = (CItemCounter)GetNextCount(enumere);
 			}
@@ -373,6 +386,27 @@ public class CGlobalEntityCounter
 			Element eCopy = root.createElement("CopyForPrograms");
 			eItemCount.appendChild(eCopy);
 			Enumeration enumere = m_tabCopyForPrograms.elements() ;
+			CDepCounter ic = GetNextDep(enumere);
+			while (ic != null)
+			{
+				Element e = root.createElement("Copy");
+				e.setAttribute("Name", ic.m_ItemName);
+				eCopy.appendChild(e);
+				for (int i=0; i<ic.m_arrDeps.size();i++)
+				{
+					String cs = ic.m_arrDeps.elementAt(i);
+					Element eOpt = root.createElement("Program");
+					eOpt.setAttribute("Name", cs);
+					e.appendChild(eOpt);
+				}
+				ic = GetNextDep(enumere);
+			}
+		}
+		if (m_tabDeepCopyForPrograms != null)
+		{
+			Element eCopy = root.createElement("DeepCopyForPrograms");
+			eItemCount.appendChild(eCopy);
+			Enumeration enumere = m_tabDeepCopyForPrograms.elements() ;
 			CDepCounter ic = GetNextDep(enumere);
 			while (ic != null)
 			{
@@ -711,6 +745,46 @@ public class CGlobalEntityCounter
 			dep = new CDepCounter();
 			dep.m_ItemName = copyName ;
 			m_tabCopyForPrograms.put(copyName, dep);
+		}
+		if (dep.m_arrDeps.contains(programName))
+		{
+			int n = dep.m_tabCount.get(programName);
+			dep.m_tabCount.put(programName, n+1) ;
+		}
+		else
+		{
+			dep.m_arrDeps.addElement(programName) ;
+			dep.m_tabCount.put(programName, 1) ;
+		}
+
+		//register COPY for PROGRAM
+		dep = m_tabProgramsUsingCopy.get(programName);
+		if (dep == null)
+		{
+			dep = new CDepCounter();
+			dep.m_ItemName = programName ;
+			m_tabProgramsUsingCopy.put(programName, dep);
+		}
+		if (dep.m_arrDeps.contains(copyName))
+		{
+			int n = dep.m_tabCount.get(copyName);
+			dep.m_tabCount.put(copyName, n+1) ;
+		}
+		else
+		{
+			dep.m_arrDeps.addElement(copyName) ;
+			dep.m_tabCount.put(copyName, 1) ;
+		}
+	}
+	public void RegisterDeepCopy(String programName, String copyName, String csNewCopyReference)
+	{
+		// register program for copy
+		CDepCounter dep = m_tabDeepCopyForPrograms.get(copyName);
+		if (dep == null)
+		{
+			dep = new CDepCounter();
+			dep.m_ItemName = copyName ;
+			m_tabDeepCopyForPrograms.put(copyName, dep);
 		}
 		if (dep.m_arrDeps.contains(programName))
 		{

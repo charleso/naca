@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,8 @@
  */
 package parser.Cobol.elements;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Vector;
 
 import lexer.CBaseToken;
@@ -23,11 +31,13 @@ import org.w3c.dom.Element;
 
 import parser.CCommentContainer;
 import parser.CIdentifier;
+import parser.CLanguageElement;
 import semantic.CDataEntity;
 import semantic.CBaseLanguageEntity;
 import semantic.CBaseEntityFactory;
 import semantic.CEntityBloc;
 import semantic.CEntityProcedureDivision;
+import semantic.DeferredItem;
 import utils.Transcoder;
 
 /**
@@ -60,6 +70,7 @@ public class CProcedureDivision extends CCommentContainer
 			}
 			if (tok.GetType()==CTokenType.IDENTIFIER || tok.GetType() == CTokenType.NUMBER) 
 			{	// maybe a label ?
+				// m_ProcedureDivisionBloc = new CBaseProcedure(getLine()); // PJD: Uncomment this line if we wanted to always have ProcedureDivision() method. It's not needed if we just have a paragraph or section immediatelly after the PROCEDURE DIVISION
 				String csLabel = tok.GetValue();
 				GetNext() ;
 				
@@ -77,6 +88,27 @@ public class CProcedureDivision extends CCommentContainer
 						GetNext() ;
 					}
 					curSection = new CProcedureSection(csLabel, tok.getLine()) ;
+					AddChild(curSection) ;
+					if (!Parse(curSection))
+					{
+						return false ;
+					}
+				}
+				else if (tokSection.IsKeyword() && tokSection.GetKeyword() == CCobolKeywordList.LABEL_SENTENCE)
+				{	// maybe the starting of a section
+					CBaseToken tokDot = GetNext() ;
+					if (tokDot.GetType() != CTokenType.DOT)
+					{
+						Transcoder.logError(getLine(), "Expecting 'DOT'") ;
+						return false ;
+					}
+					else
+					{
+						GetNext() ;
+					}
+					//CProcedureLabelSentence labelSentence = new CProcedureLabelSentence(csLabel, tok.getLine()) ;
+					curSection = new CProcedureSection(csLabel, tok.getLine()) ;
+					curSection.setForcedLabelSentence();
 					AddChild(curSection) ;
 					if (!Parse(curSection))
 					{
@@ -163,7 +195,22 @@ public class CProcedureDivision extends CCommentContainer
 	{
 		if (factory.m_ProgramCatalog.isMissingIncludeStructure())
 		{
+			Transcoder.logError("Some include structure are missing: ProcedureDivision code generation cannot be done");
 			return null ;
+		}
+		
+		// Insert deferred children before procedure division
+		ArrayList<DeferredItem> arrDeferredChildren = parent.getDeferredChildren();
+		if(arrDeferredChildren != null)
+		{
+			for(int n=0; n<arrDeferredChildren.size(); n++)
+			{
+				DeferredItem deferredItem = arrDeferredChildren.get(n);
+				CLanguageElement el = deferredItem.getElement();
+				CBaseLanguageEntity entity = deferredItem.getEntity();
+				el.DoDeferredSemanticAnalysisForChildren(entity, factory);
+				parent.AddChild(entity);
+			}
 		}
 		CEntityProcedureDivision pro = factory.NewEntityProcedureDivision(getLine()) ;
 		parent.AddChild(pro) ;

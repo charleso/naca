@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,6 +25,7 @@ import jlib.misc.*;
 import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.bdb.BtreeSegmentKeyTypeFactory;
+import nacaLib.debug.BufferSpy;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.sqlSupport.CSQLItemType;
 import nacaLib.tempCache.*;
@@ -1064,10 +1071,12 @@ public class VarDefG extends VarDefVariable
 		int nNbCharToCopy = Math.min(nNbCharSource, nNbCharDest);
 		
 		int nPositionDest = getBodyAbsolutePosition(bufferDest);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(bufferDest.m_acBuffer, nPositionDest, nNbCharToCopy);
 		for(int n=0; n<nNbCharToCopy; n++, nPositionDest++)
 		{
 			bufferDest.m_acBuffer[nPositionDest] = csSource.charAt(n);
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		if(nNbCharSource < nNbCharDest)
 		{
 			int nNbSpaceToAdd = nNbCharDest - nNbCharSource; 
@@ -1082,10 +1091,12 @@ public class VarDefG extends VarDefVariable
 		int nNbCharToCopy = Math.min(nNbCharSource, nNbCharDest);
 		
 		int nPositionDest = getBodyAbsolutePosition(bufferDest);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(bufferDest.m_acBuffer, nPositionDest, nNbCharToCopy);
 		for(int n=0; n<nNbCharToCopy; n++, nPositionDest++)
 		{
 			bufferDest.m_acBuffer[nPositionDest] = csSource.charAt(n);
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		if(nNbCharSource < nNbCharDest)
 		{
 			int nNbSpaceToAdd = nNbCharDest - nNbCharSource; 
@@ -1095,10 +1106,11 @@ public class VarDefG extends VarDefVariable
 	
 	private void rightPadSpace(VarBufferPos bufferDest, int nPositionDest, int nNbSpaceToAdd)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(bufferDest.m_acBuffer, nPositionDest, nNbSpaceToAdd);
 		for(int n=0; n<nNbSpaceToAdd; n++, nPositionDest++)
 		{
 			bufferDest.m_acBuffer[nPositionDest] = ' ';
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
-
 }

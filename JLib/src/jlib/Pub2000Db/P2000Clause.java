@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,11 +15,14 @@
  */
 package jlib.Pub2000Db;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import jlib.languageUtil.LanguageId;
 import jlib.misc.DateUtil;
 import jlib.misc.NumberParser;
+import jlib.sql.ColValue;
+import jlib.sql.ColValueTimestamp;
 import jlib.sql.DbAccessor;
 import jlib.sql.DbConnectionBase;
 import jlib.sql.SQLClause;
@@ -21,7 +30,7 @@ import jlib.sql.SQLClause;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: P2000Clause.java,v 1.10 2008/02/14 15:21:34 u930bm Exp $
+ * @version $Id$
  */
 /* Sample usage of P2000Clause with a main and alternate connection:
    P2000Clause clause = new P2000Clause(); 
@@ -320,5 +329,21 @@ public P2000Clause paramInsert(String csName,boolean bVal)
 		super.paramInsert(csName, nNowHHMMSS);
 		return this;
 	}
-
+	
+	// To test
+	public P2000Clause paramInsertTimeStampNow(String csName)
+	{
+		Date date = new Date();
+		Timestamp ts = new Timestamp(date.getTime());
+		paramInsertTimeStamp(csName, ts);
+		return this;
+	}
+	
+	// To test
+	public P2000Clause paramInsertTimeStamp(String csName, Timestamp ts)
+	{
+		ColValue colValue = new ColValueTimestamp(csName, ts);
+		m_arrInsertParams.add(colValue);
+		return this;
+	}
 }

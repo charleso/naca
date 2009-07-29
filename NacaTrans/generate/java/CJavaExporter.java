@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -78,6 +84,17 @@ public class CJavaExporter extends CBaseLanguageExporter
 		}
 		m_output.println(m_Indent + line) ;
 	}
+	
+	public void DoWriteAgainSourceLine(String line)
+	{
+		if(!Transcoder.getRecreateCobolSourceFile())
+			return;
+		if (m_outputAgainSource == null)
+		{
+			CreateAgainSourceFile() ;
+		}
+		m_outputAgainSource.println("      " + line) ;
+	}
 	/**
 	 * 
 	 */
@@ -98,6 +115,36 @@ public class CJavaExporter extends CBaseLanguageExporter
 		} 
 		catch (FileNotFoundException e)
 		{
+			e.printStackTrace();
+			Transcoder.logError("Can't create file " + f.getAbsolutePath()) ;
+			return ;
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}	
+	}
+	
+	private void CreateAgainSourceFile()
+	{
+		if(!Transcoder.getRecreateCobolSourceFile())
+			return;
+		File f = new File(m_FileName + ".srcCbl");
+//		if (f.exists() && f.isFile())
+//		{
+//			m_bFileExistingAgainSourceFile = true ;
+//			m_csTempFileNameAgainSourceFile = GenereTempFileName(m_FileNameAgainSourceFile) ;
+//			f = new File(m_csTempFileNameAgainSourceFile) ;
+//
+//		}
+		try
+		{
+			//OutputStream out = new FileOutputStream(cs);
+			m_outputAgainSource = new PrintStream(f, "ISO-8859-1") ;
+		} 
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
 			Transcoder.logError("Can't create file " + f.getAbsolutePath()) ;
 			return ;
 		}
@@ -112,6 +159,13 @@ public class CJavaExporter extends CBaseLanguageExporter
 	protected boolean m_bResources = false ;
 	protected boolean m_bFileExisting = false ;
 	protected String m_csTempFileName = "" ;
+	
+	protected PrintStream m_outputAgainSource = null;
+	
+	public String getFileName()
+	{
+		return m_FileName;
+	}
 
 	public void GenereJavaCode(Element root)
 	{
@@ -436,6 +490,9 @@ public class CJavaExporter extends CBaseLanguageExporter
 	protected void doCloseOutput()
 	{
 		m_output.close() ;
+		if(Transcoder.getRecreateCobolSourceFile())
+			if(m_outputAgainSource != null)
+				m_outputAgainSource.close();
 		if (m_bFileExisting)
 		{
 			File newF = new File(m_csTempFileName) ;

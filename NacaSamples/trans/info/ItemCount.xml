@@ -1,8 +1,8 @@
 <ItemCount>
 <Category Name="GeneralProperties">
-<Item Count="16" Max="39" Name="CommentLines" Total="168"/>
+<Item Count="16" Max="45" Name="CommentLines" Total="180"/>
 <Item Count="1" Name="BMSFiles"/>
-<Item Count="16" Max="205" Min="3" Name="CodeLines" Total="766"/>
+<Item Count="16" Max="199" Min="3" Name="CodeLines" Total="754"/>
 <Item Count="16" Max="244" Min="3" Name="Lines" Total="934"/>
 <Item Count="8" Name="CobolFiles"/>
 </Category>
@@ -49,13 +49,8 @@
 <Category Name="SQLCommands">
 <Item Count="1" Name="DECLARE_TABLE"/>
 <Item Count="1" Name="WHENEVER"/>
-<Item Count="1" Name="SELECT"/>
 </Category>
-<Category Name="SQLTableAccess">
-<Item CURSOR="0" DELETE="0" INSERT="0" Name="TBMSG" SELECT="1" UPDATE="0">
-<Program CURSOR="0" DELETE="0" INSERT="0" Name="ONLINE1" SELECT="1" UPDATE="0"/>
-</Item>
-</Category>
+<Category Name="SQLTableAccess"/>
 <CopyForPrograms>
 <Copy Name="VTBMSGA">
 <Program Name="ONLINE1"/>
@@ -81,6 +76,7 @@
 <Program Name="ONLINE1"/>
 </Copy>
 </CopyForPrograms>
+<DeepCopyForPrograms/>
 <MissingCopy/>
 <ProgramUsingCopy>
 <Program Name="ONLINE1">
@@ -110,7 +106,4 @@
 </SubProgram>
 </ProgramCalled>
 <MissingCalls/>
-<ProgramsToRewrite>
-<Program Line="0" Name="ONLINE1" Reason="Missing table declaration : VTBMSGA"/>
-</ProgramsToRewrite>
 </ItemCount>

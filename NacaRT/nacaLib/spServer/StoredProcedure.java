@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,6 +20,8 @@ import java.sql.SQLException;
 
 import jlib.log.Log;
 import jlib.misc.ClassHelper;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.StringUtil;
 import nacaLib.accounting.CriteriaEndRunMain;
 import nacaLib.basePrgEnv.BaseEnvironment;
@@ -24,7 +32,7 @@ import nacaLib.exceptions.AbortSessionException;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: StoredProcedure.java,v 1.29 2008/03/26 07:46:05 u930bm Exp $
+ * @version $Id$
  */
 public class StoredProcedure extends CalledProgramParamSupportByPosition
 {
@@ -87,7 +95,9 @@ public class StoredProcedure extends CalledProgramParamSupportByPosition
 			// We must have a table "NacaRTSP" with 1 record of 1 column "CONFIGFILE"; It's value is the path and file name of the config file
 			String csPathFileNameConfig = null;
 			String csCurrentSqlid = "";
+			DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
 			PreparedStatement statement = connection.prepareStatement("Select CONFIGFILE, current sqlid FROM naca.NacaRTSP");
+			DBIOAccounting.endDBIO();
 			if (statement != null)
 			{
 				ResultSet rs = null;

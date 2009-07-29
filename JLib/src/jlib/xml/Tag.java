@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -91,6 +97,11 @@ public class Tag
 		m_doc = CreateDocument();
 	}
 	
+	public Tag(Document doc)
+	{
+		setDoc(doc);
+	}
+	
 	public Tag(String name)
 	{
 		m_doc = CreateDocument();
@@ -107,6 +118,11 @@ public class Tag
 	public Document getDoc()
 	{
 		return m_doc;
+	}
+	
+	public Element getElement()
+	{
+		return m_elem;
 	}
 			
 	private Tag(Document doc, Element elem)
@@ -270,6 +286,17 @@ public class Tag
 		if(m_elem != null)
 			return m_elem.getAttribute(csArgName);
 		return null;
+	}
+	
+	public String getVal(String csArgName, String csDefaultValue)
+	{
+		if(m_elem != null)
+		{
+			String cs = m_elem.getAttribute(csArgName);
+			if(!StringUtil.isEmpty(cs))
+				return cs;
+		}
+		return csDefaultValue;
 	}
 	
 	public void updateVal(String csArgName, String csValue)

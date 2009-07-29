@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -51,7 +57,7 @@ public class CSQLStatus extends CJMapObject
 	
 	public void reset()
 	{
-		m_nSQLCode = 0 ;
+		doSetSQLCode(0) ;
 		m_csMethod = null;
 		m_csReason = null;
 		m_csReasonParams = null;
@@ -63,25 +69,25 @@ public class CSQLStatus extends CJMapObject
 	public void setSQLCode(int n)
 	{
 		reset();
-		m_nSQLCode = n ;
+		doSetSQLCode(n) ;
 	}
 	
 	public void setSQLCodeOk()
 	{
 		reset();
-		m_nSQLCode = SQLCode.SQL_OK;
+		doSetSQLCode(SQLCode.SQL_OK.getMainCode());
 	}
 	
 	public void setSQLCode(SQLException e)
 	{
 		reset();
-		m_nSQLCode = e.getErrorCode();
+		doSetSQLCode(e.getErrorCode());
 		m_csReason = "SQL Exception (" + m_nSQLCode + "):" + e.getMessage()  + " SQLState="+ e.getSQLState();
 	}
 
 	public void setSQLCode(String csMethod, SQLException e, String csQueryString/*, String csSourceFileLine*/, SQL sql)
 	{		
-		m_nSQLCode = e.getErrorCode();
+		doSetSQLCode(e.getErrorCode());
 		m_csMethod = csMethod;		
 		m_csReason = "SQL Exception (" + m_nSQLCode + "):" + e.getMessage()  + " SQLState="+ e.getSQLState();
 		if(sql != null)
@@ -103,7 +109,7 @@ public class CSQLStatus extends CJMapObject
 		m_csReasonParams = null;
 		m_csReasonValues = null;
 	
-		m_nSQLCode = nCode;
+		doSetSQLCode(nCode);
 		m_csMethod = csMethod;
 		m_csReason = csReason;
 		m_csQueryString = csQueryString;
@@ -157,6 +163,7 @@ public class CSQLStatus extends CJMapObject
 		sqlErrorManager.manageOnErrorContinue(this);		
 		return this;
 	}
+	
 	public CSQLStatus onWarningGoto(Paragraph paragraphSQGErrorGoto)
 	{
 		// TODO
@@ -172,6 +179,11 @@ public class CSQLStatus extends CJMapObject
 	public CSQLStatus onWarningContinue()
 	{
 		// TODO
+		return this;
+	}	
+	
+	public CSQLStatus onNotFoundContinue()
+	{
 		return this;
 	}
 	
@@ -231,4 +243,12 @@ public class CSQLStatus extends CJMapObject
 		return sb;
 	}
 	
+	private void doSetSQLCode(int n)
+	{
+		m_nSQLCode = n;
+		if(m_nSQLCode == 100)
+		{
+			int gg = 0;
+		}
+	}
 }

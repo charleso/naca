@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,11 +25,14 @@ import generate.java.CJavaBloc;
 import generate.java.CJavaClass;
 import generate.java.CJavaComment;
 import generate.java.CJavaCondition;
+import generate.java.CJavaConfigurationSection;
 import generate.java.CJavaDataSection;
 import generate.java.CJavaEnvironmentVariable;
 import generate.java.CJavaExternalDataStructure;
 import generate.java.CJavaFileDescriptor;
 import generate.java.CJavaFileDescriptorLengthDependency;
+import generate.java.CJavaFileSelect;
+import generate.java.CJavaIOSection;
 import generate.java.CJavaIndex;
 import generate.java.CJavaInline;
 import generate.java.CJavaMoveReference;
@@ -82,9 +91,11 @@ import generate.java.SQL.CJavaSQLRollBack;
 import generate.java.SQL.CJavaSQLSelectStatement;
 import generate.java.SQL.CJavaSQLSessionDeclare;
 import generate.java.SQL.CJavaSQLSessionDrop;
+import generate.java.SQL.CJavaSQLSet;
 import generate.java.SQL.CJavaSQLSingleStatement;
 import generate.java.SQL.CJavaSQLUpdateStatement;
 import generate.java.SQL.CJavaSqlOnErrorGoto;
+import generate.java.SQL.SQLErrorType;
 import generate.java.expressions.CJavaAddressOf;
 import generate.java.expressions.CJavaConcat;
 import generate.java.expressions.CJavaCondAnd;
@@ -98,17 +109,25 @@ import generate.java.expressions.CJavaCondOr;
 import generate.java.expressions.CJavaConstant;
 import generate.java.expressions.CJavaConstantValue;
 import generate.java.expressions.CJavaCurrentDate;
+import generate.java.expressions.CJavaCurrentDateSQLFunction;
+import generate.java.expressions.CJavaCurrentTimeStampSQLFunction;
 import generate.java.expressions.CJavaDigits;
+import generate.java.expressions.CJavaEntityBoolean;
 import generate.java.expressions.CJavaEntityNumber;
+import generate.java.expressions.CJavaExprLengthOf;
 import generate.java.expressions.CJavaExprOpposite;
 import generate.java.expressions.CJavaExprProd;
 import generate.java.expressions.CJavaExprSum;
 import generate.java.expressions.CJavaExprTerminal;
+import generate.java.expressions.CJavaInsertSQLFunction;
 import generate.java.expressions.CJavaInternalBool;
 import generate.java.expressions.CJavaIsNamedCondition;
 import generate.java.expressions.CJavaLengthOf;
 import generate.java.expressions.CJavaList;
+import generate.java.expressions.CJavaNamedSQLFunction;
+import generate.java.expressions.CJavaSQLNull;
 import generate.java.expressions.CJavaString;
+import generate.java.expressions.CJavaTally;
 import generate.java.forms.CJavaField;
 import generate.java.forms.CJavaFieldArray;
 import generate.java.forms.CJavaFieldArrayReference;
@@ -151,7 +170,9 @@ import generate.java.verbs.CJavaCalcul;
 import generate.java.verbs.CJavaCallFunction;
 import generate.java.verbs.CJavaCallProgram;
 import generate.java.verbs.CJavaCase;
+import generate.java.verbs.CJavaCaseSearchAll;
 import generate.java.verbs.CJavaCloseFile;
+import generate.java.verbs.CJavaConstantReturn;
 import generate.java.verbs.CJavaContinue;
 import generate.java.verbs.CJavaCount;
 import generate.java.verbs.CJavaDisplay;
@@ -159,6 +180,7 @@ import generate.java.verbs.CJavaDivide;
 import generate.java.verbs.CJavaExec;
 import generate.java.verbs.CJavaGoto;
 import generate.java.verbs.CJavaInitialize;
+import generate.java.verbs.CJavaInspectConverting;
 import generate.java.verbs.CJavaLoopIter;
 import generate.java.verbs.CJavaLoopWhile;
 import generate.java.verbs.CJavaMultiply;
@@ -185,6 +207,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import parser.CIdentifier;
+import parser.Cobol.elements.SQL.CSQLTableColDescriptor;
+
 import semantic.CBaseEntityFactory;
 import semantic.CBaseExternalEntity;
 import semantic.CDataEntity;
@@ -195,18 +220,22 @@ import semantic.CEntityBloc;
 import semantic.CEntityClass;
 import semantic.CEntityComment;
 import semantic.CEntityCondition;
+import semantic.CEntityConfigurationSection;
 import semantic.CEntityDataSection;
 import semantic.CEntityEnvironmentVariable;
 import semantic.CEntityExternalDataStructure;
 import semantic.CEntityFileDescriptor;
 import semantic.CEntityFileDescriptorLengthDependency;
+import semantic.CEntityFileSelect;
 import semantic.CEntityFormatedVarReference;
+import semantic.CEntityIOSection;
 import semantic.CEntityIndex;
 import semantic.CEntityInline;
 import semantic.CEntityMoveReference;
 import semantic.CEntityNamedCondition;
 import semantic.CEntityProcedure;
 import semantic.CEntityProcedureDivision;
+import semantic.CEntityProcedureLabelSentence;
 import semantic.CEntityProcedureSection;
 import semantic.CEntitySQLCursorSection;
 import semantic.CEntitySortedFileDescriptor;
@@ -259,6 +288,7 @@ import semantic.SQL.CEntitySQLRollBack;
 import semantic.SQL.CEntitySQLSelectStatement;
 import semantic.SQL.CEntitySQLSessionDeclare;
 import semantic.SQL.CEntitySQLSessionDrop;
+import semantic.SQL.CEntitySQLSet;
 import semantic.SQL.CEntitySQLSingleStatement;
 import semantic.SQL.CEntitySQLUpdateStatement;
 import semantic.SQL.CEntitySqlOnErrorGoto;
@@ -272,7 +302,9 @@ import semantic.Verbs.CEntityCalcul;
 import semantic.Verbs.CEntityCallFunction;
 import semantic.Verbs.CEntityCallProgram;
 import semantic.Verbs.CEntityCase;
+import semantic.Verbs.CEntityCaseSearchAll;
 import semantic.Verbs.CEntityCloseFile;
+import semantic.Verbs.CEntityConstantReturn;
 import semantic.Verbs.CEntityContinue;
 import semantic.Verbs.CEntityConvertReference;
 import semantic.Verbs.CEntityCount;
@@ -282,6 +314,7 @@ import semantic.Verbs.CEntityExec;
 import semantic.Verbs.CEntityGoto;
 import semantic.Verbs.CEntityInc;
 import semantic.Verbs.CEntityInitialize;
+import semantic.Verbs.CEntityInspectConverting;
 import semantic.Verbs.CEntityLoopIter;
 import semantic.Verbs.CEntityLoopWhile;
 import semantic.Verbs.CEntityMultiply;
@@ -305,6 +338,7 @@ import semantic.Verbs.CEntityWriteFile;
 import semantic.expression.CBaseEntityExpression;
 import semantic.expression.CEntityAddress;
 import semantic.expression.CEntityAddressOf;
+import semantic.expression.CEntityBoolean;
 import semantic.expression.CEntityConcat;
 import semantic.expression.CEntityCondAnd;
 import semantic.expression.CEntityCondCompare;
@@ -317,19 +351,26 @@ import semantic.expression.CEntityCondNot;
 import semantic.expression.CEntityCondOr;
 import semantic.expression.CEntityConstant;
 import semantic.expression.CEntityCurrentDate;
+import semantic.expression.CEntityCurrentDateSQLFunction;
+import semantic.expression.CEntityCurrentTimeStampSQLFunction;
 import semantic.expression.CEntityDigits;
+import semantic.expression.CEntityExprLengthOf;
 import semantic.expression.CEntityExprOpposite;
 import semantic.expression.CEntityExprProd;
 import semantic.expression.CEntityExprSum;
 import semantic.expression.CEntityExprTerminal;
 import semantic.expression.CEntityFunctionCall;
+import semantic.expression.CEntityInsertSQLFunction;
 import semantic.expression.CEntityInternalBool;
 import semantic.expression.CEntityIsFileEOF;
 import semantic.expression.CEntityIsNamedCondition;
 import semantic.expression.CEntityLengthOf;
 import semantic.expression.CEntityList;
+import semantic.expression.CEntityNamedSQLFunction;
 import semantic.expression.CEntityNumber;
+import semantic.expression.CEntitySQLNull;
 import semantic.expression.CEntityString;
+import semantic.expression.CEntityTally;
 import semantic.expression.CEntityConstant.Value;
 import semantic.forms.CEntityFieldArrayReference;
 import semantic.forms.CEntityFieldAttribute;
@@ -366,6 +407,8 @@ import semantic.forms.CResourceStrings;
 import utils.CGlobalCatalog;
 import utils.CObjectCatalog;
 import utils.NacaTransAssertException;
+import utils.CobolTranscoder.BMSTranscoderEngine;
+import utils.modificationsReporter.Reporter;
 
 
 
@@ -408,8 +451,6 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 		NewEntityGetKeyPressed("EIBAID") ;
 		NewEntitySQLCode("SQLCODE") ;
 		NewEntitySQLCode("SQLERRD") ;
-		
-		
 	}
 
 	/**
@@ -437,13 +478,14 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntitySQLDeleteStatement NewEntitySQLDeleteStatement(int nLine, String csStatement, Vector<CDataEntity> arrParameters)	{
 		return new CJavaSQLDeleteStatement(nLine, m_ProgramCatalog, m_LangOutput, csStatement, arrParameters);
 	}
-	public CEntitySQLUpdateStatement NewEntitySQLUpdateStatement(int nLine, String csStatement, Vector<CDataEntity> arrSets, Vector<CDataEntity> arrParameters)	{
-		return new CJavaSQLUpdateStatement(nLine, m_ProgramCatalog, m_LangOutput, csStatement, arrSets, arrParameters);
+	public CEntitySQLUpdateStatement NewEntitySQLUpdateStatement(int nLine, String csStatement, Vector<CDataEntity> arrSets, Vector<CDataEntity> arrSetsIndicators, Vector<CDataEntity> arrParameters, Vector<CDataEntity> arrParametersIndicators)
+	{
+		return new CJavaSQLUpdateStatement(nLine, m_ProgramCatalog, m_LangOutput, csStatement, arrSets, arrSetsIndicators, arrParameters, arrParametersIndicators);
 	}
 	public CEntitySQLInsertStatement NewEntitySQLInsertStatement(int nLine)	{
 		return new CJavaSQLInsertStatement(nLine, m_ProgramCatalog, m_LangOutput);
 	}
-	public CEntitySQLDeclareTable NewEntitySQLDeclareTable(int nLine, String csTableName, String csViewName, ArrayList arrTableColDescription)	{
+	public CEntitySQLDeclareTable NewEntitySQLDeclareTable(int nLine, String csTableName, String csViewName, ArrayList<CSQLTableColDescriptor> arrTableColDescription)	{
 		return new CJavaSQLDeclareTable(nLine, m_ProgramCatalog, m_LangOutput, csTableName, csViewName, arrTableColDescription);
 	}
 	public CEntityClass NewEntityClass(int l, String name)	{
@@ -461,9 +503,11 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityProcedure NewEntityProcedure(int l, String name, CEntityProcedureSection section)	{
 		return new CJavaProcedure(l, name, m_ProgramCatalog, m_LangOutput, section);
 	}
-	public CEntityProcedureSection NewEntityProcedureSection(int l, String name)	{
-		return new CJavaProcedureSection(l, name, m_ProgramCatalog, m_LangOutput);
+	public CEntityProcedureSection NewEntityProcedureSection(int l, String name, boolean bLabelSentence)	{
+		return new CJavaProcedureSection(l, name, m_ProgramCatalog, m_LangOutput, bLabelSentence);
 	}
+	
+
 	public CEntityAssign NewEntityAssign(int l)	{
 		return new CJavaAssign(l, m_ProgramCatalog, m_LangOutput) ;
 	}
@@ -483,11 +527,20 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 		return new CJavaCalcul(l, m_ProgramCatalog, m_LangOutput);
 	}
 	public CEntitySqlOnErrorGoto NewEntitySQLOnErrorGoto(int l, String ref)	{
-		return new CJavaSqlOnErrorGoto(l, m_ProgramCatalog, m_LangOutput, ref, false) ;
+		Reporter.Add("Modif_PJ", "NewEntitySQLOnErrorGoto");
+		return new CJavaSqlOnErrorGoto(l, m_ProgramCatalog, m_LangOutput, ref, SQLErrorType.OnErrorGoto) ;
 	}
 	public CEntitySqlOnErrorGoto NewEntitySQLOnWarningGoto(int l, String ref)	{
-		return new CJavaSqlOnErrorGoto(l, m_ProgramCatalog, m_LangOutput, ref, true) ;
+		Reporter.Add("Modif_PJ", "NewEntitySQLOnWarningGoto");
+		return new CJavaSqlOnErrorGoto(l, m_ProgramCatalog, m_LangOutput, ref, SQLErrorType.OnWarningGoto) ;
 	}
+	
+	public CEntitySqlOnErrorGoto NewEntitySQLOnNotFoundGoto(int l, String ref)	// PJD Added	
+	{
+		Reporter.Add("Modif_PJ", "NewEntitySQLOnNotFoundGoto");
+		return new CJavaSqlOnErrorGoto(l, m_ProgramCatalog, m_LangOutput, ref, SQLErrorType.OnNotFoundGoto) ;
+	}
+
 	public CEntityExec NewEntityExec(int l, String statement)	{
 		return new CJavaExec(l, m_ProgramCatalog, m_LangOutput, statement);
 	}
@@ -518,6 +571,10 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityCase NewEntityCase(int l, int endline)	{
 		return new CJavaCase(l, m_ProgramCatalog, m_LangOutput, endline);
 	}
+	public CEntityCaseSearchAll NewEntityCaseSearchAll(int l, int endline)
+	{
+		return new CJavaCaseSearchAll(l, m_ProgramCatalog, m_LangOutput, endline);
+	}
 	public CSubStringAttributReference NewEntitySubString(int l)	{
 		return new CJavaSubStringReference(l, m_ProgramCatalog, m_LangOutput);
 	}
@@ -539,9 +596,11 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityContinue NewEntityContinue(int l)	{
 		return new CJavaContinue(l, m_ProgramCatalog, m_LangOutput);
 	}
-	public CEntityNextSentence NewEntityNextSentence(int l)	{
-		return new CJavaNextSentence(l, m_ProgramCatalog, m_LangOutput);
+	public CEntityNextSentence NewEntityNextSentence(int l, String csReference)	
+	{
+		return new CJavaNextSentence(l, m_ProgramCatalog, m_LangOutput, csReference);
 	}
+	
 	public CEntityNamedCondition NewEntityNamedCondition(int l, String name)	{
 		return new CJavaNamedCondition(l, name, m_ProgramCatalog, m_LangOutput);
 	}
@@ -626,6 +685,11 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityNumber NewEntityNumber(String value)	{
 		return new CJavaEntityNumber(m_ProgramCatalog, m_LangOutput, value) ;
 	}
+	public CEntityBoolean NewEntityBoolean(boolean bValue) 
+	{
+		return new CJavaEntityBoolean(m_ProgramCatalog, m_LangOutput, bValue) ;
+	}
+	
 	public CEntityExprTerminal NewEntityExprTerminal(CDataEntity eData)	{
 		return new CJavaExprTerminal(eData);
 	}
@@ -685,6 +749,11 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityDataSection NewEntityDataSection(int l, String name)	{
 		return new CJavaDataSection(l, name, m_ProgramCatalog, m_LangOutput);
 	}
+	public CEntityIOSection NewEntityIOSection(int l, String name)
+	{
+		return new CJavaIOSection(l, name, m_ProgramCatalog, m_LangOutput);
+	}
+	
 	public CEntityReplace NewEntityReplace(int l)	{
 		return new CJavaReplace(l, m_ProgramCatalog, m_LangOutput);
 	}
@@ -830,6 +899,14 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntitySQLCursor NewEntitySQLCursor(String name)	{
 		return new CJavaSQLCursor(name, m_ProgramCatalog, m_LangOutput);
 	}
+	
+	
+	public CEntitySQLSet NewEntitySQLSet(int nLine)
+	{
+		Reporter.Add("Modif_PJ", "NewEntitySQLSet");
+		return new CJavaSQLSet(nLine, m_ProgramCatalog, m_LangOutput);
+	}
+	
 	public CEntityKeyPressed NewEntityKeyPressed(String name, String caption)	{
 		//m_ProgramCatalog.UseMapSupport() ;
 		return new CJavaKeyPressed(0, name, m_ProgramCatalog, m_LangOutput, caption);
@@ -889,8 +966,16 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 			{
 				CEntityResourceForm form = m_ProgramCatalog.GetMap(i) ; 
 				if (form.isFormAlias(value))
-				{
-					String code = "LanguageCode."+CResourceStrings.getOfficialLanguageCode(value);
+				{	
+					String code="";
+					if (!BMSTranscoderEngine.isMultiLanguagePub2000Standard()) 
+					{
+						code="\"" + value + "\"" ;	
+					}
+					else 
+					{
+						code = "LanguageCode."+CResourceStrings.getOfficialLanguageCode(value);
+					}
 					m_ProgramCatalog.addImportDeclaration("MAP") ;
 					return new CJavaConstantValue(m_ProgramCatalog, m_LangOutput, code) ;
 				}
@@ -998,6 +1083,11 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityConstant NewEntityConstant(Value val) {
 		return new CJavaConstant(val) ;
 	}
+	public CEntityTally NewEntityTally()
+	{
+		m_ProgramCatalog.setUsesTally();
+		return new CJavaTally() ;
+	}
 	public CEntityFileDescriptorLengthDependency NewEntityFileDescriptorLengthDependency(String name)	{
 		return new CJavaFileDescriptorLengthDependency(name, m_ProgramCatalog, m_LangOutput) ;
 	}
@@ -1007,6 +1097,61 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntitySQLCall NewEntitySQLCall(int line) {
 		return new CJavaSQLCall(line, m_ProgramCatalog, m_LangOutput);
 	}
+	public CEntityInspectConverting NewEntityInspectConverting(int nLine)
+	{
+		Reporter.Add("Modif_PJ", "NewEntityInspectConverting");
+		return new CJavaInspectConverting(nLine, m_ProgramCatalog, m_LangOutput);
+	}
 
+	public CEntityExprLengthOf NewEntityExprLengthOf(int nLine)
+	{
+		Reporter.Add("Modif_PJ", "NewEntityExprLengthOf");
+		return new CJavaExprLengthOf(nLine, m_ProgramCatalog, m_LangOutput);
+	}
 
+	public CEntityCurrentTimeStampSQLFunction NewEntityCurrentTimeStampSQLFunction(String csOriginalValue)
+	{
+		Reporter.Add("Modif_PJ", "NewEntityCurrentTimeStampSQLFunction");
+		return new CJavaCurrentTimeStampSQLFunction(m_ProgramCatalog, m_LangOutput, csOriginalValue);
+	}
+	
+	public CEntityCurrentDateSQLFunction NewEntityCurrentDateSQLFunction(String csOriginalValue)
+	{
+		Reporter.Add("Modif_PJ", "NewEntityCurrentDateSQLFunction");
+		return new CJavaCurrentDateSQLFunction(m_ProgramCatalog, m_LangOutput, csOriginalValue);
+	}
+	
+	public CEntityNamedSQLFunction NewEntityNamedSQLFunction(String csOriginalValue)
+	{
+		Reporter.Add("Modif_PJ", "NewEntityNamedSQLFunction");
+		return new CJavaNamedSQLFunction(m_ProgramCatalog, m_LangOutput, csOriginalValue);
+	}
+
+	public CEntityInsertSQLFunction NewEntityInsertSQLFunction(CIdentifier id, String csFormat)
+	{
+		Reporter.Add("Modif_PJ", "NewEntityInsertSQLFunction");
+		return new CJavaInsertSQLFunction(m_ProgramCatalog, m_LangOutput, id, csFormat);
+	}
+
+	public CEntitySQLNull NewEntitySQLNull()
+	{
+		Reporter.Add("Modif_PJ", "NewEntitySQLNull");
+		return new CJavaSQLNull(m_ProgramCatalog, m_LangOutput);
+	}
+	
+	public CEntityConstantReturn NewEntityConstantReturn(int line, String cs)	
+	{
+		return new CJavaConstantReturn(line, m_ProgramCatalog, m_LangOutput, cs) ;
+	}
+	
+	public CEntityFileSelect NewEntityFileSelect(String csFileName)	
+	{
+		return new CJavaFileSelect(csFileName, m_ProgramCatalog, m_LangOutput) ;
+	}
+	
+	public CEntityConfigurationSection NewEntityConfigurationSection()
+	{
+		return new CJavaConfigurationSection(m_ProgramCatalog, m_LangOutput) ;
+	}
+	
 }

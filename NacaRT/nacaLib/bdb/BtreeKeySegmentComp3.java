@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,7 +20,7 @@ import nacaLib.varEx.Pic9Comp3BufferSupport;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: BtreeKeySegmentComp3.java,v 1.13 2007/01/30 10:57:48 u930bm Exp $
+ * @version $Id$
  */
 public class BtreeKeySegmentComp3 extends BtreeKeySegment
 {

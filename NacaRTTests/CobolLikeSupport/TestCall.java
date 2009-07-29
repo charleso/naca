@@ -1,4 +1,10 @@
 /*
+ * NacaRTTests - Naca Tests for NacaRT support v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,6 +15,7 @@ import java.io.InputStream;
 
 import idea.onlinePrgEnv.OnlineProgram;
 import nacaLib.varEx.*;
+import nacaLib.batchPrgEnv.BatchProgram;
 import nacaLib.program.*;
 
 /**
@@ -17,7 +24,7 @@ import nacaLib.program.*;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class TestCall extends OnlineProgram 
+public class TestCall extends BatchProgram 
 {
 	nacaLib.varEx.DataSection WorkingStorage = declare.workingStorageSection();
 	
@@ -50,9 +57,13 @@ public class TestCall extends OnlineProgram
 	public void procedureDivision()
 	{
 		setAssertActive(true);
-		
+				
+		call("TestCalledWithString")
+			.usingValue("toto")
+			.executeCall();
 		perform(TestsCall);
-		perform(TestCallWithEdit);
+		perform(TestsCall2);
+		//perform(TestCallWithEdit);
 		
 		
 		
@@ -74,6 +85,17 @@ public class TestCall extends OnlineProgram
 	Paragraph TestsCall = new Paragraph(this){public void run(){TestsCall();}};void TestsCall()
 	{
 		assertIfDifferent(0, testCalledCopy.WNumResult);
+		move(10, testCalledCopy.WNum1);
+		move(21, testCalledCopy.WNum2);
+		call(TestCalled.class)
+			.using(testCalledCopy.WRoot)		// Explicitly used in the called program !
+			.executeCall();
+		
+		assertIfFalse(isEqual(testCalledCopy.WNumResult, 31));	// ((10*20)/3) + 5
+	}
+	
+	Paragraph TestsCall2 = new Paragraph(this){public void run(){TestsCall2();}};void TestsCall2()
+	{
 		move(10, testCalledCopy.WNum1);
 		move(21, testCalledCopy.WNum2);
 		call(TestCalled.class)

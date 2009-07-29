@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,9 +18,11 @@
  */
 package generate.java.expressions;
 
+import jlib.misc.NumberParser;
 import generate.CBaseLanguageExporter;
 import semantic.expression.CEntityNumber;
 import utils.CObjectCatalog;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -34,6 +42,10 @@ public class CJavaEntityNumber extends CEntityNumber
 	public CJavaEntityNumber(CObjectCatalog cat, CBaseLanguageExporter out, String number)
 	{
 		super(cat, out, number);
+		if(number.equals("true"))
+		{
+			int gg  =0 ;
+		}
 	}
 	public String ExportReference(int nLine)
 	{
@@ -54,6 +66,12 @@ public class CJavaEntityNumber extends CEntityNumber
 				}
 				catch (NumberFormatException ex2)
 				{
+					Reporter.Add("Modif_PJ", "boolean convertion");
+					if(m_csValue.equalsIgnoreCase("true"))
+						return "1";
+					else if(m_csValue.equalsIgnoreCase("false"))
+						return "0";
+					ex2.printStackTrace();
 					return  m_csValue ;
 				}
 			}

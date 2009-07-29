@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -113,5 +119,21 @@ public class CRulesManager
 			return lst.get(0) ;
 		}
 		return null ;
+	}
+	
+	public boolean isToInline(String csCopyFileName)
+	{
+		int nNbCopyToInline = getNbRules("inlinedCopy");
+		for(int n=0; n<nNbCopyToInline; n++)
+		{
+			Tag tag = getRule("inlinedCopy", n);
+			if(tag != null)
+			{
+				String csName = tag.getVal("copyName");
+				if(csName.equalsIgnoreCase(csCopyFileName))
+					return true;	// The copy file csCopyFileName must be inlined
+			}
+		}
+		return false;			// The copy file csCopyFileName must not be inlined
 	}
 }

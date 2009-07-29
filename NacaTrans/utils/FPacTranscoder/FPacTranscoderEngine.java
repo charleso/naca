@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -102,7 +108,16 @@ public class FPacTranscoderEngine extends TranscoderEngine<CFPacScript, CFPacJav
 			Tag e = m_RulesManager.getRule("routineEmulation", i) ;
 			String name = e.getVal("routine") ;
 			String method = e.getVal("method") ;
-			factory.m_ProgramCatalog.RegisterRoutineEmulation(name, method) ;
+			String csRequiredToolsLib = e.getVal("requiredToolsLib", null) ;
+			factory.m_ProgramCatalog.RegisterRoutineEmulation(name, method, csRequiredToolsLib) ;
+		}
+		nb = m_RulesManager.getNbRules("routineEmulationExternal") ;
+		for (int i=0; i<nb; i++)
+		{
+			Tag e = m_RulesManager.getRule("routineEmulation", i) ;
+			String name = e.getVal("routine") ;
+			String method = e.getVal("method") ;
+			factory.m_ProgramCatalog.RegisterRoutineEmulation(name, method, true) ;
 		}
 //		
 //		nb = m_RulesManager.getNbRules("NoExportResource") ;
@@ -152,7 +167,7 @@ public class FPacTranscoderEngine extends TranscoderEngine<CFPacScript, CFPacJav
 	 * @see utils.TranscoderEngine#generateInputFileName(java.lang.String)
 	 */
 	@Override
-	protected String generateInputFileName(String filename)
+	public String generateInputFileName(String filename)
 	{
 		return filename ;
 	}

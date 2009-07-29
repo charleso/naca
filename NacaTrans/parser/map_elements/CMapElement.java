@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -43,6 +49,7 @@ import semantic.forms.CEntityResourceFormContainer;
 import semantic.forms.CResourceStrings;
 import utils.NacaTransAssertException;
 import utils.Transcoder;
+import utils.CobolTranscoder.BMSTranscoderEngine;
 
 /**
  * @author sly
@@ -72,11 +79,11 @@ public class CMapElement extends CBMSElement
 		eMS.appendChild(eAttr) ;
 		eAttr.setAttribute("SizeCol", String.valueOf(m_Size_Col)) ;
 		eAttr.setAttribute("SizeLine", String.valueOf(m_Size_Line)) ;
-		eAttr.setAttribute("Line", m_Line.m_Name) ;
-		eAttr.setAttribute("Column", m_Column.m_Name) ;
-		eAttr.setAttribute("Data", m_Data.m_Name) ;
-		eAttr.setAttribute("TIOAPFX", m_TIOAPFX.m_Name) ;
-		eAttr.setAttribute("OBFMT", m_OBFMT.m_Name) ;
+		if (m_Line!=null) eAttr.setAttribute("Line", m_Line.m_Name) ;
+		if (m_Column!=null) eAttr.setAttribute("Column", m_Column.m_Name) ;
+		if (m_Data!=null) eAttr.setAttribute("Data", m_Data.m_Name) ;
+		if (m_TIOAPFX!=null) eAttr.setAttribute("TIOAPFX", m_TIOAPFX.m_Name) ;
+		if (m_OBFMT!=null) eAttr.setAttribute("OBFMT", m_OBFMT.m_Name) ;
 		for (int i=0; i<m_arrCTRL.size(); i++)
 		{
 			String val = m_arrCTRL.elementAt(i) ;
@@ -424,23 +431,30 @@ public class CMapElement extends CBMSElement
 	public CBaseLanguageEntity DoSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
 		CEntityResourceFormContainer container = (CEntityResourceFormContainer)parent ;
-		String csLang = "";
-		csLang += getName().charAt(6) ;
 		boolean bStore = false ;
-		if (csLang.equals("F"))
+		if (BMSTranscoderEngine.isMultiLanguagePub2000Standard())	// Pub2000 language standard identifies the language  
 		{
-			bStore = true ;
+			String csLang = "";
+			csLang += getName().charAt(6) ;
+			
+			if (csLang.equals("F"))	// French Only these maps are stored
+			{
+				bStore = true ;
+			}
+			else if (!csLang.equals("D") && !csLang.equals("I") && !csLang.equals("G") && !csLang.equals("N"))
+			{	// Deutsch, Italian, German, Neutral (= English)
+				//Transcoder.warn("WARNING : unexpected lang ID : " + csLang) ;
+				bStore = true ;
+			}
+			else
+			{
+				bStore = false ;
+			}
 		}
-		else if (!csLang.equals("D") && !csLang.equals("I") && !csLang.equals("G") && !csLang.equals("N"))
+		else	// Not using Pub2000 language standard 
 		{
-			//Transcoder.warn("WARNING : unexpected lang ID : " + csLang) ;
-			bStore = true ;
+			bStore = true ;	// Single language by default
 		}
-		else
-		{
-			bStore = false ;
-		}
-		
 		boolean bFirstForm = false ;
 		if (m_resStrings == null)
 		{
@@ -545,6 +559,7 @@ public class CMapElement extends CBMSElement
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 		return ef ;
@@ -604,6 +619,7 @@ public class CMapElement extends CBMSElement
 		}
 		catch (NoSuchElementException e)
 		{
+			e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 		

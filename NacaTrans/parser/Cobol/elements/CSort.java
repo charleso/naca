@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -30,6 +36,7 @@ import semantic.CEntityFileDescriptor;
 import semantic.Verbs.CEntitySort;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -176,6 +183,15 @@ public class CSort extends CCobolElement
 					tok = GetNext();
 				}
 				m_InputProcedure = ReadIdentifier();
+				// PJD Added support for sort input procedure xxx through yyy
+				Reporter.Add("Modif_PJ", "Sort Procedure xxx thru yyy");
+				tok = GetCurrentToken() ;
+				
+				if(tok.GetKeyword() == CCobolKeywordList.THRU || tok.GetKeyword() == CCobolKeywordList.THROUGH)
+				{
+					tok = GetNext();
+					m_InputProcedureThrough = ReadIdentifier();					
+				}
 			}
 			else
 			{
@@ -202,6 +218,15 @@ public class CSort extends CCobolElement
 					tok = GetNext();
 				}
 				m_OutputProcedure = ReadIdentifier();
+				// PJD Added support for sort input procedure xxx through yyy
+				Reporter.Add("Modif_PJ", "Sort Procedure xxx thru yyy");
+				tok = GetCurrentToken() ;
+				
+				if(tok.GetKeyword() == CCobolKeywordList.THRU || tok.GetKeyword() == CCobolKeywordList.THROUGH)
+				{
+					tok = GetNext();
+					m_OutputProcedureThrough = ReadIdentifier();					
+				}
 			}
 			else
 			{
@@ -271,5 +296,7 @@ public class CSort extends CCobolElement
 	protected CIdentifier m_InputFile = null ;
 	protected CIdentifier m_OutputFile = null ;
 	protected CIdentifier m_InputProcedure = null ;
+	protected CIdentifier m_InputProcedureThrough = null;
 	protected CIdentifier m_OutputProcedure = null ;
+	protected CIdentifier m_OutputProcedureThrough = null ;
 }

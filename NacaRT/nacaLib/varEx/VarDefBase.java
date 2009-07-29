@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,16 +18,21 @@
  */
 package nacaLib.varEx;
 
+import jlib.log.Log;
+import jlib.log.LogLevel;
 import jlib.misc.ArrayDyn;
 import jlib.misc.ArrayFix;
 import jlib.misc.ArrayFixDyn;
 import jlib.misc.IntegerRef;
 import nacaLib.base.CJMapObject;
 import nacaLib.base.JmxGeneralStat;
+import nacaLib.basePrgEnv.BaseEnvironment;
 import nacaLib.basePrgEnv.BaseProgramManager;
+import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.bdb.BtreeSegmentKeyTypeFactory;
 import nacaLib.exceptions.OccursOverflowException;
 import nacaLib.programPool.SharedProgramInstanceData;
+import nacaLib.sqlSupport.CSQLStatus;
 import nacaLib.tempCache.TempCache;
 import nacaLib.tempCache.TempCacheLocator;
 
@@ -112,7 +123,25 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 				if(varDefChild.getLevel() < sLevel)
 					return null;
 			}
-		}
+			
+			/* 
+			// PJD: Pb with the following working:
+			Var l1 = declare.level(1).var() ;                                                       
+				Var l11 = declare.level(5).picX(1).var() ;                          
+				Var l12 = declare.level(5).picX(2).var() ;
+			                                                                                                  
+			Var l3 = declare.level(3).var() ;
+				Var l31 = declare.level(5).pic9(3).var() ;
+				Var l32 = declare.level(5).pic9(4).var() ;
+				
+			l3 must be parented by l1, after l12.
+			l3 has no previous var of the same level (3) as it.
+			l3 must follow the last var of it's parent l1.
+			Thus l3 must follow l32
+			*/
+			// Pb return getLastVarDefAtAnyLevel();
+			return null;	// Previous code returned null, meaning falsly that there wan't previous var for l3				
+		}		
 		return null;
 	}
 	
@@ -441,7 +470,7 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 		
 		return cs;
 	}
-
+	
 	int getTotalSize()
 	{
 		return m_nTotalSize;
@@ -731,10 +760,20 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 	private void checkIndex(VarDefBase varDef, int nIndexValue, String csIndexName)
 	{
 		if(varDef.m_OccursDef != null && (nIndexValue < 0 || nIndexValue >= varDef.m_OccursDef.getNbOccurs()))
-		//if(varDef.m_OccursDef != null && nIndexValue >= varDef.m_OccursDef.getNbOccurs())
 		{
-			OccursOverflowException e = new OccursOverflowException(this, nIndexValue, varDef.m_OccursDef.getNbOccurs(), csIndexName);
-			throw e;
+			String csMessage = "OccursOverflow index " + csIndexName + " detected accessing variable " + varDef.getNameForDebug() + " at index " + nIndexValue + "; Max="+varDef.m_OccursDef.getNbOccurs();
+			Log.logCritical(csMessage);
+			String csCallStack = Log.logCallStack("Complete call stack:", LogLevel.Critical);
+			BaseProgramManager programManager = TempCacheLocator.getTLSTempCache().getProgramManager();
+			
+			Throwable throwable = new Throwable();
+			programManager.logMail("OccursOverflow index", csMessage, throwable);
+			
+			if(BaseResourceManager.getCanThrowOccursOverflowException())
+			{
+				OccursOverflowException e = new OccursOverflowException(this, nIndexValue, varDef.m_OccursDef.getNbOccurs(), csIndexName);
+				throw e;
+			}
 		}
 	}
 	
@@ -765,6 +804,7 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 			VarDefBase varDefX = m_occursItemSettings.m_arrVarDefOccursOwner.get(0);
 			checkIndex(varDefX, nXBase0, "X");
 		}
+
 	}
 	
 	void checkIndexes(int nXBase0, int nYBase0)
@@ -1080,7 +1120,7 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 
 			
 	public abstract int getSingleItemRequiredStorageSize();
-	abstract VarDefBuffer allocCopy();
+	abstract VarDefBuffer allocCopy();	// Used only for getAt or substring
 	
 	protected abstract boolean isAVarDefMapRedefine();				
 	protected abstract boolean isEditInMapRedefine();
@@ -1457,6 +1497,21 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 		m_n_varDefMaster_Free = setHigh(m_n_varDefMaster_Free, nId);		
 	}
 	
+	public String getNameForDebug()
+	{
+		BaseProgramManager programManager = TempCacheLocator.getTLSTempCache().getProgramManager();
+		if(programManager != null)
+		{
+			SharedProgramInstanceData s = programManager.getSharedProgramInstanceData();
+			if(s != null)
+			{
+				return getFullName(s);				
+			}
+			return "[Unknown SharedProgramInstanceData]";
+		}
+		return "[Unknown BaseProgramManager]";
+	}
+	
 	public String toString()
 	{
 		BaseProgramManager programManager = TempCacheLocator.getTLSTempCache().getProgramManager();
@@ -1503,7 +1558,7 @@ public abstract class VarDefBase extends CJMapObject //implements Serializable
 	
 	
 	// Grouped by 16 bits id
-	private int m_n_PreviousSameLevel_Id = 0;	// high short:m_varDefPreviousSameLevel id; low short: Id of the variable's an index in SharedProgramInstanceData m_arrVarName array
+	private int m_n_PreviousSameLevel_Id = 0;	// high short:m_varDefPreviousSameLevel id; low short: Id of the variable's (an index in SharedProgramInstanceData) m_arrVarName array
 	// Grouping:
 	//private VarDefBase m_varDefPreviousSameLevel = null;	// Previous VarDef at the same level
 	//private int m_nId;

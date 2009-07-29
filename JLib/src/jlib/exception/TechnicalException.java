@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -35,7 +41,6 @@ import jlib.sql.SQLClause;
  * of <code>code</code> and <code>error</code>. 
  * 
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: TechnicalException.java,v 1.9 2008/04/28 16:11:17 u930gn Exp $
  */
 public class TechnicalException extends RuntimeException
 {
@@ -165,8 +170,9 @@ public class TechnicalException extends RuntimeException
 	public static final String DB_ERROR_STOREDPROC = "Stored procedure error";
 	public static final String DB_ERROR_STOREDPROC_PARAM_MANDATORY = "Stored procedure: Missing mandatory parameter ";
 	
-	public static final String IO_ERROR = "IO Error while accessing file: ";
+	public static final String IO_ERROR = "IO_ERROR";
 	public static final String WEBSERVICENOTRESPONDING="WEBSERVICENOTRESPONDING";
+	public static final String HOSTUNKNOWN="HOSTUNKNOWN";
 	
 	public static final String MISSINGE_CONFIG_FILE = "Missing configuration file";
 	public static final String CONTEXT_IS_NULL = "Context parameter is null while accessing config file: ";

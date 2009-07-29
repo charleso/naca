@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -36,6 +42,37 @@ public abstract class CLanguageElement extends CBaseElement
 		}
 		return eCurrent ;
 	}
+	
+	public void DoDeferredSemanticAnalysisForChildren(CBaseLanguageEntity parent, CBaseEntityFactory factory)
+	{
+		int nIndex = 0;
+		ListIterator<CBaseElement> i = m_children.listIterator() ;
+		CBaseElement le = null ;
+		try
+		{	
+			le = i.next() ;
+		}
+		catch (NoSuchElementException e)
+		{
+			//e.printStackTrace();
+		}
+		while (le != null)
+		{
+			le.DoDeferredCustomSemanticAnalysis(parent, factory, nIndex) ;
+			try
+			{	
+				le = i.next() ;
+			}
+			catch (NoSuchElementException ee)
+			{
+				//ee.printStackTrace();
+				le = null ;
+			}
+			nIndex++;
+		}
+		m_bAnalysisDoneForChildren = true ;
+	}
+	
 	protected void DoSemanticAnalysisForChildren(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
 		ListIterator<CBaseElement> i = m_children.listIterator() ;
@@ -46,6 +83,7 @@ public abstract class CLanguageElement extends CBaseElement
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 		}
 		while (le != null)
 		{
@@ -56,6 +94,7 @@ public abstract class CLanguageElement extends CBaseElement
 			}
 			catch (NoSuchElementException ee)
 			{
+				//ee.printStackTrace();
 				le = null ;
 			}
 		}

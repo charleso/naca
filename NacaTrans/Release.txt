@@ -1,3 +1,4 @@
 NacaTrans Releases
 
 09/08/08 - version 1.0.0 - Initial Open Source Version
+17/07/09 - version 1.2.0 - Initial Open Source Version

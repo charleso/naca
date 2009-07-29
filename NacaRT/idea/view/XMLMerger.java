@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,6 +20,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import jlib.misc.FileSystem;
 import jlib.misc.NumberParser;
 import jlib.misc.StringUtil;
 import jlib.xml.XMLUtil;
@@ -46,9 +53,11 @@ public class XMLMerger
 	private Element m_CursorField = null ;
 	private DocumentBuilder m_docBuilder = null;
 	private Hashtable<String, Element> m_tab = null;
+	private String m_csXMLMergerDebugOutputPath = null;
 
 	public XMLMerger(OnlineSession appSession)
 	{
+		m_csXMLMergerDebugOutputPath = BaseResourceManager.getXMLMergerDebugOutputPath();
 		m_AppSession = appSession ;
 		m_tab = new Hashtable<String, Element>() ;
 		try
@@ -103,7 +112,26 @@ public class XMLMerger
 		SetFormProperties(eOutput, eData) ;		
 		SetPFKeys(eOutput, eData) ;
 		
-		//XMLUtil.ExportXML(xmlOutput, ResourceManager.getLogDir()+"xmlOutput.xml");
+		if(m_csXMLMergerDebugOutputPath != null)
+		{
+			String csOut = m_csXMLMergerDebugOutputPath+"xmlData.xml";
+			if(xmlData != null)
+				XMLUtil.ExportXML(xmlData, csOut);
+			else
+				FileSystem.delete(csOut);
+			
+			csOut = m_csXMLMergerDebugOutputPath+"xmlStruct.xml";
+			if(xmlStruct != null)
+				XMLUtil.ExportXML(xmlStruct, csOut);
+			else
+				FileSystem.delete(csOut);
+						
+			csOut = m_csXMLMergerDebugOutputPath+"xmlMergerOutput.xml";
+			if(xmlOutput != null)
+				XMLUtil.ExportXML(xmlOutput, csOut);
+			else
+				FileSystem.delete(csOut);
+		}
 		return xmlOutput ;
 	}
 

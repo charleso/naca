@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+<MBean Name="jmxMbean:type=# GeneralStat">
+<Attributes>
+<Attribute Name="A_NbConnection_Active" Value="0"/>
+<Attribute Name="A_NbConnection_NonFinalized" Value="0"/>
+<Attribute Name="A_NbPreparedStatement_Active" Value="0"/>
+<Attribute Name="A_NbPreparedStatement_NonFinalized" Value="0"/>
+<Attribute Name="A_NbWaitDuringConnectionCreate" Value="0"/>
+<Attribute Name="E_NbProgramClassLoaded" Value="0"/>
+<Attribute Name="E_NbCopyClassLoaded" Value="0"/>
+<Attribute Name="F_NbProgramInstance_Stacked" Value="1"/>
+<Attribute Name="F_NbProgramInstance_NonFinalized" Value="1"/>
+<Attribute Name="H_NbTransactions_Normal" Value="1"/>
+<Attribute Name="H_NbTransactions_Return" Value="0"/>
+<Attribute Name="H_NbTransactions_Exit" Value="0"/>
+<Attribute Name="H_NbTransactions_StopRun" Value="0"/>
+<Attribute Name="H_NbTransactions_XCtl" Value="0"/>
+<Attribute Name="H_NbTransactions_Abort" Value="0"/>
+<Attribute Name="H_NbTransactions_Dump" Value="0"/>
+<Attribute Name="J_NbMemoryForcedGC" Value="0"/>
+<Attribute Name="J_NbRunThreadGC" Value="0"/>
+<Attribute Name="W_ParamMaxPermanentHeap_Mo" Value="0"/>
+<Attribute Name="Z_MinTransExecTime_s" Value="0"/>
+</Attributes>
+</MBean>
+<MBean Name="jmxMbean:type= (Console)">
+<Attributes>
+<Attribute Name="Enable" Value="true"/>
+<Attribute Name="Level" Value="Normal"/>
+</Attributes>
+</MBean>
+<MBean Name="jmxMbean:type=# JMX Dump">
+<Attributes>
+<Attribute Name="OutputFile" Value="D:\Dev\nacaOSS\NacaRTTests\Stat.xml"/>
+</Attributes>
+</MBean>
+<MBean Name="jmxMbean:type= (FileST6)">
+<Attributes>
+<Attribute Name="Enable" Value="true"/>
+<Attribute Name="Level" Value="Normal"/>
+</Attributes>
+</MBean>
+<MBean Name="jmxMbean:type=# App_Close">
+<Attributes>
+<Attribute Name="__ManualCloseReason" Value=""/>
+<Attribute Name="A_ApplicationManualStatus" Value="Ouvert / geöffnet / aperto"/>
+<Attribute Name="B0_ApplicationCustomStatus" Value="Unknown"/>
+<Attribute Name="B1_ApplicationStandardStatus" Value="Ouvert / geöffnet / aperto"/>
+<Attribute Name="C_ApplicationCurrentStatus" Value="Ouvert / geöffnet / aperto"/>
+</Attributes>
+</MBean>
+</root>

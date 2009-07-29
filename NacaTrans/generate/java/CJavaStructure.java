@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -34,9 +40,24 @@ public class CJavaStructure extends CEntityStructure
 	public CJavaStructure(int l, String name, CObjectCatalog cat, CBaseLanguageExporter out, String level)
 	{
 		super(l, name, cat, out, level);
+		if(l == 98)
+		{
+			int gg = 0;
+		}
 	}
+	
+	public String toString()
+	{
+		String cs = GetDisplayName();
+		return cs;
+	}
+	
 	protected void DoExport()
 	{
+		if("f_Working".equalsIgnoreCase(FormatIdentifier(GetDisplayName())))
+		{
+			int gg = 0;
+		}
 		if (m_bBlankWhenZero && m_Type.equals("pic9"))
 		{
 			m_Type = "pic";

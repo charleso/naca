@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,6 +25,7 @@ import java.util.Arrays;
 import jlib.log.Log;
 import jlib.misc.BaseDataFile;
 import nacaLib.basePrgEnv.BaseProgramManager;
+import nacaLib.debug.BufferSpy;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.programPool.SharedProgramInstanceData;
 import nacaLib.sqlSupport.CSQLItemType;
@@ -95,7 +102,9 @@ public abstract class VarDefBuffer extends VarDefBase
 			nLength = cs.length();
 			if(nTotalSize < nLength)
 				nLength = nTotalSize;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition, nLength);
 			cs.getChars(0, nLength, buffer.m_acBuffer, nPosition);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosition += nLength;
 		}
 		if(nLength < nTotalSize)	// Padding with BLANK on the right
@@ -114,14 +123,18 @@ public abstract class VarDefBuffer extends VarDefBase
 			nLength = cs.length();
 			if(nTotalSize < nLength)
 				nLength = nTotalSize;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition, nLength);
 			cs.getChars(0, nLength, buffer.m_acBuffer, nPosition);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nPosition += nLength;
 		}
 		if(nLength < nTotalSize)	// Padding with BLANK on the right
 		{
 			int nNbChars = nTotalSize-nLength;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPosition, nNbChars);
 			for(int n=0; n<nNbChars; n++)
 				buffer.m_acBuffer[nPosition++] = ' ';
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -113,46 +119,54 @@ public class CExecCICSReturn extends CCobolElement
 		if (tok.GetKeyword() == CCobolKeywordList.TRANSID)
 		{
 			tok = GetNext() ;
-			if (tok.GetType() == CTokenType.LEFT_BRACKET)
-			{
-				tok = GetNext() ;
-				m_TransID = ReadTerminal() ;
-				tok = GetCurrentToken() ;
-				if (tok.GetType() == CTokenType.RIGHT_BRACKET)
-				{
-					tok = GetNext() ;
-				}
-			}
-			
-			if (tok.GetKeyword() == CCobolKeywordList.COMMAREA)
-			{
-				tok = GetNext() ;
+			boolean bLoop = false;	// PJD Added loop
+			int nNbLoops = 0;		// PJD Added			
+			while(!bLoop && nNbLoops < 3)// PJD Added
+			{	// PJD Added
 				if (tok.GetType() == CTokenType.LEFT_BRACKET)
 				{
 					tok = GetNext() ;
-					m_CommArea = ReadIdentifier() ;
+					m_TransID = ReadTerminal() ;
 					tok = GetCurrentToken() ;
 					if (tok.GetType() == CTokenType.RIGHT_BRACKET)
 					{
 						tok = GetNext() ;
 					}
 				}
-			}
-
-			if (tok.GetKeyword() == CCobolKeywordList.LENGTH)
-			{
-				tok = GetNext() ;
-				if (tok.GetType() == CTokenType.LEFT_BRACKET)
+				
+				if (tok.GetKeyword() == CCobolKeywordList.COMMAREA)
 				{
 					tok = GetNext() ;
-					m_CommAreaLength = ReadTerminal() ;
-					tok = GetCurrentToken() ;
-					if (tok.GetType() == CTokenType.RIGHT_BRACKET)
+					if (tok.GetType() == CTokenType.LEFT_BRACKET)
 					{
 						tok = GetNext() ;
+						m_CommArea = ReadIdentifier() ;
+						tok = GetCurrentToken() ;
+						if (tok.GetType() == CTokenType.RIGHT_BRACKET)
+						{
+							tok = GetNext() ;
+						}
 					}
 				}
-			}
+	
+				if (tok.GetKeyword() == CCobolKeywordList.LENGTH)
+				{
+					tok = GetNext() ;
+					if (tok.GetType() == CTokenType.LEFT_BRACKET)
+					{
+						tok = GetNext() ;
+						m_CommAreaLength = ReadTerminal() ;
+						tok = GetCurrentToken() ;
+						if (tok.GetType() == CTokenType.RIGHT_BRACKET)
+						{
+							tok = GetNext() ;
+						}
+					}
+				}
+				if (tok.GetKeyword() == CCobolKeywordList.END_EXEC)	// PJD Added
+					bLoop = false;	// PJD Added
+				nNbLoops++;		// PJD Added
+			}					// PJD Added
 		}
 		
 		if (tok.GetKeyword() != CCobolKeywordList.END_EXEC)

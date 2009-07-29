@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -43,6 +49,8 @@ import utils.Transcoder;
  */
 public class CCall extends CCobolElement
 {
+	private boolean m_bSsPrgNameByString = false;
+	private boolean m_bSsPrgNameByReference = false;
 	/* (non-Javadoc)
 	 * @see parser.CLanguageElement#Parse(lexer.CTokenList)
 	 */
@@ -71,10 +79,15 @@ public class CCall extends CCobolElement
 
 		// read sub-program name
 		CBaseToken tokRef = GetNext();
-		if (tokRef.GetType()== CTokenType.STRING || tokRef.GetType() == CTokenType.IDENTIFIER)
+		if (tokRef.GetType()== CTokenType.STRING)
+		{
+			m_bSsPrgNameByString = true;
+			m_Reference = ReadTerminal();
+		}
+		else if(tokRef.GetType() == CTokenType.IDENTIFIER)
 		{
 			m_Reference = ReadTerminal();
-			//CGlobalEntityCounter.GetInstance().CountCobolVerbOptions("CALL", m_Reference.GetValue()) ;
+			m_bSsPrgNameByReference = true;
 		}
 		else
 		{
@@ -244,6 +257,27 @@ public class CCall extends CCobolElement
 					GetNext() ;
 				}
 			}
+//			else if (tok.GetType() == CTokenType.KEYWORD)	// PJD Added: Maybe using a variable that has the same name as a reserved keyword
+//			{
+//				CIdentifier id = new CIdentifier(tok.GetValue()) ;
+//				GetNext() ;
+//				if (id == null)
+//				{
+//					Transcoder.logError(getLine(), "No identifier read as parameter for CALL") ;
+//					return false ;
+//				}
+//				CCallParameter p = new CCallParameter();
+//				p.term = new CIdentifierTerminal(id) ;
+//				p.method = "BY_REFERENCE" ;
+//				m_arrParams.addElement(p) ;
+//				
+//				// more IDs ?
+//				CBaseToken tokComma = GetCurrentToken() ;
+//				if (tokComma.GetType() == CTokenType.COMMA)
+//				{
+//					GetNext() ;
+//				}
+//			}
 			else
 			{
 				bDone = true ;
@@ -264,6 +298,15 @@ public class CCall extends CCobolElement
 			CCallParameter p = m_arrParams.elementAt(i) ;
 			Element ePar = root.createElement(p.method);
 			e.appendChild(ePar) ;
+			if(p == null)
+			{
+				int gg = 0;
+			}
+			if(p.term == null)
+			{
+				int gg = 0;
+			}
+				
 			p.term.ExportTo(ePar, root) ;
 		}
 		return e;
@@ -289,9 +332,10 @@ public class CCall extends CCobolElement
 				CDataEntity val = act.getValueAssigned() ;
 				if (val != null)
 				{
-					act.IgnoreVariable(eRef) ;
-					eRef = val ;
-					prg = val.GetConstantValue() ;
+					int gg = 0;
+//					act.IgnoreVariable(eRef) ;
+//					eRef = val ;
+//					prg = val.GetConstantValue() ;
 				}
 			}
 		}
@@ -309,6 +353,14 @@ public class CCall extends CCobolElement
 			CEntityRoutineEmulation emul = factory.m_ProgramCatalog.getRoutineEmulation(prg) ;
 			if (emul != null)
 			{
+				String csRequiredToolsLib = emul.getRequiredToolsLib();
+				if(csRequiredToolsLib != null)
+				{
+					CBaseLanguageEntity topParent = parent.getTopParent();
+					if(topParent != null)
+						topParent.registerRequiredToolsLib(csRequiredToolsLib);
+				}
+				
 				CEntityRoutineEmulationCall call = emul.NewCall(getLine(), factory) ;
 				for (int i=0; i<m_arrParams.size();i++)
 				{
@@ -331,26 +383,64 @@ public class CCall extends CCobolElement
 			}
 			else
 			{
-				CCallParameter p = m_arrParams.get(0);
 				boolean bWithDFHCommarea = false ;
-				int nbParameters = m_arrParams.size() ;
-				if (p.term.GetValue().equalsIgnoreCase("DFHCOMMAREA"))
+				if(m_arrParams.size() > 0)	// PJD Added					
 				{
-					bWithDFHCommarea = true ;
-					nbParameters -- ;
+					int nbParameters = m_arrParams.size() ;
+					CCallParameter p = m_arrParams.get(0);	
+					if (p.term.GetValue().equalsIgnoreCase("DFHCOMMAREA"))
+					{
+						bWithDFHCommarea = true ;
+						nbParameters -- ;
+					}
+		
+					if (!factory.m_ProgramCatalog.CheckProgramReference(prg, bWithDFHCommarea, nbParameters, true))
+					{
+						Transcoder.logError(getLine(), "Missing sub program : "+prg) ;
+						CGlobalEntityCounter.GetInstance().RegisterMissingSubProgram(parent.GetProgramName(), prg) ;
+						bChecked = false ;
+					}
+					else
+					{
+						//m_Logger.info("Referenced program found : "+prg) ;
+						bChecked = true ;
+					}
+				}
+				else	// PJD Added to support non calls without parameters
+				{
+					if (!factory.m_ProgramCatalog.CheckProgramReference(prg, bWithDFHCommarea, 0, true))
+					{
+						Transcoder.logError(getLine(), "Missing sub program : "+prg) ;
+						CGlobalEntityCounter.GetInstance().RegisterMissingSubProgram(parent.GetProgramName(), prg) ;
+						bChecked = false ;
+					}
+					else
+					{
+						//m_Logger.info("Referenced program found : "+prg) ;
+						bChecked = true ;
+					}
 				}
 
-				if (!factory.m_ProgramCatalog.CheckProgramReference(prg, bWithDFHCommarea, nbParameters, true))
-				{
-					Transcoder.logError(getLine(), "Missing sub program : "+prg) ;
-					CGlobalEntityCounter.GetInstance().RegisterMissingSubProgram(parent.GetProgramName(), prg) ;
-					bChecked = false ;
-				}
-				else
-				{
-					//m_Logger.info("Referenced program found : "+prg) ;
-					bChecked = true ;
-				}
+				//				CCallParameter p = m_arrParams.get(0);
+//				boolean bWithDFHCommarea = false ;
+//				int nbParameters = m_arrParams.size() ;
+//				if (p.term.GetValue().equalsIgnoreCase("DFHCOMMAREA"))
+//				{
+//					bWithDFHCommarea = true ;
+//					nbParameters -- ;
+//				}
+//
+//				if (!factory.m_ProgramCatalog.CheckProgramReference(prg, bWithDFHCommarea, nbParameters, true))
+//				{
+//					Transcoder.logError(getLine(), "Missing sub program : "+prg) ;
+//					CGlobalEntityCounter.GetInstance().RegisterMissingSubProgram(parent.GetProgramName(), prg) ;
+//					bChecked = false ;
+//				}
+//				else
+//				{
+//					//m_Logger.info("Referenced program found : "+prg) ;
+//					bChecked = true ;
+//				}
 			}
 		}
 		else
@@ -394,4 +484,6 @@ public class CCall extends CCobolElement
 		}
 		return e;
 	}
+	
+	
 }

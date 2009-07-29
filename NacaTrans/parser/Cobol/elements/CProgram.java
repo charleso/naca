@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -77,6 +83,10 @@ public class CProgram extends CCommentContainer
 		boolean bRet = true ;
 		while (bRet && tok != null)
 		{
+			if(tok.getLine() == 113)
+			{
+				int gg = 0;
+			}
 			if (tok.IsKeyword())
 			{
 				CReservedKeyword kw = tok.GetKeyword() ;
@@ -94,6 +104,7 @@ public class CProgram extends CCommentContainer
 				}
 				else if (kw == CCobolKeywordList.PROCEDURE)
 				{
+					m_lstTokens.UpdateKewyordsByIdentifers();
 					bRet = ParseProcedureDivision();
 				}
 				else
@@ -116,7 +127,7 @@ public class CProgram extends CCommentContainer
 			}
 			else
 			{
-				Transcoder.logError(GetCurrentToken().getLine(), "Unparsed Token : " + GetCurrentToken().toString()) ; 
+				Transcoder.logError(GetCurrentToken().getLine(), "1. Unparsed Token : " + GetCurrentToken().toString()) ; 
 				CCobolElement e = new CUnparsedToken(GetCurrentToken().getLine()) ;
 				bRet = Parse(e);
 				AddChild(e) ;
@@ -129,7 +140,7 @@ public class CProgram extends CCommentContainer
 					endParseProgram();
 					return false ;
 				}
-				Transcoder.logError(tokRet.getLine(), "Unparsed Token : " + tokRet.toString()) ; 
+				Transcoder.logError(tokRet.getLine(), "2. Unparsed Token : " + tokRet.toString()) ; 
 				CCobolElement e = new CUnparsedToken(tokRet.getLine()) ;
 				bRet = Parse(e);
 				AddChild(e) ;
@@ -169,7 +180,11 @@ public class CProgram extends CCommentContainer
 			CBaseToken tokVar = GetCurrentToken() ;
 			if (tokVar.IsKeyword())
 			{
-				CReservedKeyword kw = tokVar.GetKeyword() ; 
+				CReservedKeyword kw = tokVar.GetKeyword() ;
+				if(kw == CCobolKeywordList.DATE_WRITTEN || kw == CCobolKeywordList.AUTHOR)
+				{
+					int gg = 0;
+				}
 				if (kw == CCobolKeywordList.PROGRAM_ID || 
 					kw == CCobolKeywordList.AUTHOR || 
 					kw == CCobolKeywordList.DATE_WRITTEN ||
@@ -426,6 +441,7 @@ public class CProgram extends CCommentContainer
 	{	
 		LevelKeywords levelKeywords = LevelKeywordStackManager.getAndPushNewLevelKeywords();
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.EJECT);
+		levelKeywords.registerManagedKeyword(CCobolKeywordList.SKIP1);
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.SKIP2);
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.SKIP3);
 		levelKeywords.registerManagedKeyword(CCobolKeywordList.WORKING_STORAGE);
@@ -470,9 +486,14 @@ public class CProgram extends CCommentContainer
 			{
 				break ;
 			}
+			if(tokVar.getLine() == 55)
+			{
+				int gg = 0;
+			}
 			if (tokVar.GetKeyword() == CCobolKeywordList.EJECT || 
-				tokVar.GetKeyword() == CCobolKeywordList.SKIP3 ||
-				tokVar.GetKeyword() == CCobolKeywordList.SKIP2)
+				tokVar.GetKeyword() == CCobolKeywordList.SKIP1 ||
+				tokVar.GetKeyword() == CCobolKeywordList.SKIP2 ||
+				tokVar.GetKeyword() == CCobolKeywordList.SKIP3)
 			{
 				tokVar = GetNext() ;
 				if (tokVar.GetType() == CTokenType.DOT)
@@ -574,6 +595,11 @@ public class CProgram extends CCommentContainer
 			bLoop = false;
 			
 			b = internalDoParseProcedureDivision();
+			if(!b)
+			{
+				Transcoder.logError(tok.getLine(), "Severe: Parsing failed") ; 
+				break;
+			}
 			CBaseToken tokEntry = GetCurrentToken();
 			if(tokEntry != null && !LevelKeywordStackManager.isTokenManagedByAnyParents(tokEntry))
 			{
@@ -590,6 +616,10 @@ public class CProgram extends CCommentContainer
 	protected boolean internalDoParseProcedureDivision()
 	{
 		CBaseToken tok = GetCurrentToken() ;
+		if(tok.getLine() == 311)
+		{
+			int gg =0 ;
+		}
 		
 		m_eProcDiv = new CProcedureDivision(tok.getLine()) ;
 		if (tok.GetType() == CTokenType.DOT)
@@ -747,6 +777,7 @@ public class CProgram extends CCommentContainer
 		}
 		catch (NoSuchElementException e)
 		{
+			e.printStackTrace();
 		}
 
 		CBaseLanguageEntity eVariableSection = null ;
@@ -790,6 +821,7 @@ public class CProgram extends CCommentContainer
 			}
 			catch (NoSuchElementException ee)
 			{
+				//ee.printStackTrace();
 				le = null ;
 			}
 		}

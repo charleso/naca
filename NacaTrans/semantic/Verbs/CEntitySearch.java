@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -46,6 +52,13 @@ public abstract class CEntitySearch extends CBaseActionEntity
 		m_eVariable = var ;
 		m_eIndex = index ;
 	}
+	
+	public void setAll(boolean bAll)
+	{
+		m_bAll = bAll;
+	}
+	
+	protected boolean m_bAll = false;
 	protected CDataEntity m_eVariable = null ;
 	protected CDataEntity m_eIndex = null ;
 	protected CEntityBloc m_blocElse = null;

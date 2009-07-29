@@ -1,4 +1,10 @@
 /*
+ * NacaRTTests - Naca Tests for NacaRT support v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -71,7 +77,13 @@ public class TestUnstring extends OnlineProgram
      Var THEDATE = declare.level(01).picX(6).var();
      	Var THEYEAR = declare.level(5).pic9(2).var();	
      	Var THEMONTH = declare.level(5).pic9(2).var();
+     	Var THEMONTHX = declare.level(5).redefines(THEMONTH).var();
+     		Var THEMONTHX1 = declare.level(10).picX(1).var();
+     		Var THEMONTHX2 = declare.level(10).picX(1).var();
      	Var THEDAY = declare.level(5).pic9(2).var();
+     	Var THEDAYX = declare.level(5).redefines(THEDAY).var();
+ 		Var THEDAYX1 = declare.level(10).picX(1).var();
+ 		Var THEDAYX2 = declare.level(10).picX(1).var();
      Var HOLD_DELIM = declare.level(01).picX(80).var();
      
      Var source = declare.level(01).picX(8).var();
@@ -121,6 +133,11 @@ public class TestUnstring extends OnlineProgram
 	
 	void t1()
 	{
+		move("123456", THEDATE);
+     	move(CobolConstant.LowValue, THEMONTHX1);
+     	move(CobolConstant.HighValue, THEDAYX1);
+     	unstring(THEDATE).delimitedBy(CobolConstant.LowValue).delimitedBy(CobolConstant.HighValue).to(c1).to(c2) ;
+		
 		move("ABC*DEF*", source);
 		unstring(source).delimitedBy("*").to(c1).to(c2) ;
 		assertIfDifferent(c1.getString(), "ABC");

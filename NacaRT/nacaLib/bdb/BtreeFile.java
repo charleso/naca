@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -23,7 +29,7 @@ import com.sleepycat.je.OperationStatus;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: BtreeFile.java,v 1.24 2007/06/22 15:57:35 u930bm Exp $
+ * @version $Id$
  */
 public class BtreeFile
 {

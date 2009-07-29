@@ -1,7 +1,7 @@
 import nacaLib.program.* ;
 import nacaLib.varEx.* ;
 import nacaLib.batchPrgEnv.BatchProgram;
-public class BATCH1 extends BatchProgram                                        // (1)  IDENTIFICATION DIVISION.
+public class BATCH1 extends BatchProgram                                        // (1)      IDENTIFICATION DIVISION.
 {
 	// =================================================================        // (2)
 	                                                                            // (3)  PROGRAM-ID.   BATCH1.
@@ -58,13 +58,14 @@ public class BATCH1 extends BatchProgram                                        
 		Var sys_Time2 = declare.level(3).pic9(1).var() ;                        // (54)      03 SYS-TIME2            PIC 9.
 	                                                                            // (55)  
 	MSGZONE msgzone = MSGZONE.Copy(this) ;                                      // (56)      COPY MSGZONE.
+	// Relocated INPUT-OUTPUT SECTION / FILE CONTROL
 	                                                                            // (57)      
 	//                                                                             (58) /
 	public void procedureDivision() {                                           // (59)  PROCEDURE DIVISION.
 		// =================================================================    // (60)
 		                                                                        // (61) 
-		filein.openInput() ;                                                    // (62)      OPEN INPUT  FILEIN
-		fileout.openOutput() ;
+		openInput(filein) ;                                                     // (62)      OPEN INPUT  FILEIN
+		openOutput(fileout) ;
 		                                                                        // (63)           OUTPUT FILEOUT
 		                                                                        // (64)           
 		move(getTimeBatch(), sys_Time);                                         // (65)      ACCEPT SYS-TIME FROM TIME

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,7 +21,7 @@ import java.util.Stack;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: TempCacheStack.java,v 1.1 2006/04/19 09:51:49 cvsadmin Exp $
+ * @version $Id$
  */
 public class TempCacheStack
 {

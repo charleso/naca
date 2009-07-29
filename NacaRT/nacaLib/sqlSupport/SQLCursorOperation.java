@@ -1,30 +1,17 @@
 /*
- * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
  *
- * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
  * Licensed under LGPL (LGPL-LICENSE.txt) license.
- */
-/*
- * Created on 17 févr. 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package nacaLib.sqlSupport;
 
-import jlib.sql.*;
+import jlib.sql.DbConnectionBase;
 import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.program.Paragraph;
 import nacaLib.program.Section;
 import nacaLib.varEx.Var;
-// PJD ROWID Support:import oracle.sql.ROWID;
 
-/**
- * @author U930DI
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class SQLCursorOperation
 {
 //	public SQLCursorOperation(CSQLConnection sqlConnection, VarBuffer Working, SQLCursor sqlCursor, String csClause, CSQLStatus sqlStatus)
@@ -38,23 +25,19 @@ public class SQLCursorOperation
 			{
 				csClause += " WHERE CURRENT OF " + csCursorName;
 				m_sqlUpdateDelete = new SQL(programManager, csClause, null/*, ""*/, 0);
+				manageOperationEnding();
 			}
 		}
 		else	// Row Id must have been generated in the cursor 
-		{
-			// PJD ROWID Support:
-			/*
-			ROWID rowId = sqlCursor.getCurrentRowId();
-			if(rowId != null)
+		{			
+			CSQLIntoItemRowId itemRowId = sqlCursor.getCurrentRowId();
+			if(itemRowId != null)
 			{
-				csClause += " WHERE ROWID=?";
-				m_sqlUpdateDelete = new SQL(Working, sqlConnection, csClause, false);
-				m_sqlUpdateDelete.setCurrentRowId(rowId);
+				csClause += " WHERE ROWID=#$$ROWID";
+				m_sqlUpdateDelete = new SQL(programManager, csClause, null, 0);
+				m_sqlUpdateDelete.param("$$ROWID", itemRowId);	// executes manageOperationEnding();
 			}
-			*/
 		}
-				
-		manageOperationEnding();
 	}
 	
 		// Update cursor
@@ -67,7 +50,7 @@ public class SQLCursorOperation
 	public SQLCursorOperation value(String csName, int nValue)
 	{
 		if(m_sqlUpdateDelete != null)
-			m_sqlUpdateDelete.value(csName, nValue);
+			m_sqlUpdateDelete.doValueInt(csName, nValue);	//, SQLColumnType.Unknown, -1);
 		return this;
 	}
 	
@@ -80,7 +63,7 @@ public class SQLCursorOperation
 	public SQLCursorOperation value(String csName, double dValue)
 	{
 		if(m_sqlUpdateDelete != null)
-			m_sqlUpdateDelete.value(csName, dValue);
+			m_sqlUpdateDelete.doValueDouble(csName, dValue);	//, SQLColumnType.Unknown, -1);
 		return this;
 	}
 	
@@ -93,7 +76,7 @@ public class SQLCursorOperation
 	public SQLCursorOperation value(String csName, String csValue)
 	{
 		if(m_sqlUpdateDelete != null)
-			m_sqlUpdateDelete.value(csName, csValue);
+			m_sqlUpdateDelete.doValueString(csName, csValue);	//, SQLColumnType.Unknown, -1);
 		return this;
 	}
 
@@ -138,4 +121,5 @@ public class SQLCursorOperation
 	}
 	
 	private SQL m_sqlUpdateDelete = null;
+
 }

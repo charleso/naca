@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -118,10 +124,22 @@ public class SharedProgramInstanceData extends CJMapObject
 		// The edit in mapRedefine attributes must also point to the correct value
 	}
 	
-	public void restoreOriginalValues(InternalCharBuffer internalCharBufferDest, ArrayFixDyn<EditInMap> arrEditInMap)
+	public void restoreOriginalValues(InternalCharBuffer internalCharBufferDest)
+	{
+		// @See http://www.sourcecodesworld.com/faqs/cobol-faq-part1.asp
+		/*
+		10. A statically bound subprogram is called twice. What happens to working-storage variables?
+		Ans: The working-storage section is allocated at the start of the run-unit and any data items with VALUE clauses are initialized to the appropriate value at the time. When the subprogram is called the second time, a working-storage items persist in their last used state. However, if the program is specified with INITIAL on the PROGRAM-ID, working-storage section is reinitialized each time the program is entered. 
+		PROGRAM-ID. is INITIAL PROGRAM. Other verbs used with PROGRAM-ID are RECURSIVE and COMMON. 
+		*/
+		// Do not apply values when a program is run for the 2nd time. 
+		// This should be done for 1st CICS program 
+		internalCharBufferDest.copyFrom(m_internalCharBufferCompressedBackup);
+	}
+	
+	public void restoreOriginalEdits(ArrayFixDyn<EditInMap> arrEditInMap)
 	{
 		// Do not alter content of this
-		internalCharBufferDest.copyFrom(m_internalCharBufferCompressedBackup);
 		if(arrEditInMap != null)
 		{
 			int nNbEditInMap = arrEditInMap.size();

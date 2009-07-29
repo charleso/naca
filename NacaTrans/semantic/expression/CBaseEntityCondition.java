@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -74,5 +80,16 @@ public abstract class CBaseEntityCondition extends CBaseEntityCondExpr
 	public abstract CBaseEntityCondition GetSpecialConditionReplacing(String val, CBaseEntityFactory fact, CDataEntity replace) ;
 	public abstract CDataEntity GetConditionReference() ;
 	public abstract void SetConditonReference(CDataEntity e) ;
+	
+	protected boolean m_bForcedCompare = false;
+	public void setForceCompare()
+	{
+		m_bForcedCompare = true;
+	}
+	
+	public boolean getForcedCompare()
+	{
+		return m_bForcedCompare;
+	}
 
 }

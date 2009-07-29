@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -16,7 +22,7 @@ import jlib.log.Log;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: LanguageId.java,v 1.2 2008/05/12 14:35:49 u930ds Exp $
+ * @version $Id$
  */
 /* LanguageId
  * List of all supported languages; support for a default language

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -35,7 +41,8 @@ public class CProdExpression extends CExpression
 		protected CProdType(String t)
 		{
 			Text = t ;
-		} 
+		}
+		public static CProdType POWER = new CProdType("POWER") ;
 		public static CProdType PROD = new CProdType("MULT") ;
 		public static CProdType DIVIDE = new CProdType("DIVID") ;
 	}
@@ -115,10 +122,15 @@ public class CProdExpression extends CExpression
 		{
 			return "MULT("+m_Op1.toString()+", "+m_Op2.toString()+")" ;
 		}
-		else
+		else if(m_Type == CProdType.DIVIDE)
 		{
 			return "DIV("+m_Op1.toString()+", "+m_Op2.toString()+")" ;
 		}
+		else if(m_Type == CProdType.POWER)
+		{
+			return "POWER("+m_Op1.toString()+", "+m_Op2.toString()+")" ;
+		}
+		return "ERROR_PROD_EXPRESSION("+m_Op1.toString()+", "+m_Op2.toString()+")" ;		
 	}
 	public CExpression getMasterBinaryCondition()
 	{

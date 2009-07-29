@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -9,12 +15,15 @@ package utils;
 import org.apache.log4j.Logger;
 
 import semantic.CBaseLanguageEntity;
+import utils.DCLGenConverter.DCLGenConverter;
+import utils.SQLSyntaxConverter.SQLSyntaxConverter;
 
 import jlib.xml.Tag;
+import lexer.CTokenList;
 
 /**
  * @author S. Charton
- * @version $Id: BaseEngine.java,v 1.4 2007/12/06 07:24:07 u930bm Exp $
+ * @version $Id$
  */
 public abstract class BaseEngine<T_Entity extends CBaseLanguageEntity>
 {
@@ -27,8 +36,11 @@ public abstract class BaseEngine<T_Entity extends CBaseLanguageEntity>
 	public abstract boolean MainInit(Tag tagTrans) ;
 
 	public abstract void doFileTranscoding(String filename, String csApplication, CTransApplicationGroup grp, boolean bResources);
+	public abstract CTokenList doTextTranscoding(String csText, boolean bFromSource);
 
 	protected CRulesManager m_RulesManager = null ;
+	protected DCLGenConverter m_DCLGenConverter = null ;
+	protected SQLSyntaxConverter m_sqlSyntaxConverter = null;
 	
 	protected Transcoder m_Transcoder = null ;
 
@@ -47,6 +59,16 @@ public abstract class BaseEngine<T_Entity extends CBaseLanguageEntity>
 	public void setRulesManager(CRulesManager ruleManager)
 	{
 		m_RulesManager = ruleManager;
+	}
+	
+	public void setDCLGenConverter(DCLGenConverter dclGenConverter)
+	{
+		m_DCLGenConverter = dclGenConverter;
+	}
+	
+	public void setSQLSyntaxConverter(SQLSyntaxConverter sqlSyntaxConverter)
+	{
+		m_sqlSyntaxConverter = sqlSyntaxConverter;
 	}
 
 	/**
@@ -74,6 +96,6 @@ public abstract class BaseEngine<T_Entity extends CBaseLanguageEntity>
 
 	public abstract CGlobalCatalog getGlobalCatalog();
 
-
+	public abstract String generateInputFileName(String filename) ;
 
 }

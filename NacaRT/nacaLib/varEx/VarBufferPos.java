@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,8 +25,11 @@
 
 package nacaLib.varEx;
 
+import java.nio.Buffer;
+
 import jlib.misc.IntegerRef;
 import jlib.misc.LineRead;
+import nacaLib.debug.BufferSpy;
 import nacaLib.tempCache.CStr;
 import nacaLib.tempCache.TempCacheLocator;
 
@@ -246,6 +255,7 @@ public class VarBufferPos extends VarBuffer
 		int nLength = Math.min(nLengthSource, nLengthDest);
 		if(tBySource != null)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosDest, nLength);
 			for(int nOffset=0; nOffset<nLength; nOffset++)
 			{
 				int n = tBySource[nOffset];
@@ -253,6 +263,7 @@ public class VarBufferPos extends VarBuffer
 					n += 256;
 				m_acBuffer[nPosDest++] = (char)n;			
 			}
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 		
@@ -261,6 +272,7 @@ public class VarBufferPos extends VarBuffer
 		int nPosDest = m_nAbsolutePosition;
 		if(tBytesSource != null)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosDest, nLength);
 			for(int n=0; n<nLength; n++)
 			{
 				int nSource = tBytesSource[nOffsetSource + n];
@@ -268,6 +280,7 @@ public class VarBufferPos extends VarBuffer
 					nSource += 256;
 				m_acBuffer[nPosDest++] = (char)nSource;
 			}
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	
@@ -285,9 +298,15 @@ public class VarBufferPos extends VarBuffer
 					nByte += 256;
 				
 				char c = (char)nByte;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosDest1, 1);
 				m_acBuffer[nPosDest1++] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				if(n < nDest2Length)
+				{
+					if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buf2.m_acBuffer, nPosDest2, 1);
 					buf2.m_acBuffer[nPosDest2++] = c;
+					if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
+				}
 			}
 		}
 	}
@@ -338,28 +357,34 @@ public class VarBufferPos extends VarBuffer
 	void fillBlankComp3AtOffset(int nTotalSize, int nOffset)
 	{
 		int nPos = m_nAbsolutePosition + nOffset;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nTotalSize);
 		for(int n=0; n<=nTotalSize; n++)
 		{
 			m_acBuffer[nPos++] = 0; 
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 		
 	void fillZeroesComp0AtOffset(int nTotalSize, int nOffset)
 	{
 		int nPos = m_nAbsolutePosition + nOffset;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nTotalSize);
 		for(int n=0; n<nTotalSize; n++)
 		{
 			m_acBuffer[nPos++] = '0'; 
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 	void fillBlankComp0AtOffset(int nTotalSize, int nOffset)
 	{
 		int nPos = m_nAbsolutePosition + nOffset;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nTotalSize);
 		for(int n=0; n<nTotalSize; n++)
 		{
 			m_acBuffer[nPos++] = ' '; 
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 //	void setBufferByteAtOffset(int nCharPos, byte byHighValue, byte byLowValue)
@@ -388,6 +413,7 @@ public class VarBufferPos extends VarBuffer
 		int nCharPos = nNibblePos / 2;
 		int nNibbleIndex = nNibblePos % 2;
 		int nIndex = m_nAbsolutePosition+nOffset+nCharPos;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nIndex, 1);
 		if(nNibbleIndex == 1)	// char is 16 bits in 4 nibbles: 0000 0000 nible0 nibble1
 		{
 			m_acBuffer[nIndex] &= 0xFFF0;
@@ -395,9 +421,11 @@ public class VarBufferPos extends VarBuffer
 		}
 		else
 		{
+			
 			m_acBuffer[nIndex] &= 0x000F;
-			m_acBuffer[nIndex] |= (byValue << 4);			
+			m_acBuffer[nIndex] |= (byValue << 4);
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();			
 	}
 	
 //	char getCharAtOffset(int nCharPos)

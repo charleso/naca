@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -173,6 +179,25 @@ public class StringUtil
 		return sOut;
 	}
 	
+	public static String setAsPrintableAstring(String csSource)
+	{
+		StringBuffer sb = new StringBuffer();
+		for(int n=0; n<csSource.length(); n++)
+		{
+			char c = csSource.charAt(n);
+			int nVal = c;
+			if((nVal < 32 || nVal >= 128) && nVal != 0xA3)
+			{
+				String cs = FormatAs2CharHexa(nVal);
+				sb.append("\\" + cs);	
+			}
+			else
+				sb.append(c);
+		}
+		return sb.toString();
+	}
+
+	
 	public static String replace(String csSource, String csOldChunk, String csNewChunk, boolean bAll)
 	{
 		int n = csSource.indexOf(csOldChunk);
@@ -307,6 +332,15 @@ public class StringUtil
 	static public boolean isEmptyOrOnlyWhitespaces(String cs)
 	{
 		if(cs == null)
+			return true;
+		return isEmpty(cs.trim());
+	}
+	
+	static public boolean isEmptyOrZero(String cs)
+	{
+		if(cs == null)
+			return true;
+		if("0".equals(cs))
 			return true;
 		return isEmpty(cs.trim());
 	}
@@ -1060,4 +1094,47 @@ public class StringUtil
 		}
 		return csMemberName;
 	}
+	
+	/**
+     * This method ensures that the output String has only
+     * valid XML unicode characters as specified by the
+     * XML 1.0 standard. For reference, please see
+     * <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
+     * standard</a>. This method will return an empty
+     * String if the input is null or empty.
+     *
+     * @param in The String whose non-valid characters we want to remove.
+     * @return The in String, stripped of non-valid characters.
+     */
+    public static String stripNonValidXMLCharacters(String in) {
+        StringBuffer out = new StringBuffer(); // Used to hold the output.
+        char current; // Used to reference the current character.
+
+        if (in == null || ("".equals(in))) return ""; // vacancy test.
+        for (int i = 0; i < in.length(); i++) {
+            current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
+            if ((current == 0x9) ||
+                (current == 0xA) ||
+                (current == 0xD) ||
+                ((current >= 0x20) && (current <= 0xD7FF)) ||
+                ((current >= 0xE000) && (current <= 0xFFFD)) ||
+                ((current >= 0x10000) && (current <= 0x10FFFF)))
+                out.append(current);
+        }
+        return out.toString();
+    }    		
+    
+    public static String addLeadingSpaces(String cs, int nNbSpaces)
+    {
+    	for(int n=0; n<nNbSpaces; n++)
+    		cs = " " + cs;
+    	return cs;
+    }
+    
+    public static String addTrailingSpaces(String cs, int nNbSpaces)
+    {
+    	for(int n=0; n<nNbSpaces; n++)
+    		cs = cs + " ";
+    	return cs;
+    }
 }

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -105,6 +111,10 @@ public class CCondDifferentStatement extends CExpression
 	 */
 	public CBaseEntityCondition AnalyseCondition(CBaseEntityFactory factory, CDefaultConditionManager masterCond)
 	{
+		if(getLine() == 1768)
+		{
+			int gg = 0;
+		}
 		masterCond.SetMasterCondition(this) ;
 		CDataEntity eData1 = m_term1.GetReference(factory);
 		CDataEntity eData2 = m_term2.GetReference(factory);

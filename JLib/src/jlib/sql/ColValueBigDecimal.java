@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -17,7 +23,7 @@ import java.sql.Types;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: ColValueBigDecimal.java,v 1.7 2007/12/05 09:43:28 u930bm Exp $
+ * @version $Id$
  */
 public class ColValueBigDecimal extends ColValue
 {
@@ -45,7 +51,9 @@ public class ColValueBigDecimal extends ColValue
 
 	public String getValueAsString()
 	{
-		return String.valueOf(m_bdValue);
+		if(m_bdValue != null)
+			return String.valueOf(m_bdValue);
+		return null;
 	}
 	
 	public int getValueAsInt()

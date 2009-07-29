@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package jlib.exception;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: IValidable.java,v 1.1 2007/10/04 08:28:18 u930di Exp $
+ * @version $Id$
  * This interface must be implemented in concrete class that can be used for checking their internal state.
  * ApplicationExceptions and other Consultas standard exceptions supports a throwIfNullOrInvalid() method 
  * that takes an IValidable concrete object. 

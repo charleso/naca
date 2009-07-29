@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -11,10 +17,6 @@ package jlib.sqlMapper;
 
 import java.util.ArrayList;
 
-import jlib.misc.ArrayDyn;
-import jlib.misc.ArrayFix;
-import jlib.misc.ArrayFixDyn;
-import jlib.misc.StringRef;
 import jlib.sql.ColValue;
 import jlib.sql.ColValueCollection;
 import jlib.sql.SQLClause;
@@ -22,7 +24,6 @@ import jlib.sql.SQLClause;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: RecordId.java,v 1.5 2007/12/04 14:00:23 u930di Exp $
  */
 public class RecordId extends ColValueCollection
 {

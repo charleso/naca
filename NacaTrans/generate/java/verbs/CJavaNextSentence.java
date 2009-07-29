@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,6 +21,7 @@ package generate.java.verbs;
 import generate.CBaseLanguageExporter;
 import semantic.Verbs.CEntityNextSentence;
 import utils.CObjectCatalog;
+import utils.Transcoder;
 
 /**
  * @author sly
@@ -30,17 +37,22 @@ public class CJavaNextSentence extends CEntityNextSentence
 	 * @param cat
 	 * @param out
 	 */
-	public CJavaNextSentence(int line, CObjectCatalog cat, CBaseLanguageExporter out)
+	public CJavaNextSentence(int line, CObjectCatalog cat, CBaseLanguageExporter out, String csReference)
 	{
 		super(line, cat, out);
+		m_csReference = csReference;
 	}
+	
+	private String m_csReference = null;
 
 	/* (non-Javadoc)
 	 * @see semantic.CBaseLanguageEntity#DoExport()
 	 */
 	protected void DoExport()
 	{
-		WriteLine("// NEXT SEQUENCE ") ;
+		String label = FormatIdentifier(m_csReference) ;
+		String cs = "nextSentence(" + label + ");";
+		WriteLine(cs) ;
 	}
 
 }

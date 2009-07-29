@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -72,7 +78,7 @@ public class SQLCursor  extends CJMapObject // extends SQLCursor
 		if(m_SQL != null)
 		{
 			if(m_bOpen)
-				sqlStatus.setSQLCode(SQLCode.SQL_CURSOR_ALREADY_OPENED);
+				sqlStatus.setSQLCode(SQLCode.SQL_CURSOR_ALREADY_OPENED.getMainCode());
 			else
 				sqlStatus.reset();
 		}		
@@ -86,14 +92,14 @@ public class SQLCursor  extends CJMapObject // extends SQLCursor
 		if(m_SQL != null)
 		{
 			if(!m_bOpen)
-				sqlStatus.setSQLCode(SQLCode.SQL_CURSOR_NOT_OPEN);				
+				sqlStatus.setSQLCode(SQLCode.SQL_CURSOR_NOT_OPEN.getMainCode());				
 			else
 				sqlStatus.reset();
 			m_SQL.close();			
 		}
 		else	// too many close
 		{
-			sqlStatus.setSQLCode(SQLCode.SQL_CURSOR_NOT_OPEN);
+			sqlStatus.setSQLCode(SQLCode.SQL_CURSOR_NOT_OPEN.getMainCode());
 		}
 		m_bOpen = false;
 
@@ -213,6 +219,15 @@ public class SQLCursor  extends CJMapObject // extends SQLCursor
 		return this;
 	}
 	
+	public SQLCursor onNotFoundContinue()
+	{
+		if(isLogSql)
+			Log.logDebug("onNotFoundContinue");
+		if(m_SQL != null)
+			m_SQL.onNotFoundContinue();
+		return this;
+	}
+	
 	public SQLCursor onErrorGoto(Paragraph paragraphSQGErrorGoto)
 	{
 		if(isLogSql)
@@ -280,5 +295,10 @@ public class SQLCursor  extends CJMapObject // extends SQLCursor
 	{
 		m_SQL.setHoldability(b);
 		return this;
+	}
+	
+	CSQLIntoItemRowId getCurrentRowId()
+	{
+		return m_SQLCursorFetch.getGeneratedRowId();
 	}
 }

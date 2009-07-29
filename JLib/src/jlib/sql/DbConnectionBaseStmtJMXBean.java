@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -17,7 +23,7 @@ import jlib.misc.DateUtil;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: DbConnectionBaseStmtJMXBean.java,v 1.2 2008/07/02 12:43:41 u930di Exp $
+ * @version $Id$
  */
 public class DbConnectionBaseStmtJMXBean extends BaseCloseMBean
 {

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -11,6 +17,9 @@ import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import jlib.log.Log;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
+import jlib.misc.FileIOAccountingType;
 import jlib.misc.StopWatchNano;
 import jlib.sql.DbConnectionBase;
 import jlib.sql.DbPreparedStatement;
@@ -18,6 +27,7 @@ import nacaLib.base.JmxGeneralStat;
 import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.basePrgEnv.BaseSession;
 import nacaLib.basePrgEnv.CurrentUserInfo;
+import nacaLib.program.StatCoverage;
 
 public class AccountingRecordTrans
 {
@@ -57,6 +67,45 @@ public class AccountingRecordTrans
 		{
 			long lRuntimeTrans_ns = m_swnDbTimeRunTransaction.getElapsedTime();
 			JmxGeneralStat.endRunTransaction(criteria, lRuntimeTrans_ns / 1000000, m_lSumDbTimeIO_ns / 1000000);
+			Log.logNormal("Total elapsed time (ms): " + lRuntimeTrans_ns / 1000000);
+			Log.logNormal("***** Database I/O *****");
+			Log.logNormal(DBIOAccounting.getSumAllDBIO());
+			DBIOAccountingType.Prepare.logNormal();
+			DBIOAccountingType.OpenCursor.logNormal();
+			DBIOAccountingType.FetchCursor.logNormal();
+			DBIOAccountingType.CloseResultset.logNormal();
+			DBIOAccountingType.Select.logNormal();
+			DBIOAccountingType.Insert.logNormal();
+			DBIOAccountingType.Update.logNormal();
+			DBIOAccountingType.Delete.logNormal();
+			
+			DBIOAccountingType.CreateTable.logNormal();
+			DBIOAccountingType.DropTable.logNormal();
+			DBIOAccountingType.Declare.logNormal();
+			DBIOAccountingType.Lock.logNormal();
+			
+			
+			
+			
+//			Log.logNormal("Total Time for all database I/O (ms): " + m_lSumDbTimeIO_ns / 1000000);
+//			Log.logNormal("Max Time for a single database I/O: (ms): " + m_lMaxDbTimeIO_ns / 1000000);
+//			Log.logNormal("Number of database I/O: " + m_nNbDbIO);
+//			Log.logNormal("Number of Select: "+m_nNbSelect);
+//			Log.logNormal("Number of Insert: " + m_nNbInsert);
+//			Log.logNormal("Number of Update: "+m_nNbUpdate);
+//			Log.logNormal("Number of Delete: "+m_nNbDelete);
+//			Log.logNormal("Number of Cursor opens: " + m_nNbCursorOpen);
+//			Log.logNormal("Number of Cursor fetch: " + m_nNbFetchCursor);
+			Log.logNormal("***** File I/O *****");
+			FileIOAccountingType.Open.logNormal();
+			FileIOAccountingType.Close.logNormal();
+			FileIOAccountingType.Flush.logNormal();
+			FileIOAccountingType.Read.logNormal();
+			FileIOAccountingType.Write.logNormal();
+			FileIOAccountingType.Rewrite.logNormal();
+			FileIOAccountingType.Position.logNormal();		
+			
+			StatCoverage.logResults();
 		}
 		
 		endRunProgram(criteria);
@@ -182,7 +231,12 @@ public class AccountingRecordTrans
 	public void endDbIO()
 	{
 		m_lDbTimeIO_ns = m_swnDbTimeIO.getElapsedTimeReset();
-		m_lSumDbTimeIO_ns += m_lDbTimeIO_ns; 
+		m_nNbDbIO++;
+		m_lSumDbTimeIO_ns += m_lDbTimeIO_ns;
+		
+		if(m_lDbTimeIO_ns > m_lMaxDbTimeIO_ns)
+			m_lMaxDbTimeIO_ns = m_lDbTimeIO_ns;
+		
 		//JmxGeneralStat.reportDbTimeIo_ns(m_lDbTimeIO_ns / 1000000);
 		try
 		{
@@ -226,9 +280,11 @@ public class AccountingRecordTrans
 	private int m_nNbCursorOpen = 0;
 	private long m_lDbTimeIO_ns = 0;	// Time in nano seconds
 	private long m_lSumDbTimeIO_ns = 0;
+	private long m_lMaxDbTimeIO_ns = 0;
+	private long m_nNbDbIO = 0;
 	private StopWatchNano m_swnDbTimeIO = new StopWatchNano();
 	private StopWatchNano m_swnDbTimeRunTransaction = new StopWatchNano();
-		
+	
 	private String m_csMachineId = "";
 	private String m_csTomcatId = "";
 	

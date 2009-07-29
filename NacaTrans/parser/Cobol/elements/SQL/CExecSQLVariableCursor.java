@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,12 +25,13 @@ import utils.Transcoder;
 
 /**
  * @author S. Charton
- * @version $Id: CExecSQLVariableCursor.java,v 1.4 2007/10/30 16:09:13 u930bm Exp $
+ * @version $Id$
  */
 public class CExecSQLVariableCursor extends CBaseExecSQLAction
 {
 	protected String m_csStatementName ;
 	protected String m_csCursorName ;
+
 	/**
 	 * @see parser.CBaseElement#DoParsing()
 	 */

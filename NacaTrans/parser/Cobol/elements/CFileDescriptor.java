@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -30,6 +36,7 @@ import semantic.CDataEntity;
 import semantic.CEntityFileDescriptor;
 import semantic.CEntityStructure;
 import utils.CGlobalEntityCounter;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -216,6 +223,16 @@ public class CFileDescriptor extends CCobolElement
 							return false ;
 						}
 					}
+					if (tok.GetKeyword() == CCobolKeywordList.DEPENDING)
+					{
+						Reporter.Add("Modif_PJ", "CFileDescriptor DEPENDING");
+						tok = GetNext();
+						if (tok.GetKeyword() == CCobolKeywordList.ON)
+						{
+							tok = GetNext() ;
+						}
+						m_DependingOnLenghtRecord = ReadIdentifier();
+					}
 				}
 				else
 				{
@@ -271,6 +288,10 @@ public class CFileDescriptor extends CCobolElement
 							return false ;	
 						}
 					}
+					if (tok.GetKeyword() == CCobolKeywordList.CHARACTERS)
+					{
+						tok = GetNext() ;
+					}
 					if (tok.GetKeyword() == CCobolKeywordList.RECORDS)
 					{
 						tok = GetNext();
@@ -287,7 +308,20 @@ public class CFileDescriptor extends CCobolElement
 				if (tok.GetKeyword() == CCobolKeywordList.RECORD)
 				{
 					tok = GetNext() ;
-					if (tok.GetKeyword() == CCobolKeywordList.IS)
+					if (tok.GetKeyword() == CCobolKeywordList.IS || tok.GetKeyword()== CCobolKeywordList.ARE)
+					{
+						tok = GetNext();
+					}
+					CIdentifier dataRecord = ReadIdentifier();
+					while (dataRecord != null)
+					{
+						dataRecord = ReadIdentifier();
+					}
+				} 
+				else if (tok.GetKeyword() == CCobolKeywordList.RECORDS)
+				{
+					tok = GetNext() ;
+					if (tok.GetKeyword() == CCobolKeywordList.IS || tok.GetKeyword() == CCobolKeywordList.ARE)
 					{
 						tok = GetNext();
 					}
@@ -332,13 +366,18 @@ public class CFileDescriptor extends CCobolElement
 			tok = GetNext() ;
 		}
 		bDone = false ;
-		while (!bDone)
+		while (tok != null && !bDone)
 		{
+			if (tok.GetType() == CTokenType.DOT)
+			{
+				tok = GetNext() ;
+			}
+
 //			if (tok.GetType() == CTokenType.COMMENT)
 //			{
 //				ParseComment();
 //			}
-			if (tok.GetKeyword() == CCobolKeywordList.COPY)
+			else if (tok.GetKeyword() == CCobolKeywordList.COPY)
 			{
 				CCopyInWorking fdcopy = new CCopyInWorking(tok.getLine());
 				if (!Parse(fdcopy))

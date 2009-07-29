@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -70,7 +76,7 @@ public abstract class CEntitySetAttribute extends CBaseActionEntity
 	{
 		m_bUnProtected = true ;		
 	}
-	protected boolean m_bUnProtected = false ;
+	protected boolean m_bUnProtected = false;	// PJD 03/04/2009: Remark for CSM: This has been set to true for CSM. It seems a pb with pub2000 generation compatibility. To be checked.
 
 	public void SetAutoSkip()
 	{

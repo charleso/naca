@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -7,6 +13,7 @@
 package nacaLib.batchOOApi;
 
 import jlib.misc.FileEndOfLine;
+import nacaLib.debug.BufferSpy;
 import nacaLib.varEx.VarBufferPos;
 
 /**
@@ -52,13 +59,17 @@ public class WriteBufferExt extends VarBufferPos
 			nLength = cs.length();
 			if(nNbCharsToWrite < nLength)
 				nLength = nNbCharsToWrite;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nAbsolutePosition, nLength);
 			cs.getChars(0, nLength, m_acBuffer, m_nAbsolutePosition);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 		if(nLength < nNbCharsToWrite)	// Padding with BLANK on the right
 		{
 			int nNbChars = nNbCharsToWrite-nLength;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, m_nAbsolutePosition, nNbChars);
 			for(int n=0; n<nNbChars; n++)
 				m_acBuffer[m_nAbsolutePosition + n] = ' ';
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	

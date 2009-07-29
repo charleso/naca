@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -28,6 +34,7 @@ import jlib.xml.XMLUtil;
 import jlib.xml.XSLTransformer;
 import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.misc.LogFlowCustomNacaRT;
+import nacaLib.pathManager.PathsManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -245,6 +252,7 @@ public class OnlineResourceManager extends BaseResourceManager
 		if(tagRoot != null)
 		{
 			String csLogCfg = tagRoot.getVal("LogSettingsPathFile");
+			csLogCfg = PathsManager.adjustPath(csLogCfg);
 			
 			LogFlowCustomNacaRT.declare();
 			Tag tagLogSettings = Log.open("NacaRT", csLogCfg);
@@ -287,12 +295,15 @@ public class OnlineResourceManager extends BaseResourceManager
 				m_StdResourceManager.setXSLFilePath("IDEA_PRINT_SCREEN", csXSLPSFilePath) ;
 			
 			String csXSLHelpFilePath = /*getRootPath() + */tagRoot.getVal("HelpXSLFilePath") ;
+			csXSLHelpFilePath = PathsManager.adjustPath(csXSLHelpFilePath);
 			m_StdResourceManager.setXSLFilePath("IDEA_HELP", csXSLHelpFilePath) ;
 			
 			m_csResourcePath = getApplicationRootPath() + tagRoot.getVal("ResourcePath") ;
+			m_csResourcePath = PathsManager.adjustPath(m_csResourcePath);
 			m_csResourcePath = FileSystem.normalizePath(m_csResourcePath);
 			
 			m_csAlternateResourcePath = getApplicationRootPath() + tagRoot.getVal("AlternateResourcePath") ;
+			m_csAlternateResourcePath = PathsManager.adjustPath(m_csAlternateResourcePath);
 			if(!StringUtil.isEmpty(m_csAlternateResourcePath))
 				m_csAlternateResourcePath = FileSystem.normalizePath(m_csAlternateResourcePath);
 			
@@ -310,6 +321,7 @@ public class OnlineResourceManager extends BaseResourceManager
 						
 			
 			m_csXMLFrameFilePath = tagRoot.getVal("XMLFrameFilePath") ;
+			m_csXMLFrameFilePath = PathsManager.adjustPath(m_csXMLFrameFilePath);
 			m_csXMLFramePSFilePath = tagRoot.getVal("XMLFramePSFilePath") ;
 			m_csSemanticContextPathFile = /*getRootPath() + */tagRoot.getVal("SemanticContextPathFile") ;
 
@@ -339,6 +351,7 @@ public class OnlineResourceManager extends BaseResourceManager
 			
 			
 			m_csCustomApplicationLauncherConfigFilePath = tagRoot.getVal("AppLauncherConfig") ;
+			m_csCustomApplicationLauncherConfigFilePath = PathsManager.adjustPath(m_csCustomApplicationLauncherConfigFilePath);
 		}		
 	}
 

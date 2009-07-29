@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,7 +19,7 @@ package nacaLib.tempCache;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CStrNumber.java,v 1.5 2007/01/11 13:39:04 u930di Exp $
+ * @version $Id$
  */
 public class CStrNumber extends CStr
 {	

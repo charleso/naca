@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -50,10 +56,10 @@ public class RecordColTypeManagerDate extends RecordColTypeManagerBase
 			String csValue = rs.getString(m_nColSourceIndex);
 			if(csValue != null)
 			{
-				String csYYYY = csValue.substring(0, 4);
-				String csMM = csValue.substring(5, 7);
-				String csDD = csValue.substring(8, 10);
-				csValue = csDD + "." + csMM + "." + csYYYY;
+//				String csYYYY = csValue.substring(0, 4);
+//				String csMM = csValue.substring(5, 7);
+//				String csDD = csValue.substring(8, 10);
+//				csValue = csDD + "." + csMM + "." + csYYYY;
 				//varInto.set(csValue);
 				varInto.m_varDef.write(varInto.m_bufferPos, csValue);
 				return false;

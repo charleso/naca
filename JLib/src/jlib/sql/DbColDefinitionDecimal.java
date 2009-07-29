@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -26,7 +32,7 @@ import jlib.misc.NumberParser;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: DbColDefinitionDecimal.java,v 1.7 2007/05/08 16:53:12 u930di Exp $
+ * @version $Id$
  */
 public class DbColDefinitionDecimal extends BaseDbColDefinition
 {

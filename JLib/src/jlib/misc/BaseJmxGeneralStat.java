@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,7 +20,7 @@ import jlib.jmxMBean.BaseCloseMBean;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: BaseJmxGeneralStat.java,v 1.7 2006/06/02 14:01:51 cvsadmin Exp $
+ * @version $Id$
  */
 public abstract class BaseJmxGeneralStat extends BaseCloseMBean
 {

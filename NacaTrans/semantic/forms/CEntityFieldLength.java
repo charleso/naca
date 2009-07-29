@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -48,9 +54,14 @@ public abstract class CEntityFieldLength extends CBaseEntityFieldAttribute
 		CEntityFieldAttributeReference ref = factory.NewEntityFieldAttributeReference(m_Reference) ;
 		String v = term.GetValue() ;
 		int n = 0 ;
-		try	{
+		try	
+		{
 			n = Integer.parseInt(v) ;
-		} catch (NumberFormatException e){}
+		} 
+		catch (NumberFormatException e)
+		{
+			//e.printStackTrace();
+		}
 		if (v.equals("-1"))
 		{
 			CEntitySetCursor eSet = factory.NewEntitySetCursor(l, ref) ;

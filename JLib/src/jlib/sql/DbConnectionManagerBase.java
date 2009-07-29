@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -254,6 +260,11 @@ public abstract class DbConnectionManagerBase
 		m_DbConnectionParam.setEnvironment(csEnvironment);
 	}
 	
+	public void setPackage(String csPackage)
+	{
+		m_DbConnectionParam.setPackage(csPackage);
+	}
+	
 	public void setValidationQuery(String csValidationQuery)
 	{
 		m_csValidationQuery = csValidationQuery;
@@ -327,5 +338,13 @@ public abstract class DbConnectionManagerBase
 	public void setPropertyPrefix(String csPropertyPrefix)
 	{
 		m_csPropertyPrefix = csPropertyPrefix;
+	}
+	
+	public DbDriverId getDbDriverId()
+	{
+		if(m_DbConnectionParam == null)
+			return null;
+		DbDriverId id = m_DbConnectionParam.getDbDriverId();
+		return id;
 	}
 }

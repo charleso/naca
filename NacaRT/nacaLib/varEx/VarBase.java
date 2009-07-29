@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -563,11 +569,16 @@ public abstract class VarBase extends CJMapObject
 		m_varDef.writeRepeatingchar(m_bufferPos, c);		
 	}
 	
-	public void fillEndOfRecord(int nNbRecordByteAlreadyFilled, int nRecordTotalLength)
+	public void fillEndOfRecord(int nNbRecordByteAlreadyFilled, int nRecordTotalLength, char cFillerConstant)
 	{
 		int nNbBytesToFill = nRecordTotalLength - nNbRecordByteAlreadyFilled;
-		m_varDef.writeRepeatingcharAtOffsetWithLength(m_bufferPos, nNbRecordByteAlreadyFilled, CobolConstant.LowValue.getValue(), nNbBytesToFill);
+		m_varDef.writeRepeatingcharAtOffsetWithLength(m_bufferPos, nNbRecordByteAlreadyFilled, cFillerConstant, nNbBytesToFill);
 		//m_varDef.writeRepeatingchar(m_bufferPos, CobolConstant.LowValue);		
+	}
+	
+	private void fillEndOfRecordForLength(int nNbRecordByteAlreadyFilled, int nNbBytesToFill, char cFillerConstant)
+	{
+		m_varDef.writeRepeatingcharAtOffsetWithLength(m_bufferPos, nNbRecordByteAlreadyFilled, cFillerConstant, nNbBytesToFill);
 	}
 	
 	public void copyBytesFromSourceIntoBody(InternalCharBuffer charBuffer)
@@ -585,7 +596,7 @@ public abstract class VarBase extends CJMapObject
 //		return m_bufferPos.getProgramManager().getProgram();
 //	}
 	
-	int getLength()
+	public int getLength()
 	{
 		return m_varDef.getLength(); 
 	}
@@ -706,7 +717,7 @@ public abstract class VarBase extends CJMapObject
 		return nSourceLength;
 	}
 	
-	public void setFromLineRead2DestWithFilling(LineRead lineRead, VarBase varDest2)
+	public void setFromLineRead2DestWithFilling(LineRead lineRead, VarBase varDest2, char cFillerConstant)
 	{
 		// "this" is the variable specified by the into() method
 		// varDest2 is the variable carried by the file descriptor
@@ -734,10 +745,10 @@ public abstract class VarBase extends CJMapObject
 		m_bufferPos.setByteArray(lineRead.getBuffer(), lineRead.getOffset(), nSourceLength, varDest2.m_bufferPos, nDest2Length);
 		
 		if(nFillLength1 != 0)
-			fillEndOfRecord(nSourceLength, nFillLength1);
+			fillEndOfRecordForLength(nSourceLength, nFillLength1, cFillerConstant);
 		
 		if(nFillLength2 != 0)
-			varDest2.fillEndOfRecord(nSourceLength, nFillLength2);
+			varDest2.fillEndOfRecordForLength(nSourceLength, nFillLength2, cFillerConstant);
 	}
 	
 	public void setFromByteArray(byte[] tBytes, int nOffsetSource, int nLength)

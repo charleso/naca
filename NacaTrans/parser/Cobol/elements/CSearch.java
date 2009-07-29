@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -22,6 +28,7 @@ import lexer.Cobol.CCobolKeywordList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import parser.CBaseElement;
 import parser.CIdentifier;
 import parser.Cobol.CCobolElement;
 import parser.expression.CExpression;
@@ -33,11 +40,13 @@ import semantic.CEntityDataSection;
 import semantic.CEntityStructure;
 import semantic.Verbs.CEntityAssign;
 import semantic.Verbs.CEntityBreak;
+import semantic.Verbs.CEntityConstantReturn;
 import semantic.Verbs.CEntitySearch;
+import semantic.expression.CEntityBoolean;
 import semantic.expression.CEntityInternalBool;
-import semantic.expression.CEntityNumber;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -72,12 +81,20 @@ public class CSearch extends CCobolElement
 			eIndex = str.getOccursIndex() ;
 		}
 		eSearch.setVariable(eVar, eIndex) ;
+		eSearch.setAll(m_bAll);
 		
 		if (m_blocElse != null)
 		{
 			CEntityBloc eBloc = (CEntityBloc)m_blocElse.DoSemanticAnalysis(eSearch, factory) ;
 			eSearch.setElseBloc(eBloc) ;
 		}
+		
+		if(m_bAll)
+		{
+			CBaseLanguageEntity e = DoCustomSemanticAnalysisSearchAll(eSearch, parent, factory);
+			return e;
+		}
+
 		
 		CDataEntity eAtt  ;
 		if (factory.m_ProgramCatalog.IsExistingDataEntity("Search-Found", ""))
@@ -91,7 +108,7 @@ public class CSearch extends CCobolElement
 			working.AddChild(att) ;
 			eAtt = att ;
 		}
-		CEntityNumber val = factory.NewEntityNumber("true") ;
+		CEntityBoolean val = factory.NewEntityBoolean(true) ;
 		ListIterator i = m_children.listIterator() ;
 		CCobolElement le = null ;
 		try
@@ -100,6 +117,7 @@ public class CSearch extends CCobolElement
 		}
 		catch (NoSuchElementException e)
 		{
+			e.printStackTrace();
 		}
 		while (le != null)
 		{
@@ -118,6 +136,65 @@ public class CSearch extends CCobolElement
 			}
 			catch (NoSuchElementException ee)
 			{
+				//ee.printStackTrace();
+				le = null ;
+			}
+		}
+
+		parent.AddChild(eSearch) ;
+		m_bAnalysisDoneForChildren = true ;
+		return eSearch ;
+	}
+	
+	private CBaseLanguageEntity DoCustomSemanticAnalysisSearchAll(CEntitySearch eSearch, CBaseLanguageEntity parent, CBaseEntityFactory factory)
+	{
+//		CDataEntity eAtt  ;
+//		if (factory.m_ProgramCatalog.IsExistingDataEntity("Search-Found", ""))
+//		{
+//			eAtt = factory.m_ProgramCatalog.GetDataEntity("Search-Found", "") ;
+//		}
+//		else
+//		{
+//			CEntityInternalBool att = factory.NewEntityInternalBool("Search-Found") ;
+//			CEntityDataSection working = factory.m_ProgramCatalog.getWorkingSection() ;
+//			working.AddChild(att) ;
+//			eAtt = att ;
+//		}
+		
+		ListIterator i = m_children.listIterator() ;
+		CCobolElement le = null ;
+		try
+		{	
+			le = (CCobolElement)i.next() ;
+		}
+		catch (NoSuchElementException e)
+		{
+			e.printStackTrace();
+		}
+		while (le != null)
+		{
+			CBaseLanguageEntity e = le.DoSemanticAnalysis(eSearch, factory) ;
+
+			CEntityConstantReturn eReturn = factory.NewEntityConstantReturn(0, "result");	// Add the return false;
+			eSearch.AddChild(eReturn);
+			
+//			
+//			
+//			
+//			CEntityAssign eAss = factory.NewEntityAssign(0) ;
+//			eAss.SetValue(val) ;
+//			eAss.AddRefTo(eAtt) ;
+//			eAtt.RegisterWritingAction(eAss) ;
+//			e.AddChild(eAss) ;
+//			CEntityBreak eBr = factory.NewEntityBreak(0) ;
+//			e.AddChild(eBr) ;
+			try
+			{	
+				le = (CCobolElement)i.next() ;
+			}
+			catch (NoSuchElementException ee)
+			{
+				//ee.printStackTrace();
 				le = null ;
 			}
 		}
@@ -131,12 +208,14 @@ public class CSearch extends CCobolElement
 	protected CIdentifier m_Variable = null ;
 	protected CIdentifier m_Index = null;
 	protected CGenericBloc m_blocElse = null ;
+	private boolean m_bAll = false;
 
 	/* (non-Javadoc)
 	 * @see parser.CBaseElement#Parse(lexer.CTokenList)
 	 */
 	protected boolean DoParsing()
 	{
+		// Syntax http://publibz.boulder.ibm.com/cgi-bin/bookmgr_OS390/handheld/Connected/BOOKS/IGY3LR10/6.2.32?DT=20020920180651
 		CBaseToken tok = GetCurrentToken() ;
 		if (tok.GetKeyword() != CCobolKeywordList.SEARCH)
 		{
@@ -144,23 +223,78 @@ public class CSearch extends CCobolElement
 		}
 		CGlobalEntityCounter.GetInstance().CountCobolVerb(tok.GetKeyword().m_Name) ;
 		tok = GetNext() ;
-		m_Variable = ReadIdentifier() ;
-		
-		// VARYING ???
-		tok = GetCurrentToken();
-		if (tok.GetKeyword() == CCobolKeywordList.VARYING)
+		if (tok.GetKeyword() == CCobolKeywordList.ALL)	// PJD Added PG POC
 		{
+			Reporter.Add("Modif_PJ", "Search");
+			m_bAll = true;
 			tok = GetNext() ;
-			m_Index = ReadIdentifier();
-			tok = GetCurrentToken() ;
-		} 
+			m_Variable = ReadIdentifier() ;
+			
+			if (tok.GetKeyword() == CCobolKeywordList.AT)	// AT ?
+			{
+				tok = GetNext() ;
+				if (tok.GetKeyword() == CCobolKeywordList.END)	// END
+				{
+					GetNext();
+					m_blocElse = new CGenericBloc("AtEnd", tok.getLine()) ;
+					if (!Parse(m_blocElse))
+					{
+						Transcoder.logError(GetCurrentToken().getLine(), "Error while parsing bloc");
+						return false ;
+					}
+				}
+				else
+				{
+					Transcoder.logError(tok.getLine(), "Expecting END");
+					return false ;
+				}
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.END)	// Directly END, without AT ?
+			{
+				GetNext();
+				m_blocElse = new CGenericBloc("AtEnd", tok.getLine()) ;
+				if (!Parse(m_blocElse))
+				{
+					Transcoder.logError(GetCurrentToken().getLine(), "Error while parsing bloc");
+					return false ;
+				}
+			}	
+		}
+		else	// Not ALL
+		{			
+			m_Variable = ReadIdentifier() ;
 		
-		// AT END ?
-		m_blocElse = null ;
-		if (tok.GetKeyword() == CCobolKeywordList.AT)
-		{
-			tok = GetNext() ;
-			if (tok.GetKeyword() == CCobolKeywordList.END)
+			// VARYING ???
+			tok = GetCurrentToken();
+			if (tok.GetKeyword() == CCobolKeywordList.VARYING)
+			{
+				tok = GetNext() ;
+				m_Index = ReadIdentifier();
+				tok = GetCurrentToken() ;
+			} 
+		
+			// AT END ?
+			m_blocElse = null ;
+			if (tok.GetKeyword() == CCobolKeywordList.AT)	// AT ?
+			{
+				tok = GetNext() ;
+				if (tok.GetKeyword() == CCobolKeywordList.END)	// END
+				{
+					GetNext();
+					m_blocElse = new CGenericBloc("AtEnd", tok.getLine()) ;
+					if (!Parse(m_blocElse))
+					{
+						Transcoder.logError(GetCurrentToken().getLine(), "Error while parsing bloc");
+						return false ;
+					}
+				}
+				else
+				{
+					Transcoder.logError(tok.getLine(), "Expecting END");
+					return false ;
+				}
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.END)	// Directly END without AT
 			{
 				GetNext();
 				m_blocElse = new CGenericBloc("AtEnd", tok.getLine()) ;
@@ -170,11 +304,6 @@ public class CSearch extends CCobolElement
 					return false ;
 				}
 			}
-			else
-			{
-				Transcoder.logError(tok.getLine(), "Expecting END");
-				return false ;
-			}
 		}
 		
 		tok = GetCurrentToken();		
@@ -182,12 +311,18 @@ public class CSearch extends CCobolElement
 		{
 			tok = GetNext() ;
 			CExpression cond = ReadConditionalStatement() ;
+			//CExpression cond = new CCondCompStatement(condOld.getLine(), condOld.GetFirstConditionOperand(), condOld.GetFirstConditionOperand()) ;
+ 
 			tok = GetCurrentToken() ;
 			if (tok.GetType() == CTokenType.COMMA)
 			{
 				tok = GetNext() ;
 			}
-			CWhenBloc bloc = new CWhenBloc(cond, tok.getLine()) ;
+			CBaseElement bloc = null;
+			if(m_bAll)
+				bloc = new CWhenSearchAllBloc(cond, tok.getLine()) ;
+			else
+				bloc = new CWhenBloc(cond, tok.getLine()) ;
 			if (!Parse(bloc))
 			{
 				Transcoder.logError(GetCurrentToken().getLine(), "Error while parsing bloc");

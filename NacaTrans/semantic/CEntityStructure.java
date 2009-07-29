@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,14 +20,19 @@ package semantic;
 
 import generate.*;
 
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import jlib.misc.NumberParser;
 
+import parser.CIdentifier;
 import parser.expression.CExpression;
 
 import semantic.expression.CBaseEntityExpression;
 import utils.*;
+import utils.CobolTranscoder.OrderedName;
 
 /**
  * @author sly
@@ -49,6 +60,10 @@ public abstract class CEntityStructure extends CEntityAttribute
 			}
 		}
 		m_csLevel = level ;
+		if(cat.isForwarded(this))
+		{
+			int gg = 0;
+		}
 	}
 	protected boolean m_bFiller = false ;
 	public CDataEntity GetArrayReference(Vector v, CBaseEntityFactory factory) 
@@ -170,6 +185,48 @@ public abstract class CEntityStructure extends CEntityAttribute
 		m_OccursIndex = index ;		
 	}
 	protected CEntityIndex m_OccursIndex = null ;
+	
+	public void addForwardTableSortKeyIdentifier(String csForwardedName, boolean bAscending)
+	{
+		if(m_arrForwardTableSortKeyNames == null)
+			m_arrForwardTableSortKeyNames = new ArrayList<OrderedName>();
+		
+		OrderedName orderedName = new OrderedName(csForwardedName, bAscending);
+		m_arrForwardTableSortKeyNames.add(orderedName);
+		m_ProgramCatalog.registerForwardIdentifierContainer(this);
+	}
+	private ArrayList<OrderedName> m_arrForwardTableSortKeyNames = null ;
+	
+	public boolean addIfNeededTableSortKey(String csForwardedName, CEntityStructure eForwarded)
+	{
+		if(m_arrForwardTableSortKeyNames == null)
+			return false;
+		for(int n=0; n<m_arrForwardTableSortKeyNames.size(); n++)
+		{
+			OrderedName orderedName = m_arrForwardTableSortKeyNames.get(n);
+			String cs = orderedName.getName();
+			boolean bAscending = orderedName.getAscending();
+			if(csForwardedName.equals(cs))
+			{
+				if(m_arrTableSortKeys == null)
+					m_arrTableSortKeys = new ArrayList<COrderedEntityStructure>();
+				
+				COrderedEntityStructure orderedEntityStructure = new COrderedEntityStructure(eForwarded, bAscending);
+				m_arrTableSortKeys.add(orderedEntityStructure);
+				m_arrForwardTableSortKeyNames.remove(n);
+				return true;
+			}
+		}
+		return false;
+	}
+	private ArrayList<COrderedEntityStructure> m_arrTableSortKeys = null ;
+	
+	public ArrayList<COrderedEntityStructure> getArrTableSortKeys()
+	{
+		return m_arrTableSortKeys;
+	}
+	
+//	public boolean isForwardRef(eForwarded)
 	
 	@Override
 	public CDataEntity FindFirstDataEntityAtLevel(int level)

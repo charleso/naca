@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -36,11 +42,13 @@ public class CJavaDataSection extends CEntityDataSection
 	}
 	protected void DoExport()
 	{
+		boolean bMustExportTally = false;
 		String name = GetName() ;
 		String type = "" ;
 		if (name.equals("WorkingStorageSection"))
 		{
 			type = "workingStorageSection" ;
+			bMustExportTally = m_ProgramCatalog.getAndResetTallyUsage();
 		}
 		else if (name.equals("LinkageSection"))
 		{
@@ -63,6 +71,12 @@ public class CJavaDataSection extends CEntityDataSection
 		WriteLine(line);
 //		StartOutputBloc() ;
 		ExportChildren() ;
+		
+		if(bMustExportTally)
+		{
+			line = "Var tally = declare.level(77).pic9(5).comp().var();	// NacaTrans generated for tally support";
+			WriteLine(line);
+		}
 //		EndOutputBloc();
 	}
 }

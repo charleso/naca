@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -32,7 +38,6 @@ import jlib.sql.SQLClause;
  * of <code>code</code> and <code>error</code>. 
 
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: ProgrammingException.java,v 1.20 2008/06/30 13:16:41 u930lv Exp $
  */
 public class ProgrammingException extends RuntimeException
 {
@@ -168,6 +173,7 @@ public class ProgrammingException extends RuntimeException
 	/* FILE */
 	
 	public static final String IO_ERROR = "IO Error while accessing file: ";
+	public static final String MISSING_SSL_ALGORITHM = "MISSING_SSL_ALGORITHM";
 	public static final String FILEUPLOAD_ERROR = "File upload Error";
 	
 	public static final String INVALID_FILENAME="Invalid file name.";
@@ -217,5 +223,6 @@ public class ProgrammingException extends RuntimeException
 	public static final String DATE_FORMATTING_ERROR = "Date formatting error. ";
 	public static final String DATE_PARSING_ERROR = "Date parsing error. ";
 	public static final String INVALID_URL_FORMAT = "Url format error. ";
+	public static final String CHAR_ENCODING_ERROR = "The Character Encoding in not supported.";
 
 }

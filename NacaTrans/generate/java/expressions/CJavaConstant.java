@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -7,10 +13,11 @@
 package generate.java.expressions;
 
 import semantic.expression.CEntityConstant;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author S. Charton
- * @version $Id: CJavaConstant.java,v 1.2 2007/06/28 06:19:48 u930bm Exp $
+ * @version $Id$
  */
 public class CJavaConstant extends CEntityConstant
 {
@@ -31,6 +38,11 @@ public class CJavaConstant extends CEntityConstant
 	{
 		switch (m_eValue)
 		{
+			case LOW_VALUE :
+			{
+				Reporter.Add("Modif_PJ", "CobolConstant.LowValue");
+				return "CobolConstant.LowValue" ;		
+			}
 			case HIGH_VALUE :
 				return "CobolConstant.HighValue" ;
 			case SPACES :

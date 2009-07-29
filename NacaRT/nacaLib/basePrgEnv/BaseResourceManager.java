@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -7,6 +13,7 @@
 package nacaLib.basePrgEnv;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -22,6 +29,7 @@ import jlib.misc.Time_ms;
 import jlib.sql.ArrayDbConnectionPool;
 import jlib.sql.DbConnectionBase;
 import jlib.sql.DbConnectionPool;
+import jlib.sql.DbDriverId;
 import jlib.sql.ThreadStatementGC;
 import jlib.xml.Tag;
 import nacaLib.accounting.AccountingRessourceDesc;
@@ -31,10 +39,13 @@ import nacaLib.appOpening.JmxAppOpener;
 import nacaLib.appOpening.OpenCalendarManager;
 import nacaLib.base.CJMapObject;
 import nacaLib.base.JmxGeneralStat;
+import nacaLib.batchPrgEnv.BatchResourceManager;
 import nacaLib.classLoad.CustomClassDynLoaderFactory;
 import nacaLib.fileConverter.CopyConverterClassLoader;
 import nacaLib.misc.SemanticContextDef;
+import nacaLib.pathManager.PathsManager;
 import nacaLib.sqlSupport.SQLCode;
+import nacaLib.varEx.FileOrganization;
 import nacaLib.varEx.Pic9Comp3BufferSupport;
 
 
@@ -44,6 +55,12 @@ public abstract class BaseResourceManager extends CJMapObject
 	private static ThreadSafeCounter ms_sessionRequestIdCounter = new ThreadSafeCounter();
 	private static JmxGeneralStat ms_baseJmxGeneralStat = null;
 	private static ArrayDbConnectionPool ms_arrayDbConnectionPool = null;
+	private static StdIn ms_stdIn = null;
+	private static String ms_csDefaultFileMode = null;
+	private static String ms_csDefaultFilePath = null;
+	private static CallInterceptorManager ms_callInterceptor = null;
+	private static Hashtable<FileOrganization, String> ms_hashDefaultFileModesByOrganization = null;
+	private static boolean ms_bThrowOccursOverflowException = true;
 			
 	static public void unloadProgram(String csProgramName)
 	{
@@ -89,7 +106,23 @@ public abstract class BaseResourceManager extends CJMapObject
 		
 		if(tagRoot != null)
 		{
+			PathsManager.Load(tagRoot);
+			
 			m_bSimulateRealEnvironment = tagRoot.getValAsBoolean("SimulateRealEnvironment", false) ;
+			
+			m_csXMLMergerDebugOutputPath = null;	// XMLMerger debug disabbled if conf/XMLMergerDebugOutputPath is not defined or empty
+			if(tagRoot.isValExisting("XMLMergerDebugOutputPath"))
+				m_csXMLMergerDebugOutputPath = tagRoot.getVal("XMLMergerDebugOutputPath");
+			if(StringUtil.isEmpty(m_csXMLMergerDebugOutputPath))	// null or empty string disables XML Merge debug ouput
+				m_csXMLMergerDebugOutputPath = null;
+			else
+				m_csXMLMergerDebugOutputPath = FileSystem.normalizePath(m_csXMLMergerDebugOutputPath);
+			
+			ms_bCommitAfterMainProgramRun = tagRoot.getValAsBoolean("CommitAfterMainProgramRun", true) ;
+			
+			Tag tagDbSQLCodes = tagRoot.getChild("DbSQLCodes");
+			if(tagDbSQLCodes != null)
+				SQLCode.fillDbCodes(tagDbSQLCodes);
 			
 			ms_bUseProgramPool = tagRoot.getValAsBoolean("UseProgramPool") ;
 			ms_bUseStatementCache = tagRoot.getValAsBoolean("UseSQLStatementCache") ;
@@ -104,8 +137,11 @@ public abstract class BaseResourceManager extends CJMapObject
 			
 			ms_bGCAfterPreloadPrograms = tagRoot.getValAsBoolean("GCAfterPreloadPrograms", false);
 			ms_bLoadCopyByPrimordialLoader = tagRoot.getValAsBoolean("LoadCopyByPrimordialLoader", true);
-
+			ms_bThrowOccursOverflowException = tagRoot.getValAsBoolean("ThrowOccursOverflowException", true);
+			
+			
 			m_csApplicationClassPath = tagRoot.getVal("ApplicationClassPath") ;
+			m_csApplicationClassPath = PathsManager.adjustPath(m_csApplicationClassPath);
 			m_csApplicationClassPath = FileSystem.normalizePath(m_csApplicationClassPath);
 			m_csJarFile = tagRoot.getVal("JarFile") ;
 			m_bCanLoadJar = tagRoot.getValAsBoolean("CanLoadJar") ;
@@ -141,10 +177,12 @@ public abstract class BaseResourceManager extends CJMapObject
 			ms_nSQLInsertStatementBatchCommitSize = tagRoot.getValAsInt("SQLInsertStatementBatchCommitSize", 100);
 			
 			String csCalendar = tagRoot.getVal("StandardCalendar");
+			csCalendar = PathsManager.adjustPath(csCalendar);
 			if(csCalendar != null)
 				createCalendar(OpenCalendarManager.Standard, csCalendar);
 			
 			csCalendar = tagRoot.getVal("CustomCalendar");
+			csCalendar = PathsManager.adjustPath(csCalendar);
 			if(csCalendar != null)
 				createCalendar(OpenCalendarManager.Custom, csCalendar);
 			
@@ -174,6 +212,28 @@ public abstract class BaseResourceManager extends CJMapObject
 				ms_bUpdateCodeDbToJava = true;
 			}
 			
+			Tag tagPrinterCodes = tagRoot.getChild("PrinterCodes");
+			if(tagPrinterCodes != null)
+			{
+				String csPrinterCode = tagPrinterCodes.getVal("NewLineCode");
+				ms_tbPrinterCodeNewLine = csPrinterCode.getBytes();				
+				csPrinterCode = tagPrinterCodes.getVal("NewPageCode");
+				ms_tbPrinterCodeNewPage = csPrinterCode.getBytes();
+			}
+			else
+			{
+				String csPrinterCode = "\n";
+				ms_tbPrinterCodeNewLine = csPrinterCode.getBytes();				
+				csPrinterCode = "\f";
+				ms_tbPrinterCodeNewLine = csPrinterCode.getBytes();
+			}
+			
+			if(!StringUtil.isEmpty(csCode))
+			{
+				ms_CodeDbToJava = new CodeConverter(csCode);
+				ms_bUpdateCodeDbToJava = true;
+			}
+			
 			Tag tagGCThread = tagRoot.getChild("GCThread");
 			if(tagGCThread != null)
 			{
@@ -193,6 +253,8 @@ public abstract class BaseResourceManager extends CJMapObject
 				ms_bLogAllSQLException = tagDebugLoadTest.getValAsBoolean("LogAllSQLException");
 				//ms_bUseSQLMBean = tagDebugLoadTest.getValAsBoolean("UseSQLMBean") ;
 			}
+			
+			ms_bBreakOnAllSQLExceptions = tagRoot.getValAsBoolean("BreakOnAllSQLExceptions", true);
 		}
 		
 		LoadConfigFromFile(tagRoot);
@@ -201,7 +263,41 @@ public abstract class BaseResourceManager extends CJMapObject
 			ms_threadStatementGC.start();
 		
 		setAppManuallyClosed(false);
+		
+		Tag tagCallInterceptor = tagRoot.getChild("CallInterceptor");
+		if(tagCallInterceptor != null)
+			ms_callInterceptor = new CallInterceptorManager(tagCallInterceptor);
+		
+		Tag tagFileOrganizationSequential = tagRoot.getChild("FileOrganizationSequential");
+		if(tagFileOrganizationSequential != null)
+		{
+			String csFileOrganizationSequentialDefaultMode = tagFileOrganizationSequential.getVal("DefaultFileMode");
+			if(ms_hashDefaultFileModesByOrganization == null)
+				ms_hashDefaultFileModesByOrganization = new Hashtable<FileOrganization, String>();
+			ms_hashDefaultFileModesByOrganization.put(FileOrganization.Sequential, csFileOrganizationSequentialDefaultMode);
+		}
+		
 		return tagRoot;
+	}
+		
+	public static String getDefaultFileModesByOrganization(FileOrganization fileOrganization)
+	{
+		if(ms_hashDefaultFileModesByOrganization == null)
+			return null;
+		return ms_hashDefaultFileModesByOrganization.get(fileOrganization);
+	}
+
+	public void initCallInterceptor()
+	{
+		if(ms_callInterceptor != null)
+			ms_callInterceptor.init();
+	}
+	
+	public static CallInterceptor getCallInterceptorClass(String csProgramName)
+	{
+		if(ms_callInterceptor != null)
+			return ms_callInterceptor.getInterceptorClass(csProgramName);
+		return null;
 	}
 	
 	public synchronized static void removeAllDBConnections()
@@ -225,6 +321,11 @@ public abstract class BaseResourceManager extends CJMapObject
 	static public void initCopyConverterClassLoader()
 	{
 		ms_Instance.doInitCopyConverterClassLoader();
+	}
+	
+	public static String getXMLMergerDebugOutputPath()
+	{
+		return ms_Instance.m_csXMLMergerDebugOutputPath;
 	}
 	
 	private void doInitCopyConverterClassLoader()
@@ -332,6 +433,8 @@ public abstract class BaseResourceManager extends CJMapObject
 	protected abstract void LoadConfigFromFile(Tag tagRoot);
 	protected abstract void initSequenceur(String csDBParameterPrefix);
 
+	private static boolean ms_bCommitAfterMainProgramRun = true;
+	
 	private static boolean ms_bUseProgramPool = false;
 	private static boolean ms_bUseStatementCache = false;
 	private static String ms_csTempDir ="./";
@@ -364,15 +467,24 @@ public abstract class BaseResourceManager extends CJMapObject
 	
 	//private static boolean ms_bUseSQLMBean = false;
 	public static boolean ms_bLogAllSQLException = false;
+	public static boolean ms_bBreakOnAllSQLExceptions = false;
 	private static CodeConverter ms_CodeJavaToDb = null;
 	public static CodeConverter ms_CodeDbToJava = null;
 	private static boolean ms_bUpdateCodeDbToJava = false;
 	private static boolean ms_bUpdateCodeJavaToDb = false;
+
 	
 //	public static boolean getUseSQLMBean()
 //	{
 //		return ms_bUseSQLMBean;
 //	}	
+	
+	
+	public static boolean getCommitAfterMainProgramRun()
+	{
+		return ms_bCommitAfterMainProgramRun;
+	}
+	
 	public static boolean getUseProgramPool()
 	{
 		return ms_bUseProgramPool;
@@ -692,7 +804,80 @@ public abstract class BaseResourceManager extends CJMapObject
 		return m_bSimulateRealEnvironment;
 	}
 	
+	public static byte [] getPrinterCodeNewLine()
+	{
+		return ms_tbPrinterCodeNewLine;
+	}
+	
+	public static byte [] getPrinterCodeNewPage()
+	{
+		return ms_tbPrinterCodeNewPage;
+	}
+	
+	public static void registerDbDriverId(DbDriverId dbDriverId)
+	{
+		m_dbDriverId = dbDriverId;
+	}
+	
+	public static DbDriverId getDbDriverId()
+	{
+		return m_dbDriverId ;
+	}
+	
+	public static boolean isUsingOracleDb()
+	{
+		return DbDriverId.Oracle.isSameInstance(m_dbDriverId) ;
+	}
+	
+	public static boolean isUsingDB2Db()
+	{
+		return DbDriverId.UDB.isSameInstance(m_dbDriverId);
+	}
+	
+	public static boolean isUsingSQLServerDb()
+	{
+		return DbDriverId.SQLServer.isSameInstance(m_dbDriverId);
+	}
+	
+	public static void setStdIn(ArrayList<String> arrArgs)
+	{
+		if(ms_stdIn == null)
+			ms_stdIn = new StdIn();
+		ms_stdIn.fill(arrArgs);
+	}
+	
+	public static String getStdInArgOnce()
+	{
+		if(ms_stdIn == null)
+			return null;
+		return ms_stdIn.getArgOnce();
+	}
+	
+	public static void setDefaultValues(String csDefaultFileMode, String csDefaultFilePath)
+	{
+		ms_csDefaultFileMode = csDefaultFileMode;
+		ms_csDefaultFilePath = csDefaultFilePath;
+	}
+	
+	public static String getDefaultFileMode()
+	{
+		return ms_csDefaultFileMode;
+	}
+	
+	public static String getDefaultFilePath()
+	{
+		return ms_csDefaultFilePath;
+	}
+	
+	public static boolean getCanThrowOccursOverflowException()
+	{
+		return ms_bThrowOccursOverflowException;
+	}
+
+
+	
 	private boolean m_bSimulateRealEnvironment = true;
+	private String m_csXMLMergerDebugOutputPath = null;
 	private static OpenCalendarManager ms_calendarManager = null;
 
 	private static boolean ms_bAppManuallyClosed = false;
@@ -702,5 +887,9 @@ public abstract class BaseResourceManager extends CJMapObject
 	private static boolean ms_bAsynchronousPreloadPrograms = false;
 	private static boolean ms_bGCAfterPreloadPrograms = false;
 	private static boolean ms_bLoadCopyByPrimordialLoader = true;
-	private static Hashtable<String, Long> ms_hashMaxExecutionTimeByTrans = null;	// Maximum execution time in ms for a transaction 
+	private static Hashtable<String, Long> ms_hashMaxExecutionTimeByTrans = null;	// Maximum execution time in ms for a transaction
+	
+	private static byte ms_tbPrinterCodeNewLine [] = null;
+	private static byte ms_tbPrinterCodeNewPage [] = null;
+	private static DbDriverId m_dbDriverId	= null;
 }

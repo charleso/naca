@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -24,6 +30,8 @@ import parser.CIdentifier;
 import parser.Cobol.CCobolElement;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
+import semantic.CDataEntity;
+import semantic.CEntityFileDescriptor;
 import semantic.CEntityFileSelect;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
@@ -49,7 +57,12 @@ public class CFileSelect extends CCobolElement
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
 		CEntityFileSelect eFS = factory.NewEntityFileSelect(m_FileReference.GetName()) ;
-		eFS.setFileName(m_FileName.GetName()) ;
+		parent.AddChild(eFS) ;
+		eFS.setFileName(m_FileName.GetName()) ;	
+		
+//		String csFileName = m_FileName.GetName();
+//		CEntityFileDescriptor eFileDescriptor = factory.NewEntityFileDescriptor(getLine(), csFileName) ;
+//		eFS.setFileDescriptor(eFileDescriptor);
 		
 		if (m_bAccessModeDynamic)
 		{
@@ -70,18 +83,39 @@ public class CFileSelect extends CCobolElement
 		}
 		else if (m_bOrganizationSequential)
 		{
-			eFS.setOrganizationMode(CEntityFileSelect.OrganizationMode.INDEXED) ;
+			eFS.setOrganizationMode(CEntityFileSelect.OrganizationMode.SEQUENTIAL) ;
 		}
 		
 		if (m_FileStatus != null)
 		{
-			Transcoder.logWarn(getLine(), "No semantic analysis for FileSelect / File Status");
+//			CDataEntity eFileStatus = m_FileStatus.GetDataReference(getLine(), factory) ;
+//			eFS.setFileStatus(eFileStatus);
+			Transcoder.logWarn(getLine(), "Deferred semantic analysis for FileSelect / File Status for file "+m_FileName.GetName());
 		}
 		if (m_RecordKey != null)
 		{
 			Transcoder.logWarn(getLine(), "No semantic analysis for FileSelect / Record Key");
 		}
 		return eFS ;
+	}
+	
+	protected void DoDeferredCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory, int nIndex)
+	{
+		if (m_FileStatus != null)
+		{
+			CBaseLanguageEntity e = parent.getChildAtIndex(nIndex);
+			if(e instanceof CEntityFileSelect)
+			{
+				CDataEntity eFileStatus = m_FileStatus.GetDataReference(getLine(), factory) ;
+				
+				CEntityFileSelect eFileSelect = (CEntityFileSelect) e;				
+				eFileSelect.setFileStatus(eFileStatus);
+			}
+		}
+//		if (m_RecordKey != null)
+//		{
+//			Transcoder.logWarn(getLine(), "No semantic analysis for FileSelect / Record Key");
+//		}
 	}
 	/* (non-Javadoc)
 	 * @see parser.CBaseElement#Parse(lexer.CTokenList)

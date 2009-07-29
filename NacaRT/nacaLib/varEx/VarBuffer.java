@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,7 @@
  */
 package nacaLib.varEx;
 
+import nacaLib.debug.BufferSpy;
 import jlib.misc.AsciiEbcdicConverter;
 import jlib.misc.FileEndOfLine;
 import jlib.misc.LineRead;
@@ -97,10 +104,12 @@ public class VarBuffer extends InternalCharBuffer
 //		 	
 	public int copyBytesFromSource(int nPositionDest, InternalCharBuffer Source, int nPositionSource, int nNbCharsToCopy)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPositionDest, nNbCharsToCopy);
 		for(int n=0; n<nNbCharsToCopy; n++)
 		{
 			m_acBuffer[nPositionDest++] = Source.m_acBuffer[nPositionSource++];
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		return nPositionDest;
 	}
 	
@@ -116,10 +125,12 @@ public class VarBuffer extends InternalCharBuffer
 	public void copyBytesFromSource(int nPositionDest, InternalCharBuffer sourceCharBuffer)
 	{
 		int nNbCharsToCopy = sourceCharBuffer.m_acBuffer.length;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPositionDest, nNbCharsToCopy);
 		for(int nSource=0; nSource<nNbCharsToCopy; nSource++, nPositionDest++)
 		{
 			m_acBuffer[nPositionDest] = sourceCharBuffer.m_acBuffer[nSource];
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 //	
 //	public void setWithNoConvertEbcdicToUnicode(byte tBytesSource[], int nLength)
@@ -150,6 +161,7 @@ public class VarBuffer extends InternalCharBuffer
 		int nSourceLength = lineRead.getTotalLength();
 		byte bufSource[] = lineRead.getBuffer();
 		
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nOffsetDest, nSourceLength);
 		for(int n=0; n<nSourceLength; n++)
 		{
 			int nByte = bufSource[nSourceOffset + n];
@@ -157,6 +169,7 @@ public class VarBuffer extends InternalCharBuffer
 				nByte += 256; 		
 			m_acBuffer[nOffsetDest + n] = (char) nByte;
 		}		
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		if(nSourceLength > 0)
 		{
 			if(m_acBuffer[nOffsetDest + nSourceLength - 1] == FileEndOfLine.LF)

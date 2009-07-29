@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,6 +19,7 @@
 package nacaLib.sqlSupport;
 
 // PJD ROWID Support:import oracle.sql.ROWID;
+import oracle.sql.ROWID;
 import jlib.log.Log;
 import nacaLib.base.CJMapObject;
 import nacaLib.varEx.Var;
@@ -39,10 +46,20 @@ public class CSQLIntoItem extends CJMapObject
 	}
 	
 
-//	public CSQLIntoItem()
-//	{
-//		m_varIndicator = null;
-//	}
+	public CSQLIntoItem()
+	{
+		m_varIndicator = null;
+	}
+	
+	public void setRowIdValue(ROWID rowid)	// Overloaded in CSQLIntoItemRowId
+	{		
+		int gg =0 ;
+	}
+	
+	public ROWID getRowIdValue()		// Overloaded in CSQLIntoItemRowId
+	{
+		return null;
+	}
 
 	public void setColValue(String csValue, boolean bNull)	//, String csSemanticContext)
 	{
@@ -96,7 +113,7 @@ public class CSQLIntoItem extends CJMapObject
 		
 	public VarAndEdit getVarInto()
 	{
-		return m_varInto;
+		return m_varInto;	// null for entries created by missingFetchVariables()
 	}
 		
 	public Var getVarIndicator()

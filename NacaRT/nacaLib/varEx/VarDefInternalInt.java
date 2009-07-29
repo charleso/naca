@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -483,9 +489,14 @@ public class VarDefInternalInt extends VarDefNum
 		
 	int compare(ComparisonMode mode, VarBufferPos bufferSource, VarAndEdit var2)
 	{
-		assertIfFalse(false);
+		int n2 = var2.getInt();
+		int n1 = m_var.getInt();
+		return internalCompare(n1, n2);
+
+		//assertIfFalse(false);
+		
 		//return var2.m_varDef.compare(var2.m_bufferPos, this, bufferSource);
-		return 0;
+		//return 0;
 	}
 	
 	int compare(ComparisonMode mode, VarBufferPos buffer2, VarDefNumDecComp0 varDefNum1, VarBufferPos buffer1)

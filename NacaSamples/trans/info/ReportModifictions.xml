@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Modifications>
+    <Modification Reason="Modif_PJ" Text="CJavaSqlOnErrorGoto ctor">
+        <Files>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/ONLINE1"/>
+        </Files>
+    </Modification>
+    <Modification Reason="Modif_PJ" Text="CJavaSqlOnErrorGoto generation generalized">
+        <Files>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/ONLINE1"/>
+        </Files>
+    </Modification>
+    <Modification Reason="Modif_PJ" Text="CCopyInWorking">
+        <Files>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/CALLMSG"/>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/ONLINE1"/>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/BATCH1"/>
+        </Files>
+    </Modification>
+    <Modification Reason="Modif_PJ" Text="Level not specified">
+        <Files>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/ONLINE1"/>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/BATCH1"/>
+        </Files>
+    </Modification>
+    <Modification Reason="Modif_PJ" Text="NewEntitySQLOnErrorGoto">
+        <Files>
+            <File Count="1" FileName="d:/dev/nacaOSS/NacaSamples/cobol/ONLINE1"/>
+        </Files>
+    </Modification>
+</Modifications>

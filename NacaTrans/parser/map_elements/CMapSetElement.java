@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -94,6 +100,7 @@ public class CMapSetElement extends CBMSElement
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 		eFC.m_resStrings = m_resStrings ;
@@ -154,6 +161,61 @@ public class CMapSetElement extends CBMSElement
 				return false ; 
 			}
 			GetNext() ;
+		}
+		else if (kw == CBMSKeywordList.EXTATT)
+		{
+			Transcoder.logInfo("BMS EXTATT find");
+			GetNext() ;
+		}
+		else if (kw == CBMSKeywordList.TIOAPFX)
+		{ // TIOAPFX=YES
+			CBaseToken tok = GetCurrentToken() ;
+			if (tok.GetConstant() == CBMSConstantList.YES)
+			{
+				//m_TIOAPFX = tok.GetConstant();
+			}
+			else
+			{
+				Transcoder.logError(getLine(), "Unexpecting for TIOAPFX : " + tok.GetValue()) ;
+				return false ; 
+			}
+			StepNext() ;
+		}
+		else if (kw == CBMSKeywordList.CTRL)
+		{ // CTRL=(HONEOM,FREEKB,ALARM,FRSET)
+			CBaseToken tok = GetCurrentToken() ;
+			if (tok.GetType()!= CTokenType.LEFT_BRACKET)
+			{
+				Transcoder.logError(getLine(), "Expecting LEFT_BRACKET") ;
+				return false ;
+			}
+			tok = GetNext();
+			boolean bDone = false ;
+			while (!bDone)
+			{
+				tok = GetCurrentToken();
+				if (tok.GetConstant() == CBMSConstantList.HONEOM ||
+					tok.GetConstant() == CBMSConstantList.FREEKB || 
+					tok.GetConstant() == CBMSConstantList.ALARM ||
+					tok.GetConstant() == CBMSConstantList.FRSET || 
+					tok.GetConstant() == CBMSConstantList.L80)
+				{
+					//m_arrCTRL.addElement(tok.GetValue()) ;
+				}
+				else if (tok.GetType() == CTokenType.RIGHT_BRACKET)
+				{
+					bDone = true ;
+				}
+				else if (tok.GetType() == CTokenType.COMMA)
+				{
+				}
+				else
+				{
+					Transcoder.logError(getLine(), "Unexpecting for CTRL : " + tok.GetValue()) ;
+					return false ; 
+				}
+				StepNext() ;
+			}
 		}
 //		else if (kw == CBMSKeywordList.)
 //		{

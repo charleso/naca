@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -28,6 +34,8 @@ import nacaLib.sqlSupport.RecordColTypeManagerTimestamp;
 import nacaLib.sqlSupport.RecordColTypeManagerVarchar;
 import jlib.log.Log;
 import jlib.misc.CurrentDateInfo;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.StopWatch;
 import jlib.sql.BaseDbColDefinition;
 import jlib.sql.BaseDbColDefinitionFactory;
@@ -81,7 +89,9 @@ public class TableToTransfer extends ThreadPoolRequest
 	private void deleteRecordsOfDestinationTable(DbConnectionBase dbConnectionDestination)
 	{
 		String csClause = "Delete from  " + dbConnectionDestination.getEnvironmentPrefix() + "." + m_csTableName;
+		DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
 		DbPreparedStatement st = dbConnectionDestination.prepareStatement(csClause, 0, false);
+		DBIOAccounting.endDBIO();
 		st.executeUpdate();
 	}
 	

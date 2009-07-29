@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -1082,41 +1088,42 @@ public class NacaToolBox extends CJMapObject
 	
 	public int startBatchLinuxFtp(boolean isLocal, File temp, String url, String user, String password, String directoryRemote, String fileNameRemote) throws IOException
 	{
-		int rc = 0;
-		
-		if (isLocal)
-		{
-			if (!FileSystem.copy(temp, new File(FileSystem.normalizePath(directoryRemote) + fileNameRemote)))
-				rc = 1;
-		}
-		else
-		{
-			FtpUtil ftp = new FtpUtil();
-			boolean bConnected = ftp.connect(url, user, password, null);
-			if (bConnected)
-			{
-				ftp.setFileTransferMode(2);
-				ftp.setFileType(2);
-				if (ftp.changeWorkingDirectory(directoryRemote))
-				{
-					if (!ftp.storeFile(new FileInputStream(temp), fileNameRemote)) 
-					{
-						rc = 2;
-					}
-				}
-				else
-				{
-					rc = 2;
-				}
-			}
-			else
-			{
-				rc = 1;
-			}
-			ftp.disconnect();
-		}
-		
-		return rc;
+//		int rc = 0;
+//		
+//		if (isLocal)
+//		{
+//			if (!FileSystem.copy(temp, new File(FileSystem.normalizePath(directoryRemote) + fileNameRemote)))
+//				rc = 1;
+//		}
+//		else
+//		{
+//			FtpUtil ftp = new FtpUtil();
+//			boolean bConnected = ftp.connect(url, user, password, null);
+//			if (bConnected)
+//			{
+//				ftp.setFileTransferMode(2);
+//				ftp.setFileType(2);
+//				if (ftp.changeWorkingDirectory(directoryRemote))
+//				{
+//					if (!ftp.storeFile(new FileInputStream(temp), fileNameRemote)) 
+//					{
+//						rc = 2;
+//					}
+//				}
+//				else
+//				{
+//					rc = 2;
+//				}
+//			}
+//			else
+//			{
+//				rc = 1;
+//			}
+//			ftp.disconnect();
+//		}
+//		
+//		return rc;
+		return 0;
 	}
 		
 	public int startBatchLinuxSsh(boolean isLocal, String sshPath, String sshUser, String url, String sshCommand, 
@@ -1199,23 +1206,24 @@ public class NacaToolBox extends CJMapObject
 	
 	public int startBatchHostFtp(File temp, String url, String user, String password, String siteCommand) throws IOException 
 	{
-		int rc = 0;
-		
-		FtpUtil ftp = new FtpUtil();
-		if (ftp.connect(url, user, password, siteCommand))
-		{
-			if (!ftp.storeFile(new FileInputStream(temp), "XXX"))
-			{
-				rc = 2;
-			}
-		}
-		else
-		{
-			rc = 1;
-	    }
-		ftp.disconnect();
-		
-		return rc;
+//		int rc = 0;
+//		
+//		FtpUtil ftp = new FtpUtil();
+//		if (ftp.connect(url, user, password, siteCommand))
+//		{
+//			if (!ftp.storeFile(new FileInputStream(temp), "XXX"))
+//			{
+//				rc = 2;
+//			}
+//		}
+//		else
+//		{
+//			rc = 1;
+//	    }
+//		ftp.disconnect();
+//		
+//		return rc;
+		return 0;
 	}
 	
 	private void startBatchLinuxPrepareFtp(File temp, String[] cards) throws IOException 

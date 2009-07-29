@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -6,7 +12,12 @@
  */
 package nacaLib.batchPrgEnv;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+
 import jlib.log.Log;
+import jlib.misc.ConsoleInput;
 import jlib.misc.EnvironmentVar;
 import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.NumberParser;
@@ -25,6 +36,7 @@ import nacaLib.dbUtils.SQLFileExecutor;
 import nacaLib.dbUtils.SQLLoad;
 import nacaLib.dbUtils.SQLUnload;
 import nacaLib.exceptions.AbortSessionException;
+import nacaLib.exceptions.SQLErrorException;
 import nacaLib.fileConverter.FileConverter;
 import nacaLib.fileConverter.FileEncodingConverterWithClass;
 import nacaLib.fileConverter.FileEncodingConverterWithDesc;
@@ -49,6 +61,10 @@ public class BatchMain
 		boolean bEnableInitialConnectDb = false;
 		String csCmdLine = "";
 		Object nt[]= null;
+		ArrayList<String> m_arrStdInArgs = null;
+		String csDefaultFileMode = null;
+		String csDefaultFilePath = null;
+		boolean bRemoteDebug = false;
 			
 		EnvironmentVar.registerCmdLineArgs(args);
 		for (int nArg=0; nArg<args.length; nArg++)
@@ -115,7 +131,26 @@ public class BatchMain
 					long l = NumberParser.getAsLong(cs_ms);
 					Time_ms.wait_ms(l);
 					JVMReturnCodeManager.exitJVM(0);
+				}
+				else if(sArgUpper.startsWith("STDIN="))
+				{
+					String csStdInArg = sArg.substring(6);
+					if(m_arrStdInArgs == null)
+						m_arrStdInArgs = new ArrayList<String>(); 
+					m_arrStdInArgs.add(csStdInArg);
 				}	
+				else if(sArgUpper.startsWith("DEFAULTFILEMODE="))
+				{
+					csDefaultFileMode = sArg.substring(16);
+				}
+				else if(sArgUpper.startsWith("DEFAULTFILEPATH="))
+				{
+					csDefaultFilePath = sArg.substring(16);
+				}
+				else if(sArgUpper.startsWith("REMOTEDEBUG"))
+				{
+					bRemoteDebug = true;
+				}		
 			}
 			else
 			{
@@ -126,6 +161,21 @@ public class BatchMain
 			}
 		}
 		JVMReturnCodeManager.setExitCode(0);
+		
+		if(bRemoteDebug)
+		{
+			System.out.println("Remote debugging requested");
+			System.out.println("");
+			System.out.println("The following command line options must have been setup:");
+			System.out.println("-Xdebug -Xrunjdwp:transport=dt_socket,address=" + getIPAddress() + ":8000,suspend=n,server=y");
+			System.out.println("Where address is set to Address:Port value. ");
+			System.out.println("Address can be omitted (it takes localhost as default), or set to current computer IP address");
+			System.out.println("Port is typically 8000 (default debuggee server port)");
+			System.out.println("");
+			System.out.println("Please attach external Java Debugger");
+			System.out.println("And then press Enter key. This will launch the debuggee process.");
+			ConsoleInput.getKeyboardLine();
+		}
 			
 		if(csPrgClassName.equalsIgnoreCase("SortMain"))
 			doExternalSort(csConfigFile, csParameter, csExportKeyFileOut);
@@ -154,7 +204,7 @@ public class BatchMain
 		else if(csPrgClassName.equalsIgnoreCase("DbTransfer"))	// Transfer Database
 			dbTransfer(csConfigFile, csDB);
 		else if (csPrgClassName != null && csConfigFile != null)
-			doRunBatchProgram(csConfigFile, csDB, bEnableInitialConnectDb, csParameter, csPrgClassName);
+			doRunBatchProgram(csConfigFile, csDB, bEnableInitialConnectDb, csParameter, csPrgClassName, m_arrStdInArgs, csDefaultFileMode, csDefaultFilePath);
 		else
 		{
 			displayHelp();
@@ -767,13 +817,16 @@ public class BatchMain
 		}
 	}
 	
-	private static void doRunBatchProgram(String csConfigFile, String csDB, boolean bEnableInitialConnectDb, String csParameter, String csPrgClassName)
+	private static void doRunBatchProgram(String csConfigFile, String csDB, boolean bEnableInitialConnectDb, String csParameter, String csPrgClassName, ArrayList<String> arrStdInArgs, String csDefaultFileMode, String csDefaultFilePath)
 	{
 		// Batch program
 		BatchResourceManager batchResourceManager = BatchResourceManagerFactory.GetInstance(csConfigFile, csDB);
+		batchResourceManager.setStdIn(arrStdInArgs);
+		batchResourceManager.setDefaultValues(csDefaultFileMode, csDefaultFilePath);
 		BaseEnvironment env = null;
 		try
 		{
+			//arrStdInArgs
 			BatchSession session = new BatchSession(batchResourceManager) ;
 			BaseProgramLoader loader = BatchProgramLoader.GetProgramLoaderInstance() ;
 			env = loader.GetEnvironment(session, csPrgClassName, null) ;
@@ -836,5 +889,24 @@ public class BatchMain
 		System.out.println("If mode -Program=SortMain");
 		System.out.println("	[-ExportKeyFileOut=Path and file of an optional export key file for external sort]");
 		System.out.println("	Last argument must be \"SORT FIELDS=(1 Based position,Length,CH|PD|BI|FI,A|D)+\"	// Describe the sort key e.g. : \"SORT FIELDS=(1,8,CH,A,9,4,PD,A,13,2,CH,A)\"");
+	}
+
+	private static String getIPAddress()
+	{
+		try 
+		{
+	        InetAddress addr = InetAddress.getLocalHost();
+	    
+	        // Get IP Address
+	        byte[] ipAddr = addr.getAddress();
+	    
+	        // Get hostname
+	        String cs = addr.getHostName();
+	        return cs;
+	    }
+		catch (UnknownHostException e) 
+	    {
+			return "";
+	    }
 	}
 }

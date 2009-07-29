@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -28,6 +34,7 @@ import semantic.CDataEntity;
 import semantic.CICS.CEntityCICSReadQ;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -192,6 +199,11 @@ public class CExecCICSReadQ extends CCobolElement
 						tok = GetNext();
 					}
 				}
+			}
+			else if (tok.GetValue().equals("NOHANDLE"))	// PJD Added
+			{
+				Reporter.Add("Modif_PJ", "CExecCICSReadQ NOHANDLE");
+				tok = GetNext() ;
 			}
 			else 
 			{

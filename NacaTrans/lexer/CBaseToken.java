@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -42,6 +48,7 @@ public abstract class CBaseToken
 		}
 		catch (NumberFormatException e)
 		{
+			e.printStackTrace();
 			Transcoder.logError(getLine(), "Cannot get int value " + toString());
 			return 0;
 		}
@@ -94,6 +101,20 @@ public abstract class CBaseToken
 	{
 		m_line = line;
 		Transcoder.setLine(m_line);
+	}
+	
+	public boolean isSemanticallyEquals(CBaseToken tok)
+	{
+		if(tok == null)
+			return false;
+		if(tok.getLine() == 1525 || tok.getLine() == 1526)
+		{
+			int gg = 0;
+		}
+		if(tok.m_Value.equals(m_Value))
+			if(tok.GetType() == GetType())
+				return true;
+		return false;
 	}
 	
 	public boolean m_bIsNewLine = false ;

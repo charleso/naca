@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -16,6 +22,7 @@ import nacaLib.varEx.DataSection;
 import nacaLib.varEx.Var;
 import nacaLib.varEx.VarBuffer;
 import nacaLib.varEx.VarDefBuffer;
+import nacaLib.varEx.VarInternalInt;
 
 public class DataDivision extends Division
 {
@@ -163,6 +170,7 @@ public class DataDivision extends Division
 		grantWorkingStorageSection(prg);
 		m_CurrentDataSection = m_WorkingStorageSection;
 		m_WorkingStorageSection.createRootVarOfSection();
+		
 		resetCurrentFileDef();		
 		return m_CurrentDataSection;
 	}

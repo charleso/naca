@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -7,6 +13,7 @@
 package jlib.sql;
 
 import java.sql.BatchUpdateException;
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +23,10 @@ import jlib.exception.ProgrammingException;
 import jlib.exception.TechnicalException;
 import jlib.log.Log;
 import jlib.misc.CurrentDateInfo;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
+import jlib.misc.FileIOAccounting;
+import jlib.misc.FileIOAccountingType;
 import jlib.misc.StopWatch;
 
 public class DbPreparedStatement
@@ -112,19 +123,53 @@ public class DbPreparedStatement
 		{
 			try
 			{
-				if(bHoldability)
-					m_PreparedStatement = dbConnection.getDbConnection().prepareStatement(csQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
+				Connection conn = dbConnection.getDbConnection();
+				if(conn == null)
+				{
+					//logger.info("Critical ERROR: Cannot prepare a statement with a NULL JDBC connection; connection UUID:"+ dbConnection.getUUID());
+					return false;
+				}
 				else
-					m_PreparedStatement = dbConnection.getDbConnection().prepareStatement(csQuery);
+				{
+					DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
+					if(bHoldability)
+						m_PreparedStatement = conn.prepareStatement(csQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
+					else
+						m_PreparedStatement = conn.prepareStatement(csQuery);
+					DBIOAccounting.endDBIO();
+				}
 				return true;
 			}
 			catch (SQLException e)
 			{
+				DBIOAccounting.endDBIO();
 				throw new RuntimeException("Could not prepare '"+csQuery+"' statement:"+e.getMessage(),e);
 			}
 		}
 		return false; 
 	}
+	
+//	public boolean prepareWithException(DbConnectionBase dbConnection, String csQuery, boolean bHoldability) 
+//		throws TechnicalException
+//	{
+//		m_csQueryString = csQuery;
+//		if(dbConnection != null)
+//		{
+//			try
+//			{
+//				if(bHoldability)
+//					m_PreparedStatement = dbConnection.getDbConnection().prepareStatement(csQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
+//				else
+//					m_PreparedStatement = dbConnection.getDbConnection().prepareStatement(csQuery);
+//				return true;
+//			}
+//			catch (SQLException e)
+//			{
+//				ProgrammingException.throwException(ProgrammingException.DB_ERROR_PREPARE_STATEMENT, csQuery, e);
+//			}
+//		}
+//		return false; 
+//	}
 	
 	public boolean prepareWithException(DbConnectionBase dbConnection, String csQuery, boolean bHoldability) 
 		throws TechnicalException
@@ -134,10 +179,16 @@ public class DbPreparedStatement
 		{
 			try
 			{
+				Connection conn = dbConnection.getDbConnection();
+				if(conn == null)
+				{
+					//logger.info("Critical ERROR: Cannot prepare a statement with a NULL JDBC connection; connection UUID:"+ dbConnection.getUUID());
+					ProgrammingException.throwException(ProgrammingException.DB_ERROR_PREPARE_STATEMENT, "JDBC Connection is NULL, cannot prepare statement"); 
+				}
 				if(bHoldability)
-					m_PreparedStatement = dbConnection.getDbConnection().prepareStatement(csQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
+					m_PreparedStatement = conn.prepareStatement(csQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
 				else
-					m_PreparedStatement = dbConnection.getDbConnection().prepareStatement(csQuery);
+					m_PreparedStatement = conn.prepareStatement(csQuery);
 				return true;
 			}
 			catch (SQLException e)
@@ -599,8 +650,8 @@ public class DbPreparedStatement
 	{
 		if(!m_bReserved)
 		{
-			close();
-			return true;
+			boolean b = close();
+			return b;
 		}
 		return false;
 	}

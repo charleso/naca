@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -10,6 +16,7 @@ import java.math.BigDecimal;
 
 
 import nacaLib.bdb.BtreeSegmentKeyTypeFactory;
+import nacaLib.debug.BufferSpy;
 import nacaLib.fpacPrgEnv.DeclareTypeFPacAlphaNum;
 import nacaLib.sqlSupport.CSQLItemType;
 import nacaLib.tempCache.CStr;
@@ -218,7 +225,9 @@ public class VarDefFPacAlphaNum extends VarDefVariable
 			nPositionSource++;
 			if(nPositionSource == nNbCharSource)
 				nPositionSource = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, 1);
 			buffer.m_acBuffer[nPositionDest] = cSource;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 	
@@ -236,7 +245,9 @@ public class VarDefFPacAlphaNum extends VarDefVariable
 			nPositionSource++;
 			if(nPositionSource == nNbCharSource)
 				nPositionSource = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, 1);
 			buffer.m_acBuffer[nPositionDest] = cSource;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 
@@ -254,7 +265,9 @@ public class VarDefFPacAlphaNum extends VarDefVariable
 			nPositionSource++;
 			if(nPositionSource == nNbCharSource)
 				nPositionSource = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, 1);
 			buffer.m_acBuffer[nPositionDest] = cSource;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		}
 	}
 

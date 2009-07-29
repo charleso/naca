@@ -4,235 +4,56 @@
 	<target name="clean">
 		<delete dir="./bin" quiet="true"/>
 		<delete file="./NacaRT.jar"/>
-		<delete file="./Naca${packageSuffix}.war"/>
 	</target>
 	<target name="build">
-		<fail unless="JLibJarPath" message="Required : -DJLibJarPath"/>
 		<mkdir dir="./bin"/>
-		<javac srcdir="." destdir="./bin" debug="true" encoding="ISO-8859-1">
+		<javac srcdir="." destdir="./bin" debug="true" encoding="ISO-8859-1" target="1.5">
 			<classpath>
-				<pathelement path="${JLibJarPath}"/>
+			<pathelement path="${JLibJarPath}"/>
+				<pathelement path="./lib/JLib.jar"/>
+				<pathelement path="./lib/je-3.2.13.jar"/>
+				<pathelement path="./lib/db2java.zip"/>
+				<pathelement path="./lib/activation.jar"/>
+				<pathelement path="./lib/commons-beanutils.jar"/>
+				<pathelement path="./lib/commons-beanutils-bean-collections.jar"/>
+				<pathelement path="./lib/commons-beanutils-core.jar"/>
+				<pathelement path="./lib/commons-codec-1.3.jar"/>
+				<pathelement path="./lib/commons-collections-3.1.jar"/>
+				<pathelement path="./lib/commons-dbcp-1.2.1.jar"/>
+				<pathelement path="./lib/commons-digester.jar"/>
+				<pathelement path="./lib/commons-fileupload-1.0.jar"/>
 				<pathelement path="./lib/commons-httpclient-3.0-rc3.jar"/>
+				<pathelement path="./lib/commons-logging.jar"/>
+				<pathelement path="./lib/commons-logging-api.jar"/>
 				<pathelement path="./lib/commons-net-1.3.0.jar"/>
 				<pathelement path="./lib/commons-pool-1.2.jar"/>
-				<pathelement path="./lib/db2java.zip"/>
-				<pathelement path="./lib/je-3.2.13.jar"/>
+				<pathelement path="./lib/jsp-api.jar"/>
 				<pathelement path="./lib/junit.jar"/>
-				<pathelement path="./lib/org.eclipse.emf.common_2.2.1.v200705141058.jar"/>
-				<pathelement path="./lib/org.eclipse.emf.ecore.xmi_2.2.3.v200705141058.jar"/>
-				<pathelement path="./lib/org.eclipse.emf.ecore_2.2.3.v200705141058.jar"/>
-				<pathelement path="./lib/publigroupe-checkservice.jar"/>
-				<pathelement path="./lib/PubliVision_P2KExtraction.jar"/>
+				<pathelement path="./lib/log4j-1.2.8.jar"/>
+				<pathelement path="./lib/mail.jar"/>
+				<pathelement path="./lib/serializer.jar"/>
 				<pathelement path="./lib/servlet-api.jar"/>
 				<pathelement path="./lib/struts.jar"/>
+				<pathelement path="./lib/xalan.jar"/>
+				<pathelement path="./lib/xercesImpl.jar"/>
+				<pathelement path="./lib/xml-apis.jar"/>
+				<pathelement path="./lib/xsltc.jar"/>
+				<pathelement path="./lib/ojdbc5.jar"/>
 			</classpath>
 		</javac>
 	</target>
 	<target name="rebuild" depends="clean,build"/>
 
-	<target name="copyAllFiles">
-		<mkdir dir="./bin/web"/>
-		<mkdir dir="./bin/web/WEB-INF/lib"/>
-		<mkdir dir="./bin/web/WEB-INF/lib/pub2000"/>
-		<mkdir dir="./bin/web/WEB-INF/lib/Resources"/>
 
-		<fail unless="configDir" message="parameter required : -DconfigDir=[directory of config files for target]"/>
-		<fail unless="JLibJarPath" message="Required : -DJLibJarPath"/>
-		
-		<copy todir="./bin/web">
-			<fileset dir="./idea/web">
-				<include name="idea.xsl"/>
-				<include name="idea_bold.xsl"/>
-				<include name="idea_zoom.xsl"/>
-				<include name="idea_zoom_bold.xsl"/>
-				<include name="idea_ps.xsl"/>
-				<include name="ideaScript.xsl"/>				
-				<include name="help.xsl"/>
-				<include name="style.css"/>
-				<include name="style_zoom.css"/>
-				<include name="NacaCustom.js"/>
-				<include name="Naca.js"/>
-				<include name="NacaScript.js"/>
-				<include name="xmlPage.xml"/>
-				<include name="xmlPagePrintScreen.xml"/>
-				<include name="xmlPageScript.xml"/>
-				<include name="images/*.gif"/>
-				<include name="images/FR/*.gif"/>
-				<include name="images/DE/*.gif"/>
-				<include name="images/IT/*.gif"/>
-				<include name="WEB-INF/StandardCalendar.xml"/>
-				<include name="WEB-INF/CustomCalendar.xml"/>
-				<include name="WEB-INF/struts-config.xml"/>
-				<include name="WEB-INF/ProgramList.xml"/>
-				<include name="WEB-INF/*.tld"/>
-			</fileset>
-		</copy>
-
-		<copy todir="./bin/web/WEB-INF/lib">
-			<fileset dir="./lib/">
-				<include name="activation.jar"/>
-				<include name="commons-beanutils.jar"/>
-				<include name="commons-digester.jar"/>
-				<include name="commons-net-1.3.0.jar"/>
-				<include name="commons-pool-1.2.jar"/>
-				<include name="db2jcc.jar"/>
-				<include name="db2jcc_license_cu.jar"/>
-				<include name="je-3.2.13.jar"/>
-				<include name="junit.jar"/>
-				<include name="log4j-1.2.8.jar"/>
-				<include name="mail.jar"/>
-				<include name="publigroupe-checkservice.jar"/>				
-				<include name="serializer.jar"/>
-				<include name="struts.jar"/>
-				<include name="xercesImpl.jar"/>
-				<include name="xsltc.jar"/>
-			</fileset>
-		</copy>
-
-		<antcall target="packagePub2000"/>
-		<copy file="./NacaRT.jar" todir="./bin/web/WEB-INF/lib"/>
-		<copy file="${JLibJarPath}" todir="./bin/web/WEB-INF/lib"/>
-		<copy file="${configDir}/NacaRT.cfg" todir="./bin/web/WEB-INF"/>
-		<copy file="${configDir}/Log4J.properties" todir="./bin/web/WEB-INF"/>
-		<copy file="${configDir}/LogSettings.cfg" todir="./bin/web/WEB-INF"/>
-		<copy file="${configDir}/NacaContextDef.cfg" todir="./bin/web/WEB-INF"/>
-		<copy file="${configDir}/CustomAppLauncher.cfg" todir="./bin/web/WEB-INF"/>		
-	</target>
-
-	<target name="packagePub2000" unless="noPub2000Package">
-		<fail unless="pub2000CommonsJarPath" message="parameter required : -Dpub2000CommonsJarPath=[path to Pub2000Commons.jar]"/>
-		<fail unless="pub2000JarPath" message="parameter required : -Dpub2000JarPath=[path to Pub2000.jar]"/>
-		<fail unless="pub2000Online" message="parameter required : -Dpub2000Online=[root of Pub2000Online java]"/>
-
-		<copy todir="./bin/web/WEB-INF/lib/Resources">
-			<fileset dir="${pub2000Online}/Resources">
-				<include name="*.res"/>
-			</fileset>
-		</copy>
-
-		<copy file="${pub2000Online}/Java/TransIDMapping.xml" todir="./bin/web/WEB-INF/lib/Resources"/>
-		<copy file="${pub2000Online}/Java/Translations.xml" todir="./bin/web/WEB-INF/lib/Resources"/>
-		
-		<delete dir="./temp/pub2000" quiet="true" />
-		<unjar src="${pub2000CommonsJarPath}" dest="./temp/pub2000"/>
-		<unjar src="${pub2000JarPath}" dest="./temp/pub2000"/>
-		<jar destfile="./bin/web/WEB-INF/lib/pub2000/Pub2000.jar" basedir="./temp/pub2000"/>
-	</target>
-	
-	<target name="packagePub2000Batch">
-		<fail unless="pub2000CommonsJarPath" message="parameter required : -Dpub2000CommonsJarPath=[path to Pub2000Commons.jar]"/>
-		<fail unless="pub2000JarPath" message="parameter required : -Dpub2000JarPath=[path to Pub2000Batch.jar]"/>
-
-		<delete dir="./temp/pub2000Batch" quiet="true"/>
-		<delete file="./NacaBatch.jar" quiet="true" />
-		<unjar src="${pub2000CommonsJarPath}" dest="./temp/pub2000Batch"/>
-		<unjar src="${pub2000JarPath}" dest="./temp/pub2000Batch"/>
-		<jar destfile="./Pub2000.jar" basedir="./temp/pub2000Batch"/>
-	</target>
 	
 	<target name="jar">
 		<jar destfile="./NacaRT.jar" basedir="./bin" includes="**/*.class">
 		</jar>
 	</target>
-	<target name="package"  depends="jar,copyAllFiles">
-		<war destfile="./Naca${packageSuffix}.war" basedir="./bin/web" webxml="idea/web/WEB-INF/web.xml">
-		</war>
-	</target>
-	<target name="dist" depends="jar">
-		<fail unless="dist_dir" message="Required parameter : -Ddist_dir=[destination dir]"/>
-		<copy file="./NacaRT.jar" tofile="${dist_dir}/NacaRT.jar"/>
-	</target>
-	<target name="dist_war" depends="package">
-		<fail unless="dist_dir" message="Required parameter : -Ddist_dir=[destination dir]"/>
-		<copy file="./Naca${packageSuffix}.war" tofile="${dist_dir}/Naca${packageSuffix}.war"/>
+
+	<target name="all" depends="rebuild,jar">
+		<copy file="./NacaRT.jar" tofile="../../PagesJaunesFr/PagesJaunesPOCJavaPrg/lib/NacaRT.jar"/>
+		<copy file="./NacaRT.jar" tofile="../../PagesJaunesFr/libToShip/NacaRT.jar"/>
 	</target>
 
-	<target name="all" depends="rebuild,jar"/>
-
-	<target name="anthill">
-		<antcall target="all">
-			<param name="JLibJarPath" value="${anthill.dependency.artifacts.dir}/JLib.jar"/>
-		</antcall>
-		<antcall target="dist">
-			<param name="dist_dir" value="${anthill.artifacts.dir}"/>
-		</antcall>
-		<fail unless="anthill.deployDir" message="Required parameter : anthill.deployDir"/>
-		<copy file="./NacaRT.jar" tofile="${anthill.deployDir}/NacaRT.jar"/>
-	</target>
-	
-	<target name="anthill_war">
-		<antcall target="all">
-			<param name="JLibJarPath" value="${anthill.dependency.artifacts.dir}/JLib.jar"/>
-		</antcall>
-		<antcall target="dist">
-			<param name="dist_dir" value="${anthill.artifacts.dir}"/>
-		</antcall>
-		<antcall target="dist_war">
-			<param name="dist_dir" value="${anthill.artifacts.dir}"/>
-			<param name="pub2000JarPath" value="${anthill.dependency.artifacts.dir}/Pub2000Online.jar"/>
-			<param name="pub2000CommonsJarPath" value="${anthill.dependency.artifacts.dir}/Pub2000Commons.jar"/>
-			<param name="JLibJarPath" value="${anthill.dependency.artifacts.dir}/JLib.jar"/>
-		</antcall>
-		<fail unless="anthill.deployDir" message="Required parameter : anthill.deployDir"/>
-		<copy file="./Naca${packageSuffix}.war" tofile="${anthill.deployDir}/Naca${packageSuffix}.war"/>
-	</target>
-	
-	<target name="anthill_batch">
-		<antcall target="packagePub2000Batch">
-			<param name="pub2000JarPath" value="${anthill.dependency.artifacts.dir}/Pub2000Batch.jar"/>
-			<param name="pub2000CommonsJarPath" value="${anthill.dependency.artifacts.dir}/Pub2000Commons.jar"/>
-		</antcall>
-		<delete dir="./temp/pub2000Batch" quiet="true"/>
-		<copy file="${anthill.dependency.artifacts.dir}/JLib.jar" todir="./temp/pub2000Batch"/>
-		<copy file="${anthill.dependency.artifacts.dir}/NacaRT.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./Pub2000.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/activation.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/db2jcc.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/db2jcc_license_cu.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/junit.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/mail.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/je-3.2.13.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/org.eclipse.emf.common_2.2.1.v200705141058.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/org.eclipse.emf.ecore_2.2.3.v200705141058.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/org.eclipse.emf.ecore.xmi_2.2.3.v200705141058.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/org.eclipse.xsd_2.2.3.v200705141058.jar" todir="./temp/pub2000Batch"/>		
-		<copy file="./lib/PubliVision_P2KExtraction.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/PubliVision_AdsMLMapping.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/log4j-1.2.8.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/ibatis-2.3.0.677.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/dom4j-1.6.1.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/xsdlib-20030807.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/jaxen-1.1-beta-6.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/jaxme-api-0.3.jar" todir="./temp/pub2000Batch"/>		
-		<copy file="./lib/dom4j-1.6.1/lib/jsr173_1.0_api.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/msv-20030807.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/pull-parser-2.1.10.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/relaxngDatatype-20030807.jar" todir="./temp/pub2000Batch"/>
-		<copy file="./lib/dom4j-1.6.1/lib/xpp3-1.1.3.3.jar" todir="./temp/pub2000Batch"/>
-		<fail unless="configDir" message="expecting : configDir"/>
-		<copy file="${configDir}/NacaRT.cfg" todir="./temp/pub2000Batch"/>
-		<copy file="${configDir}/LogSettings.cfg" todir="./temp/pub2000Batch"/>
-		<copy file="${configDir}/NacaRT_TLOG.cfg" todir="./temp/pub2000Batch"/>
-		<copy file="${configDir}/NacaRT_TEST.cfg" todir="./temp/pub2000Batch"/>
-		<tar destfile="./Naca${packageSuffix}.tar" basedir="./temp/pub2000Batch"/>
-		<fail unless="anthill.deployDir" message="Required parameter : anthill.deployDir"/>
-		<copy file="./Naca${packageSuffix}.tar" tofile="${anthill.deployDir}/Naca${packageSuffix}.tar"/>
-	</target>
-	
-	<target name="anthill_storedprocedure">
-		<delete dir="./temp/pub2000Batch" quiet="true"/>
-		<copy file="${anthill.dependency.artifacts.dir}/Pub2000Commons.jar" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="${anthill.dependency.artifacts.dir}/Pub2000StoredProcedure.jar" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="${anthill.dependency.artifacts.dir}/JLib.jar" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="${anthill.dependency.artifacts.dir}/NacaRT.jar" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="./lib/activation.jar" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="./lib/junit.jar" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="./lib/mail.jar" todir="./temp/pub2000StoredProcedure"/>
-		<fail unless="configDir" message="expecting : configDir"/>
-		<copy file="${configDir}/NacaRT.cfg" todir="./temp/pub2000StoredProcedure"/>
-		<copy file="${configDir}/LogSettings.cfg" todir="./temp/pub2000StoredProcedure"/>
-		<tar destfile="./Naca${packageSuffix}.tar" basedir="./temp/pub2000StoredProcedure"/>
-		<fail unless="anthill.deployDir" message="Required parameter : anthill.deployDir"/>
-		<copy file="./Naca${packageSuffix}.tar" tofile="${anthill.deployDir}/Naca${packageSuffix}.tar"/>
-	</target>
 </project>

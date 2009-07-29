@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,6 +21,7 @@ package nacaLib.varEx;
 import jlib.misc.AsciiEbcdicConverter;
 import nacaLib.base.CJMapObject;
 import nacaLib.base.JmxGeneralStat;
+import nacaLib.debug.BufferSpy;
 import nacaLib.tempCache.CStr;
 import nacaLib.tempCache.TempCacheLocator;
 
@@ -66,6 +73,7 @@ public class InternalCharBuffer extends CJMapObject
 	private void alloc(int nNewLength)
 	{
 		m_acBuffer = new char [nNewLength];
+		BufferSpy.alloc(m_acBuffer, nNewLength);
 	}
 
 
@@ -87,6 +95,7 @@ public class InternalCharBuffer extends CJMapObject
 		{
 			alloc(internalCharBufferCompressedBackup.getBufferSize());
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, 0, m_acBuffer.length);
 		for(int n=0; n<m_acBuffer.length; n++)
 		{
 			byte b = internalCharBufferCompressedBackup.m_abBuffer[n];
@@ -95,6 +104,7 @@ public class InternalCharBuffer extends CJMapObject
 			else
 				m_acBuffer[n] = (char)b; 
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 	 
@@ -104,10 +114,12 @@ public class InternalCharBuffer extends CJMapObject
 		{
 			alloc(nTotalSize);
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, 0, nTotalSize);
 		for(int n=0; n<nTotalSize; n++)
 		{
 			m_acBuffer[n] = internalCharBufferOriginal.m_acBuffer[nAbsolutePosition+n];
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 //	public char[] getRawChars(int nPos, int nLength)
@@ -175,7 +187,9 @@ public class InternalCharBuffer extends CJMapObject
 	{
 		if(nPos < m_acBuffer.length)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, 1);
 			m_acBuffer[nPos] = cValue;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			//setCharAt(nPos, cValue);
 			nPos++;
 			return nPos;
@@ -185,17 +199,21 @@ public class InternalCharBuffer extends CJMapObject
 		
 	public int writeRepeatingCharAt(int nPosition, char c, int nNbChars)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, nNbChars);
 		for(int n=0; n<nNbChars; n++, nPosition++)
 			m_acBuffer[nPosition] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		return nPosition;
 	}
 	
 	public void copyBytes(int nPositionDest, int nNbCharsToCopy, int nPositionSource, InternalCharBuffer sourceCharBuffer)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPositionDest, nNbCharsToCopy);
 		for(int n=0; n<nNbCharsToCopy; n++, nPositionDest++, nPositionSource++)
 		{
 			m_acBuffer[nPositionDest] = sourceCharBuffer.m_acBuffer[nPositionSource];
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 			
 	public int writeString(String csValue, int nPos)
@@ -205,10 +223,14 @@ public class InternalCharBuffer extends CJMapObject
 		int nNbChars = m_acBuffer.length - nPos;
 		if(nNbChars < nLength)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nNbChars);
 			csValue.getChars(0, nNbChars, m_acBuffer, nPos);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			return -1;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nLength);
 		csValue.getChars(0, nLength, m_acBuffer, nPos);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		return nPos+nLength;
 	}
 
@@ -220,7 +242,9 @@ public class InternalCharBuffer extends CJMapObject
 	// Usage is discouraged as it should be inlined for perf reasons
 	public void setCharAt(int nPosition, char c)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, 1);
 		m_acBuffer[nPosition] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 		
 	public void setIntSignComp3At(VarBufferPos varBufferPos, long lValue, int nNbDigitInteger, int nTotalSize)
@@ -251,7 +275,9 @@ public class InternalCharBuffer extends CJMapObject
 		if(nStringLength > nBufRemainingLength)
 			nStringLength = nBufRemainingLength;
 
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nAbsoluteStartPosition, nStringLength);
 		cs.getChars(0, nStringLength, m_acBuffer, nAbsoluteStartPosition);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 
 		
 //		int nStringLength = cs.length();
@@ -273,12 +299,16 @@ public class InternalCharBuffer extends CJMapObject
 		int nNbChars = m_acBuffer.length - nPos;
 		if(nNbChars < nLength)
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nNbChars);
 			csValue.getChars(0, nNbChars, m_acBuffer, nPos);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			return -1;
 		}
 		else
 		{
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPos, nLength);
 			csValue.getChars(0, nLength, m_acBuffer, nPos);
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			return nPos+nLength;
 		}
 // 		Old code			
@@ -305,7 +335,9 @@ public class InternalCharBuffer extends CJMapObject
 				c = cs.charAt(n);
 			else
 				c = 0;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nAbsoluteStartPosition, 1);
 			m_acBuffer[nAbsoluteStartPosition] = c;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			nAbsoluteStartPosition++;
 		}
 		return nAbsoluteStartPosition;
@@ -361,10 +393,12 @@ public class InternalCharBuffer extends CJMapObject
 	
 	public void setShortAt(int nPosition, short s)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, 2);
 		int n = s; 
 		m_acBuffer[nPosition+1] = (char)(n & 255) ;
 	    n = n >> 8 ;
 		m_acBuffer[nPosition] = (char)(n & 255) ;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 //		
 //		//int nChecksum = 0;	// PJD Optimization
 //		int nSignOffet = 0;
@@ -417,11 +451,13 @@ public class InternalCharBuffer extends CJMapObject
 	
 	public void setIntAt(int nPosition, int n)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, 4);
 		for (int nByte=3; nByte>=0; nByte--) 
 		{
 			m_acBuffer[nPosition+nByte] = (char)(n & 255) ;
 		    n = n >> 8 ;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 //		int nSignOffet = 0;
 //		if(n < 0)
 //		{
@@ -472,11 +508,13 @@ public class InternalCharBuffer extends CJMapObject
 		
 	public void setLongAt(int nPosition, long l)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, 8);
 		for (int nByte=7; nByte>=0; nByte--) 
 		{
 			m_acBuffer[nPosition+nByte] = (char)(l & 255) ;
 		    l = l >> 8 ;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 //		int nSignOffet = 0;
 //		if(l < 0)
 //		{
@@ -549,22 +587,26 @@ public class InternalCharBuffer extends CJMapObject
 
 	void convertEbcdicToAscii(int nPosition, int nLength)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, nLength);
 		for(int n=0; n<nLength; n++)
 		{
 			char cEbcdic = m_acBuffer[nPosition+n];
 			char cAscii = AsciiEbcdicConverter.getAsciiChar(cEbcdic);
 			m_acBuffer[nPosition+n] = cAscii;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 	void convertAsciiToEbcdic(int nPosition, int nLength)
 	{
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(m_acBuffer, nPosition, nLength);
 		for(int n=0; n<nLength; n++)
 		{
 			char cAscii = m_acBuffer[nPosition+n];
 			char cEbcdic = AsciiEbcdicConverter.getEbcdicChar(cAscii);
 			m_acBuffer[nPosition+n] = cEbcdic;
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 	
 	void getConvertedBytesAsciiToEbcdic(int nPositionDest, int nLength, byte tbyDest[])

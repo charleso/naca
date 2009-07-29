@@ -1,25 +1,45 @@
 <Settings>
+	<!-- Normal open hours per day -->
+	<!--
+		<Day Value="Mon">
+			<Open Min="06:00:00" Max="20:00:00"/>
+		</Day>
+		<Day Value="Tue">
+			<Open Min="06:00:00" Max="20:00:00"/>
+		</Day>
+		<Day Value="Wed">
+			<Open Min="06:00:00" Max="20:00:00"/>
+		</Day>
+		<Day Value="Thu">
+			<Open Min="06:00:00" Max="20:00:00"/>
+		</Day>
+		<Day Value="Fri">
+			<Open Min="06:00:00" Max="20:00:00"/>
+		</Day>
+		<Day Value="Sat">
+			<Open Min="06:00:00" Max="16:00:00"/>
+		</Day>
+	-->
+	<!-- Samples are always executable; site is never closed -->
 	<Day Value="Mon">
-		<Open Min="06:00:00" Max="20:00:00"/>
+		<Open Min="00:00:00" Max="23:59:59"/>
 	</Day>
 	<Day Value="Tue">
-		<Open Min="06:00:00" Max="20:00:00"/>
+		<Open Min="00:00:00" Max="23:59:59"/>
 	</Day>
 	<Day Value="Wed">
-		<Open Min="06:00:00" Max="20:00:00"/>
+		<Open Min="00:00:00" Max="23:59:59"/>
 	</Day>
 	<Day Value="Thu">
-		<Open Min="06:00:00" Max="20:00:00"/>
+		<Open Min="00:00:00" Max="23:59:59"/>
 	</Day>
 	<Day Value="Fri">
-		<Open Min="06:00:00" Max="20:00:00"/>
+		<Open Min="00:00:00" Max="23:59:59"/>
 	</Day>
 	<Day Value="Sat">
-		<Open Min="06:00:00" Max="16:00:00"/>
+		<Open Min="00:00:00" Max="23:59:59"/>
 	</Day>
-	<!--
-	<Date Value="05/05/2006">
-		<Open Min="07:00:00" Max="17:30:00"/>
-	</Date>
-	-->
+	<Day Value="Sun">
+		<Open Min="00:00:00" Max="23:59:59"/>
+	</Day>	
 </Settings>

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -24,6 +30,8 @@ import parser.CIdentifier;
 import parser.Cobol.CCobolParser;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
+import semantic.CEntityConfigurationSection;
+import semantic.CEntityFileSelect;
 import utils.Transcoder;
 
 /**
@@ -49,6 +57,13 @@ public class CConfigurationSection extends CCommentContainer
 	 */
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
+		if(CCobolParser.ms_bCommaIsDecimalPoint)
+		{
+			CEntityConfigurationSection e = factory.NewEntityConfigurationSection() ;
+			parent.AddChild(e) ;
+			e.setDecimalPointIsComma();
+			return e;
+		}
 		return parent ;
 	}
 
@@ -120,21 +135,62 @@ public class CConfigurationSection extends CCommentContainer
 					return false ;
 				}
 				tok = GetNext() ;
-				if (tok.GetType() == CTokenType.IDENTIFIER)
+				boolean bLoop = true; 
+				while(bLoop)	// PJD Added lop to support multiple values
 				{
-					CIdentifier id = ReadIdentifier() ;
-					tok = GetCurrentToken() ;
-					if (tok.GetKeyword() == CCobolKeywordList.IS)
+					if (tok.GetType() == CTokenType.IDENTIFIER)
 					{
-						GetNext();
-						CIdentifier id2 = ReadIdentifier();	
+						CIdentifier id = ReadIdentifier() ;
 						tok = GetCurrentToken() ;
+						if (tok.GetKeyword() == CCobolKeywordList.IS)
+						{
+							tok = GetNext();
+							CIdentifier id2 = ReadIdentifier();	
+							tok = GetCurrentToken() ;
+							if (tok.GetType() == CTokenType.DOT)
+							{
+								GetNext();
+								bLoop = false;
+							}					
+						}
+					}
+					else if (tok.GetKeyword() == CCobolKeywordList.DECIMAL_POINT)
+					{
+						tok = GetNext() ;
+						if (tok.GetKeyword() == CCobolKeywordList.IS)
+						{
+							tok = GetNext();
+							if (tok.GetKeyword() == CCobolKeywordList.COMMA)
+							{
+								tok = GetNext() ;
+								CCobolParser.ms_bCommaIsDecimalPoint = true ;
+							}
+						}
 						if (tok.GetType() == CTokenType.DOT)
 						{
-							GetNext();
-						}					
+							bLoop = false;
+							GetNext() ;
+						}						
 					}
+					else
+						bLoop = false;
 				}
+
+//				if (tok.GetType() == CTokenType.IDENTIFIER)
+//				{
+//					CIdentifier id = ReadIdentifier() ;
+//					tok = GetCurrentToken() ;
+//					if (tok.GetKeyword() == CCobolKeywordList.IS)
+//					{
+//						GetNext();
+//						CIdentifier id2 = ReadIdentifier();	
+//						tok = GetCurrentToken() ;
+//						if (tok.GetType() == CTokenType.DOT)
+//						{
+//							GetNext();
+//						}					
+//					}
+//				}
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.DECIMAL_POINT)
 			{

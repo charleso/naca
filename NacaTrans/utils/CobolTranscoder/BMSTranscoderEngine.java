@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -35,6 +41,7 @@ import utils.CObjectCatalog;
 import utils.COriginalLisiting;
 import utils.CTransApplicationGroup;
 import utils.NacaTransAssertException;
+import utils.PathsManager;
 import utils.PosLineCol;
 import utils.Transcoder;
 import utils.TranscoderEngine;
@@ -50,7 +57,11 @@ public class BMSTranscoderEngine extends TranscoderEngine<CMapSetElement, CEntit
 	}
 	
 	protected CFormEnhancer m_FormEnhancer = null ;  
-
+	private static boolean ms_bMultiLanguagePub2000Standard = true;
+	public static boolean isMultiLanguagePub2000Standard()
+	{
+		return ms_bMultiLanguagePub2000Standard ;
+	}
 
 	@Override
 	protected CParser<CMapSetElement> doParsing(CTokenList lst)
@@ -171,8 +182,13 @@ public class BMSTranscoderEngine extends TranscoderEngine<CMapSetElement, CEntit
 		Tag tagCobol = eConf.getChild("BMSSpec") ;
 		if (tagCobol != null)
 		{
-			String csFormTransformPath = tagCobol.getVal("FormTransformPath") ; 
-			String csGlobalTransformPath = tagCobol.getVal("GlobalFormTransform") ; 
+			String csFormTransformPath = tagCobol.getVal("FormTransformPath") ;
+			csFormTransformPath = PathsManager.adjustPath(csFormTransformPath);
+			
+			String csGlobalTransformPath = tagCobol.getVal("GlobalFormTransform") ;
+			csGlobalTransformPath = PathsManager.adjustPath(csGlobalTransformPath);
+			
+			ms_bMultiLanguagePub2000Standard = tagCobol.getValAsBoolean("MultiLanguagePub2000Standard",true);
 			m_FormEnhancer = new CFormEnhancer(csFormTransformPath, csGlobalTransformPath) ;
 		}
 		return true ;
@@ -192,7 +208,7 @@ public class BMSTranscoderEngine extends TranscoderEngine<CMapSetElement, CEntit
 	 * @see utils.TranscoderEngine#generateInputFileName(java.lang.String)
 	 */
 	@Override
-	protected String generateInputFileName(String filename)
+	public String generateInputFileName(String filename)
 	{
 		return ReplaceExtensionFileName(filename, "bms") ;
 	}

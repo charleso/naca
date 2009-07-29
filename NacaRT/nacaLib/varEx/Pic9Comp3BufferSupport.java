@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -10,6 +16,7 @@ import jlib.log.StackStraceSupport;
 import jlib.misc.BasePic9Comp3BufferSupport;
 import nacaLib.basePrgEnv.BaseProgramLoader;
 import nacaLib.batchOOApi.WriteBufferExt;
+import nacaLib.debug.BufferSpy;
 import nacaLib.tempCache.TempCacheLocator;
 
 public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport 
@@ -29,7 +36,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nBytePos;
 		
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -40,7 +49,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;
@@ -76,7 +87,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nBytePos;
 		
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -87,7 +100,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;
@@ -123,7 +138,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nBytePos;
 		
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -134,7 +151,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;
@@ -160,7 +179,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		lValue /= 10;
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nOffset+nBytePos;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -171,7 +192,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;
@@ -197,7 +220,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		lValue /= 10;
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nBytePos;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -208,7 +233,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;
@@ -241,7 +268,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		lValue /= 10;
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nOffset+nBytePos;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -252,7 +281,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;
@@ -295,7 +326,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 		lValue /= 10;
 		
 		int nDestPos = buffer.m_nAbsolutePosition+nOffset+nBytePos;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 		buffer.m_acBuffer[nDestPos] = c;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAtOffset(nOffset + nBytePos, c);
 		nBytePos--;
 		nDestPos--;
@@ -306,7 +339,9 @@ public class Pic9Comp3BufferSupport extends BasePic9Comp3BufferSupport
 				int nDigits = (int)(lValue % 100);
 				lValue /= 100;
 				c = ms_tEncodeByteComp3[nDigits];
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nDestPos, 1);
 				buffer.m_acBuffer[nDestPos--] = c;
+				if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 				//buffer.setCharAtOffset(nOffset + nBytePos, c);
 				nBytePos--;
 				continue;

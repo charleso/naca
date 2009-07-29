@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -31,6 +37,7 @@ import semantic.expression.CEntityDigits;
 import utils.CGlobalEntityCounter;
 import utils.NacaTransAssertException;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 import com.sun.org.apache.xml.internal.utils.StringVector;
 
@@ -49,6 +56,10 @@ public class CExecSQL extends CCobolElement
 	public CExecSQL(int line)
 	{
 		super(line);
+		if(line == 2613)
+		{
+			int gg =0 ;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -83,7 +94,7 @@ public class CExecSQL extends CCobolElement
 				{
 					tokNext = GetNext() ;
 				}
-				if (tokNext.GetType() == CTokenType.NUMBER && Integer.parseInt(tokNext.GetValue())>1)
+				if (tokNext != null && tokNext.GetType() == CTokenType.NUMBER && Integer.parseInt(tokNext.GetValue())>1)
 				{
 					return include.ParseContent() ;
 				}
@@ -124,10 +135,15 @@ public class CExecSQL extends CCobolElement
 							ExecSQLDeclareTable.SetTableName(csLastIndentifier);
 							Parse(ExecSQLDeclareTable);
 							m_action = ExecSQLDeclareTable;
+							//Transcoder.registerOnceExecSQLDeclareTable(csLastIndentifier, ExecSQLDeclareTable);
 						}
 					}
 					if(tok.GetKeyword() == CCobolKeywordList.CURSOR)
 					{
+						if(csLastIndentifier.equals("ANOURG"))
+						{
+							int gg = 0;
+						}
 						CGlobalEntityCounter.GetInstance().CountSQLCommand("DECLARE_CURSOR");
 						boolean bWithHold = false ;
 						tokNext = GetNext();
@@ -148,6 +164,7 @@ public class CExecSQL extends CCobolElement
 							{
 								CExecSQLSelect ExecSQLSelect = new CExecSQLSelect(tok.getLine());
 								ExecSQLSelect.SetCursorName(csLastIndentifier, bWithHold);
+								
 								Parse(ExecSQLSelect);
 								m_action = ExecSQLSelect;
 							}
@@ -245,13 +262,27 @@ public class CExecSQL extends CCobolElement
 		{ // EXEC SQL WHENEVER SQLERROR GO TO identifier END-EXEC
 			CBaseToken tokNext = GetNext();
 			boolean m_bOnWarning = false ;
+			boolean m_bOnNotFound = false ;	// PJD Added			
 			if (tokNext.GetKeyword() == CCobolKeywordList.SQLERROR)
 			{
 				m_bOnWarning = false ;
+				m_bOnNotFound = false;	// PJD Added
 			}
 			else if (tokNext.GetKeyword() == CCobolKeywordList.SQLWARNING)
 			{
 				m_bOnWarning = true ;
+				m_bOnNotFound = false;	// PJD Added
+			}
+			else if (tokNext.GetKeyword() == CCobolKeywordList.NOT)	// PJD Added
+			{
+				tokNext = GetNext() ;	// Consume FOUND
+				if (tokNext.GetKeyword() != CCobolKeywordList.FOUND)
+				{
+					Transcoder.logError(getLine(), "Expecting 'FOUND' keyword");
+					return false ;
+				}
+				m_bOnNotFound = true ;	
+				m_bOnWarning = false ;
 			}
 			else
 			{
@@ -262,13 +293,20 @@ public class CExecSQL extends CCobolElement
 			if (tokNext.GetKeyword() == CCobolKeywordList.CONTINUE)
 			{
 				tokNext = GetNext() ;
-				if (m_bOnWarning)
+				if(m_bOnNotFound)
 				{
-					m_action = new CExecSQLOnWarningGoto(getLine(), "") ;
+					m_action = new CExecSQLOnNotFoundGoto(getLine(), "") ;
 				}
 				else
 				{
-					m_action = new CExecSQLOnErrorGoto(getLine(), "") ;
+					if (m_bOnWarning)
+					{
+						m_action = new CExecSQLOnWarningGoto(getLine(), "") ;
+					}
+					else
+					{
+						m_action = new CExecSQLOnErrorGoto(getLine(), "") ;
+					}
 				}
 			}
 			else 
@@ -342,9 +380,35 @@ public class CExecSQL extends CCobolElement
 		
 		else if (tokAction.GetKeyword() == CCobolKeywordList.INSERT)
 		{
-			CExecSQLInsert selectaction = new CExecSQLInsert(getLine()) ;
+			int nLine = getLine();
+			if(nLine == 991)
+			{
+				int gg = 0;
+			}
+			CExecSQLInsert selectaction = new CExecSQLInsert(nLine) ;
 			m_action = selectaction ;
 			Parse(selectaction) ;
+		}
+		else if (tokAction.GetKeyword() == CCobolKeywordList.SET)
+		{
+			Reporter.Add("Modif_PJ", "CExecSQLSet");
+			CExecSQLSet setaction = new CExecSQLSet(getLine()) ;
+			m_action = setaction ;
+			Parse(setaction) ;
+		}
+		else if (tokAction.GetKeyword() == CCobolKeywordList.BEGIN)
+		{
+			Reporter.Add("Modif_PJ", "CExecSQLBeginDeclareSection");
+			CExecSQLBeginDeclareSection action = new CExecSQLBeginDeclareSection(getLine()) ;
+			m_action = action;
+			Parse(action) ;
+		}
+		else if (tokAction.GetKeyword() == CCobolKeywordList.END)
+		{
+			Reporter.Add("Modif_PJ", "CExecSQLEndDeclareSection");
+			CExecSQLEndDeclareSection action = new CExecSQLEndDeclareSection(getLine()) ;
+			m_action = action;
+			Parse(action) ;
 		}
 		else
 		{

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -18,8 +24,12 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
+import parser.CLanguageElement;
+
 import semantic.expression.CBaseEntityCondition;
 import utils.*;
+import utils.SQLSyntaxConverter.SQLFunctionConvertion;
+import utils.SQLSyntaxConverter.SQLSyntaxConverter;
 
 
 /**
@@ -80,6 +90,15 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 	{
 		return m_parent ;
 	}
+	
+	public CBaseLanguageEntity getTopParent()
+	{
+		CBaseLanguageEntity parent = GetParent();
+		if(parent != null)
+			return parent.getTopParent();
+		return this;
+	}
+	
 	public CEntityHierarchy GetHierarchy()
 	{
 		CEntityHierarchy hier = null ;
@@ -164,6 +183,28 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 			e.SetParent(this) ;
 		}
 	}
+	
+	public CBaseLanguageEntity getChildAtIndex(int nIndex)
+	{
+		return m_lstChildren.get(nIndex);
+	}
+	
+	public void registerDeferredChildren(CBaseLanguageEntity entity, CLanguageElement element)
+	{
+		if (entity != this)
+		{
+			DeferredItem deferredItem = new DeferredItem(entity, element);
+			if(m_arrDeferredChildren == null)
+				m_arrDeferredChildren = new ArrayList<DeferredItem>() ;
+			m_arrDeferredChildren.add(deferredItem);
+		}
+	}
+	
+	public ArrayList<DeferredItem> getDeferredChildren()
+	{
+		return m_arrDeferredChildren;
+	}
+	
 	public void AddChildSpecial(CBaseLanguageEntity e)
 	{
 		if (e != this)
@@ -185,13 +226,16 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 				}
 				else
 				{
+					boolean b = le.ignore();
 					int n=0 ; // debug
+					//le.DoExport();	// PJD 16/10/08
 				}
 				le = (CBaseLanguageEntity)i.next() ;
 			}
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 	}
@@ -212,16 +256,20 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 		return v ;
 	}
+	
 	protected LinkedList<CBaseLanguageEntity> m_lstChildren = new LinkedList<CBaseLanguageEntity>() ;
+	private ArrayList<DeferredItem> m_arrDeferredChildren = null;	// Arrey of items that cannot be semantically analyzed at declaration point. They are analyzed just before ProecdureDivision. This is used in case the Cobol references variables that are not defined yet.   
 	public boolean HasChildren()
 	{
 		return ! m_lstChildren.isEmpty();
 	}
 	private CBaseLanguageExporter m_output = null ;
+	
 	public void setLanguageExporter(CBaseLanguageExporter exp)
 	{
 		m_output = exp ;
@@ -237,9 +285,25 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		}
 		catch (NoSuchElementException e)
 		{
+			e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 	}
+	
+	protected SQLDumper getSQLDumper()
+	{
+		if(m_output != null)
+			return m_output.getSQLDumper();
+		return null;
+	}
+	
+//	protected SQLSyntaxConverter getSQLSyntaxConverter()
+//	{
+//		if(m_output != null)
+//			return m_output.getSQLSyntaxConverter();
+//		return null;
+//	}
+	
 	protected CBaseLanguageExporter GetXMLOutput()
 	{
 		return m_output;
@@ -323,6 +387,7 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			return this ;
 		}
 		if (le.GetInternalLevel()>0 && le.GetInternalLevel() < level)
@@ -406,6 +471,7 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 		}
 		return ignore ;
 	}
@@ -429,6 +495,7 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 		}
 		m_lstChildren.clear();
 		m_parent = null ;
@@ -473,6 +540,7 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		}
 		catch (NoSuchElementException e)
 		{
+			e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 	}
@@ -493,6 +561,13 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 		if (end != null)
 		{
 			nEnd = m_lstChildren.indexOf(end) ;
+		}
+		if(nEnd < nStart)	// PJD Added; variables must be swapped 
+		{
+			int nTmp = nEnd;
+			nEnd = nStart;
+			nStart = nTmp;
+			Transcoder.logError(getLine(), "Paragraphs " + start.GetName() + " and + " +end.GetName() + " are in wrong order");
 		}
 		List<CBaseLanguageEntity> l = m_lstChildren.subList(nStart, nEnd+1) ;
 		CBaseLanguageEntity[] arr = new CBaseLanguageEntity[l.size()] ;
@@ -552,6 +627,25 @@ public abstract class CBaseLanguageEntity //extends CBaseEntity
 	{
 		return false;
 	}
-
 	
+	public void registerRequiredToolsLib(String csRequiredToolsLib)
+	{
+		if(m_arrRequiredToolsLib == null)
+			m_arrRequiredToolsLib = new ArrayList<String>();
+		m_arrRequiredToolsLib.add(csRequiredToolsLib);
+	}
+	
+	public void exportRequiredToolsLibDeclarations()
+	{
+		if(m_arrRequiredToolsLib == null)
+			return ;
+		for(int n=0; n<m_arrRequiredToolsLib.size(); n++)
+		{
+			String csClassName = m_arrRequiredToolsLib.get(n);
+			String csInstanceName = "m_" + csClassName;
+			WriteLine(csClassName + " " + csInstanceName + " = new " + csClassName + "(getProgramManager());");
+		}
+	}
+	
+	private ArrayList<String> m_arrRequiredToolsLib = null;
 }

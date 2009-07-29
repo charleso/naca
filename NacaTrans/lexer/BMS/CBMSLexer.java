@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,6 +20,8 @@ package lexer.BMS;
 
 import java.io.InputStream;
 import java.util.Vector;
+
+import utils.FileContentBuffer;
 
 import lexer.CBaseLexer;
 import lexer.CBaseToken;
@@ -36,7 +44,7 @@ public class CBMSLexer extends CBaseLexer
 		setIgnoreOriginalListing(true) ;
 	}
 
-	protected CBaseToken ReadString(InputStream buffer)
+	protected CBaseToken ReadString(FileContentBuffer buffer)
 	{
 		Vector<Character> val = new Vector<Character>() ;
 		char delimit = m_cCurrent ;
@@ -113,7 +121,7 @@ public class CBMSLexer extends CBaseLexer
 		 /// nothing
 	}
 	
-	protected CBaseToken ReadComment(InputStream buffer)
+	protected CBaseToken ReadComment(FileContentBuffer buffer)
 	{
 		String val = new String() ;
 		try 
@@ -140,6 +148,7 @@ public class CBMSLexer extends CBaseLexer
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 		}
 		CBaseToken tok = new CTokenComment(val, getLine(), true);
 		return tok ;

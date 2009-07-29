@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package nacaLib.spServer;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SpServerResourceManager.java,v 1.4 2007/06/25 10:01:11 u930bm Exp $
+ * @version $Id$
  */
 
 import jlib.log.Log;
@@ -20,6 +26,7 @@ import jlib.misc.BasicLogger;
 import jlib.xml.Tag;
 import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.misc.LogFlowCustomNacaRT;
+import nacaLib.pathManager.PathsManager;
 
 public class SpServerResourceManager extends BaseResourceManager
 {
@@ -47,6 +54,7 @@ public class SpServerResourceManager extends BaseResourceManager
 		{
 			BasicLogger.log("LoadConfigFromFile 1");
 			String csLogCfg = tagRoot.getVal("LogSettingsPathFile");
+			csLogCfg = PathsManager.adjustPath(csLogCfg);
 			BasicLogger.log("LoadConfigFromFile 2");
 			
 			LogFlowCustomNacaRT.declare();

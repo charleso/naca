@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -8,6 +14,8 @@ package jlib.misc;
 
 import java.util.Hashtable;
 
+import jlib.log.Log;
+
 
 public class EnvironmentVar
 {
@@ -16,12 +24,19 @@ public class EnvironmentVar
 	
 	public static void registerProgramVar(String key, String value)
 	{
+		Log.logDebug("EnvironmentVar; registerProgramVar Key="+key + " Value="+value);
 		if (ms_tabProgramVars.get(key) != null)
-		{
 			ms_tabProgramVars.remove(key);
-		}
 		ms_tabProgramVars.put(key, value);
 	}
+	
+	public static void unregisterProgramVar(String key)
+	{
+		Log.logDebug("EnvironmentVar; unregisterProgramVar Key="+key);
+		if (ms_tabProgramVars.get(key) != null)
+			ms_tabProgramVars.remove(key);
+	}
+
 	
 	public static void registerCmdLineArgs(String[] args)
 	{

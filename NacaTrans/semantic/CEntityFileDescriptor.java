@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -6,6 +12,7 @@
  */
 package semantic;
 
+import jlib.misc.IntegerRef;
 import generate.CBaseLanguageExporter;
 import semantic.Verbs.CEntityOpenFile;
 import utils.CObjectCatalog;
@@ -45,6 +52,34 @@ public abstract class CEntityFileDescriptor extends CBaseLanguageEntity
 		}
 		return null ;
 	}
+	
+	public CDataEntity enumRecords(IntegerRef iIndex)
+	{
+		if(iIndex.get() >= m_lstChildren.size())
+			return null;
+
+		CBaseLanguageEntity le = null ;
+		for (int i=iIndex.get(); i<m_lstChildren.size(); i++)
+		{
+			le = m_lstChildren.get(i) ;
+
+			if (le.GetInternalLevel() == 1)	// The record is mandatory at level 1 
+			{
+				CDataEntity e = le.FindFirstDataEntityAtLevel(1);
+				if (e != null)
+				{
+					iIndex.set(i+1);
+					return e ;
+				}
+			}
+		}
+		
+		iIndex.set(m_lstChildren.size());
+		return null ;
+	}
+	
+	
+	
 
 	protected CEntityOpenFile.OpenMode m_eAccessMode = null ;
 	public void setFileAccessType(CEntityOpenFile.OpenMode access)

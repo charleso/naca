@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,6 +21,7 @@ import nacaLib.basePrgEnv.BaseSession;
 import nacaLib.basePrgEnv.CBaseMapFieldLoader;
 import nacaLib.classLoad.CustomClassDynLoaderFactory;
 import nacaLib.misc.CLocalizedTextManager;
+import nacaLib.pathManager.PathsManager;
 
 import org.w3c.dom.Document;
 
@@ -28,12 +35,14 @@ public class OnlineProgramLoader extends BaseProgramLoader
 	public void init(Tag tagSequencerConfig)
 	{
 		String csTransIDMappingFilePath = tagSequencerConfig.getVal("TransIDMappingFilePath");
+		csTransIDMappingFilePath = PathsManager.adjustPath(csTransIDMappingFilePath);
 		if (!csTransIDMappingFilePath.equals(""))
 		{
 			LoadTransIDMapping(OnlineResourceManager.getApplicationRootPath()+csTransIDMappingFilePath);
 		}
 		
 		String translationFilePath = tagSequencerConfig.getVal("TranslationFilePath") ;
+		translationFilePath = PathsManager.adjustPath(translationFilePath);
 		if (translationFilePath!=null && !translationFilePath.equals(""))
 		{
 			LoadTranslations(OnlineResourceManager.getApplicationRootPath()+translationFilePath);

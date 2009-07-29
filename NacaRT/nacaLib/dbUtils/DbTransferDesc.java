@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -18,6 +24,8 @@ import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.bdb.BtreePooledThreadWriterFactory;
 import nacaLib.sqlSupport.SQLConnectionManager;
 import jlib.log.Log;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.StringUtil;
 import jlib.sql.DbConnectionBase;
 import jlib.sql.DbConnectionException;
@@ -82,7 +90,9 @@ public class DbTransferDesc
 		
 		String csClause = "Select TName, Replace, LastWrite, NbRead, NbWrite, SQLError From " + m_csDefinitionTable + " order by TName asc";
 		DbConnectionBase dbConnectionSource = env.getSQLConnection();
+		DBIOAccounting.startDBIO(DBIOAccountingType.Prepare);
 		DbPreparedStatement st = dbConnectionSource.prepareStatement(csClause, 0, false);
+		DBIOAccounting.endDBIO();
 		if(st != null)
 		{
 			ResultSet resultSet = st.executeSelect();

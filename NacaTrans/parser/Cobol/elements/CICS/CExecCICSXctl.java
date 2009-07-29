@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -28,6 +34,7 @@ import semantic.CBaseLanguageEntity;
 import semantic.CICS.CEntityCICSXctl;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author sly
@@ -138,6 +145,35 @@ public class CExecCICSXctl extends CCobolElement
 				{
 					tok = GetNext() ;
 					m_CommAreaLength = ReadTerminal();
+					tok = GetCurrentToken() ;
+					if (tok.GetType() == CTokenType.RIGHT_BRACKET)
+					{
+						tok = GetNext();
+					}
+				}
+			}
+		}
+		else if (tok.GetKeyword() == CCobolKeywordList.LENGTH)	// PJD Added
+		{
+			Reporter.Add("Modif_PJ", "CExecCICSXctl LENGTH");
+			tok = GetNext();
+			if (tok.GetType() == CTokenType.LEFT_BRACKET)
+			{
+				tok = GetNext() ;
+				m_CommAreaLength = ReadTerminal();
+				tok = GetCurrentToken() ;
+				if (tok.GetType() == CTokenType.RIGHT_BRACKET)
+				{
+					tok = GetNext();
+				}
+			}
+			if (tok.GetKeyword() == CCobolKeywordList.COMMAREA)
+			{
+				tok = GetNext();
+				if (tok.GetType() == CTokenType.LEFT_BRACKET)
+				{
+					tok = GetNext() ;
+					m_CommArea = ReadIdentifier();
 					tok = GetCurrentToken() ;
 					if (tok.GetType() == CTokenType.RIGHT_BRACKET)
 					{

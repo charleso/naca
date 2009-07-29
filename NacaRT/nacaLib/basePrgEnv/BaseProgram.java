@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -24,8 +30,11 @@ import jlib.log.Log;
 import jlib.misc.ConsoleInput;
 import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.NumberParser;
+import jlib.misc.StringUtil;
+import jlib.sql.DbDriverId;
 import nacaLib.base.CJMapObject;
 import nacaLib.base.JmxGeneralStat;
+import nacaLib.debug.BufferSpy;
 import nacaLib.exceptions.CExitException;
 import nacaLib.exceptions.CGotoException;
 import nacaLib.exceptions.CStopRunException;
@@ -34,6 +43,7 @@ import nacaLib.mathSupport.MathAdd;
 import nacaLib.mathSupport.MathBase;
 import nacaLib.mathSupport.MathDivide;
 import nacaLib.mathSupport.MathMultiply;
+import nacaLib.mathSupport.MathPower;
 import nacaLib.mathSupport.MathSubtract;
 import nacaLib.misc.KeyPressed;
 import nacaLib.misc.LogDisplay;
@@ -41,24 +51,29 @@ import nacaLib.misc.NacaToolBox;
 import nacaLib.misc.Pointer;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.program.CCallProgram;
-import nacaLib.program.CopyManager;
+import nacaLib.program.CompareResult;
 import nacaLib.program.CopyReplacing;
 import nacaLib.program.Paragraph;
 import nacaLib.program.Section;
+import nacaLib.program.Sentence;
 import nacaLib.programPool.SharedProgramInstanceData;
 import nacaLib.programPool.SharedProgramInstanceDataCatalog;
 import nacaLib.sqlSupport.CSQLStatus;
 import nacaLib.sqlSupport.SQL;
 import nacaLib.sqlSupport.SQLCall;
+import nacaLib.sqlSupport.SQLCodeValue;
 import nacaLib.sqlSupport.SQLCursor;
 import nacaLib.sqlSupport.SQLCursorFetch;
 import nacaLib.sqlSupport.SQLCursorOperation;
 import nacaLib.stringSupport.Concat;
+import nacaLib.stringSupport.InspectConverting;
 import nacaLib.stringSupport.InspectReplacing;
 import nacaLib.stringSupport.InspectTallying;
+import nacaLib.stringSupport.SearchAllHandler;
 import nacaLib.stringSupport.Unstring;
 import nacaLib.tempCache.TempCache;
 import nacaLib.tempCache.TempCacheLocator;
+import nacaLib.varEx.BaseFileDescriptor;
 import nacaLib.varEx.CobolConstant;
 import nacaLib.varEx.CobolConstantHighValue;
 import nacaLib.varEx.CobolConstantLowValue;
@@ -70,6 +85,7 @@ import nacaLib.varEx.Console;
 import nacaLib.varEx.DataSection;
 import nacaLib.varEx.Edit;
 import nacaLib.varEx.FileDescriptor;
+import nacaLib.varEx.FileStatusEnum;
 import nacaLib.varEx.Form;
 import nacaLib.varEx.InitializeCache;
 import nacaLib.varEx.InternalCharBuffer;
@@ -83,13 +99,7 @@ import nacaLib.varEx.SortParagHandler;
 import nacaLib.varEx.Var;
 import nacaLib.varEx.VarAndEdit;
 import nacaLib.varEx.VarBase;
-import nacaLib.varEx.VarBufferPos;
-import nacaLib.varEx.VarDefBuffer;
-import nacaLib.varEx.VarDefNumIntSignComp3;
 import nacaLib.varEx.VarEnumerator;
-import nacaLib.varEx.VarGroup;
-import nacaLib.varEx.VarNumIntComp0;
-import nacaLib.varEx.VarNumIntSignComp3;
 import nacaLib.varEx.VarTypeId;
 
 
@@ -192,7 +202,7 @@ public abstract class BaseProgram extends CJMapObject
 		if(IsSTCheck)
 			Log.logFineDebug("call_Class:" + classPrgToCall.getName());
 		
-		CCallProgram call = new CCallProgram(m_BaseProgramManager.getEnv(), classPrgToCall);
+		CCallProgram call = new CCallProgram(m_BaseProgramManager, classPrgToCall);
 	
 		call.setProgramLoader(m_BaseProgramManager.getProgramLoader());
 		return call ;
@@ -208,7 +218,17 @@ public abstract class BaseProgram extends CJMapObject
 		if(IsSTCheck)
 			Log.logFineDebug("call_cs:" + csPrgClassName);
 		
-		CCallProgram call = new CCallProgram(m_BaseProgramManager.getEnv(), csPrgClassName);
+		CCallProgram call = new CCallProgram(m_BaseProgramManager, csPrgClassName);
+		call.setProgramLoader(m_BaseProgramManager.getProgramLoader());
+		return call ;
+	}
+	
+	protected CCallProgram call(Var varPrgClassName) // temporary function, until all class are available for CALL
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("call_V:" + varPrgClassName.getSTCheckValue());
+		
+		CCallProgram call = new CCallProgram(m_BaseProgramManager, varPrgClassName);
 		call.setProgramLoader(m_BaseProgramManager.getProgramLoader());
 		return call ;
 	}
@@ -2535,6 +2555,30 @@ public abstract class BaseProgram extends CJMapObject
 			m_tempCache.resetTempIndex(var1, var2);
 		return math;
 	}
+	
+	/*Naca PJReady*/
+	protected MathPower power(VarAndEdit var1, int n)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("power_V_n:" + var1.getSTCheckValue() + ":" + n);
+
+		MathPower math = new MathPower(var1, n);
+		if(m_bUsedTempVarOrCStr)
+			m_tempCache.resetTempIndex(var1);
+		return math;		
+	}
+	
+	/*Naca PJReady*/
+	protected MathPower power(int n, VarAndEdit vPow)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("power_n_V:" + n + ":" + vPow.getSTCheckValue());
+
+		MathPower math = new MathPower(n, vPow);
+		if(m_bUsedTempVarOrCStr)
+			m_tempCache.resetTempIndex(vPow);
+		return math;		
+	}
 
 	/** multiply
 	 * @param IN Var var1: operand1 variable; may be integer or decimal
@@ -3250,9 +3294,11 @@ public abstract class BaseProgram extends CJMapObject
 		if(isLogFlow)
 			Log.logDebug("Performing section:"+ getSimpleName()+"."+section.toString());
 		
-		if(section != null)
-			section.runSection();
+		//if(section != null)
+		//	section.runSection();
 		//m_BaseProgramManager.perform(section);
+		m_BaseProgramManager.perform(section);
+
 	}
 	
 	/**Method: performTrough
@@ -3269,6 +3315,17 @@ public abstract class BaseProgram extends CJMapObject
 		if(isLogFlow)
 			Log.logDebug("Performing through:"+ getSimpleName()+"." + paragraphBegin.toString() + " -> "+paragraphEnd.toString());
 		m_BaseProgramManager.performThrough(paragraphBegin, paragraphEnd);
+	}
+	
+	protected void nextSentence(Sentence functor)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("goto_para:"+ getSimpleName()+"."+functor.toString());
+
+		if(isLogFlow)
+			Log.logDebug("goTo paragraph:"+ getSimpleName()+"."+functor.toString());
+		CGotoException e = new CGotoException(functor);
+		throw e;
 	}
 	
 	/**Method: goTo
@@ -3632,7 +3689,7 @@ public abstract class BaseProgram extends CJMapObject
 	protected SQLCursor cursorOpen(SQLCursor sqlCursor, Var vQuery)
 	{
 		if(IsSTCheck)
-			Log.logFineDebug("cursorOpen_cur_V:" + vQuery.toString());
+			Log.logFineDebug("cursorOpen_cur_V:" + vQuery.getSTCheckValue());
 		
 		if(sqlCursor.isOpen())	// Auto close
 			sqlCursor.close();
@@ -3725,7 +3782,10 @@ public abstract class BaseProgram extends CJMapObject
 		if(IsSTCheck)
 			Log.logFineDebug("cursorFetch_cur:" + "NotDisplayed");
 
-		return sqlCursor.fetch(getProgramManager().getEnv());
+		SQLCursorFetch s = sqlCursor.fetch(getProgramManager().getEnv());
+		if(s.mustFillRowId())
+			s.intoGeneratedRowId();
+		return s;
 	}
 	
 	/**
@@ -4304,6 +4364,7 @@ public abstract class BaseProgram extends CJMapObject
 	}
 	
 	/**
+	 * @Deprecated; use moveZero(v.subString(nOffsetPosition, nNbChar))
 	 * @param Var v: String whose substring is to be filled with 0's
 	 * @param int nOffsetPosition Start position (begining at 1) of the substring to fill 
 	 * @param int nNbChar Number of chars to fill
@@ -4321,6 +4382,18 @@ public abstract class BaseProgram extends CJMapObject
 	}
 	
 	/**
+	 *@Deprecated; use moveZero(v.subString(nOffsetPosition, nNbChar)) 
+	 * @param v
+	 * @param nOffsetPosition
+	 * @param mathNbChar
+	 */
+	/*Naca PJReady*/protected void moveSubStringZero(VarAndEdit v, int nOffsetPosition, MathBase mathNbChar)
+	{
+		int nNbChar = mathNbChar.m_d.intValue();
+		moveSubStringZero(v, nOffsetPosition, nNbChar);
+	}	
+	/**
+	 * @Deprecated; use moveSpace(v.subString(nOffsetPosition, nNbChar))
 	 * @param Var v: String whose substring is to be filled with space chars
 	 * @param int nOffsetPosition Start position (begining at 1) of the substring to fill 
 	 * @param int nNbChar Number of chars to fill
@@ -4337,6 +4410,7 @@ public abstract class BaseProgram extends CJMapObject
 	}
 
 	/**
+	 * @Deprecated; use moveLowValue(v.subString(nOffsetPosition, nNbChar))
 	 * @param Var v: String whose substring is to be filled with low value chars
 	 * @param int nOffsetPosition Start position (begining at 1) of the substring to fill 
 	 * @param int nNbChar Number of chars to fill
@@ -4351,9 +4425,14 @@ public abstract class BaseProgram extends CJMapObject
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(v);
 	}
-	
+	/**
+	 * @Deprecated; use moveLowValue(v.subString(nOffsetPosition, nNbChar))
+	 * @param v
+	 * @param vOffsetPosition
+	 * @param nNbChar
+	 */
 	protected void moveSubStringLowValue(VarAndEdit v, Var vOffsetPosition, int nNbChar)
-	{
+	{		
 		if(IsSTCheck)
 			Log.logFineDebug("moveSubStringLowValue_V_V_n:"+v.getSTCheckValue() + ":" + vOffsetPosition.getSTCheckValue() + ":" + nNbChar);
 
@@ -4365,6 +4444,7 @@ public abstract class BaseProgram extends CJMapObject
 
 
 	/**
+	 * @Deprecated; use moveHighValue(v.subString(nOffsetPosition, nNbChar))
 	 * @param Var v: String whose substring is to be filled with high value chars
 	 * @param int nOffsetPosition Start position (begining at 1) of the substring to fill 
 	 * @param int nNbChar Number of chars to fill
@@ -4380,6 +4460,9 @@ public abstract class BaseProgram extends CJMapObject
 			m_tempCache.resetTempIndex(v);
 	}
 	
+	/**
+	 * @Deprecated; use moveHighValue(v.subString(nOffsetPosition, nNbChar))
+	 */
 	protected void moveSubStringHighValue(VarAndEdit v, Var vOffsetPosition, int nNbChar)
 	{
 		if(IsSTCheck)
@@ -4393,6 +4476,7 @@ public abstract class BaseProgram extends CJMapObject
 
 
 	/**
+	 * @Deprecated; use moveSpace(v.subString(nOffsetPosition, nNbChar))
 	 * @param Var v: String whose substring is to be filled with space chars
 	 * @param Var varOffsetPosition: Start position (begining at 1) of the substring to fill 
 	 * @param int nNbChar Number of chars to fill
@@ -4410,6 +4494,7 @@ public abstract class BaseProgram extends CJMapObject
 	}
 	
 	/**
+	 * @Deprecated; use moveSpace(v.subString(nOffsetPosition, nNbChar))
 	 * @param Var v: String whose substring is to be filled with space chars
 	 * @param Var varOffsetPosition: Start position (begining at 1) of the substring to fill 
 	 * @param int nNbChar Number of chars to fill
@@ -4729,6 +4814,56 @@ public abstract class BaseProgram extends CJMapObject
 	}
 	
 	/**
+	 * PJReady
+	 * @param var
+	 * @param varFrom
+	 * @param varTo
+	 * @return
+	 */
+	protected boolean inspectConverting(Var var, Var varFrom, Var varTo)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("inspectConvertingV_V_V:" + var.getSTCheckValue() + ":"+ varFrom.getSTCheckValue() + ":"+ varTo.getSTCheckValue());
+
+		InspectConverting inspectConverting = new InspectConverting(var, varFrom, varTo);
+		boolean b = inspectConverting.execute();
+		return b;
+	}
+	
+	/**
+	 * PJReady
+	 * @param var
+	 * @param varFrom
+	 * @param varTo
+	 * @return
+	 */
+	protected boolean inspectConverting(Var var, CobolConstantLowValue cstFrom, String csTo)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("inspectConvertingV_C_V:" + var.getSTCheckValue() + ":LowValue:"+ csTo);
+
+		if(csTo.length() == 1)
+		{
+			InspectConverting inspectConverting = new InspectConverting(var, cstFrom.getValue(), csTo.charAt(0));
+			boolean b = inspectConverting.execute();
+			return b;
+		}
+		Log.logImportant("Error: InspectConverting variable " + var.getLoggableValue() + " From lowValue to " + csTo + " Cannot be done (Length(From) != length(To))");
+		return false;
+	}
+
+	
+//	protected boolean inspectConverting(Var var, CobolConstant c1, char c2)
+//	{
+//		if(IsSTCheck)
+//			Log.logFineDebug("inspectConvertingV_V_V:" + var.getSTCheckValue() + ":"+ varFrom.getSTCheckValue() + ":"+ varTo.getSTCheckValue());
+//
+//		InspectConverting inspectConverting = new InspectConverting(var, varFrom, varTo);
+//		boolean b = inspectConverting.execute();
+//		return b;
+//	}
+	
+	/**
 	 * @param Var var: Source variable on which doing inspect tallying operations 
 	 * @return InspectTallying object, enabling options
 	 * see class InspectTallying 
@@ -4749,7 +4884,27 @@ public abstract class BaseProgram extends CJMapObject
 
 		InspectTallying inspect = new InspectTallying(cs);
 		return inspect;  
-	}		
+	}	
+	
+	// PJReady
+	protected String functionReverse(Var var)
+	{
+		if(var == null)
+			return "";
+		String cs = var.getString();
+		if(StringUtil.isEmpty(cs))
+			return "";
+		
+		StringBuilder sb = new StringBuilder(); 
+		int nLength = cs.length();
+		char c;
+		for(int n=nLength-1; n>=0; n--)
+		{
+			c = cs.charAt(n);
+			sb.append(c);
+		}
+		return sb.toString();		
+	}
 	
 	/**
 	 * @param String csSource: Source string
@@ -4778,6 +4933,18 @@ public abstract class BaseProgram extends CJMapObject
 
 		
 		String cs = subString(varSource.getString(), nStart.m_d.intValue(), nNbChars.m_d.intValue());
+		if(m_bUsedTempVarOrCStr)
+			m_tempCache.resetTempIndex(varSource);
+		return cs;
+	}
+	
+	/*Naca PJReady*/ protected String subString(Var varSource, int nStart, MathBase nNbChars)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("subString_V_n_M:" + varSource.getSTCheckValue() + ":" + nStart + ":" + nNbChars.getSTCheckValue());
+
+		
+		String cs = subString(varSource.getString(), nStart, nNbChars.m_d.intValue());
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(varSource);
 		return cs;
@@ -4831,7 +4998,7 @@ public abstract class BaseProgram extends CJMapObject
 		String cs = subString(varSource.getString(), varStart.getInt(), nNbChars.getInt());
 		if(m_bUsedTempVarOrCStr)
 			m_tempCache.resetTempIndex(varSource, varStart, nNbChars);
-		return cs;
+		return cs;	// PJREADY Pb
 	}
 	
 	/**
@@ -4917,7 +5084,11 @@ public abstract class BaseProgram extends CJMapObject
 		if(IsSTCheck)
 			Log.logFineDebug("getSQLCode");
 
-		return m_BaseProgramManager.getSQLStatus().getSQLCode() ;
+		int n = m_BaseProgramManager.getSQLStatus().getSQLCode() ;
+		if(isLogSql)
+			Log.logDebug("getSQLCode n="+n);
+		
+		return n;
 	}
 	
 	protected int getSQLDiagnosticCode(int n)
@@ -4939,22 +5110,32 @@ public abstract class BaseProgram extends CJMapObject
 		return n;
 	}	
 	
-	protected boolean isSQLCode(int n)
+	protected boolean isSQLCode(SQLCodeValue codeValue)
 	{
+//		if(IsSTCheck)
+//			Log.logFineDebug("isSQLCode_n" + n);
+//
+//		int c = m_BaseProgramManager.getSQLStatus().getSQLCode() ;
+//		return  c == n ;
 		if(IsSTCheck)
-			Log.logFineDebug("isSQLCode_n" + n);
-
-		int c = m_BaseProgramManager.getSQLStatus().getSQLCode() ;
-		return  c == n ;
+			Log.logFineDebug("isSQLCode_n" + codeValue.toString());
+		
+		int nCode = m_BaseProgramManager.getSQLStatus().getSQLCode() ;
+		if(codeValue.isCode(nCode))
+			return true;
+		return false;
 	}		
 	
-	protected boolean isNotSQLCode(int n)
+	protected boolean isNotSQLCode(SQLCodeValue codeValue)
 	{
 		if(IsSTCheck)
-			Log.logFineDebug("isNotSQLCode_n" + n);
+			Log.logFineDebug("isNotSQLCode_n" + codeValue.toString());
 
-		int c = m_BaseProgramManager.getSQLStatus().getSQLCode() ;
-		return  c != n ;
+		int nCode = m_BaseProgramManager.getSQLStatus().getSQLCode() ;
+		if(codeValue.isCode(nCode))
+			return false;
+		return true;
+		//return  c != n ;
 	}
 	
 	protected void resetSQLCode(int n)
@@ -4970,7 +5151,7 @@ public abstract class BaseProgram extends CJMapObject
 		if(IsSTCheck)
 			Log.logFineDebug("resetSQLCode_M" + mathBase.getSTCheckValue());
 	
-		int n = NumberParser.getAsInt(mathBase.getSTCheckValue()) ;
+		int n = NumberParser.getAsInt(mathBase.getStringUnscaledValue()) ;
 		m_BaseProgramManager.getSQLStatus().setSQLCode(n) ;
 	}
 	
@@ -5138,35 +5319,56 @@ public abstract class BaseProgram extends CJMapObject
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("openOutput_FD" + fileDesc.toString());
-		fileDesc.openOutput();
+		BaseFileDescriptor fs = fileDesc.openOutput();
+		if(fs == null)
+			fileDesc.reportStatus(FileStatusEnum.COULD_NOT_OPEN_FILE);
+		else
+			fileDesc.reportStatus(FileStatusEnum.OK);
 	}
 	
 	public void openInputOutput(FileDescriptor fileDesc)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("openInputOutput_FD" + fileDesc.toString());
-		fileDesc.openInputOutput();
+		
+		BaseFileDescriptor fs = fileDesc.openInputOutput();
+		if(fs == null)
+			fileDesc.reportStatus(FileStatusEnum.COULD_NOT_OPEN_FILE);
+		else
+			fileDesc.reportStatus(FileStatusEnum.OK);
 	}
 	
 	public void openInput(FileDescriptor fileDesc)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("openInputFD" + fileDesc.toString());
-		fileDesc.openInput();
+		BaseFileDescriptor fs = fileDesc.openInput();
+		if(fs == null)
+			fileDesc.reportStatus(FileStatusEnum.COULD_NOT_OPEN_FILE);
+		else
+			fileDesc.reportStatus(FileStatusEnum.OK);
 	}
 	
 	public void openExtend(FileDescriptor fileDesc)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("openExtendFD" + fileDesc.toString());
-		fileDesc.openExtend();
+		BaseFileDescriptor fs = fileDesc.openExtend();
+		if(fs == null)
+			fileDesc.reportStatus(FileStatusEnum.COULD_NOT_OPEN_FILE);
+		else
+			fileDesc.reportStatus(FileStatusEnum.OK);
 	}
 	
 	public void close(FileDescriptor fileDesc)
 	{
 		if(IsSTCheck)
 			Log.logFineDebug("close_FD" + fileDesc.toString());
-		fileDesc.close();
+		boolean bClosed = fileDesc.close();
+		if(!bClosed)
+			fileDesc.reportStatus(FileStatusEnum.COULD_NOT_CLOSE_FILE);
+		else
+			fileDesc.reportStatus(FileStatusEnum.OK);			
 	}
 	
 	public void write(FileDescriptor fileDesc)
@@ -5176,12 +5378,103 @@ public abstract class BaseProgram extends CJMapObject
 		fileDesc.write();
 	}
 	
+	public void writeAfterLinePositionning(FileDescriptor fileDesc, Var varLinePositioning)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeAfterLinePositionning_FD_V" + fileDesc.toString() + ":" + varLinePositioning.getSTCheckValue());
+		fileDesc.writeLinePositionning(varLinePositioning.getInt());
+		fileDesc.write();
+	}
+	
+	public void writeAfterLinePositionning(FileDescriptor fileDesc, int nLinePositioning)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeAfterLinePositionning_FD_n" + fileDesc.toString() + ":" + nLinePositioning);
+		fileDesc.writeLinePositionning(nLinePositioning);
+		fileDesc.write();
+	}
+
+	public void writeBeforeLinePositionning(FileDescriptor fileDesc, Var varLinePositioning)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeBeforeLinePositionning_FD_V" + fileDesc.toString()+":" + varLinePositioning.getSTCheckValue());
+		fileDesc.write();
+		fileDesc.writeLinePositionning(varLinePositioning.getInt());
+	}
+	
+	public void writeBeforeLinePositionning(FileDescriptor fileDesc, int nLinePositioning)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeBeforeLinePositionning_FD_n" + fileDesc.toString() + ":" + nLinePositioning);
+		fileDesc.write();
+		fileDesc.writeLinePositionning(nLinePositioning);
+	}
+	
+	public void writeAfterPagePositionning(FileDescriptor fileDesc)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeAfterPagePositionning_FD" + fileDesc.toString());
+		fileDesc.writePagePositionning();
+		fileDesc.write();
+	}
+
+	public void writeBeforePagePositionning(FileDescriptor fileDesc)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeAfterPagePositionning_FD" + fileDesc.toString());
+		fileDesc.write();
+		fileDesc.writePagePositionning();
+	}
+	
 	public void writeFrom(FileDescriptor fileDesc, Var varFrom)
 	{
 		if(IsSTCheck)
-			Log.logFineDebug("write_FD" + fileDesc.toString());
+			Log.logFineDebug("write_FD_V" + fileDesc.toString()+":" + varFrom.getSTCheckValue());
 		fileDesc.writeFrom(varFrom);
 	}
+	
+	public void writeFromAfterLinePositionning(FileDescriptor fileDesc, Var varFrom, Var varLinePositioning)
+	{
+		writeFromAfterLinePositionning(fileDesc, varFrom, varLinePositioning.getInt());
+	}
+	
+	public void writeFromAfterLinePositionning(FileDescriptor fileDesc, Var varFrom, int nLinePositioning)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeFromAfterLinePositionning_FD_V_n" + fileDesc.toString() + ":" + varFrom.getSTCheckValue() + ":" + nLinePositioning);
+		fileDesc.writeLinePositionning(nLinePositioning);
+		fileDesc.writeFrom(varFrom);		
+	}
+	
+	public void writeFromBeforeLinePositionning(FileDescriptor fileDesc, Var varFrom, Var varLinePositioning)
+	{
+		writeFromBeforeLinePositionning(fileDesc, varFrom, varLinePositioning.getInt());
+	}
+	
+	public void writeFromBeforeLinePositionning(FileDescriptor fileDesc, Var varFrom, int nLinePositioning)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeFromBeforeLinePositionning_FD_V_n" + fileDesc.toString() + ":" + varFrom.getSTCheckValue() + ":" + nLinePositioning);
+		fileDesc.writeFrom(varFrom);
+		fileDesc.writeLinePositionning(nLinePositioning);
+	}
+	
+	public void writeFromAfterPagePositionning(FileDescriptor fileDesc, Var varFrom)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeFromAfterPagePositionning_FD_V" + fileDesc.toString() + ":" + varFrom.getSTCheckValue());
+		fileDesc.writePagePositionning();
+		fileDesc.writeFrom(varFrom);
+	}
+	
+	public void writeFromBeforePagePositionning(FileDescriptor fileDesc, Var varFrom)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeFromBeforePagePositionning_FD_V" + fileDesc.toString() + ":" + varFrom.getSTCheckValue());
+		fileDesc.writeFrom(varFrom);
+		fileDesc.writePagePositionning();
+	}
+
 	
 	public void rewriteFrom(FileDescriptor fileDesc, Var varFrom)
 	{
@@ -5326,6 +5619,12 @@ public abstract class BaseProgram extends CJMapObject
 		if(IsSTCheck)
 			Log.logFineDebug("setReturnCode(n)" + nReturnCode);
 		JVMReturnCodeManager.setExitCode(nReturnCode);
+	}
+	
+	/*Naca PJReady*/public void setReturnCode(MathBase mReturnCode)
+	{
+		int nReturnCode = mReturnCode.m_d.intValue();
+		setReturnCode(nReturnCode);
 	}
 	
 	public void setReturnCode(Var varReturnCode)
@@ -5739,7 +6038,86 @@ public abstract class BaseProgram extends CJMapObject
 	{		
 		String cs = ConsoleInput.getKeyboardLine();
 		varDest.set(cs);
-	}		
+	}
+	
+	public void SQLSetCurrentTimeStamp(Var varDest)
+	{
+		if(BaseResourceManager.isUsingOracleDb())
+		{
+			//sql("select to_char(CURRENT_TIMESTAMP, 'dd.mm.yyyy hh24:mi:ss.ff') from dual")
+			sql("SELECT CURRENT_TIMESTAMP FROM DUAL")
+			.into(varDest);
+		}
+		else if(BaseResourceManager.isUsingDB2Db())
+		{
+			sql("SET :DTS-DB2 = CURRENT TIMESTAMP")	// Untested
+			.into(varDest);
+		}
+	}
+
+	public void SQLSetCurrentDate(Var varDest)
+	{
+		if(BaseResourceManager.isUsingOracleDb())
+		{
+			sql("SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD') FROM DUAL")
+			.into(varDest);
+		}
+		else if(BaseResourceManager.isUsingDB2Db())
+		{
+			sql("SET :DTS-DB2 = CURRENT_DATE")	// Untested
+			.into(varDest);
+		}			
+	}
+		
+	public void SQLSetCurrentTime(Var varDest)
+	{
+		if(BaseResourceManager.isUsingOracleDb())
+		{
+			sql("SELECT TO_CHAR(SYSDATE, 'HH24:MI:SS') FROM DUAL")
+			.into(varDest);
+		}
+		else if(BaseResourceManager.isUsingDB2Db())
+		{
+			sql("SET :DTS-DB2 = CURRENT TIME")	// Untested
+			.into(varDest);
+		}		
+	}
+	
+//	public Var getSQLCurrentTimestamp()
+//	{
+//		return null;	// To be done ...
+//	}
+	
+	/*Naca PJReady*/public String getInputBatch()
+	{
+		String cs = BaseResourceManager.getStdInArgOnce();
+		if(cs != null)
+			return cs;
+		cs = ConsoleInput.getKeyboardLine();
+		return cs;
+	}
+	
+	protected SearchAllHandler searchAll(Var var, Var varTableSize)
+	{
+		SearchAllHandler handler = new SearchAllHandler(var, varTableSize);
+		return handler;
+	}
+
+	protected CompareResult compare(Var var1, Var var2)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("compare_V_V:" + var1.getSTCheckValue()+ "/" + var2.getSTCheckValue());
+		int nResult = var1.compareTo(ComparisonMode.Unicode, var2);
+		getTempCache().resetTempVarIndex(var1.m_varTypeId);
+		getTempCache().resetTempVarIndex(var2.m_varTypeId);
+		return CompareResult.get(nResult);
+	}
+
+	public void spyWrite(Var var)
+	{
+		BufferSpy.addVarToSpy(var);
+	}
+
 }
 
 

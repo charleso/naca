@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,7 +25,7 @@ import nacaLib.varEx.*;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: FileEncodingConverterWithClass.java,v 1.10 2007/06/09 12:04:22 u930bm Exp $
+ * @version $Id$
  */
 public class FileEncodingConverterWithClass extends FileEncodingConverter
 {

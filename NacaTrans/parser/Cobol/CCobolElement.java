@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -23,8 +29,10 @@ import parser.CIdentifier;
 import parser.CLanguageElement;
 import parser.condition.*;
 import parser.expression.*;
+import utils.CGlobalEntityCounter;
 import utils.NacaTransAssertException;
 import utils.Transcoder;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -175,6 +183,10 @@ public abstract class CCobolElement extends CLanguageElement
 
 	public CTerminal ReadTerminal()
 	{
+//		if(this.getLine() == 363)
+//		{
+//			int gg =0 ;
+//		}
 		CBaseToken tok = GetCurrentToken() ;
 		if (tok.GetType() == CTokenType.IDENTIFIER || tok.IsKeyword())
 		{
@@ -192,7 +204,7 @@ public abstract class CCobolElement extends CLanguageElement
 		{
 			CBaseToken tokNext = GetNext() ;
 			String cs = tok.GetValue() ;
-			if (CCobolParser.ms_bCommaIsDecimalPoint && tokNext.GetType() == CTokenType.COMMA)
+			/*if (CCobolParser.ms_bCommaIsDecimalPoint && tokNext.GetType() == CTokenType.COMMA)
 			{
 				cs += "." ;
 				tokNext = GetNext();
@@ -201,7 +213,7 @@ public abstract class CCobolElement extends CLanguageElement
 					cs += tokNext.GetValue();
 					tokNext = GetNext();
 				}
-			}
+			}*/
 			return new CNumberTerminal(cs) ;
 		}
 		else if (tok.GetType() == CTokenType.MINUS)
@@ -239,7 +251,7 @@ public abstract class CCobolElement extends CLanguageElement
 	public CExpression ReadExpression()
 	{
 		CExpression exprGlobal = null ;
-		CBaseToken tok = GetCurrentToken() ;
+		GetCurrentToken() ;
 		exprGlobal = ReadConditionalStatement() ;
 		return exprGlobal ;
 	}
@@ -247,7 +259,7 @@ public abstract class CCobolElement extends CLanguageElement
 	public CExpression ReadCalculExpression()
 	{
 		CExpression exprGlobal = null ;
-		CBaseToken tok = GetCurrentToken() ;
+		GetCurrentToken() ;
 		exprGlobal = ReadSumExpr() ;
 		return exprGlobal ;
 	}
@@ -313,17 +325,35 @@ public abstract class CCobolElement extends CLanguageElement
 		while (!bDone)
 		{
 			CBaseToken tok = GetCurrentToken();
-			if (tok.GetType() == CTokenType.STAR)
+			if (tok.GetType() == CTokenType.STAR)	// *: multiply
 			{
-				GetNext() ;
-				CExpression e = ReadTerminalExpr() ;
-				if (e != null)
+				tok = GetNext() ;
+				if (tok.GetType() == CTokenType.STAR)	// **: power
 				{
-					exprProd = new CProdExpression(tok.getLine(), exprProd, e, CProdExpression.CProdType.PROD) ;
+					Reporter.Add("Modif_PJ", "Power **");
+					tok = GetNext() ;
+					CExpression e = ReadTerminalExpr() ;
+					if (e != null)
+					{
+						exprProd = new CProdExpression(tok.getLine(), exprProd, e, CProdExpression.CProdType.POWER) ;
+					}
+					else
+					{
+						bDone = true ;
+					}
+
 				}
 				else
 				{
-					bDone = true ;
+					CExpression e = ReadTerminalExpr() ;
+					if (e != null)
+					{
+						exprProd = new CProdExpression(tok.getLine(), exprProd, e, CProdExpression.CProdType.PROD) ;
+					}
+					else
+					{
+						bDone = true ;
+					}
 				}
 			}
 			else if(tok.GetType() == CTokenType.SLASH)
@@ -460,6 +490,15 @@ public abstract class CCobolElement extends CLanguageElement
 			}
 		}
 	}
+	
+	
+	private CExpression ReadLengthOfTerminalExpression()
+	{
+		CExpression eTerminal = ReadTerminalExpr() ;
+		CLengthOfExpression lengthOfExpression = new CLengthOfExpression(getLine(), eTerminal); 
+		return lengthOfExpression;
+	}
+	
 	private CExpression ReadSimpleCondition(CExpression defaultOperand)
 	{
 		CExpression curCond = null ;
@@ -467,7 +506,8 @@ public abstract class CCobolElement extends CLanguageElement
 		if (tok.GetType() == CTokenType.IDENTIFIER || tok.GetType() == CTokenType.STRING ||
 			tok.GetType() == CTokenType.NUMBER || tok.GetType() == CTokenType.CONSTANT || 
 			tok.GetType() == CTokenType.MINUS || tok.GetType() == CTokenType.PLUS
-			|| tok.GetType() == CTokenType.LEFT_BRACKET)
+			|| tok.GetType() == CTokenType.LEFT_BRACKET ||
+			tok.GetKeyword() == CCobolKeywordList.LENGTH)
 		{
 			CExpression curTerminal = ReadCalculExpression();
 			curCond = ReadBinaryCondEvaluator(curTerminal, false);
@@ -644,9 +684,24 @@ public abstract class CCobolElement extends CLanguageElement
 			}
 			return condGlobal ;
 		}
-		else if (tok.GetType() == CTokenType.GREATER_THAN || tok.GetKeyword() == CCobolKeywordList.GREATER) 
+		else if (tok.GetType() == CTokenType.GREATER_THAN)	// PJD Commented || tok.GetKeyword() == CCobolKeywordList.GREATER) 
 		{
 			GetNext() ;
+			CExpression term2 = ReadSimpleCondition(null);
+			if (bIsOpposite)
+			{
+				return new CCondLessStatement(tok.getLine(), operand1, term2, true) ;
+			}
+			else
+			{
+				return new CCondGreaterStatement(tok.getLine(), operand1, term2) ;
+			}
+		}
+		else if (tok.GetKeyword() == CCobolKeywordList.GREATER)	// PJD Added 
+		{
+			CBaseToken tokNext = GetNext() ;
+			if(tokNext.GetKeyword() == CCobolKeywordList.THAN)
+				tokNext = GetNext() ;
 			CExpression term2 = ReadSimpleCondition(null);
 			if (bIsOpposite)
 			{
@@ -670,6 +725,21 @@ public abstract class CCobolElement extends CLanguageElement
 				return new CCondLessStatement(tok.getLine(), operand1, term2) ;
 			}
 		}
+		else if (tok.GetKeyword() == CCobolKeywordList.LESS)	// PJD Added
+		{
+			CBaseToken tokNext = GetNext() ;	// Consume THAN
+			if(tokNext.GetKeyword() == CCobolKeywordList.THAN)
+				tokNext = GetNext() ;
+			CExpression term2 = ReadSimpleCondition(null);
+			if (bIsOpposite)
+			{
+				return new CCondGreaterStatement(tok.getLine(), operand1, term2, true) ;
+			}
+			else
+			{
+				return new CCondLessStatement(tok.getLine(), operand1, term2) ;
+			}
+		}			
 		else if (tok.GetType() == CTokenType.GREATER_OR_EQUALS) 
 		{
 			GetNext() ;
@@ -698,7 +768,7 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.NOT)
 		{
-			CBaseToken tokNext = GetNext() ;
+			GetNext() ;
 			return ReadBinaryCondEvaluator(operand1, !bIsOpposite) ;
 //			if (tokNext.GetType() == CTokenType.EQUALS)
 //			{
@@ -753,7 +823,7 @@ public abstract class CCobolElement extends CLanguageElement
 		}
 		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.IS)
 		{
-			CBaseToken tokOption = GetNext();
+			GetNext();
 			return ReadBinaryCondEvaluator(operand1, bIsOpposite) ;
 		}
 		else if (tok.IsKeyword() && tok.GetKeyword() == CCobolKeywordList.NUMERIC)
@@ -894,6 +964,21 @@ public abstract class CCobolElement extends CLanguageElement
 				{
 					return null ;
 				}
+			}
+		}
+		else if (tok.GetKeyword() == CCobolKeywordList.LENGTH)	// PJD Added support for IF IND3 NOT > LENGTH OF COM-OUT-CDN
+		{
+			tok = GetNext() ;
+			if (tok.GetKeyword() == CCobolKeywordList.OF)
+			{
+				CGlobalEntityCounter.GetInstance().CountCobolVerb("LENGTH_OF") ;
+				tok = GetNext() ;
+				CExpression e = ReadLengthOfTerminalExpression();
+				return e;
+			}
+			else
+			{
+				return null ;
 			}
 		}
 		else 

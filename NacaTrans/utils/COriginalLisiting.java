@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -31,6 +37,14 @@ public class COriginalLisiting
 		if (n>0 && n<=m_arrLines.size())
 		{
 			String cs = m_arrLines.get(n-1) ;
+			if(cs.indexOf("VALUE 'RS0333D'") >= 0)
+			{
+				if(cs.indexOf("\r") >= 0)
+				{
+					int gg = 0;
+				}
+			}
+
 			cs = cs.replaceAll("\n", "0x000A") ;
 			cs = cs.replaceAll("\r", "0x000D") ;
 			return cs ;

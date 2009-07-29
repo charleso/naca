@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,7 +20,7 @@ import java.util.Hashtable;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: DbDriverId.java,v 1.1 2007/10/04 08:57:17 u930di Exp $
+ * @version $Id$
  */
 public class DbDriverId
 {
@@ -23,7 +29,7 @@ public class DbDriverId
 	
 	public static DbDriverId SQLServer = new DbDriverId("SQLServer", "SQLServerDriver");
 	public static DbDriverId UDB = new DbDriverId("UDB", "DB2Driver");
-	public static DbDriverId Oracle = new DbDriverId("Oracle", "Oracle");
+	public static DbDriverId Oracle = new DbDriverId("Oracle", "OracleDriver");
 	//public static DbDriverId MySQL = new DbDriverId("MySQL", "");
 	
 	private DbDriverId(String csName, String csClassName)
@@ -53,5 +59,12 @@ public class DbDriverId
 	public String toString()
 	{
 		return m_csName;
+	}
+	
+	public boolean isSameInstance(DbDriverId id)
+	{
+		if(this == id)
+			return true;
+		return false;
 	}
 }

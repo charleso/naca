@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -18,6 +24,7 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package nacaLib.stringSupport;
+import nacaLib.varEx.Var;
 import nacaLib.varEx.VarAndEdit;
 
 public class InspectTallying
@@ -25,6 +32,7 @@ public class InspectTallying
 	public static final InspectTallying TypeForAll = new InspectTallying("");
 	public static final InspectTallying TypeForChars = new InspectTallying("");
 	public static final InspectTallying TypeLeading = new InspectTallying("");
+	public static final InspectTallying TypeCountCharsBefore = new InspectTallying("");
 
 	public InspectTallying(VarAndEdit var)
 	{
@@ -49,12 +57,33 @@ public class InspectTallying
 		return to(result);
 	}
 	
+	/*Naca PJReady*/ public InspectTallying countAll(Var vSearchForAll, VarAndEdit result)
+	{
+		String csSearchForAll = vSearchForAll.getString();
+		return countAll(csSearchForAll, result);
+	}
+	
 	public InspectTallying countAll(VarAndEdit varSearchForAll)
 	{
 		m_csSearchForAll = varSearchForAll.getString();
 		m_InspectTallyingType = TypeForAll;
 		return this;
 	}
+	
+	public InspectTallying countCharsBefore(String csBefore, Var vto) 
+	{
+		m_csSearchForAll = csBefore;
+		m_InspectTallyingType = TypeCountCharsBefore;
+		return to(vto) ;		
+	}
+	
+	public InspectTallying countCharsBefore(VarAndEdit varBefore, Var vto) 
+	{
+		m_csSearchForAll = varBefore.getString();
+		m_InspectTallyingType = TypeCountCharsBefore;
+		return to(vto) ;		
+	}
+	
 	
 	public InspectTallying countLeading(String csLeading)
 	{
@@ -160,7 +189,15 @@ public class InspectTallying
 				}
 				varCount.set(nCount+varCount.getInt());
 			}
-		}		
+		}	
+		else if(m_InspectTallyingType == TypeCountCharsBefore)	// Count the number before the pattern
+		{		
+			int nPos =csSource.indexOf(m_csSearchForAll); 
+			if (nPos>=0) 
+				varCount.set(nPos);
+			else 
+				varCount.set(csSource.length());
+		}			
 		return this ;
 	}
 	
@@ -168,5 +205,5 @@ public class InspectTallying
 	private String m_csSearchForAll = null;
 	private String m_csBefore = null;
 	private String m_csAfter = null;
-	private InspectTallying m_InspectTallyingType = null;	
+	private InspectTallying m_InspectTallyingType = null;
 }

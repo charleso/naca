@@ -1,4 +1,4 @@
-       IDENTIFICATION DIVISION.
+           IDENTIFICATION DIVISION.
       *=================================================================
        PROGRAM-ID.   BATCH1.
        AUTHOR.       XXXXXXXXX.

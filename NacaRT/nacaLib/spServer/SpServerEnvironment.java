@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package nacaLib.spServer;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SpServerEnvironment.java,v 1.4 2007/06/22 21:38:46 u930bm Exp $
+ * @version $Id$
  */
 import java.sql.SQLException;
 

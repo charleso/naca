@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,11 +21,13 @@ package nacaLib.varEx;
 import java.math.BigDecimal;
 
 import nacaLib.basePrgEnv.BaseProgramManager;
+import nacaLib.debug.BufferSpy;
 import nacaLib.mathSupport.MathBase;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.tempCache.CStr;
 import nacaLib.tempCache.TempCache;
 import nacaLib.tempCache.TempCacheLocator;
+import jlib.log.Log;
 import jlib.misc.*;
 
 /**
@@ -106,6 +114,149 @@ public abstract class Var extends VarAndEdit
 	{
 		int x = math.m_d.intValue() ;
 		return getAt(x);
+	}
+	
+	
+	public Var subStringFrom(Var vStart1Based)
+	{
+		int nStart1Based = vStart1Based.getInt();
+		return subStringFrom(nStart1Based);
+	}
+	
+	public Var subStringFrom(int nStart1Based)
+	{
+		int nTotalLength = this.getLength();
+		int nRemainingLength = nTotalLength - nStart1Based;  
+		Var var = subString(nStart1Based, nRemainingLength);
+		return var;
+	}
+	
+	/**
+	 * PJReady
+	 * @param String csSource: Source string
+	 * @param int nStart: 1 based start position into source string
+	 * @param int nNbChars: Number of chars to extract
+	 * @return Var temp var represening the subtring of the source var, starting form position start, up to nNbChars chars
+	 */
+	public Var subString(Var vStart1Based, Var vNbChars)
+	{
+		int nStart1Based = vStart1Based.getInt();
+		int nNbChars = vNbChars.getInt();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(MathBase mStart1Based, MathBase mNbChars)
+	{
+		int nStart1Based = mStart1Based.m_d.intValue();
+		int nNbChars = mNbChars.m_d.intValue();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(MathBase mStart1Based, Var vNbChars)
+	{
+		int nStart1Based = mStart1Based.m_d.intValue();
+		int nNbChars = vNbChars.getInt();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(Var vStart1Based, MathBase mNbChars)
+	{
+		int nStart1Based = vStart1Based.getInt();
+		int nNbChars = mNbChars.m_d.intValue();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(int nStart1Based, Var vNbChars)
+	{
+		int nNbChars = vNbChars.getInt();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(int nStart1Based, MathBase mNbChars)
+	{
+		int nNbChars = mNbChars.m_d.intValue();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(MathBase mStart1Based, int nNbChars)
+	{
+		int nStart1Based = mStart1Based.m_d.intValue();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+	
+	public Var subString(Var vStart1Based, int nNbChars)
+	{
+		int nStart1Based = vStart1Based.getInt();
+		Var var = subString(nStart1Based, nNbChars);
+		return var;
+	}
+
+	
+	/**
+	 * PJReady
+	 * @param String csSource: Source string
+	 * @param int nStart: 1 based start position into source string
+	 * @param int nNbChars: Number of chars to extract
+	 * @return Var temp var represening the subtring of the source var, starting form position start, up to nNbChars chars
+	 */
+	public Var subString(int nStart1Based, int nNbChars)
+	{
+		if(nStart1Based <= 0) 
+			Log.logCritical("Substring error: start offset is too low (" + nStart1Based + ")");
+		if(nNbChars <= 0)
+			Log.logCritical("Substring error: number of char to extract is too low: "+nNbChars);
+		if(nStart1Based > getLength() + nStart1Based)
+		{
+			int nMax = getLength() + nStart1Based;
+			Log.logCritical("Substring error: number of char to extract is too high: requets=" + nStart1Based + " maximum value is "+nMax);
+		}
+		
+		TempCache cache = TempCacheLocator.getTLSTempCache();
+		if(cache != null)
+		{
+			int nTypeId = m_varDef.getTypeId();
+			CoupleVar coupleVarGetAt = cache.getTempVar(nTypeId);
+			if(coupleVarGetAt != null)
+			{
+				// Not an occursed item, but get the nth char: m_varDef.m_occursItemSettings == null 
+				int nAbsStart = m_varDef.getBodyAbsolutePosition(m_bufferPos);
+				nAbsStart += nStart1Based-1;
+				m_varDef.adjustSettingForCharGetAt(coupleVarGetAt.m_varDefBuffer, nAbsStart);
+
+				if(coupleVarGetAt.m_variable == null)
+					coupleVarGetAt.m_variable = allocCopy(coupleVarGetAt.m_varDefBuffer);
+				
+				adjustSubString(coupleVarGetAt.m_varDefBuffer, (Var)coupleVarGetAt.m_variable);
+				coupleVarGetAt.m_varDefBuffer.setTotalSize(nNbChars);
+
+				return (Var)coupleVarGetAt.m_variable;
+			}
+			// Not an occursed item, but get the nth char: m_varDef.m_occursItemSettings == null 
+			int nAbsStart = m_varDef.getBodyAbsolutePosition(m_bufferPos);
+			nAbsStart += nStart1Based-1;
+			
+			VarDefBuffer varDefGetAt = m_varDef.allocCopy();
+			m_varDef.adjustSettingForCharGetAt(varDefGetAt, nAbsStart);
+			varDefGetAt.setTotalSize(nNbChars);
+			Var varGetAt = allocCopySubString(varDefGetAt);
+
+			cache.addTempVar(nTypeId, varDefGetAt, varGetAt);
+			return varGetAt;
+		}
+
+//		VarDefBuffer varDefItem = m_varDef.getAt(x);
+//		if(varDefItem == null)
+//			return this;
+//		Var var = allocCopy(varDefItem);
+//		return var;
+		return null;
 	}
 	
 	public Var getAt(int x)
@@ -366,6 +517,16 @@ public abstract class Var extends VarAndEdit
 		varBufferPos.m_nAbsolutePosition = varDefGetAt.m_nDefaultAbsolutePosition + nOffset;
 		//varBufferPos.setProgramManager(m_bufferPos.getProgramManager());
 	}
+	
+	private void adjustSubString(VarDefBuffer varDefGetAt, Var varGetAt)
+	{
+		// Fill varGetAt with custom setting of this 
+		varGetAt.m_varDef = varDefGetAt;
+		// Fill varGetAt with custom setting of this 
+		varGetAt.m_bufferPos.shareDataBufferFrom(m_bufferPos);
+		//int nOffset = m_bufferPos.m_nAbsolutePosition - m_varDef.m_nDefaultAbsolutePosition;
+		varGetAt.m_bufferPos.m_nAbsolutePosition = varDefGetAt.m_nDefaultAbsolutePosition;	// + nOffset;
+	}
 
 	
 	public Var allocCopy(VarDefBuffer varDefItem)
@@ -375,6 +536,20 @@ public abstract class Var extends VarAndEdit
 		
 		int nOffset = m_bufferPos.m_nAbsolutePosition - m_varDef.m_nDefaultAbsolutePosition;
 		varItem.m_bufferPos = new VarBufferPos(m_bufferPos, varDefItem.m_nDefaultAbsolutePosition + nOffset);
+		varItem.m_varTypeId = varDefItem.getTypeId();
+		
+		//assertIfFalse(varItem.m_bufferPos.getProgramManager() == m_bufferPos.getProgramManager());
+		
+		return (Var)varItem;
+	}
+	
+	private Var allocCopySubString(VarDefBuffer varDefItem)
+	{ 
+		VarBase varItem = allocCopy();
+		varItem.m_varDef = varDefItem;
+		
+		//int nOffset = m_bufferPos.m_nAbsolutePosition - m_varDef.m_nDefaultAbsolutePosition;
+		varItem.m_bufferPos = new VarBufferPos(m_bufferPos, varDefItem.m_nDefaultAbsolutePosition);
 		varItem.m_varTypeId = varDefItem.getTypeId();
 		
 		//assertIfFalse(varItem.m_bufferPos.getProgramManager() == m_bufferPos.getProgramManager());
@@ -638,6 +813,12 @@ public abstract class Var extends VarAndEdit
 	int getOffsetFromLevel01()
 	{
 		return m_varDef.getOffsetFromLevel01();
+	}
+	
+	public Var spyWrite()
+	{
+		BufferSpy.addVarToSpy(this);
+		return this;
 	}
 
 }

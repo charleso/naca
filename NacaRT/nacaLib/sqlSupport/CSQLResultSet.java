@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -11,8 +17,13 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import oracle.jdbc.OracleResultSet;
+import oracle.sql.ROWID;
+
 import jlib.log.Log;
 import jlib.misc.ArrayFixDyn;
+import jlib.misc.DBIOAccounting;
+import jlib.misc.DBIOAccountingType;
 import jlib.misc.IntegerRef;
 import jlib.sql.LogSQLException;
 import nacaLib.base.CJMapObject;
@@ -58,7 +69,7 @@ public class CSQLResultSet extends CJMapObject
 				else
 				{	
 					if (m_sqlStatus != null)
-						m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND);
+						m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND.getMainCode());
 				}
 			}
 			catch (SQLException e)
@@ -68,7 +79,7 @@ public class CSQLResultSet extends CJMapObject
 					LogSQLException.log(e);
 					BaseProgramLoader.logMail(m_csProgramName + " - JDBC warning", "Warning while executing CSQLResultSet::next() on result set for program="+m_csProgramName + ", clause="+m_csQuery, e);
 					if (m_sqlStatus != null)
-						m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND);
+						m_sqlStatus.setSQLCode(SQLCode.SQL_NOT_FOUND.getMainCode());
 				}
 				else
 				{
@@ -131,12 +142,32 @@ public class CSQLResultSet extends CJMapObject
 		return "";
 	}
 	
+	private boolean setIntoRowIdGenerated(CSQLIntoItem sqlIntoItem, SQLRecordSetVarFiller sqlRecordSetVarFiller)
+	{
+		try
+		{
+			ROWID rowId = ((OracleResultSet)m_r).getROWID(1);
+			sqlIntoItem.setRowIdValue(rowId);
+			return true;
+		}
+		catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	private void setInto(int nColSource, CSQLIntoItem sqlIntoItem, SQLRecordSetVarFiller sqlRecordSetVarFiller)
 	{
-		if(sqlRecordSetVarFiller != null)
-			sqlRecordSetVarFiller.addLinkColDestination(nColSource, sqlIntoItem.getVarInto(), sqlIntoItem.getVarIndicator());
+		VarAndEdit varInto = sqlIntoItem.getVarInto();
+		if(varInto == null)	// null for entries created by missingFetchVariables()
+			return ;
 		
-		boolean bNull = fillColValue(nColSource, sqlIntoItem.getVarInto(), sqlRecordSetVarFiller.getRecordSetCacheColTypeType());
+		if(sqlRecordSetVarFiller != null)
+			sqlRecordSetVarFiller.addLinkColDestination(nColSource, varInto, sqlIntoItem.getVarIndicator());
+		
+		boolean bNull = fillColValue(nColSource, varInto, sqlRecordSetVarFiller.getRecordSetCacheColTypeType());
 		sqlIntoItem.setColValueNull(bNull);
 		if (bNull && sqlIntoItem.getVarIndicator() == null)
 		{
@@ -207,6 +238,11 @@ public class CSQLResultSet extends CJMapObject
 //					recordSetCacheColTypeType.set(nColSourceIndex0Based, baseRecordColTypeManager);
 				}
 				else if(csColTypeName.equals("TIMESTAMP"))
+				{
+					baseRecordColTypeManager = new RecordColTypeManagerTimestamp(nColSourceIndex);
+					recordSetCacheColTypeType.set(nColSourceIndex0Based, baseRecordColTypeManager);
+				}
+				else if(csColTypeName.equals("TIMESTAMPTZ") || csColTypeName.equals("TIMESTAMP WITH TIME ZONE"))
 				{
 					baseRecordColTypeManager = new RecordColTypeManagerTimestamp(nColSourceIndex);
 					recordSetCacheColTypeType.set(nColSourceIndex0Based, baseRecordColTypeManager);
@@ -301,8 +337,18 @@ public class CSQLResultSet extends CJMapObject
 					b = true;
 			}
 			if(b)
-			{					
+			{	
 				sqlRecordSetVarFiller.apply(this);
+				
+				if(bRowIdGenerated)	// 1st col is the rowid
+				{
+					if(sql.m_arrIntoItems.size() > 0)
+					{
+						CSQLIntoItem sqlIntoItem = sql.m_arrIntoItems.get(0);
+						setIntoRowIdGenerated(sqlIntoItem, sqlRecordSetVarFiller);
+					}
+				}
+				
 				manageSQLCode(bCursor);
 			}
 			else
@@ -323,18 +369,18 @@ public class CSQLResultSet extends CJMapObject
 	{
 		if (m_bNullError)
 		{
-			m_sqlStatus.setSQLCode(SQLCode.SQL_VALUE_NULL);
+			m_sqlStatus.setSQLCode(SQLCode.SQL_VALUE_NULL.getMainCode());
 		}
 		else if (bCursor)
 		{
-			m_sqlStatus.setSQLCode(SQLCode.SQL_OK);
+			m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode());
 		}
 		else
 		{
 			if(isTheOnlyOne())
-				m_sqlStatus.setSQLCode(SQLCode.SQL_OK) ;
+				m_sqlStatus.setSQLCode(SQLCode.SQL_OK.getMainCode()) ;
 			else
-				m_sqlStatus.setSQLCode(SQLCode.SQL_MORE_THAN_ONE_ROW) ;
+				m_sqlStatus.setSQLCode(SQLCode.SQL_MORE_THAN_ONE_ROW.getMainCode()) ;
 		}
 	}
 	
@@ -352,6 +398,8 @@ public class CSQLResultSet extends CJMapObject
 		int nNbcolUnitaryRight = 0;
 		
 		int nNbColInRecordSet = getRecordSetColumnCount();
+		if(sqlRecordSetVarFiller == null)
+			return ;
 		sqlRecordSetVarFiller.setNbCol(nNbColInRecordSet);
 		
 		if(!sql.getOneStarOnlyMode())	// we do not a select * from ...
@@ -381,6 +429,15 @@ public class CSQLResultSet extends CJMapObject
 			bSkippedStar = true;
 		}
 
+		if(bRowIdGenerated)	// 1st col is the rowid
+		{
+			if(sql.m_arrIntoItems.size() > 0)
+			{
+				CSQLIntoItem sqlIntoItem = sql.m_arrIntoItems.get(0);
+				setIntoRowIdGenerated(sqlIntoItem, sqlRecordSetVarFiller);
+			}
+		}
+		
 		// Unitary cols on the left
 		//Var2 varIntoDest = null;
 		for(int nColDest=0; nColDest<nNbcolUnitaryLeft; nColDest++)
@@ -416,6 +473,9 @@ public class CSQLResultSet extends CJMapObject
 				{					
 					CSQLIntoItem sqlIntoItem = sql.m_arrIntoItems.get(nColDest);
 					VarAndEdit varDestParent = sqlIntoItem.getVarInto();
+					if(varDestParent == null)	// null for entries created by missingFetchVariables()
+						continue ;
+						
 					Var varDestIndicatorParent = sqlIntoItem.getVarIndicator();
 					 
 					VarBase varChild = varDestParent.getUnprefixNamedVarChild(programManager, csColName, rnChildIndex);
@@ -536,13 +596,18 @@ public class CSQLResultSet extends CJMapObject
 
 	public void close()
 	{
+		if(m_r == null)
+			return ;
 		try
 		{
+			DBIOAccounting.startDBIO(DBIOAccountingType.CloseResultset);
 			m_r.close() ;
+			DBIOAccounting.endDBIO();
 			m_r = null;
 		} 
 		catch (SQLException e)
 		{
+			DBIOAccounting.endDBIO();
 			LogSQLException.log(e);
 			e.printStackTrace();
 		}

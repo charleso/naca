@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -56,7 +62,7 @@ import jlib.sqlColType.SQLColTypeDate;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: SQLClause.java,v 1.38 2008/07/08 12:34:22 u930bm Exp $
+ * @version $Id$
  */
 public class SQLClause
 {
@@ -203,7 +209,11 @@ public class SQLClause
 		return this;
 	}
 	
-	public String getQuery()
+	/*
+	 * Renamed form getQuery
+	 * Accessor changed from public to empty, limiting access to current package 
+	 */
+	String completeQuery()
 	{
 		completeInsertQuery();
 		return m_csQuery;
@@ -341,11 +351,31 @@ public class SQLClause
 		return "?";
 	}
 	
+	public String param(Integer iValue)
+	{
+		if(m_arrParams == null)
+			m_arrParams = new ArrayList<ColValue>();
+		ColValueInteger colVal = new ColValueInteger("", iValue);
+		m_arrParams.add(colVal);
+		
+		return "?";
+	}
+	
 	public SQLClause paramInsert(String csName, int nVal)
 	{
 		if(m_arrInsertParams == null)
 			m_arrInsertParams = new ArrayList<ColValue>();
 		ColValueInt colVal = new ColValueInt(csName, nVal); 
+		m_arrInsertParams.add(colVal);
+		
+		return this;
+	}
+	
+	public SQLClause paramInsert(String csName, Integer iValue)
+	{
+		if(m_arrInsertParams == null)
+			m_arrInsertParams = new ArrayList<ColValue>();
+		ColValueInteger colVal = new ColValueInteger(csName, iValue); 
 		m_arrInsertParams.add(colVal);
 		
 		return this;
@@ -370,6 +400,28 @@ public class SQLClause
 		return 0;
 	}
 	
+	public Integer getInteger(String csColName) 
+		throws TechnicalException
+	{
+		if(m_resultSet != null)
+		{
+			try
+			{
+				int nVal = m_resultSet.getInt(csColName);
+				if (m_resultSet.wasNull())
+					return null;	// Returns null for SQL null value
+				return nVal;
+			}
+			catch (SQLException e)
+			{
+				forceCloseOnExceptionCatched();
+				ProgrammingException.throwException(ProgrammingException.DB_ERROR_RESULT_SET_COL_ACCESS_STRING+csColName, m_csQuery, e);
+			}			
+		}
+		return 0;
+	}
+	
+
 	public int getInt(int nColNumber) 
 		throws TechnicalException
 	{
@@ -378,6 +430,27 @@ public class SQLClause
 			try
 			{
 				int nVal = m_resultSet.getInt(nColNumber);
+				return nVal;
+			}
+			catch (SQLException e)
+			{
+				forceCloseOnExceptionCatched();
+				ProgrammingException.throwException(ProgrammingException.DB_ERROR_RESULT_SET_COL_ACCESS_INT+nColNumber, m_csQuery, e);
+			}			
+		}
+		return 0;
+	}
+	
+	public Integer getInteger(int nColNumber) 
+		throws TechnicalException
+	{
+		if(m_resultSet != null)
+		{
+			try
+			{
+				int nVal = m_resultSet.getInt(nColNumber);
+				if (m_resultSet.wasNull())	// return null for SQL null
+					return null;
 				return nVal;
 			}
 			catch (SQLException e)

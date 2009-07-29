@@ -1,0 +1,263 @@
+NacaRT File rules
+
+File declaration:
+
+There is 2 different syntax:
+Standard declaration: -File_<LogicalName>=<Path and physical file name>[,vb|fb][,ascii|ebcdic][,ext][,nnn]
+Advanced declaration: -<LogicalName>=<Path and physical file name>,advancedMode[,variable|fixed][RecordLengthHeader|NoRecordLengthHeader][,CRLF|LF][,][,ascii|ebcdic][,ext][,nnn]
+Advanced declaration using Microfocus sequential fiel compatibility: -<LogicalName>=<Path and physical file name>,advancedMode,MFCobolLineSequential,[CRLF|LF]*
+
+These values can be sepecified either:
+- by calling the program with the command line argument. Example: -File_Client=D:/Files/2007/Clients/ClientFile.txt,advancedMode,variable,ascii,CRLF,NoRecordLengthHeader
+- or by exporting a system variable named Client, having value D:/Files/2007/Clients/ClientFile.txt,advancedMode,variable,ascii,CRLF,NoRecordLengthHeader
+
+1. Standard declaration
+
+1.1 Physical file name
+
+<Path and physical file name> must be the first parameter. It's mandatory. 
+If it is empty, or set to wrk/nullfile or NULLFILE (both case insensitive), then the file is marked as dummy, and is not written not read.
+In other case, the path and file name must be valid under current plateform.
+
+The other parameters are optional.
+
+1.2 Mode identification
+
+- advancedMode must not be defined. If it is defined, then the file descriptor is setup as advanced mode. This parameter must be defined before any other advanced mode parameter.
+
+1.3 File encoding : [,ascii|ebcdic]
+
+- ascii: the file is encoded in ascii
+- ebcdic: the file is encoded in ascii
+Both values are incompatible. If none is specified, then the file is considered by default as encoded in ascii.
+
+1.4 Extended open mode : [,ext]
+
+- ext: activates the extended open mode: when a file is open in output mode, it sometimes desirable to append new records, or the erase the file.
+By defaut, when writing the 1st record after open in output mode, the file is erased. but, if the extended mode is declared in the file definition, then records are appended at the end of file.
+
+1.5 Record structure : [,vb|fb][,nnn]
+
+- vb: Indicates a variable record size file. The records are prefixed with a 4 bytes binary header, specifying the record length. Every record is terminated with a LF (0x0A) character. The record header doesn't count itselft, nor the trailing LF.
+- fb: Indicates a fix record size file. A supplementary option -nnn, where n is a digit can optionnally define the record size, in byte. No record header is used. Every record is terminated with a LF (0x0A) character.
+vb and fb an are mutually exclusive. If none is specified, then the file is considered by default as using fix record length.
+A numeric only parameter can be specified (e.g. 123). It defines the length of the records, and is usied only fix record size files.
+
+
+2. Advanced declaration
+
+2.1 Physical file name
+
+<Path and physical file name> must be the first parameter. It's mandatory. 
+If it is empty, or set to wrk/nullfile or NULLFILE (both case insensitive), then the file is marked as dummy, and is not written not read.
+In other case, the path and file name must be valid under current plateform.
+
+2.2 Mode identification
+
+- advancedMode must be defined to activate the advanced mode file descriptor.
+
+The other parameters are optional.
+
+2.3 File encoding : [,ascii|ebcdic]
+
+- ascii: the file is encoded in ascii
+- ebcdic: the file is encoded in ascii
+Both values are incompatible. If none is specified, then the file is considered by default as encoded in ascii.
+This has the same meaning as standard file descriptor.
+
+2.4 Extended open mode : [,ext]
+
+- ext: activates the extended open mode: when a file is open in output mode, it sometimes desirable to append new records, or the erase the file.
+By defaut, when writing the 1st record after open in output mode, the file is erased. but, if the extended mode is declared in the file definition, then records are appended at the end of file.
+This has the same meaning as standard file descriptor.
+
+2.5 Record structure
+
+- variable: Indicates a variable record size file. Contrary to vb mode, the 4 binary byte header is optionnal. Contrary to vb mode, the trailing LF is also optionnal. 
+- fixed: Indicates a fix record size file. Contrary to fb mode, the trailing LF is optionnal. 
+If none of these parameters if specified, then fixed is taken by default.
+
+A supplementary option -nnn, where n is a digit can optionnally define the record size, in byte. 
+variable and fixed an are mutually exclusive. 
+A numeric only parameter can be specified (e.g. 123). It defines the length of the records, and is usied only fix record size files.
+
+2.6 Record length header
+
+- RecordLengthHeader: Indicates that all records are prefixed by a binary 4 bytes length. 
+- NoRecordLengthHeader: Indicates records are not prefixed by a binary 4 bytes length.
+If none of these parameters if specified, then NoRecordLengthHeader is taken by default.
+
+2.7 Record end of line marker
+
+-CRLF: Indicates that every record is terminated by 2 bytes CR/LF (0x0D/0x0A).
+-LF: Indicates that every record is terminated by a single bytes LF (0x0A).
+Both value are mutually exclusive. If none is specified, then no record end of line is defined.
+
+3. Advanced declaration using Microfocus sequential file compatibility
+
+Syntax: -<LogicalName>=<Path and physical file name>,advancedMode,MFCobolLineSequential,[CRLF|LF]*
+
+To activate the sequential record structure, compatible with Microfocus sequential files, then set the MFCobolLineSequential option.
+the only valid other option is LF or CRLF to indicate required record terminaison convention.
+If CRLF and LF are missing, then the current OS line terminaison code is used. It's CRLF for windows, LF for other palteforms.
+The record won't have binary 4 byte header. It's termintaed either by a CRLF or LF, depending on record terminaison choice.
+
+The bytes with value less than 0x20 are prefixed by a leading byte set to 0x00. The record terminaison bytes are not prefixed. 
+Record trailing spaces are also removed. This format is compatible with Micro focus and Cobol IT line sequential file format.
+
+4. Default values
+
+4.1. Default file path
+
+A default file path can be specified on the program command line by setting the argument "-DefaultFilePath=xxx", where xxx is a valid path.
+The path can be use either \ or / subdirectory separators. There is no need to terminate the path by a trailing subdirectory separator (ie c:\toto/files\ equals c:/toto/files).
+Characters are case sensitive in Unix file system.
+This default path is used when a file has no path specification in it's physical file name. 
+If it's needed to set the file in the current working directory, set it into ./ directory.
+
+Examples of file definitions, using the default file path c:\toto\files\:
+
+- abc.txt: The default file path will be used: The complete physical file name will be c:\toto\files\abc.txt
+- ./abc.txt: The default file path will not be used. This file will be set in the current working directory (whatever it's value)
+- d:/xxx\abc.txt: The default file path will not be used. The complete file name will be d:\xxx\abc.txt
+
+4.2. Default file mode
+
+There are 3 differents manners to define the file mode.
+In the example, we define the argument for logical file name ABC. It's located in file system as d:\files\abc001.txt and is advancedMode,MFCobolLineSequential,LF
+
+4.2.1 By making it explicit in the logical file name's value. 
+
+Example:
+-File_abc=d:\files\abc001.txt,advancedMode,MFCobolLineSequential,LF
+
+4.2.2 By defining a default value on the command line. 
+
+All files without specific settings will share the default arguments
+
+Example:
+	-DefaultFileMode=advancedMode,MFCobolLineSequential,LF
+	-File_abc=d:\files\abc001.txt
+
+4.2.3 Base upon ORGANIZATION SEQUENTIAL usage
+
+If the File is declared as ORGANIZATION SEQUENTIAL in the cobol source code, and if NacaRT.cfg contains the following definition:
+	<FileOrganizationSequential DefaultFileMode="advancedMode,MFCobolLineSequential,LF"/>
+
+then the command line argument can only be:
+-File_abc=d:\files\abc001.txt
+In that case, the DefaultFileMode command line argument is ignored.
+
+To sum-up:
+If a file specifies explicitly it's file mode, they are used.
+If a file doesn't define explicitly it's file mode, but is defined as ORGANIZATION SEQUENTIAL in the Cobol source code, and if the NacaRT.cfg defines the tag <FileOrganizationSequential>, then the value of tha argument "DefaultFileMode" of this tag is used to provide the file mode for this file.
+If a file doesn't define explicitly it's file mode, and is not defined as ORGANIZATION SEQUENTIAL, or there is not <FileOrganizationSequential> tag is the nacaRT.cfg, then the value of the command line argument -DefaultFileMode is taken.
+
+Note: these defautl file modes are shared by all files, within their own definition limits:
+- All file without explicit file mode without ORGANIZATION SEQUENTIAL statements uses the same default command line argument -DefaultFileMode.
+
+
+5. Remarks
+
+Combinaison fixed,RecordLengthHeader cannot be used for read operations
+Combinaison variable,RecordLengthHeader, equals standard vb declaration
+Combinaison fixed,NoRecordLengthHeader,  equals standard fb declaration
+
+
+6. Samples
+
+6.1 Fixed record length files 
+
+6.1.1 Without record header
+
+Ascii, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader,CRLF
+
+Ascii, terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader,LF
+
+Ascii, not terminated:  
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader
+
+Ebcdic, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,NoRecordLengthHeader,CRLF
+
+Ebcdic, terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,NoRecordLengthHeader,CRLF
+
+Ebcdic, not terminated: 
+export file d:\test\file.data,advancedMode,fixed,ascii,NoRecordLengthHeader
+
+6.1.2 With record header
+
+Ascii terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,RecordLengthHeader,CRLF
+
+Ascii terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ascii,RecordLengthHeader,LF
+
+Ascii not terminated: 
+export file d:\test\file.data,advancedMode,fixed,ascii,RecordLengthHeader
+
+Ebcdic terminated by CRLF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,RecordLengthHeader,CRLF
+
+Ebcdic terminated by LF: 
+export file d:\test\file.data,advancedMode,fixed,ebcdic,RecordLengthHeader,CRLF
+
+Ebcdic not terminated:
+export file d:\test\file.data,advancedMode,fixed,ebcdic,RecordLengthHeader
+
+6.2 Variable record length files
+
+6.2.1 Without header
+
+Ascii, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ascii,NoRecordLengthHeader,CRLF
+
+Ascii, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ascii,NoRecordLengthHeader,LF
+
+Ascii, not terminated: <-- WARNING: The records cannot be recognized !
+export file d:\test\file.data,advancedMode,variable,ascii,NoRecordLengthHeader
+
+Ebcdic, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,NoRecordLengthHeader,CRLF
+
+Ebcdic, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,NoRecordLengthHeader,LF
+
+Ebcdic, not terminated: <-- WARNING: The records cannot be recognized !
+export file d:\test\file.data,advancedMode,variable,ebcdic,NoRecordLengthHeader
+
+
+6.2.2 With header
+
+Ascii, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ascii,RecordLengthHeader,CRLF
+
+Ascii, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ascii,RecordLengthHeader,LF
+
+Ascii, not terminated: 
+export file d:\test\file.data,advancedMode,variable,ascii,RecordLengthHeader
+
+Ebcdic, terminated by CRLF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,RecordLengthHeader,CRLF
+
+Ebcdic, terminated by LF: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,RecordLengthHeader,LF
+
+Ebcdic, not terminated: 
+export file d:\test\file.data,advancedMode,variable,ebcdic,RecordLengthHeader
+
+6.3 Sequential line MicroFocus compatible
+
+Ascii, terminated by LF:
+export file d:\test\file.data,advancedMode,MFCobolLineSequential,LF
+
+Ascii, terminated by CRLF:
+export file d:\test\file.data,advancedMode,MFCobolLineSequential,CRLF
+
+Ascii, terminated by OS record terminaison code (CRLF for windows, LF for other systems):
+export file d:\test\file.data,advancedMode,MFCobolLineSequential

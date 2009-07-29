@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -76,7 +82,12 @@ public abstract class CBaseElement
 			tok = m_lstTokens.GetCurrentToken() ;
 		}
 		return tok ;
-	}		
+	}	
+	
+	protected void UpdateCurrentToken(CBaseToken tok)
+	{
+		m_lstTokens.UpdateCurrentToken(tok) ;
+	}	
 	public boolean Parse(CTokenList lst, CGlobalCommentContainer container)
 	{
 		m_lstTokens = lst ;
@@ -153,6 +164,7 @@ public abstract class CBaseElement
 			}
 			catch (NoSuchElementException e)
 			{
+				//e.printStackTrace();
 				//System.out.println(e.toString());
 			}
 			m_bExportDoneForChildren = true;
@@ -186,6 +198,7 @@ public abstract class CBaseElement
 	{
 		m_lstTokens = null ;
 		m_Container = null ;
+		COverridenKeywordManager.Clear();
 		
 		ListIterator<CBaseElement> i = m_children.listIterator() ;
 		try
@@ -199,7 +212,12 @@ public abstract class CBaseElement
 		}
 		catch (NoSuchElementException e)
 		{
+			//e.printStackTrace();
 			//System.out.println(e.toString());
 		}
+	}
+	
+	protected void DoDeferredCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory, int nIndex)
+	{
 	}
 }

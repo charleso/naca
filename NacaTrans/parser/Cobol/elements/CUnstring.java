@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -66,12 +72,12 @@ public class CUnstring extends CCobolElement
 			CDataEntity e = term.GetDataEntity(getLine(), factory);
 			if (e == null)
 			{
-				if (!term.IsReference() && (term.GetValue().equals("SPACES") || term.GetValue().equals("SPACE")))
+				if (!term.IsReference() && (term.GetValue().equals("SPACE") || term.GetValue().equals("SPACES")))
 				{
 					char [] arr = {' '} ;
 					e = factory.NewEntityString(arr);
 				}
-				else if (!term.IsReference() && (term.GetValue().equals("LOW-VALUE")))
+				else if (!term.IsReference() && (term.GetValue().equals("LOW-VALUE") || term.GetValue().equals("LOW-VALUES")))
 				{
 					char [] arr = {'\0'} ;
 					e = factory.NewEntityString(arr);
@@ -85,7 +91,7 @@ public class CUnstring extends CCobolElement
 			CDataEntity e = term.GetDataEntity(getLine(), factory);
 			if (e == null)
 			{
-				if (!term.IsReference() && (term.GetValue().equals("SPACES") || term.GetValue().equals("SPACE")))
+				if (!term.IsReference() && (term.GetValue().equals("SPACE") || term.GetValue().equals("SPACES")))
 				{
 					char [] arr = {' '} ;
 					e = factory.NewEntityString(arr);

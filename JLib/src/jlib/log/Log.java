@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -633,6 +639,101 @@ public class Log
 			logParams.fillAppCallerLocation(ms_CallStackExclusion);
 		sendLog(logParams);
 	}
+	
+	public static void logWholeCallStack(String csMessage, LogLevel level)
+	{
+		LogEvent logEvent=new LogEvent(LogEventType.Remark, LogFlowStd.Any, level, null, null);
+		logEvent.setName("CallStackEvent");
+
+		StackTraceElement[] tStack = fillWholeCallStack();
+		String cs = formatCallStack(tStack, null);		
+		LogParams logParams = new LogParams(null, logEvent, csMessage + cs);
+
+		if(ms_CallStackExclusion != null)
+			logParams.fillAppCallerLocation(ms_CallStackExclusion);
+		sendLog(logParams);
+	}
+
+	public static String logCallStack(String csMessage, LogLevel level)
+	{
+		LogEvent logEvent=new LogEvent(LogEventType.Remark, LogFlowStd.Any, level, null, null);
+		logEvent.setName("CallStackEvent");
+
+		StackTraceElement[] tStack = fillWholeCallStack();
+		String cs = formatCallStack(tStack, ms_CallStackExclusion);		
+		LogParams logParams = new LogParams(null, logEvent, csMessage + cs);
+
+		if(ms_CallStackExclusion != null)
+			logParams.fillAppCallerLocation(ms_CallStackExclusion);
+		sendLog(logParams);
+		return cs;
+	}
+
+	private static String formatCallStack(StackTraceElement[] tStack, CallStackExclusion callStackExclusion)
+	{
+		String csText = "";
+		if(tStack == null)
+			return csText;
+
+		if(callStackExclusion == null)
+		{
+			for(int n=0; n<tStack.length; n++)
+			{
+				StackTraceElement stackElem = tStack[n];
+				String csFile = stackElem.getFileName();
+				if(csFile != null)
+				{
+					String cs = csFile + "(" + stackElem.getLineNumber() + ")";
+					csText += cs + " / ";
+				}
+			}
+		}
+		else
+		{
+			for(int n=0; n<tStack.length; n++)
+			{
+				StackTraceElement stackElem = tStack[n];
+				String csClassName = stackElem.getClassName();
+				if(callStackExclusion.doNotContains(csClassName))
+				{
+					String csFile = stackElem.getFileName();
+					if(csFile != null)
+					{
+						String cs = csFile + "(" + stackElem.getLineNumber() + ")";
+						csText += cs + " / ";
+					}
+				}
+			}
+		}
+		return csText;
+	}
+	
+	private static String formatFilteredWholeCallStack(StackTraceElement[] tStack)
+	{
+		String csText = "";
+		if(tStack == null)
+			return csText;
+		
+		for(int n=0; n<tStack.length; n++)
+		{
+			StackTraceElement stackElem = tStack[n];
+			if(stackElem.getFileName() != null)
+			{
+				String cs = stackElem.getFileName() + "(" + stackElem.getLineNumber() + ")";
+				csText += cs + " / ";
+			}
+		}
+		return csText;
+	}
+	
+	private static StackTraceElement[] fillWholeCallStack()
+	{
+		Throwable th = new Throwable();
+		StackTraceElement tStack[]  = th.getStackTrace();
+		return tStack;
+	}
+	
+	
 	
 /**
  * Simplest method to send an event with the {@link LogLevel#Critical} level.

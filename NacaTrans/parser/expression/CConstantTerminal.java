@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -17,8 +23,11 @@ import lexer.Cobol.CCobolConstantList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import parser.Cobol.elements.SQL.SQLSetDateTimeType;
 import semantic.CDataEntity;
 import semantic.CBaseEntityFactory;
+import semantic.expression.CEntityConstant;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -91,10 +100,44 @@ public class CConstantTerminal extends CTerminal
 		{
 			return factory.NewEntityString(" ");
 		}
+		/*	// PJD Commented
 		else if (m_csValue.equals("CURRENT TIMESTAMP"))
 		{
 			return factory.NewEntityNumber(m_csValue);
 		}
+		*/
+		else if (m_csValue.equals("CURRENT_TIMESTAMP") || m_csValue.equals("CURRENT TIMESTAMP"))	// PJD New code for CURRENT_TIMESTAMP
+		{
+			Reporter.Add("Modif_PJ", "Constant CURRENT_TIMESTAMP | CURRENT TIMESTAMP");
+			return factory.NewEntityCurrentTimeStampSQLFunction(m_csValue);
+			//return factory.NewEntityString("CURRENT_TIMESTAMPXXX");
+		}
+		else if (m_csValue.equals("CURRENT_DATE") || m_csValue.equals("CURRENT DATE"))	// PJD New code for CURRENT_DATE
+		{
+			Reporter.Add("Modif_PJ", "Constant CURRENT_DATE | CURRENT DATE");
+			return factory.NewEntityCurrentDateSQLFunction(m_csValue);
+			//return factory.NewEntityCurrentDate();
+		}
+		else if (m_csValue.equals("DEFAULT"))	// PJD New code for DEFAULT
+		{
+			Reporter.Add("Modif_PJ", "Constant DEFAULT");
+			return factory.NewEntityNamedSQLFunction(m_csValue);
+		}
+		else if (m_csValue.equals("SQL_NULL"))	// PJD New code for SQL_NULL
+		{
+			Reporter.Add("Modif_PJ", "Constant SQL_NULL");
+			return factory.NewEntitySQLNull();
+		}
+		else if (m_csValue.equals("LOW-VALUE"))	// PJD Added PJ
+		{
+			Reporter.Add("Modif_PJ", "Constant LOW_VALUE");
+			return factory.NewEntityConstant(CEntityConstant.Value.LOW_VALUE);
+		}
+		else if (m_csValue.equals("HIGH-VALUE"))	// PJD Added PJ
+		{
+			return factory.NewEntityConstant(CEntityConstant.Value.HIGH_VALUE);
+		}
+
 		else if (m_csValue.equals(CCobolConstantList.QUOTE.m_Name) || m_csValue.equals(CCobolConstantList.QUOTES.m_Name))
 		{
 			char[] b = {'"'} ;

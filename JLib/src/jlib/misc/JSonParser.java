@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -56,7 +62,7 @@ public class JSonParser
 			try
 			{
 				Constructor ct = cls.getConstructor();
-				Object obj = ct.newInstance(null);
+				Object obj = ct.newInstance();	//null);
 				boolean b = fill("{" + csItem[i] + "}", obj);
 				if (b)
 					list.add(obj);

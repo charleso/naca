@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,7 @@ import java.util.ArrayList;
 
 import jlib.log.Log;
 import nacaLib.basePrgEnv.BaseProgram;
+import nacaLib.basePrgEnv.BaseProgramManager;
 import nacaLib.exceptions.*;
 
 public class Section extends CJMapRunnable
@@ -27,13 +34,18 @@ public class Section extends CJMapRunnable
 	{
 		m_Program = Program;
 		m_bRun = true;
-		m_Program.getProgramManager().addSection(this);
+		BaseProgramManager programManager = Program.getProgramManager();
+		programManager.addSection(this);
+		programManager.addSectionToParagraphArray(this);
 	}
+
 	public Section(BaseProgram Program, boolean bRun)
 	{
 		m_Program = Program;
 		m_bRun = bRun;
-		m_Program.getProgramManager().addSection(this);
+		BaseProgramManager programManager = Program.getProgramManager();
+		programManager.addSection(this);
+		programManager.addSectionToParagraphArray(this);
 	}
 	
 	public String toString()
@@ -75,7 +87,7 @@ public class Section extends CJMapRunnable
 				{
 					 m_currentParagraph = m_arrParagraph.get(nCurrentParagraphIndex);
 				}
-				else	// We are omn the last paragraph of the section: no next paragraph
+				else	// We are on the last paragraph of the section: no next paragraph
 					m_currentParagraph = null;
 			}
 			else
@@ -99,7 +111,8 @@ public class Section extends CJMapRunnable
 	
 	public void run()
 	{
-		if (!m_bRun || m_csName == null) return;
+		if (!m_bRun || m_csName == null)
+			return;
 		try
 		{
 			if (m_Method == null)
@@ -108,17 +121,52 @@ public class Section extends CJMapRunnable
 				m_Method = m_Program.getClass().getMethod(m_csName, paramTypes);
 			}
 			Object[] args = null;
+			
+			if(isLogStatCoverage)
+				StatCoverage.logStatCoverage(StatCoverageType.Section, m_Program, m_csName);
+			
 			m_Method.invoke(m_Program, args);
 		}
 		catch (NoSuchMethodException e)
 		{
 			throw new RuntimeException(e);
 		}
+//		catch (InvocationTargetException e)
+//		{	
+//			Throwable e1 = e.getTargetException();
+//			if (e1 instanceof NacaRTException)
+//			{	
+//				throw (NacaRTException)e1;
+//			}
+//			else if (e1 instanceof Error)
+//			{ 
+//				throw (Error)e1; 
+//	        }
+//			else if (e1 instanceof RuntimeException)
+//			{ 
+//	            throw (RuntimeException)e1; 
+//	        }   
+//			throw new RuntimeException(e);
+//		}
 		catch (InvocationTargetException e)
-		{	
+		{
 			Throwable e1 = e.getTargetException();
 			if (e1 instanceof NacaRTException)
 			{	
+				if(e1 instanceof CGotoException)
+				{
+					CGotoException eGoto = (CGotoException) e1;
+					if(eGoto.m_bSentence)
+					{
+						eGoto.m_Paragraph.run();
+						setCurrentParagraph(eGoto.m_Paragraph);
+
+//						BaseProgramManager programManager = m_Program.getProgramManager();
+//						Section currentSection = programManager.getCurrentSection();
+//						currentSection.runSectionFromParagraph(eGoto.m_Paragraph);
+						return ;
+					}
+				}
 				throw (NacaRTException)e1;
 			}
 			else if (e1 instanceof Error)
@@ -135,6 +183,11 @@ public class Section extends CJMapRunnable
 		{
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public void setCurrentParagraph(Paragraph paragraph)
+	{
+		m_currentParagraph = paragraph;
 	}
 	
 	public void runSectionFromParagraph(Paragraph paragraph)
@@ -202,7 +255,7 @@ public class Section extends CJMapRunnable
 				if(gotoParagraph != null)	// goto a paragraph
 				{
 					boolean b = isParagraphInCurrentSection(gotoParagraph);
-					if(b)	// the section that owns the paragrph where we goto is the current one
+					if(b)	// the section that owns the paragraph where we goto is the current one
 					{
 						m_currentParagraph = e.m_Paragraph;
 					}
@@ -245,5 +298,63 @@ public class Section extends CJMapRunnable
 			if(ParaFirst != null)
 				ParaFirst.run(); 
 		}
+	}
+	
+	
+	public CJMapRunnable runForPerformThrough()
+	{
+		if (m_csName == null)
+			return this;
+		try
+		{
+			if (m_Method == null)
+			{	
+				Class[] paramTypes = null;
+				m_Method = m_Program.getClass().getMethod(m_csName, paramTypes);
+			}
+			Object[] args = null;
+			m_Method.invoke(m_Program, args);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
+		catch (InvocationTargetException e)
+		{
+			Throwable e1 = e.getTargetException();
+			if (e1 instanceof NacaRTException)
+			{	
+				boolean b = true;
+				if(e1 instanceof CGotoException)
+				{
+					CGotoException eGoto = (CGotoException) e1;
+					if(eGoto.m_bSentence)
+					{
+//						BaseProgramManager programManager = m_Program.getProgramManager();
+//						Section currentSection = programManager.getCurrentSection();
+//						currentSection.runSectionFromParagraph(eGoto.m_Paragraph);
+						//m_currentSection.runSectionFromParagraph(eGoto.m_Paragraph);
+						eGoto.m_Paragraph.run();
+						return eGoto.m_Paragraph;
+					}
+				}
+				if(b)
+					throw (NacaRTException)e1;
+			}
+			else if (e1 instanceof Error)
+			{ 
+				throw (Error)e1; 
+	        }
+			else if (e1 instanceof RuntimeException)
+			{ 
+	            throw (RuntimeException)e1; 
+	        }   
+			throw new RuntimeException(e);
+		}
+		catch (IllegalAccessException e)
+		{
+			throw new RuntimeException(e);
+		}
+		return this;
 	}
 }

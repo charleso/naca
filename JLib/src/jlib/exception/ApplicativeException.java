@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package jlib.exception;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: ApplicativeException.java,v 1.3 2008/02/20 07:53:46 u930gn Exp $
+ * @version $Id$
  */
 public class ApplicativeException extends Exception
 {

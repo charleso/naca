@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,9 @@
  */
 package nacaLib.sqlSupport;
 
+//import oracle.sql.ROWID;
+import jlib.sql.SQLColumnType;
+import oracle.sql.ROWID;
 import nacaLib.varEx.VarAndEdit;
 import nacaLib.varEx.VarBase;
 import nacaLib.varEx.VarEnumerator;
@@ -26,7 +35,34 @@ public class CSQLItem
 {	
 	protected VarAndEdit m_var = null;
 	protected String m_csValue = null;
+	protected ROWID m_rowIdValue = null;
+//	private SQLColumnType m_sqlColumnType = null;
+//	private int m_nSQLColumnLength = -1;
 
+	public CSQLItem()
+	{	// SQL null
+	}
+	
+	public void setSQLNull()	// All values are null, the col is then SQL NULL
+	{
+		m_var = null;
+		m_csValue = null;
+	}
+	
+	public boolean isRowIdContainer()	// All values are null, the col is then SQL NULL
+	{
+		if(m_rowIdValue != null)
+			return true;
+		return false;
+	}
+	
+	public boolean isSQLNull()	// All values are null, the col is then SQL NULL
+	{
+		if(m_var == null && m_csValue == null)
+			return true;
+		return false;
+	}
+	
 	public CSQLItem(VarAndEdit var)
 	{
 		m_var = var;
@@ -35,6 +71,7 @@ public class CSQLItem
 	{
 		m_var = var;
 		m_csValue = null;
+		m_rowIdValue = null;
 	}
 
 
@@ -46,6 +83,18 @@ public class CSQLItem
 	{
 		m_var = null;
 		m_csValue = String.valueOf(nValue);
+		m_rowIdValue = null;
+	}
+	
+	public CSQLItem(ROWID rowIdValue)
+	{
+		m_rowIdValue = rowIdValue;
+	}
+	public void set(ROWID rowIdValue)
+	{
+		m_var = null;
+		m_csValue = null;
+		m_rowIdValue = rowIdValue;
 	}
 
 	public CSQLItem(double dValue)
@@ -56,6 +105,7 @@ public class CSQLItem
 	{
 		m_var = null;
 		m_csValue = String.valueOf(dValue);
+		m_rowIdValue = null;
 	}
 
 	public CSQLItem(String cs)
@@ -66,6 +116,7 @@ public class CSQLItem
 	{
 		m_var = null;
 		m_csValue = cs;
+		m_rowIdValue = null;
 	}
 	
 	public String getValue()
@@ -91,9 +142,16 @@ public class CSQLItem
 		return m_csValue;
 	}
 	
+	public ROWID getRowIdValue()
+	{
+		return m_rowIdValue;
+	}
+	
 	public String getDebugValue()
 	{
 		String cs = getValue();
+		if(cs == null)
+			return "[Null]";
 		byte t[] = cs.getBytes();
 		for(int n=0; n<t.length; n++)
 		{
@@ -107,7 +165,9 @@ public class CSQLItem
 	
 	private boolean isLongVarCharVarHolder()	// Indicates if the m_var contains a long varchar structure
 	{
-		return m_var.getVarDef().isLongVarCharVarStructure();
+		if(m_var != null)
+			return m_var.getVarDef().isLongVarCharVarStructure();
+		return false;
 	}
 
 	public CSQLItemType getType()
@@ -152,4 +212,22 @@ public class CSQLItem
 			return m_var.getLong() ;
 		return 0L;
 	}
+	
+//	public void setColumnTypeSettings(SQLColumnType sqlColumnType, int nSQLColumnLength)
+//	{
+//		m_sqlColumnType = sqlColumnType;
+//		m_nSQLColumnLength = nSQLColumnLength;
+//	}
+	
+//	public boolean isKnownSQLColumnType()
+//	{
+//		if(m_sqlColumnType == null || m_sqlColumnType == SQLColumnType.Unknown)
+//			return false;
+//		return true;
+//	}
+	
+//	public SQLColumnType getSQLColumnType()
+//	{
+//		return m_sqlColumnType; 	
+//	}
 }

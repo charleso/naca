@@ -76,7 +76,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 		Var w_Mi = declare.level(5).picX(2).var() ;                             // (69)      05 W-MI                PIC XX.
 		Var filler$6 = declare.level(5).picX(1).value(":").filler() ;           // (70)      05 FILLER              PIC X            VALUE ':'.
 		Var w_Ss = declare.level(5).picX(2).var() ;                             // (71)      05 W-SS                PIC XX.
-	                                                                            // (72)  
+	                                                                            // (72) 
 	Var w_Libel = declare.level(1).var() ;                                      // (73)  01  W-LIBEL.
 		Var w_Lib = declare.level(3).occurs(5).picX(1).var() ;                  // (74)      03 W-LIB               PIC X OCCURS 5.
 	Var w_Libel1 = declare.level(1).var() ;                                     // (75)  01  W-LIBEL1.
@@ -145,7 +145,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 	public void $1er_Passage() {
 		// *********************                                                   (133) *
 		initialize(onlinm1s.onlinefs) ;                                         // (134)      MOVE LOW-VALUE         TO ONLINEFS
-		                                                                        // (135)      
+		                                                                        // (135) 
 		move(CESM.getCurrentDay(), w_Jj);                                       // (136)      MOVE CIXJOUR           TO W-JJ W-JOUR
 		move(CESM.getCurrentDay(), w_Jour);
 		move(CESM.getCurrentMonth(), w_Mm);                                     // (137)      MOVE CIXMOIS           TO W-MM W-MOIS
@@ -160,7 +160,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 			move(19, w_Siecle);                                                 // (143)         MOVE 19             TO W-SIECLE.
 		}
 		move(w_Date_N, tuazone.tua_I_Dtjour);                                   // (144)      MOVE W-DATE-N          TO TUA-I-DTJOUR
-		                                                                        // (145)      
+		                                                                        // (145) 
 		move(tuazone.tua_I_Dtjourf, onlinm1s.sdtexec);                          // (146)      MOVE TUA-I-DTJOURF     TO SDTEXECI DTEXECI
 		move(tuazone.tua_I_Dtjourf, onlinm1.dtexec);
 		                                                                        // (147) 
@@ -189,7 +189,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 		                                                                        // (166)           INTO(ONLINEFI)
 		                                                                        // (167)      END-EXEC.
 		                                                                        // (168) 
-		perform(p_Merge_Masque) ;                                               // (169)      PERFORM P-MERGE-MASQUE.           
+		perform(p_Merge_Masque) ;                                               // (169)      PERFORM P-MERGE-MASQUE.
 		                                                                        // (170) 
 		// *** TEST DES DIFFERENTES TOUCHES FONCTIONS :                            (171) *
 		if (isKeyPressed(KeyPressed.PF2)) {                                     // (172)      IF EIBAID              = DFHPF2
@@ -210,21 +210,18 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 		                                                                        // (182) 
 		perform(plaus_Rel) ;                                                    // (183)      PERFORM                PLAUS-REL.
 	}
-	                                                                            // (184)      
+	                                                                            // (184) 
 	// *******************                                                         (185) /
 	Section test_Sql = new Section(this);                                       // (186)  TEST-SQL SECTION.
 	public void test_Sql() {
 		// *******************                                                     (187) *
 		move("1234", vtbmsga.no);                                               // (188)      MOVE '1234'            TO NO OF DVTBMSGA
-		sql("SELECT * FROM TBMSG  WHERE NO = #1")                               // (189)      EXEC SQL
-			.into(vtbmsga.dvtbmsga)
-			.param(1, vtbmsga.no)
-			.onErrorGoto(pc_Err_Db2) ;
-		                                                                        // (190)           SELECT *
-		                                                                        // (191)             INTO :DVTBMSGA
-		                                                                        // (192)             FROM VTBMSGA
-		                                                                        // (193)             WHERE NO = :DVTBMSGA.NO
-		                                                                        // (194)      END-EXEC
+		//      EXEC SQL                                                        // (189)
+		//           SELECT *                                                   // (190)
+		//             INTO :DVTBMSGA                                           // (191)
+		//             FROM VTBMSGA                                             // (192)
+		//             WHERE NO = :DVTBMSGA.NO                                  // (193)
+		//      END-EXEC                                                           (194) *
 		if (isSQLCode(SQLCode.SQL_OK)) {                                        // (195)      IF SQLCODE             = 0
 			move(vtbmsga.text, onlinm1.lierr);                                  // (196)         MOVE TEXT OF DVTBMSGA TO LIERRI SLIERRI
 			move(vtbmsga.text, onlinm1s.slierr);
@@ -234,7 +231,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 			setCursor(onlinm1.recoll) ;                                         // (199)         MOVE -1             TO RECOLLL
 			perform(rech_Msgerr) ;                                              // (200)         PERFORM             RECH-MSGERR
 		}                                                                       // (201)      END-IF
-		                                                                        // (202)      
+		                                                                        // (202) 
 		perform(envoi_Masque) ;                                                 // (203)      PERFORM                ENVOI-MASQUE.
 	}
 	                                                                            // (204) 
@@ -250,7 +247,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 			moveColor(MapFieldAttrColor.RED, onlinm1.recoll) ;                  // (212)         MOVE '2'            TO RECOLLC
 			perform(rech_Msgerr) ;                                              // (213)         PERFORM             RECH-MSGERR.
 		}
-		                                                                        // (214)         
+		                                                                        // (214) 
 		perform(envoi_Masque) ;                                                 // (215)      PERFORM                ENVOI-MASQUE.
 	}
 	                                                                            // (216) 
@@ -303,14 +300,14 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 		// ---------------                                                         (257) *
 		moveSpace(onlinm1.lierr) ;                                              // (258)      MOVE SPACE             TO LIERRI SLIERRI.
 		moveSpace(onlinm1s.slierr) ;
-		                                                                        // (259)      
+		                                                                        // (259) 
 		if (isFieldModified(onlinm1.recoll) || isFieldCleared(onlinm1.recoll)) {	// (260)      IF RECOLLL             > ZERO
 			                                                                    // (261)         OR RECOLLF           = HEX80
 			moveColor(MapFieldAttrColor.YELLOW, onlinm1.recoll) ;               // (262)         MOVE '6'            TO RECOLLC
 			moveAttribute(MapFieldAttrProtection.UNPROTECTED, onlinm1.recoll) ; // (263)         MOVE 'D'            TO RECOLLA
 			moveAttribute(MapFieldAttrIntensity.NORMAL, onlinm1.recoll) ;
 			move(onlinm1.recoll, onlinm1s.srecoll);                             // (264)         MOVE RECOLLI        TO SRECOLLI
-			moveLowValue(onlinm1.recoll) ;                                      // (265)         MOVE LOW-VALUE      TO RECOLLI.           
+			moveLowValue(onlinm1.recoll) ;                                      // (265)         MOVE LOW-VALUE      TO RECOLLI.
 		}
 	}
 	                                                                            // (266) 
@@ -331,7 +328,7 @@ public class ONLINE1 extends OnlineProgram	// *************                     
 		perform(rech_Msgerr) ;                                                  // (278)      PERFORM                RECH-MSGERR
 		perform(envoi_Masque) ;                                                 // (279)      PERFORM                ENVOI-MASQUE.
 	}
-	                                                                            // (280)      
+	                                                                            // (280) 
 	Paragraph rech_Msgerr = new Paragraph(this);                                // (281)  RECH-MSGERR.
 	public void rech_Msgerr() {
 		// ------------                                                            (282) *

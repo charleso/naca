@@ -1,4 +1,10 @@
 /*
+ * NacaRTTests - Naca Tests for NacaRT support v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -47,11 +53,14 @@ public class TestVarNumEdited extends OnlineProgram
   	Var number = declare.level(1).picS9(5).comp3().var() ;             // (263)  01  FILLER                 REDEFINES VC23-RESULT.
 	Var vOcc = declare.level(1).occurs(5).var();
 		Var vZ5Item = declare.level(5).pic("ZZZZZ").var();
+		
+	Var wz_Nombre = declare.level(1).pic("Z.ZZZ.ZZZ.ZZ9").valueZero().var() ;
 
 	Paragraph Paragraph1 = new Paragraph(this){public void run(){Paragraph1();}};
 	void Paragraph1()
 	{
 		setAssertActive(true);
+		move(12345, wz_Nombre);
 		
 		move(123, number);
 		move(number, vZ5Item.getAt(2));

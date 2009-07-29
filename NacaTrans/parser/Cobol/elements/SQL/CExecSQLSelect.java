@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -76,6 +82,20 @@ public class CExecSQLSelect extends CBaseExecSQLAction
 
 		return eReturned;
 	}
+	
+	static private boolean isSurroundedBySeparator(String clause, int nWordPosition, String csWord)
+	{
+		if(nWordPosition > 0 && nWordPosition < clause.length() -1)
+		{
+			char cLeft = clause.charAt(nWordPosition-1);
+			char cRight = clause.charAt(nWordPosition+csWord.length());
+			if(Character.isWhitespace(cLeft) || cLeft == ')')
+				if(Character.isWhitespace(cRight) || cRight == '(')	
+					return true;
+			return false;
+		}
+		return false;
+	}
 
 	static String PrepareSelectStatement(CBaseLanguageEntity parent, String clause, Vector<String> arrColumns, CBaseEntityFactory factory, boolean bCursor)
 	{
@@ -88,18 +108,27 @@ public class CExecSQLSelect extends CBaseExecSQLAction
 			return "" ;
 		}
 		int nFromEnd = clause.length() ;
+		
 		int nWhere = clause.indexOf("WHERE");
 		if (nWhere > 0 && nWhere < nFromEnd)
-			nFromEnd = nWhere ;
+			if(isSurroundedBySeparator(clause, nWhere, "WHERE"))	// PJD: Add check that FOR UPDATE is surrounded by white spaces
+				nFromEnd = nWhere ;
+		
 		int nForUpdate = clause.indexOf("FOR UPDATE") ;
 		if (nForUpdate > 0 && nForUpdate < nFromEnd)
-			nFromEnd = nForUpdate ;
+			if(isSurroundedBySeparator(clause, nForUpdate, "FOR UPDATE"))	// PJD: Add check that FOR UPDATE is surrounded by white spaces
+				nFromEnd = nForUpdate ;
+		
 		int nGroup = clause.indexOf("GROUP") ;
 		if (nGroup > 0 && nGroup < nFromEnd)
-			nFromEnd = nGroup ;
+			if(isSurroundedBySeparator(clause, nGroup, "GROUP"))	// PJD: Add check that GROUP is surrounded by white spaces
+				nFromEnd = nGroup ;
+
 		int nOrder = clause.indexOf("ORDER") ;
 		if (nOrder > 0 && nOrder < nFromEnd)
-			nFromEnd = nOrder ;
+			if(isSurroundedBySeparator(clause, nOrder, "ORDER"))	// PJD: Add check that ORDER is surrounded by white spaces
+				nFromEnd = nOrder ;
+		
 		String select = clause.substring(7, nFrom) ;
 		String from = "" ;
 		String where = "" ;
@@ -302,7 +331,22 @@ public class CExecSQLSelect extends CBaseExecSQLAction
 		{
 			if (col.contains("*"))
 			{
-				nbCol = 0 ;
+				String csTrimmedCol = col.trim();
+				int nPosStar = csTrimmedCol.indexOf("*");
+				if(nPosStar == 0)	// *
+				{
+					nbCol = 0 ;
+					continue ;
+				}
+				if(nPosStar > 0)
+				{
+					char c = csTrimmedCol.charAt(nPosStar-1);	
+					if(c == '.')	// .*
+					{
+						nbCol = 0 ;
+						continue ;
+					}
+				}				
 			}
 		}
 		if (arrInto.size()>0 && nbCol>0 && arrInto.size() != nbCol)
@@ -730,7 +774,7 @@ public class CExecSQLSelect extends CBaseExecSQLAction
 		m_Clause += " ";			
 	}
 	
-	public String m_Clause = "" ;
+	private String m_Clause = "" ;
 	protected Vector<CIdentifier> m_arrParameters = new Vector<CIdentifier>() ;
 	protected Vector<CIdentifier> m_arrInto = new Vector<CIdentifier>() ;
 	protected Vector<CIdentifier> m_arrIndicators = new Vector<CIdentifier>() ;

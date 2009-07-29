@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -33,7 +39,7 @@ public class CCondNotStatement extends CExpression
 	public CCondNotStatement(int line, CExpression cond)
 	{
 		super(line) ;
-		if (cond == null)
+		if(line == 1768 || cond == null)
 		{
 			int n=0; // breakpoint 
 		}
@@ -85,6 +91,10 @@ public class CCondNotStatement extends CExpression
 	 */
 	public CBaseEntityCondition AnalyseCondition(CBaseEntityFactory factory, CDefaultConditionManager condMaster)
 	{
+		if(getLine() == 1768)
+		{
+			int gg =0 ;
+		}			
 		CBaseEntityCondition eCond = m_cond.AnalyseCondition(factory, condMaster);
 		if ((m_cond.IsConstant() || m_cond.IsReference()) && eCond.isBinaryCondition())
 		{

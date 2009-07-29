@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,6 +18,8 @@
  */
 package parser.Cobol.elements.SQL;
 import java.util.Vector;
+
+import jlib.misc.StringUtil;
 
 import lexer.CBaseToken;
 import lexer.CTokenType;
@@ -30,6 +38,7 @@ import semantic.SQL.CEntitySQLUpdateStatement;
 import utils.CGlobalEntityCounter;
 import utils.NacaTransAssertException;
 import utils.Transcoder;
+import utils.SQLSyntaxConverter.SQLSyntaxConverter;
 
 /**
  * @author U930DI
@@ -39,9 +48,17 @@ import utils.Transcoder;
  */
 public class CExecSQLUpdate extends CBaseExecSQLAction
 {
+	private boolean m_bRightExpression = false;
+	private boolean m_bCanSetRightExpression = false;
+	private String m_csRightExpression = "";
+
 	public CExecSQLUpdate(int nLine)
 	{
 		super(nLine);
+		if(nLine == 3321)
+		{
+			int gg = 0;
+		}
 	}
 
 	protected boolean DoParsing()
@@ -59,26 +76,37 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 			else if (tok.GetType() == CTokenType.STRING)
 			{
 				String cs = new String("'" + tok.GetValue() + "'");
-				AppendRequiredSpace();
-				m_Clause += cs;
+				//AppendRequiredSpace();
+				//m_Clause += cs;
+				append(cs);
+				
 				GetNext();
 			}
 			else if (tok.GetType() == CTokenType.DOT || tok.GetType() == CTokenType.COMMA)
 			{
 				String cs = new String(tok.GetType().GetSourceValue());
-				m_Clause += cs; 
+				//m_Clause += cs;
+				if(m_bRightExpression)
+				{
+					handleRightExpressionNoSpace(m_csRightExpression);
+					m_bRightExpression = false;
+				}
+				appendNoSpace(cs);
+		
 				GetNext();
 			}
 			else if (tok.GetType() == CTokenType.LESS_THAN)
 			{
 				String cs = new String(tok.GetType().GetSourceValue());
-				AppendRequiredSpace() ;
-				m_Clause += cs; 
+//				AppendRequiredSpace() ;
+//				m_Clause += cs; 
+				append(cs);
 				tok = GetNext();
 				if (tok.GetType() == CTokenType.GREATER_THAN)
 				{
 					cs = new String(tok.GetType().GetSourceValue());
-					m_Clause += cs ;
+					//m_Clause += cs ;
+					appendNoSpace(cs);
 					GetNext() ;
 				}
 				else
@@ -91,17 +119,20 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 				tok = GetNext() ;
 				if (tok.GetType() == CTokenType.EXCLAMATION)
 				{
-					m_Clause += "!!" ;
+					// m_Clause += "!!" ;
+					appendNoSpace("!!");
 					GetNext() ;
 				}
 				else
 				{
-					m_Clause += "! " ;
+					//m_Clause += "! " ;
+					appendNoSpace("! ");
 				}
 			}
 			else if (tok.GetType() == CTokenType.LEFT_BRACKET)
 			{
-				m_Clause += '(' ;
+				appendNoSpace("( ");
+				//m_Clause += '(' ;
 				GetNext() ;
 			}
 			else if (tok.GetType() == CTokenType.COLON)
@@ -121,15 +152,46 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 				{
 					id = new CIdentifier(cs) ;
 				}
+				
+				CIdentifier idIndicator = null;
+				// PJD: Start added indicators for updates
+				if (tok.GetType() == CTokenType.COLON)
+				{
+					tok = GetNext() ;
+					cs = tok.GetValue();
+					tok = GetNext() ;
+					if (tok.GetType() == CTokenType.DOT)
+					{
+						tok = GetNext();
+						String cs2 = tok.GetValue() ;
+						tok = GetNext();
+						idIndicator = new CIdentifier(cs2, cs) ;
+					}
+					else
+					{
+						idIndicator = new CIdentifier(cs) ;
+					}
+					tok = GetCurrentToken() ;
+				}
+				//PJD: End added indicators for updates
+				
 				if (bValue)
 				{
+					if(m_arrSets.size()==34)
+					{
+						int gg = 0;
+					}
 					m_arrSets.add(id);
-					AppendRequiredSpace();
-					m_Clause += "#"+ m_arrSets.size() ; 
+					m_arrSetsIndicators.add(idIndicator);
+					String csParam = "#"+ m_arrSets.size() ;
+					//AppendRequiredSpace();					
+					//m_Clause += csParam;
+					append(csParam);
 				}
 				else if (bWhere)
 				{
 					m_arrParameters.add(id);
+					m_arrParametersIndicators.add(idIndicator);
 					AppendRequiredSpace();
 					m_Clause += "#"+ (m_arrParameters.size() + m_arrSets.size()) ; 
 				}
@@ -137,28 +199,47 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 			else if (tok.GetType() == CTokenType.CIRCUMFLEX)
 			{
 				String cs = new String(tok.GetType().GetSourceValue());
-				AppendRequiredSpace() ;
-				m_Clause += cs; 
+				append(cs);
+//				AppendRequiredSpace() ;
+//				m_Clause += cs; 
 				tok = GetNext();
 				if (tok.GetType() == CTokenType.EQUALS)
 				{
 					cs = new String(tok.GetType().GetSourceValue());
 					m_Clause += cs ;
 					GetNext() ;
+					if(m_bCanSetRightExpression)
+					{
+						m_bRightExpression = true;
+						m_csRightExpression = "";
+					}
 				}
 			}
 			else if (tok.GetType().HasSourceValue())
 			{
 				String cs = new String(tok.GetType().GetSourceValue());
-				AppendRequiredSpace();
-				m_Clause += cs; 
+				append(cs);
+//				AppendRequiredSpace();
+//				m_Clause += cs; 
 				GetNext();
+				if(cs.equalsIgnoreCase("="))
+				{
+					if(m_bCanSetRightExpression)
+					{
+						if(!m_bRightExpression)
+						{
+							m_bRightExpression = true;
+							m_csRightExpression = "";
+						}
+					}
+				}
 			}
 			else if (tok.GetType() == CTokenType.STRING)
 			{
 				String cs = new String("'" + tok.GetValue() + "'");
-				AppendRequiredSpace();
-				m_Clause += cs;
+				append(cs);
+//				AppendRequiredSpace();
+//				m_Clause += cs;
 				GetNext();
 			}
 			else
@@ -167,29 +248,111 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 				{
 					bWhere = true ;
 					bValue = false ;
+					if(m_bRightExpression)
+						handleRightExpressionNoSpace(m_csRightExpression);
+					m_bCanSetRightExpression = false;
+					m_bRightExpression = false;
 				}
 				else if (tok.GetKeyword() == CCobolKeywordList.SET)
 				{
 					bWhere = false ;
 					bValue = true ;
+					m_bCanSetRightExpression = true;	// Comment to disable function parsing support 
 				}
 				String cs = new String(tok.GetValue());
 				if (!bWhere && !bValue && tok.GetType() == CTokenType.IDENTIFIER && m_csViewName.equals(""))
 				{
-					m_csViewName = cs ; 
+					m_csViewName = cs ;
+					if(m_csViewName.equalsIgnoreCase("THISTBE"))
+					{
+						int gg = 0;
+					}
 				} 
-				AppendRequiredSpace();
-				m_Clause += cs; 
+				append(cs);
+					 
 				GetNext();
 			}
 		}
+		
+		if(m_csViewName.equalsIgnoreCase("THISTBE"))
+		{
+			int gg = 0;
+		}
 		return true ;
+	}
+	
+	private void append(String cs)
+	{
+		if(m_bRightExpression && m_bCanSetRightExpression)
+		{
+			m_csRightExpression = AppendRequiredSpace(m_csRightExpression);
+			m_csRightExpression += cs;
+		}
+		else
+		{
+			AppendRequiredSpace();
+			m_Clause += cs;
+		}
+		int gg =0 ;
+	}
+	
+	private void appendNoSpace(String cs)
+	{
+		if(m_bRightExpression && m_bCanSetRightExpression)
+		{
+			m_csRightExpression += cs;
+		}
+		else
+		{
+			m_Clause += cs;
+		}
+	}
+	
+	private void handleRightExpression(String csRightExpression)
+	{
+		if(!StringUtil.isEmpty(csRightExpression))
+		{
+			SQLSyntaxConverter sqlSyntaxConverter = Transcoder.getSQLSyntaxConverter();
+			if(sqlSyntaxConverter != null)
+			{
+				String csRightExpressionTrimmed = csRightExpression.trim();
+				String cs = sqlSyntaxConverter.resolve(csRightExpressionTrimmed);
+				AppendRequiredSpace();
+				m_Clause += cs;
+			}
+			else
+			{
+				AppendRequiredSpace();
+				m_Clause += csRightExpression;
+			}
+		}
+	}
+	
+	private void handleRightExpressionNoSpace(String csRightExpression)
+	{
+		if(!StringUtil.isEmpty(csRightExpression))
+		{
+			SQLSyntaxConverter sqlSyntaxConverter = Transcoder.getSQLSyntaxConverter();
+			if(sqlSyntaxConverter != null)
+			{
+				String cs = sqlSyntaxConverter.resolve(csRightExpression);
+				m_Clause += cs;
+			}
+			else
+				m_Clause += csRightExpression;
+		}
 	}
 		
 	public void AppendRequiredSpace()
 	{
-		if(m_Clause.endsWith(" ") == false && m_Clause.endsWith(":") == false && m_Clause.endsWith(".") == false)
-			m_Clause += " ";			
+		m_Clause = AppendRequiredSpace(m_Clause);
+	}
+	
+	public String AppendRequiredSpace(String cs)
+	{
+		if(cs.endsWith(" ") == false && cs.endsWith(":") == false && cs.endsWith(".") == false)
+			cs += " ";
+		return cs;
 	}
 
 
@@ -222,6 +385,7 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
+			e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 	}
@@ -245,6 +409,7 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
+			e.printStackTrace();
 			//System.out.println(e.toString());
 		}
 	}
@@ -254,10 +419,35 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 		Vector<CDataEntity> vVal = new Vector<CDataEntity>();
 		for (int i=0; i<m_arrSets.size(); i++)
 		{
+			if(i == 35)
+			{
+				int gg= 0;
+			}
 			CIdentifier id = m_arrSets.get(i);
 			CDataEntity e = id.GetDataReference(getLine(), factory);
 			vVal.add(e); 
 		}
+		
+		Vector<CDataEntity> vValInd = new Vector<CDataEntity>(); 
+		for (int i=0; i<m_arrSetsIndicators.size(); i++)
+		{
+			if(i == 35)
+			{
+				int gg= 0;
+			}
+			CIdentifier id = m_arrSetsIndicators.get(i) ;
+			if (id != null)
+			{
+				CDataEntity e = id .GetDataReference(getLine(), factory) ;
+				vValInd.add(e) ;
+			}
+			else
+			{
+				vValInd.add(null) ;
+			}
+		}
+		
+		
 		Vector<CDataEntity> vPar = new Vector<CDataEntity>();
 		for (int i=0; i<m_arrParameters.size(); i++)
 		{
@@ -265,6 +455,22 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 			CDataEntity e = id.GetDataReference(getLine(), factory);
 			vPar.add(e); 
 		}
+		Vector<CDataEntity> vParInd = new Vector<CDataEntity>(); 
+		for (int i=0; i<m_arrParametersIndicators.size(); i++)
+		{
+			CIdentifier id = m_arrParametersIndicators.get(i) ;
+			if (id != null)
+			{
+				CDataEntity e = id .GetDataReference(getLine(), factory) ;
+				vParInd.add(e) ;
+			}
+			else
+			{
+				vParInd.add(null) ;
+			}
+		}
+		
+		
 		m_Clause = CExecSQL.CheckConcat(m_Clause, vPar, factory);
 		String tablename = "" ;
 		CEntitySQLDeclareTable table = factory.m_ProgramCatalog.GetSQLTable(m_csViewName);
@@ -327,7 +533,7 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 			}
 		}
 		
-		CEntitySQLUpdateStatement eSQL = factory.NewEntitySQLUpdateStatement(getLine(), m_Clause, vVal, vPar);
+		CEntitySQLUpdateStatement eSQL = factory.NewEntitySQLUpdateStatement(getLine(), m_Clause, vVal, vValInd, vPar, vParInd);
 		Transcoder.checkSQL(getLine(), m_Clause);
 		parent.AddChild(eSQL) ;
 		eSQL.setCursor(cursor) ;
@@ -347,6 +553,10 @@ public class CExecSQLUpdate extends CBaseExecSQLAction
 	public String m_Clause = "" ;
 	public String m_csViewName = "" ;
 	public Vector<CIdentifier> m_arrParameters = new Vector<CIdentifier>() ;
+	public Vector<CIdentifier> m_arrParametersIndicators = new Vector<CIdentifier>() ;
+	
 	public Vector<CIdentifier> m_arrSets = new Vector<CIdentifier>() ;
+	public Vector<CIdentifier> m_arrSetsIndicators = new Vector<CIdentifier>() ;
+
 }
 

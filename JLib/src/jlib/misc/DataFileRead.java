@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -38,11 +44,14 @@ public class DataFileRead extends BaseDataFileBuffered
 	{
 		try
 		{
+			FileIOAccounting.startFileIO(FileIOAccountingType.Open);
 			m_in = new BufferedInputStream(new DataInputStream(new FileInputStream(getName())));
+			FileIOAccounting.endFileIO();
 			return true;
 		}
 		catch (FileNotFoundException e)
 		{
+			FileIOAccounting.endFileIO();
 			e.printStackTrace();
 		} 
 		return false;
@@ -64,7 +73,9 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			if(m_in != null)
 			{
+				FileIOAccounting.startFileIO(FileIOAccountingType.Close);
 				m_in.close();
+				FileIOAccounting.endFileIO();
 				m_in = null;
 				return true;
 			}
@@ -117,7 +128,20 @@ public class DataFileRead extends BaseDataFileBuffered
 	{
 	}
 	
+	public void write(char c)
+	{
+	}
+	
+	
 	public void writeWithEOL(byte[] tBytes, int nSize)
+	{
+	}
+	
+	public void writeWithOptionalEOL(byte[] tBytes, int nSize, boolean bEndsCRLF, boolean bEndsLF)
+	{
+	}
+	
+	public void writeWithOptionalEOLMFCobol(byte[] tBytes, int nSize, boolean bEndsCRLF, boolean bEndsLF)
 	{
 	}
 	
@@ -136,7 +160,9 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			try
 			{
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				nByte = m_in.read();
+				FileIOAccounting.endFileIO();
 				if(nByte == -1)
 				{
 					setEOF(true);
@@ -150,6 +176,7 @@ public class DataFileRead extends BaseDataFileBuffered
 			}
 			catch (IOException e)
 			{
+				FileIOAccounting.endFileIO();
 				setEOF(true);
 				return false;
 			}
@@ -165,14 +192,16 @@ public class DataFileRead extends BaseDataFileBuffered
 			try
 			{
 				byte byteBuffer[] = getByteBuffer(nSize);
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				int nNBytesRead = m_in.read(byteBuffer, 0, nSize);
+				FileIOAccounting.endFileIO();
 				if(nNBytesRead == -1)
 					setEOF(true);
 				return byteBuffer;
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 			}			
 		}
@@ -187,21 +216,24 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			try
 			{	
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				while(tVal[0] != FileEndOfLine.LF)
 				{
 					int nNBytesRead = m_in.read(tVal, 0, 1);
 					if(nNBytesRead == -1)
 					{
+						FileIOAccounting.endFileIO();
 						setEOF(true);
 						return n;
 					}
 					n++;
 				}
+				FileIOAccounting.endFileIO();
 				return n;
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 			}			
 		}
@@ -216,6 +248,7 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			try
 			{	
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				while(tVal[0] != FileEndOfLine.LF)
 				{
 					int nNBytesRead = m_in.read(tVal, 0, 1);
@@ -223,15 +256,17 @@ public class DataFileRead extends BaseDataFileBuffered
 						tBytes[n++] = tVal[0];
 					else
 					{
+						FileIOAccounting.endFileIO();
 						setEOF(true);
 						return n;
 					}
 				}
+				FileIOAccounting.endFileIO();
 				return n;
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 				setEOF(true);
 				return -1;
@@ -248,6 +283,7 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			try
 			{	
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				while(tVal[0] != FileEndOfLine.LF)
 				{
 					int nNBytesRead = m_in.read(tVal, 0, 1);
@@ -255,15 +291,17 @@ public class DataFileRead extends BaseDataFileBuffered
 						tBytes[n++] = tVal[0];
 					else
 					{
+						FileIOAccounting.endFileIO();
 						setEOF(true);
 						return n;
 					}
 				}
+				FileIOAccounting.endFileIO();
 				return n;
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 			}			
 		}
@@ -277,14 +315,16 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			try
 			{	
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				int nNBytesRead = m_in.read(tBytes, 0, nNbBytes);
+				FileIOAccounting.endFileIO();
 				if(nNBytesRead == -1)
 					setEOF(true);
 				return nNBytesRead;
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 			}			
 		}
@@ -298,14 +338,16 @@ public class DataFileRead extends BaseDataFileBuffered
 		{
 			try
 			{	
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				int nNBytesRead = m_in.read(tBytes, nOffset, nNbBytes);
+				FileIOAccounting.endFileIO();
 				if(nNBytesRead == -1)
 					setEOF(true);
 				return nNBytesRead;
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 			}			
 		}
@@ -319,12 +361,15 @@ public class DataFileRead extends BaseDataFileBuffered
 			int nSize;
 			try
 			{
+				FileIOAccounting.startFileIO(FileIOAccountingType.Read);
 				nSize = m_in.available();
-				return read(nSize);
+				byte tb[] = read(nSize);
+				FileIOAccounting.endFileIO();
+				return tb; 
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
+				FileIOAccounting.endFileIO();
 				e.printStackTrace();
 			}
 			
@@ -338,8 +383,25 @@ public class DataFileRead extends BaseDataFileBuffered
 		return null;
 	}
 	
+	public LineRead readNextUnixLineMFCobol()
+	{
+		// Should use a DataFileLineReader
+		return null;
+	}
+	
+	public LineRead readNextLineCRLFTerminated()
+	{
+		// Should use a DataFileLineReader
+		return null;
+	}
 
 	public LineRead readBuffer(int nLength, boolean bTryReadNextLF)
+	{
+		// Should use a DataFileLineReader
+		return null;
+	}
+	
+	public LineRead readBufferOptionalEOL(int nLineLength, boolean bTryReadNextCRLF, boolean bTryReadNextLF)
 	{
 		// Should use a DataFileLineReader
 		return null;
@@ -350,6 +412,10 @@ public class DataFileRead extends BaseDataFileBuffered
 	}
 	
 	public void rewriteWithEOL(byte[] tbyDest, int nSize)
+	{
+	}
+
+	public void rewriteWithOptionalEOL(byte[] tbyDest, int nSize, boolean bEndsCRLF, boolean bEndsLF)
 	{
 	}
 	
@@ -382,7 +448,9 @@ public class DataFileRead extends BaseDataFileBuffered
 	{
 		if(m_in != null && m_in.markSupported())
 		{
+			FileIOAccounting.startFileIO(FileIOAccountingType.Position);
 			m_in.mark(nMaxReadAheadSize);
+			FileIOAccounting.endFileIO();
 			return true;
 		}
 		return false;
@@ -390,16 +458,22 @@ public class DataFileRead extends BaseDataFileBuffered
 	
 	public boolean returnAtSavedPosition()
 	{
-		if(m_in != null && m_in.markSupported())
+		if(m_in != null)
 		{
-			try
+			FileIOAccounting.startFileIO(FileIOAccountingType.Position);
+			if(m_in.markSupported())
 			{
-				m_in.reset();
-				return true;
+				try
+				{
+					m_in.reset();
+					FileIOAccounting.endFileIO();
+					return true;
+				}
+				catch (IOException e)
+				{
+				}
 			}
-			catch (IOException e)
-			{
-			}
+			FileIOAccounting.endFileIO();
 		}
 		return false;		
 	}

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,6 +25,9 @@
  */
 package nacaLib.varEx;
 
+import nacaLib.basePrgEnv.BaseProgramManager;
+import nacaLib.tempCache.TempCache;
+import nacaLib.tempCache.TempCacheLocator;
 import jlib.misc.AsciiEbcdicConverter;
 import jlib.misc.NumberParser;
 
@@ -26,15 +35,25 @@ public class VarInternalInt extends Var
 {
 	public VarInternalInt()
 	{
-		super(null);
+		super(null);		
+		// pb TempCache cache = TempCacheLocator.getTLSTempCache();
+		// Pb BaseProgramManager baseProgramManager = cache.getVarLevel().getProgramManager();
+	
 		m_varDef = new VarDefInternalInt(this);
 		m_varTypeId = m_varDef.getTypeId();
-		m_n = 0;
+		
+		/* Pb if(baseProgramManager != null)
+		{
+			int nId = baseProgramManager.getAndIncLastVarId();
+			m_varDef.setId(nId);
+		} */
+		m_n = 0;			
 	}
 	
 	protected VarBase allocCopy()
 	{
 		VarInternalInt v = new VarInternalInt();
+		v.m_n = m_n;
 		return v;
 	}
 	

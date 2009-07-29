@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -69,8 +75,16 @@ public class CJMapObject //extends BaseObject
 		Asserter.assertIfDifferent(a, b);
 	}
 	
-	public static final boolean isLogCESM = false;
-	public static final boolean isLogFlow = false;
-	public static final boolean isLogSql = false;
-	public static final boolean IsSTCheck = false;
+//	public static final boolean isLogCESM = false;
+//	public static final boolean isLogFlow = false;
+//	public static final boolean isLogSql = false;
+//	public static final boolean IsSTCheck = false;
+	
+	public static boolean isLogCESM = false;
+	public static boolean isLogFlow = false;
+	public static boolean isLogSql = false;
+	public static boolean isLogFile = false;
+	public static boolean isLogCalls = false;
+	public static boolean IsSTCheck = false;
+	public static boolean isLogStatCoverage = false;
 }

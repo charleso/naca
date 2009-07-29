@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -15,7 +21,7 @@ import jlib.log.Log;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: JSon.java,v 1.7 2008/04/15 06:29:35 u930fc Exp $
+ * @version $Id$
  */
 public class JSon
 {

@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -17,7 +23,7 @@ import jlib.misc.NumberParser;
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
  * @vers
- * ion $Id: DbConnectionManagerContext.java,v 1.9 2008/07/09 06:40:18 u930di Exp $
+ * ion $Id$
  */
 public class DbConnectionManagerContext
 {
@@ -26,6 +32,7 @@ public class DbConnectionManagerContext
 	private String m_csDBUser = null;
 	private String m_csDBPassword = null;
 	private String m_csEnvironment = null;
+	private String m_csPackage = null;
 	private int m_nNbMaxConnections = 0;
 	private int m_nTimeBeforeRemoveConnection_ms = 0;
 	private int m_nMaxStatementLiveTime_ms = 0;
@@ -49,6 +56,7 @@ public class DbConnectionManagerContext
 		m_csDBUser = pl.getProperty(csPropertyPrefix + "user");
 		m_csDBPassword = pl.getProperty(csPropertyPrefix + "password");
 		m_csEnvironment = pl.getProperty(csPropertyPrefix + "environment", "");
+		m_csPackage = pl.getProperty(csPropertyPrefix + "package", "");
 					
 		String cs = pl.getProperty(csPropertyPrefix + "NbMaxConnections", "2");
 		m_nNbMaxConnections = NumberParser.getAsInt(cs);
@@ -63,7 +71,7 @@ public class DbConnectionManagerContext
 
 		return m_bCreated;
 	}
-	
+	/*
 	public boolean create(String csDBProvider, String csUrl, String csUser, String csPassword, String csEnvironment)
 		throws TechnicalException
 	{
@@ -79,7 +87,7 @@ public class DbConnectionManagerContext
 		
 		m_bCreated = doCreateConnection("");
 		return m_bCreated;
-	}
+} */
 
 	private boolean doCreateConnection(String csPropertyPrefix)
 		throws TechnicalException
@@ -90,7 +98,10 @@ public class DbConnectionManagerContext
 		{
 			m_bCreated = m_dbConnectionManager.create(m_csDBUser, m_csDBPassword, m_csDBUrl, m_csDBProvider, m_nNbMaxConnections, m_nTimeBeforeRemoveConnection_ms, m_nMaxStatementLiveTime_ms);
 			if(m_bCreated)
+			{	
 				m_dbConnectionManager.setEnvironment(m_csEnvironment);
+				m_dbConnectionManager.setPackage(m_csPackage);
+			}
 			return m_bCreated;
 		}
 		catch (TechnicalException e) {

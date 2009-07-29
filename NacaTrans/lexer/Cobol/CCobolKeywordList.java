@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -87,13 +93,14 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword READPREV = new CReservedKeyword(List, "READPREV") ; 
 	public static CReservedKeyword UNLOCK = new CReservedKeyword(List, "UNLOCK") ; 
 	public static CReservedKeyword ENDBR = new CReservedKeyword(List, "ENDBR") ; 
-	public static CReservedKeyword TRANSFORM = new CReservedKeyword(List, "TRANSFORM") ; 
-	public static CReservedKeyword SKIP2 = new CReservedKeyword(List, "SKIP2") ; 
+	public static CReservedKeyword TRANSFORM = new CReservedKeyword(List, "TRANSFORM") ;
+	public static CReservedKeyword SKIP1 = new CReservedKeyword(List, "SKIP1") ;
+	public static CReservedKeyword SKIP2 = new CReservedKeyword(List, "SKIP2") ;
+	public static CReservedKeyword SKIP3 = new CReservedKeyword(List, "SKIP3") ;
 	public static CReservedKeyword DELIMITER = new CReservedKeyword(List, "DELIMITER") ; 
 	public static CReservedKeyword COUNT = new CReservedKeyword(List, "COUNT") ; 
 	public static CReservedKeyword RIGHT = new CReservedKeyword(List, "RIGHT") ; 
-	public static CReservedKeyword POSITIONING = new CReservedKeyword(List, "POSITIONING") ; 
-	public static CReservedKeyword SKIP3 = new CReservedKeyword(List, "SKIP3") ; 
+	public static CReservedKeyword POSITIONING = new CReservedKeyword(List, "POSITIONING") ;
 	public static CReservedKeyword EJECT = new CReservedKeyword(List, "EJECT") ; 
 	public static CReservedKeyword JUST = new CReservedKeyword(List, "JUST") ; 
 	public static CReservedKeyword JUSTIFIED = new CReservedKeyword(List, "JUSTIFIED") ; 
@@ -110,8 +117,12 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword LINE = new CReservedKeyword(List, "LINE") ; 
 	public static CReservedKeyword PAGE = new CReservedKeyword(List, "PAGE") ; 
 	public static CReservedKeyword ADVANCING = new CReservedKeyword(List, "ADVANCING") ; 
-	public static CReservedKeyword CURRENT_DATE = new CReservedKeyword(List, "CURRENT-DATE") ; 
-	public static CReservedKeyword FUNCTION = new CReservedKeyword(List, "FUNCTION") ; 
+	public static CReservedKeyword CURRENT_DATE = new CReservedKeyword(List, "CURRENT-DATE") ;
+	public static CReservedKeyword CURRENT__DATE = new CReservedKeyword(List, "CURRENT_DATE") ;
+	public static CReservedKeyword CURRENT__TIME = new CReservedKeyword(List, "CURRENT_TIME") ;
+	public static CReservedKeyword CURRENT__TIMESTAMP = new CReservedKeyword(List, "CURRENT_TIMESTAMP") ;
+	public static CReservedKeyword FUNCTION = new CReservedKeyword(List, "FUNCTION") ;
+	public static CReservedKeyword REVERSE = new CReservedKeyword(List, "REVERSE") ;
 	public static CReservedKeyword END_WRITE = new CReservedKeyword(List, "END-WRITE") ; 
 	public static CReservedKeyword MODE = new CReservedKeyword(List, "MODE") ; 
 	public static CReservedKeyword RECORDING = new CReservedKeyword(List, "RECORDING") ; 
@@ -124,7 +135,8 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword I_O = new CReservedKeyword(List, "I-O") ; 
 	public static CReservedKeyword OUTPUT = new CReservedKeyword(List, "OUTPUT") ; 
 	public static CReservedKeyword INPUT = new CReservedKeyword(List, "INPUT") ; 
-	public static CReservedKeyword TIME = new CReservedKeyword(List, "TIME") ; 
+	public static CReservedKeyword TIME = new CReservedKeyword(List, "TIME") ;
+	public static CReservedKeyword TIMESTAMP = new CReservedKeyword(List, "TIMESTAMP") ;
 	public static CReservedKeyword DAY_OF_WEEK = new CReservedKeyword(List, "DAY-OF-WEEK") ; 
 	public static CReservedKeyword DAY = new CReservedKeyword(List, "DAY") ; 
 	public static CReservedKeyword DATE = new CReservedKeyword(List, "DATE") ; 
@@ -164,7 +176,7 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword ENQ = new CReservedKeyword(List, "ENQ") ; 
 	public static CReservedKeyword RETURN = new CReservedKeyword(List, "RETURN") ; 
 	public static CReservedKeyword READQ = new CReservedKeyword(List, "READQ") ; 
-	public static CReservedKeyword ASKTIME = new CReservedKeyword(List, "ASKTIME") ; 
+	public static CReservedKeyword ASKTIME = new CReservedKeyword(List, "ASKTIME") ;
 	public static CReservedKeyword XCTL = new CReservedKeyword(List, "XCTL") ; 
 	public static CReservedKeyword LINK = new CReservedKeyword(List, "LINK") ; 
 	public static CReservedKeyword UPON = new CReservedKeyword(List, "UPON") ; 
@@ -223,9 +235,11 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword DATA = new CReservedKeyword(List, "DATA") ; 
 	public static CReservedKeyword WORKING_STORAGE = new CReservedKeyword(List, "WORKING-STORAGE") ; 
 	public static CReservedKeyword SECTION = new CReservedKeyword(List, "SECTION") ; 
+	public static CReservedKeyword LABEL_SENTENCE = new CReservedKeyword(List, "LABEL_SENTENCE") ; 
 	public static CReservedKeyword PIC = new CReservedKeyword(List, "PIC") ; 
 	public static CReservedKeyword COMP_4 = new CReservedKeyword(List, "COMP-4") ; 
-	public static CReservedKeyword COMP_3 = new CReservedKeyword(List, "COMP-3") ; 
+	public static CReservedKeyword COMP_3 = new CReservedKeyword(List, "COMP-3") ;
+	public static CReservedKeyword COMPUTATIONAL_3 = new CReservedKeyword(List, "COMPUTATIONAL-3") ;	// PJD Added
 	public static CReservedKeyword SYNC = new CReservedKeyword(List, "SYNC") ; 
 	public static CReservedKeyword VALUE = new CReservedKeyword(List, "VALUE") ; 
 	public static CReservedKeyword FILLER = new CReservedKeyword(List, "FILLER") ; 
@@ -240,12 +254,14 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword END_EXEC = new CReservedKeyword(List, "END-EXEC") ; 
 	public static CReservedKeyword SUPPRESS = new CReservedKeyword(List, "SUPPRESS") ; 
 	public static CReservedKeyword LINKAGE = new CReservedKeyword(List, "LINKAGE") ; 
-	public static CReservedKeyword PROCEDURE = new CReservedKeyword(List, "PROCEDURE") ; 
+	public static CReservedKeyword PROCEDURE = new CReservedKeyword(List, "PROCEDURE") ;
+	public static CReservedKeyword PROCEDURE_POINTER = new CReservedKeyword(List, "PROCEDURE-POINTER") ;	// PJD Added
 	public static CReservedKeyword TIMES = new CReservedKeyword(List, "TIMES") ; 
 	public static CReservedKeyword CICS = new CReservedKeyword(List, "CICS") ; 
 	public static CReservedKeyword IF = new CReservedKeyword(List, "IF") ; 
 	public static CReservedKeyword AND = new CReservedKeyword(List, "AND") ; 
-	public static CReservedKeyword NOT = new CReservedKeyword(List, "NOT") ; 
+	public static CReservedKeyword NOT = new CReservedKeyword(List, "NOT") ;
+	public static CReservedKeyword FOUND = new CReservedKeyword(List, "FOUND") ;		// PJD Added for EXEC SQL    WHENEVER NOT FOUND CONTINUE           END-EXEC.
 	public static CReservedKeyword ELSE = new CReservedKeyword(List, "ELSE") ; 
 	public static CReservedKeyword ALSO = new CReservedKeyword(List, "ALSO") ; 
 	public static CReservedKeyword IGNORE = new CReservedKeyword(List, "IGNORE") ; 
@@ -283,6 +299,7 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword CONTENT = new CReservedKeyword(List, "CONTENT") ; 
 	public static CReservedKeyword REFERENCE = new CReservedKeyword(List, "REFERENCE") ; 
 	public static CReservedKeyword ADDRESS = new CReservedKeyword(List, "ADDRESS") ; 
+	public static CReservedKeyword ENTRY = new CReservedKeyword(List, "ENTRY") ;
 	public static CReservedKeyword LENGTH = new CReservedKeyword(List, "LENGTH") ; 
 	public static CReservedKeyword END_PERFORM = new CReservedKeyword(List, "END-PERFORM") ; 
 	public static CReservedKeyword ADD = new CReservedKeyword(List, "ADD") ; 
@@ -300,13 +317,14 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword DELETE = new CReservedKeyword(List, "DELETE") ; 
 	public static CReservedKeyword INSERT = new CReservedKeyword(List, "INSERT") ; 
 	public static CReservedKeyword SET = new CReservedKeyword(List, "SET") ; 
+	public static CReservedKeyword BEGIN = new CReservedKeyword(List, "BEGIN") ;
 	public static CReservedKeyword WHERE = new CReservedKeyword(List, "WHERE") ; 
 	public static CReservedKeyword VALUES = new CReservedKeyword(List, "VALUES") ; 
 	public static CReservedKeyword SELECT = new CReservedKeyword(List, "SELECT") ; 
 	public static CReservedKeyword OPEN = new CReservedKeyword(List, "OPEN") ; 
 //	public static CReservedKeyword FETCH = new CReservedKeyword(List, "FETCH") ; 
 	public static CReservedKeyword CLOSE = new CReservedKeyword(List, "CLOSE") ; 
-//	public static CReservedKeyword CURRENT = new CReservedKeyword(List, "CURRENT") ; 
+	public static CReservedKeyword CURRENT = new CReservedKeyword(List, "CURRENT") ; 
 //	public static CReservedKeyword DATE = new CReservedKeyword(List, "DATE") ; 
 //	public static CReservedKeyword TIME = new CReservedKeyword(List, "TIME") ; 
 //	public static CReservedKeyword COUNT = new CReservedKeyword(List, "COUNT") ; 
@@ -319,7 +337,7 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword INDEXED = new CReservedKeyword(List, "INDEXED") ; 
 	public static CReservedKeyword INSPECT = new CReservedKeyword(List, "INSPECT") ; 
 	public static CReservedKeyword REPLACING = new CReservedKeyword(List, "REPLACING") ; 
-	public static CReservedKeyword TALLYING = new CReservedKeyword(List, "TALLYING") ; 
+	public static CReservedKeyword TALLYING = new CReservedKeyword(List, "TALLYING") ;
 	public static CReservedKeyword CONVERTING = new CReservedKeyword(List, "CONVERTING") ; 
 	public static CReservedKeyword LEADING = new CReservedKeyword(List, "LEADING") ; 
 	public static CReservedKeyword FIRST = new CReservedKeyword(List, "FIRST") ; 
@@ -328,4 +346,8 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword CURSOR = new CReservedKeyword(List, "CURSOR") ;  // PJD Isn't there a conflit with SQL and CICS cursors ?
 	public static CReservedKeyword TABLE = new CReservedKeyword(List, "TABLE") ;
 	public static CReservedKeyword NULL = new CReservedKeyword(List, "NULL") ;
+	
+	// PJD Added for Monaco
+	public static CReservedKeyword I_O_CONTROL = new CReservedKeyword(List, "I-O-CONTROL") ;
+	
 }

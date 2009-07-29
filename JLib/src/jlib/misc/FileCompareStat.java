@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -8,7 +14,7 @@ package jlib.misc;
 
 /**
  * @author S. Charton
- * @version $Id: FileCompareStat.java,v 1.3 2006/10/12 15:26:52 u930bm Exp $
+ * @version $Id$
  */
 public class FileCompareStat
 {

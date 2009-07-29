@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -14,6 +20,7 @@ package nacaLib.varEx;
 
 
 import jlib.misc.Comp3Support;
+import nacaLib.debug.BufferSpy;
 import nacaLib.sqlSupport.CSQLItemType;
 import nacaLib.tempCache.CStr;
 import nacaLib.tempCache.CStrNumber;
@@ -134,7 +141,10 @@ public abstract class VarDefNum extends VarDefVariable
 			nDigit += 0xC0;
 		else
 			nDigit += 0xD0;
+		
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPos, 1);
 		buffer.m_acBuffer[nPos] = (char)nDigit;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		//buffer.setCharAt(nPos, (char)nDigit);
 	}
 	
@@ -149,14 +159,14 @@ public abstract class VarDefNum extends VarDefVariable
 		// -4321        '4' '3' '2' 0xF0+'1'
 		int nPos = buffer.m_nAbsolutePosition+m_nTotalSize-1+nOffset;
 		char cRightMost = buffer.m_acBuffer[nPos];
-		//char cRightMost = buffer.getCharAt(nPos);
 		int nDigit = cRightMost - '0'; 
 		if(bPositive)
 			nDigit += 0xC0;
 		else
 			nDigit += 0xD0;
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPos, 1);
 		buffer.m_acBuffer[nPos] = (char)nDigit;
-		//buffer.setCharAt(nPos, (char)nDigit);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 	}
 
 	

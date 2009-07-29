@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -19,6 +25,11 @@
  */
 package nacaLib.stringSupport;
 // import nacaLib.base.*;
+import nacaLib.varEx.CobolConstant;
+import nacaLib.varEx.CobolConstantHighValue;
+import nacaLib.varEx.CobolConstantLowValue;
+import nacaLib.varEx.CobolConstantSpace;
+import nacaLib.varEx.CobolConstantZero;
 import nacaLib.varEx.Var;
 import nacaLib.varEx.VarAndEdit;
 
@@ -33,7 +44,32 @@ public class Unstring
 	{
 		return delimitedBy(varDelimiter.getString());	
 	}
-
+	
+	// PJD Added because transcoder generates delimitedBy(CobolConstant.LowValue) insteadof delimitedBy("\u0000");  
+	public Unstring delimitedBy(CobolConstantLowValue cst)
+	{
+		return delimitedBy("\u0000");
+	}
+	
+	// PJD Added for generalisation of constant
+	public Unstring delimitedBy(CobolConstantHighValue cst)
+	{
+		String cs = Character.toString(cst.getValue());
+		return delimitedBy(cs);
+	}
+	
+	// PJD Added for generalisation of constant
+	public Unstring delimitedBy(CobolConstantSpace cst)
+	{
+		return delimitedBy(" ");
+	}
+	
+	// PJD Added for generalisation of constant
+	public Unstring delimitedBy(CobolConstantZero cst)
+	{
+		return delimitedBy("0");
+	}
+	
 	public Unstring delimitedBy(String csDelimiter)
 	{
 		UnstringDelimiter Delimiter = new UnstringDelimiter(csDelimiter, false);

@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -13,7 +19,7 @@ import nacaLib.varEx.Var;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CalledPrgPublicArgBeanPositioned.java,v 1.1 2007/09/21 15:11:30 u930bm Exp $
+ * @version $Id$
  */
 public abstract class CalledPrgPublicArgBeanPositioned extends BaseCalledPrgPublicArgPositioned
 {

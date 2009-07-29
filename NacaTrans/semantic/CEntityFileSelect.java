@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -6,10 +12,11 @@
  */
 package semantic;
 
+import parser.CIdentifier;
 import generate.CBaseLanguageExporter;
 import utils.CObjectCatalog;
 
-public class CEntityFileSelect extends CBaseLanguageEntity
+public abstract class CEntityFileSelect extends CBaseLanguageEntity
 {
 	public enum AccessMode
 	{
@@ -33,13 +40,20 @@ public class CEntityFileSelect extends CBaseLanguageEntity
 	protected void RegisterMySelfToCatalog()
 	{
 		m_ProgramCatalog.RegisterFileSelect(this) ;
+		m_FileSelect = m_ProgramCatalog.getFileSelect(GetName()) ;
 	}
+	protected CEntityFileSelect m_FileSelect ;
 
-	@Override
-	protected void DoExport()
+	public void setFileStatus(CDataEntity eFileStatus)
 	{
-		// nothing
+		m_eFileStatus = eFileStatus;
 	}
+	public CDataEntity getFileStatus()
+	{
+		return m_eFileStatus;
+	}
+	protected CDataEntity m_eFileStatus = null;
+
 
 	public void setOrganizationMode(OrganizationMode eMode)
 	{
@@ -55,10 +69,9 @@ public class CEntityFileSelect extends CBaseLanguageEntity
 	{
 		m_csFileName = string ;		
 	}
-	protected String m_csFileName = "" ;
+	private String m_csFileName = "" ;
 	public String GetFileName()
 	{
 		return m_csFileName ;
 	}
-
 }

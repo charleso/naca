@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,7 +18,7 @@ package nacaLib.varEx;
 /**
  *
  * @author Pierre-Jean Ditscheid, Consultas SA
- * @version $Id: CallParamFpac.java,v 1.1 2006/12/20 09:33:22 u930di Exp $
+ * @version $Id$
  */
 public class CallParamFpac extends CCallParam
 {
@@ -43,6 +49,11 @@ public class CallParamFpac extends CCallParam
 		
 		varLinkageSection.m_bufferPos.writeRepeatingCharAt(nPositionDest, ' ', varLinkageSection.getLength());
 		varLinkageSection.m_bufferPos.copyBytes(nPositionDest, nNbCharsToCopy, 0, m_charBuffer);
+	}
+	
+	public Var getCallerSourceVar()
+	{
+		return null;
 	}
 	
 	private InternalCharBuffer m_charBuffer = null;

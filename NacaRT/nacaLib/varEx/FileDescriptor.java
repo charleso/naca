@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -6,6 +12,10 @@
  */
 package nacaLib.varEx;
 
+
+
+import jlib.log.Log;
+import jlib.misc.AdvancedFileDescriptorMode;
 import jlib.misc.BaseDataFile;
 import jlib.misc.BaseDataFileBuffered;
 import jlib.misc.DataFileLineReader;
@@ -16,6 +26,7 @@ import jlib.misc.LogicalFileDescriptor;
 import jlib.misc.RecordLengthDefinition;
 import jlib.misc.StringUtil;
 import nacaLib.basePrgEnv.BaseEnvironment;
+import nacaLib.basePrgEnv.BaseResourceManager;
 import nacaLib.basePrgEnv.BaseSession;
 import nacaLib.batchOOApi.WriteBufferExt;
 
@@ -93,6 +104,22 @@ public class FileDescriptor extends BaseFileDescriptor
 		return this;
 	}
 	
+	public void writeLinePositionning(int n)
+	{
+		byte tbCodes[] = BaseResourceManager.getPrinterCodeNewLine();
+		while(n > 0)
+		{
+			m_fileManagerEntry.m_dataFile.write(tbCodes, 0, tbCodes.length);
+			n--;
+		}
+	}
+
+	public void writePagePositionning()
+	{
+		byte tbCodes[] = BaseResourceManager.getPrinterCodeNewPage();
+		m_fileManagerEntry.m_dataFile.write(tbCodes, 0, tbCodes.length);
+	}
+
 	public void write()
 	{
 		writeFrom(m_varLevel01, false);
@@ -102,6 +129,20 @@ public class FileDescriptor extends BaseFileDescriptor
 	{
 		writeFrom(varWorking, false);
 	}
+	
+//	public void writeByteArray(byte tb[], int n)
+//	{
+//		m_fileManagerEntry.m_dataFile.write(tb, 0, n);
+//	}
+//	
+//	public void writeByteArray(char c, int nNb)
+//	{
+//		for(int n=0; n<nNb; n++)
+//		{
+//			m_fileManagerEntry.m_dataFile.write(c);
+//		}
+//	}
+	
 	
 	public void rewrite()
 	{
@@ -115,6 +156,14 @@ public class FileDescriptor extends BaseFileDescriptor
 	
 	private void writeFrom(VarBase varFrom, boolean bRewriteMode)
 	{
+		if(isLogFile)
+		{
+			if(bRewriteMode)			
+				Log.logDebug("writeFrom (rewrite mode) File=" + getLogicalName() + " varFrom="+varFrom.getSTCheckValue());
+			else
+				Log.logDebug("writeFrom File=" + getLogicalName() + " varFrom="+varFrom.getSTCheckValue());
+		}
+
 		if(m_fileManagerEntry.isDummyFile())
 			return ;
 
@@ -144,6 +193,7 @@ public class FileDescriptor extends BaseFileDescriptor
 		}
 		
 		// Move bytes of working into record, up to record length
+		
 		byte tbyFilebuffer[] = m_fileManagerEntry.m_dataFile.getByteBuffer(nMaxSize);
 		varFrom.exportToByteArray(tbyFilebuffer, nVarFromSize);
 		if (varLevel01 != varFrom)
@@ -161,30 +211,91 @@ public class FileDescriptor extends BaseFileDescriptor
 		}
 		
 
-		// Write varLevel01 
-		if(m_fileManagerEntry.isVariableLength())
+		// Write varLevel01
+		if(m_fileManagerEntry.isStandardMode())
 		{
-			int nRecordLength = getRecordLength(varLevel01);	// Measure record length
-			// write record header
-			if(m_tbyHeader == null)
-				m_tbyHeader = new byte[4];
-			LittleEndingSignBinaryBufferStorage.writeInt(m_tbyHeader, nRecordLength, 0);	// DO not include header length in header !
-			if(bRewriteMode)
-				m_fileManagerEntry.m_dataFile.rewrite(m_tbyHeader, 0, 4);
+			if(m_fileManagerEntry.isVariableLength())
+			{
+				int nRecordLength = getRecordLength(varLevel01);	// Measure record length
+				// write record header
+				if(m_tbyHeader == null)
+					m_tbyHeader = new byte[4];
+				LittleEndingSignBinaryBufferStorage.writeInt(m_tbyHeader, nRecordLength, 0);	// DO not include header length in header !
+				if(bRewriteMode)
+					m_fileManagerEntry.m_dataFile.rewrite(m_tbyHeader, 0, 4);
+				else
+					m_fileManagerEntry.m_dataFile.write(m_tbyHeader, 0, 4);
+				
+				m_fileManagerEntry.m_dataFile.writeWithEOL(tbyFilebuffer, nRecordLength);
+				incNbRecordWrite();
+			}
 			else
-				m_fileManagerEntry.m_dataFile.write(m_tbyHeader, 0, 4);
-			
-			m_fileManagerEntry.m_dataFile.writeWithEOL(tbyFilebuffer, nRecordLength);
-			incNbRecordWrite();
+			{
+				if(bRewriteMode)
+					m_fileManagerEntry.m_dataFile.rewriteWithEOL(tbyFilebuffer, nRecordSize);
+				else
+					m_fileManagerEntry.m_dataFile.writeWithEOL(tbyFilebuffer, nRecordSize);
+				incNbRecordWrite();
+			}
 		}
-		else
+		else	// Advanced Mode
 		{
-			if(bRewriteMode)
-				m_fileManagerEntry.m_dataFile.rewriteWithEOL(tbyFilebuffer, nRecordSize);
-			else
-				m_fileManagerEntry.m_dataFile.writeWithEOL(tbyFilebuffer, nRecordSize);
-			incNbRecordWrite();
-		}		
+			AdvancedFileDescriptorMode advancedFileDescriptorMode = m_fileManagerEntry.getAdvancedFileDescriptorMode();
+			if(advancedFileDescriptorMode.isVariable())	// Variable length record
+			{
+				int nRecordLength = getRecordLength(varLevel01);	// Measure record length
+				
+				if(advancedFileDescriptorMode.isUsingRecordLengthHeader())	// Must write record length header
+				{
+					// write record header
+					if(m_tbyHeader == null)
+						m_tbyHeader = new byte[4];
+					LittleEndingSignBinaryBufferStorage.writeInt(m_tbyHeader, nRecordLength, 0);	// DO not include header length in header !
+					if(bRewriteMode)
+						m_fileManagerEntry.m_dataFile.rewrite(m_tbyHeader, 0, 4);
+					else
+						m_fileManagerEntry.m_dataFile.write(m_tbyHeader, 0, 4);
+				}
+				else
+				{
+					if(advancedFileDescriptorMode.getMFCobolLineSequential())
+						m_fileManagerEntry.m_dataFile.writeWithOptionalEOLMFCobol(tbyFilebuffer, nRecordLength, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());
+					else
+						m_fileManagerEntry.m_dataFile.writeWithOptionalEOL(tbyFilebuffer, nRecordLength, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());
+				}
+				incNbRecordWrite();			
+			}
+			else	// Fixed size
+			{
+				if(advancedFileDescriptorMode.getMFCobolLineSequential())
+				{
+					m_fileManagerEntry.m_dataFile.writeWithOptionalEOLMFCobol(tbyFilebuffer, nRecordSize, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());
+					incNbRecordWrite();
+				}
+				else 
+				{
+					if(advancedFileDescriptorMode.isUsingRecordLengthHeader())	// Must write record length header
+					{
+						int nRecordLength = getRecordLength(varLevel01);	// Measure record length
+						// write record header
+						if(m_tbyHeader == null)
+							m_tbyHeader = new byte[4];
+						LittleEndingSignBinaryBufferStorage.writeInt(m_tbyHeader, nRecordLength, 0);	// DO not include header length in header !
+						if(bRewriteMode)
+							m_fileManagerEntry.m_dataFile.rewrite(m_tbyHeader, 0, 4);
+						else
+							m_fileManagerEntry.m_dataFile.write(m_tbyHeader, 0, 4);
+					}
+					
+					if(bRewriteMode)
+						m_fileManagerEntry.m_dataFile.rewriteWithOptionalEOL(tbyFilebuffer, nRecordSize, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());
+					else
+						m_fileManagerEntry.m_dataFile.writeWithOptionalEOL(tbyFilebuffer, nRecordSize, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());
+
+					incNbRecordWrite();
+				}				
+			}
+		}
 	}
 	
 	public byte [] getWriteBuffer(int nMaxSize)
@@ -224,46 +335,192 @@ public class FileDescriptor extends BaseFileDescriptor
 
 	public RecordDescriptorAtEnd readInto(Var varDest)
 	{
+		RecordDescriptorAtEnd e = doReadInto(varDest);
+		if(isLogFile)
+			Log.logDebug("readInto File=" + getLogicalName() + " varDest="+varDest.getSTCheckValue());
+		
+		if(e == RecordDescriptorAtEnd.End)
+		{
+			reportStatus(FileStatusEnum.END_OF_FILE);
+			if(isLogFile)
+				Log.logDebug("readInto File=" + getLogicalName() + " End of file found");
+		}
+		else
+			reportStatus(FileStatusEnum.OK);
+		return e;
+	}
+	
+	private RecordDescriptorAtEnd doReadInto(Var varDest) 
+	{
 		if(m_fileManagerEntry.isDummyFile())
 			return RecordDescriptorAtEnd.End;
 
-		if(hasVarVariableLengthMarker())
+		if(m_fileManagerEntry.isStandardMode())	// Standard mode
 		{
-			long lLastHeaderStartPosition = m_fileManagerEntry.m_dataFile.getFileCurrentPosition();	// Keep header start position
-			LineRead header = m_fileManagerEntry.m_dataFile.readBuffer(4, false);		// Read header
-			if(header != null)
-			{				
-				int nLengthExcludingHeader = header.getAsLittleEndingUnsignBinaryInt();	// Length in header doesn't count the header itself
-				LineRead lineRead = m_fileManagerEntry.m_dataFile.readBuffer(nLengthExcludingHeader, true);		// Read record body, including trailing LF
-				m_fileManagerEntry.m_dataFile.setLastPosition(lLastHeaderStartPosition);	// Save current position at the header start
+			if(hasVarVariableLengthMarker())	// Variable size record
+			{
+				long lLastHeaderStartPosition = m_fileManagerEntry.m_dataFile.getFileCurrentPosition();	// Keep header start position
+				LineRead header = m_fileManagerEntry.m_dataFile.readBuffer(4, false);		// Read header
+				if(header != null)
+				{				
+					int nLengthExcludingHeader = header.getAsLittleEndingUnsignBinaryInt();	// Length in header doesn't count the header itself
+					LineRead lineRead = m_fileManagerEntry.m_dataFile.readBuffer(nLengthExcludingHeader, true);		// Read record body, including trailing LF
+					m_fileManagerEntry.m_dataFile.setLastPosition(lLastHeaderStartPosition);	// Save current position at the header start
+					if(lineRead != null)
+					{
+						fillInto(lineRead, varDest);
+						int nVariableRecordLength = getVariableRecordLength(nLengthExcludingHeader);
+						fillVarLengthDependingOn(nVariableRecordLength);
+						return RecordDescriptorAtEnd.NotEnd;
+					}
+				}
+				return RecordDescriptorAtEnd.End;
+			}
+			else	// Fix size record
+			{
+				int nRecordLength = getRecordLength(m_varLevel01);
+				LineRead lineRead;
+				if(nRecordLength > 0)
+				{
+					lineRead = m_fileManagerEntry.m_dataFile.readBuffer(nRecordLength, true);	// PJD TO UNCOMMENT 
+					//lineRead = ((DataFileLineReader)m_fileManagerEntry.m_dataFile).readDirect(nRecordLength);
+				}
+					
+				else
+					lineRead = m_fileManagerEntry.m_dataFile.readNextUnixLine();				
 				if(lineRead != null)
 				{
 					fillInto(lineRead, varDest);
-					int nVariableRecordLength = getVariableRecordLength(nLengthExcludingHeader);
-					fillVarLengthDependingOn(nVariableRecordLength);
 					return RecordDescriptorAtEnd.NotEnd;
 				}
+				return RecordDescriptorAtEnd.End;
 			}
-			return RecordDescriptorAtEnd.End;
+		}
+		else	// Advanced mode
+		{
+			AdvancedFileDescriptorMode advancedFileDescriptorMode = m_fileManagerEntry.getAdvancedFileDescriptorMode();
+			if(hasVarVariableLengthMarker())	// Variable size record
+			{
+				if(advancedFileDescriptorMode.isUsingRecordLengthHeader())
+				{
+					long lLastHeaderStartPosition = m_fileManagerEntry.m_dataFile.getFileCurrentPosition();	// Keep header start position
+					LineRead header = m_fileManagerEntry.m_dataFile.readBuffer(4, false);		// Read header
+					if(header != null)
+					{				
+						int nLengthExcludingHeader = header.getAsLittleEndingUnsignBinaryInt();	// Length in header doesn't count the header itself
+						LineRead lineRead = m_fileManagerEntry.m_dataFile.readBufferOptionalEOL(nLengthExcludingHeader, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());		// Read record body, including optional trailing CRLF or LF
+						m_fileManagerEntry.m_dataFile.setLastPosition(lLastHeaderStartPosition);	// Save current position at the header start
+						if(lineRead != null)
+						{
+							fillInto(lineRead, varDest);
+							int nVariableRecordLength = getVariableRecordLength(nLengthExcludingHeader);
+							fillVarLengthDependingOn(nVariableRecordLength);
+							return RecordDescriptorAtEnd.NotEnd;
+						}
+					}
+				}
+				else	// No line header; Read using end of line marker CRLF or LF
+				{
+					LineRead lineRead = null;
+					if(advancedFileDescriptorMode.isEndingCRLF())
+						lineRead = m_fileManagerEntry.m_dataFile.readNextLineCRLFTerminated();
+					else if(advancedFileDescriptorMode.isEndingLF())
+						lineRead = m_fileManagerEntry.m_dataFile.readNextUnixLine();
+					if(lineRead != null)
+					{
+						fillInto(lineRead, varDest);
+						int nVariableRecordLength = lineRead.getTotalLength();
+						fillVarLengthDependingOn(nVariableRecordLength);
+						return RecordDescriptorAtEnd.NotEnd;
+					}
+				}
+				return RecordDescriptorAtEnd.End;
+			}
+			else	// Not Variable size record
+			{	
+				if(advancedFileDescriptorMode.isUsingRecordLengthHeader())
+				{
+					long lLastHeaderStartPosition = m_fileManagerEntry.m_dataFile.getFileCurrentPosition();	// Keep header start position
+					LineRead header = m_fileManagerEntry.m_dataFile.readBuffer(4, false);		// Read header
+					if(header != null)
+					{				
+						int nLengthExcludingHeader = header.getAsLittleEndingUnsignBinaryInt();	// Length in header doesn't count the header itself
+						LineRead lineRead = m_fileManagerEntry.m_dataFile.readBufferOptionalEOL(nLengthExcludingHeader, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());		// Read record body, including optional trailing CRLF or LF
+						m_fileManagerEntry.m_dataFile.setLastPosition(lLastHeaderStartPosition);	// Save current position at the header start
+						if(lineRead != null)
+						{
+							fillInto(lineRead, varDest);							
+							return RecordDescriptorAtEnd.NotEnd;
+						}
+					}
+				}
+//				else if(advancedFileDescriptorMode.getTextMode())
+//				{
+//					LineRead lineRead = m_fileManagerEntry.m_dataFile.readNextUnixLine();
+//					if(lineRead != null)
+//					{
+//						fillInto(lineRead, varDest);
+//						return RecordDescriptorAtEnd.NotEnd;
+//					}
+//				}
+				else if(advancedFileDescriptorMode.getMFCobolLineSequential())
+				{
+					LineRead lineRead = m_fileManagerEntry.m_dataFile.readNextUnixLineMFCobol();
+					if(lineRead != null)
+					{
+						fillIntoMFCobol(lineRead, varDest);
+						return RecordDescriptorAtEnd.NotEnd;
+					}
+				}
+				else
+				{
+					
+					int nRecordLength = getRecordLength(m_varLevel01);
+					LineRead lineRead;
+					if(nRecordLength > 0)
+					{
+						//lineRead = m_fileManagerEntry.m_dataFile.readBuffer(nRecordLength, true);
+						lineRead = m_fileManagerEntry.m_dataFile.readBufferOptionalEOL(nRecordLength, advancedFileDescriptorMode.isEndingCRLF(), advancedFileDescriptorMode.isEndingLF());
+					}
+					else
+						lineRead = m_fileManagerEntry.m_dataFile.readNextUnixLine();				
+					if(lineRead != null)
+					{
+						fillInto(lineRead, varDest);
+						return RecordDescriptorAtEnd.NotEnd;
+					}
+				}
+				return RecordDescriptorAtEnd.End;
+			}
+		}
+	}
+	
+	private void fillIntoMFCobol(LineRead lineRead, Var varDest)
+	{
+		LineRead lineReadUnformatted = lineRead.getAsDeserializedFromMFCobol();
+		incNbRecordRead();
+		if (m_varLevel01 != varDest)
+		{
+			if (m_fileManagerEntry.isEbcdic())
+				fillInto2DestEbcdic(lineReadUnformatted, varDest);
+			else
+				varDest.setFromLineRead2DestWithFilling(lineReadUnformatted, m_varLevel01, CobolConstant.Space.getValue());
 		}
 		else
-		{
-			int nRecordLength = getRecordLength(m_varLevel01);
-			LineRead lineRead;
-			if(nRecordLength > 0)
+		{			
+			// m_varLevel01 == varDest: Not a readInto()
+			if (m_fileManagerEntry.isEbcdic())
 			{
-				lineRead = m_fileManagerEntry.m_dataFile.readBuffer(nRecordLength, true);	// PJD TO UNCOMMENT 
-				//lineRead = ((DataFileLineReader)m_fileManagerEntry.m_dataFile).readDirect(nRecordLength);
+				varDest.fill(CobolConstant.LowValue);
+				convertEbcdicToAsciiAndWrite(lineReadUnformatted);
 			}
-				
 			else
-				lineRead = m_fileManagerEntry.m_dataFile.readNextUnixLine();				
-			if(lineRead != null)
 			{
-				fillInto(lineRead, varDest);
-				return RecordDescriptorAtEnd.NotEnd;
+				int nRecordSize = m_varLevel01.getTotalSize();
+				int nNbByteWritten = m_varLevel01.setFromLineRead(lineReadUnformatted);
+				if(nRecordSize > nNbByteWritten) 
+					varDest.fillEndOfRecord(nNbByteWritten, nRecordSize, CobolConstant.Space.getValue());
 			}
-			return RecordDescriptorAtEnd.End;
 		}
 	}
 	
@@ -275,7 +532,7 @@ public class FileDescriptor extends BaseFileDescriptor
 			if (m_fileManagerEntry.isEbcdic())
 				fillInto2DestEbcdic(lineRead, varDest);
 			else
-				varDest.setFromLineRead2DestWithFilling(lineRead, m_varLevel01);
+				varDest.setFromLineRead2DestWithFilling(lineRead, m_varLevel01, CobolConstant.LowValue.getValue());
 		}
 		else
 		{			
@@ -290,11 +547,11 @@ public class FileDescriptor extends BaseFileDescriptor
 				int nRecordSize = m_varLevel01.getTotalSize();
 				int nNbByteWritten = m_varLevel01.setFromLineRead(lineRead);
 				if(nRecordSize > nNbByteWritten) 
-					varDest.fillEndOfRecord(nNbByteWritten, nRecordSize);
+					varDest.fillEndOfRecord(nNbByteWritten, nRecordSize, CobolConstant.LowValue.getValue());
 			}
 		}
 	}
-	
+
 	private void fillInto2DestEbcdic(LineRead lineRead, Var varDest)
 	{
 		varDest.fill(CobolConstant.LowValue);
@@ -402,6 +659,7 @@ public class FileDescriptor extends BaseFileDescriptor
 		if(m_fileManagerEntry.isVariableLength() || bForcedVariableLenght)
 		{
 			int nRecordLength = writeBufferExt.getRecordCurrentPosition();	// Measure record length
+			//if(m_fileManagerEntry.
 			// write record header
 			if(m_tbyHeader == null)
 				m_tbyHeader = new byte[4];
@@ -471,4 +729,20 @@ public class FileDescriptor extends BaseFileDescriptor
 			return false;
 		}
 	}
+	
+	public void registerStatus(Var varStatus)
+	{
+		m_varStatus = varStatus;
+	}
+	
+	public void reportStatus(FileStatusEnum fs)
+	{
+		if(m_varStatus != null && fs != null)
+		{
+			String csCode = fs.getCode();
+			m_varStatus.set(csCode);
+		}
+	}
+	
+	private Var m_varStatus = null;
 }

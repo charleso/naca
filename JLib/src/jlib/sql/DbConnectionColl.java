@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -12,12 +18,15 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.SortedMap;
 
 import jlib.blowfish.Blowfish;
 //import jlib.log.Log;
+import jlib.log.Log;
 import jlib.misc.BaseJmxGeneralStat;
 import jlib.misc.EnvironmentVar;
 import jlib.misc.StopWatch;
@@ -116,7 +125,11 @@ public class DbConnectionColl
 //					Log.logNormal("Re-using validated db connection from cache. "+ getNbFreeConnection()+" still available.");
 					return sqlConnection;
 				}
-				removeConnection(sqlConnection);
+//				StringBuilder sbText = new StringBuilder();
+//				sqlConnection.dumpConnections(sbText);
+//				System.out.println(sbText.toString());				
+				
+				removeConnection(sqlConnection, "tryGetPooledValidConnection");
 				sqlConnection = popAtIndex(0);
 			}
 			
@@ -197,6 +210,7 @@ public class DbConnectionColl
 					Properties propertiesUserPassword = new Properties();
 					propertiesUserPassword.setProperty("user", csUser);	
 					propertiesUserPassword.setProperty("password", csPassword);
+					//propertiesUserPassword.setProperty("FetchTSWTSasTimestamp", "true");				
 				
 					connection = m_dbConnectionParam.m_driver.connect(csUrl, propertiesUserPassword);
 //					if(connection != null)
@@ -229,6 +243,7 @@ public class DbConnectionColl
 		    	DbDriverId dbDriverId = m_dbConnectionParam.getDbDriverId();
 		    	
 		    	DbConnectionBase sqlConnection = connectionManager.createConnection(connection, csPoolName, m_dbConnectionParam.getEnvironment(), bUseStatementCache, true, dbDriverId);
+		    	
 		    	sqlConnection.setDbConnectionColl(this);
 		    	
 		    	sqlConnection.setUseExplain(getUseExplain());
@@ -240,6 +255,30 @@ public class DbConnectionColl
 					sqlConnection.setOnceUUID(csPrefix);
 					m_collUsedConnections.add(sqlConnection);	// this connection is in use
 					sqlConnection.showHideJMXBean(m_bShowRunningConnections);
+					
+//			    	///////////// oracle 
+			    	Statement s = sqlConnection.getDbConnection().createStatement();
+			    	boolean b = s.execute("alter session set nls_timestamp_format = 'YYYY-DD-MM-HH24.MI.SS.FF6'");
+			    	b = s.execute("ALTER SESSION SET OPTIMIZER_MODE = FIRST_ROWS_1");
+
+			    	
+//			    	String csDefaultTablePrefix = sqlConnection.getEnvironmentPrefix();
+//					
+//					BaseDbColDefinitionFactory dbColDefinitionFactory = new BaseDbColDefinitionFactory();
+//					Hashtable<String, ColDescription> hashDbColDef = dbColDefinitionFactory.makeHashDbColDescription(sqlConnection, null, "TINTERF");
+//					ColDescription col = hashDbColDef.get("D_EFFET");
+//					
+//					Hashtable<String, ColDescription> hashDbColDef2 = dbColDefinitionFactory.makeHashDbColDescription(sqlConnection, null, "THINTBE");
+//					ColDescription col2 = hashDbColDef2.get("DATE_MAJ");
+					
+			    	
+//			    	//////////// end oracle
+			    	
+			    	
+			    	
+
+					
+					
 					return sqlConnection;
 				}
 				else
@@ -278,16 +317,20 @@ public class DbConnectionColl
 		}
 	}
 	
-	int removeConnection(DbConnectionBase connection)
+	int removeConnection(DbConnectionBase connection, String csCallerId)
 	{
-		int n = connection.removeAllPreparedStatements();
-		connection.close();
-		connection.m_dbConnectionColl = null;
-		connection.m_dbConnection = null;
-		m_tscNbConnectionCreated.dec();
+		if(connection != null)
+		{
+			int n = connection.removeAllPreparedStatements();
+			connection.close();
+			connection.m_dbConnectionColl = null;
+			connection.clearJDBCConnection();
+			m_tscNbConnectionCreated.dec();
 //		Log.logNormal("Removing DB connection from pool. "+ m_tscNbConnectionCreated.get()+" existing connections, out of "+m_nNbMaxConnection+" allowed.");
 
 		return n;
+		}
+		return 0;		
 	}
 	
 	void removeConnectionFromUsed(DbConnectionBase sqlConnection)
@@ -321,7 +364,7 @@ public class DbConnectionColl
 		{
 			// The connection generation has changed and connection can't be kept
 //			Log.logNormal("DB Connection generation changed; DB connection is not returned to pool and removed. "+ m_tscNbConnectionCreated.get()+" existing connections, out of "+m_nNbMaxConnection+" allowed.");
-			removeConnection(sqlConnection);
+			removeConnection(sqlConnection, "DbConnectionColl::releaseConnection");
 			sqlConnection = null;
 		}
 	}
@@ -333,7 +376,7 @@ public class DbConnectionColl
 			connection = m_collFreeConnections.getLast();
 		while(connection != null && !connection.isValid(m_nTimeBeforeRemoveConnection_ms))
 		{
-			removeConnection(connection);
+			removeConnection(connection, "DbConnectionColl::removeObsoleteConnections");
 			m_collFreeConnections.removeLast();
 			if(m_collFreeConnections.size() > 0)
 				connection = m_collFreeConnections.getLast();
@@ -353,7 +396,7 @@ public class DbConnectionColl
 		{			
 			if(!connection.isValid(m_nTimeBeforeRemoveConnection_ms))
 			{
-				nNbStatementRemoved += removeConnection(connection);
+				nNbStatementRemoved += removeConnection(connection, "DbConnectionColl::garbageCollectorStatementsOfCollection");
 			}
 			else
 			{
@@ -374,7 +417,7 @@ public class DbConnectionColl
 		DbConnectionBase connection = popAtIndex(nIndex);
 		while(connection != null)
 		{			
-			removeConnection(connection);
+			removeConnection(connection, "DbConnectionColl::forceRemoveAllStatementsOfCollection");
 			connection = popAtIndex(nIndex);
 		}	
 	}

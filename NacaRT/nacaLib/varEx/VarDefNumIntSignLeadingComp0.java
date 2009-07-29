@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -16,6 +22,7 @@ import java.math.BigDecimal;
 
 import jlib.misc.*;
 import nacaLib.bdb.BtreeSegmentKeyTypeFactory;
+import nacaLib.debug.BufferSpy;
 import nacaLib.mathSupport.MathAdd;
 import nacaLib.misc.StringAsciiEbcdicUtil;
 import nacaLib.sqlSupport.CSQLItemType;
@@ -304,10 +311,12 @@ public class VarDefNumIntSignLeadingComp0 extends VarDefNum
 		{
 			int nPositionDest = buffer.m_nAbsolutePosition;
 			int nPositionSource = bufferSource.m_nAbsolutePosition;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, m_nTotalSize);
 			for(int n=0; n<m_nTotalSize; n++)
 			{
 				buffer.m_acBuffer[nPositionDest++] = bufferSource.m_acBuffer[nPositionSource++];
-			}			
+			}	
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			return ;
 		}
 
@@ -321,10 +330,12 @@ public class VarDefNumIntSignLeadingComp0 extends VarDefNum
 		{
 			int nPositionDest = buffer.m_nAbsolutePosition;
 			int nPositionSource = bufferSource.m_nAbsolutePosition;
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, nPositionDest, m_nTotalSize);
 			for(int n=0; n<m_nTotalSize; n++)
 			{
 				buffer.m_acBuffer[nPositionDest++] = bufferSource.m_acBuffer[nPositionSource++];
-			}			
+			}
+			if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 			return ;
 		}
 
@@ -495,16 +506,16 @@ public class VarDefNumIntSignLeadingComp0 extends VarDefNum
 	private int writeSignSeparatedLeadingIntComp0(VarBufferPos buffer, int nOffset, int nValue)
 	{
 		int nPos = RWNumIntComp0.internalWriteAbsoluteIntComp0(buffer, nOffset, nValue, buffer.m_nAbsolutePosition+1, m_nTotalSize-1);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, buffer.m_nAbsolutePosition, 1);
 		if(nValue >= 0)
 		{
 			buffer.m_acBuffer[buffer.m_nAbsolutePosition] = '+';
-		//	buffer.setCharAt(buffer.m_nAbsolutePosition, '+');
 		}
 		else
 		{
 			buffer.m_acBuffer[buffer.m_nAbsolutePosition] = '-';
-			//buffer.setCharAt(buffer.m_nAbsolutePosition, '-');
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		return nPos;
 	}
 
@@ -512,16 +523,16 @@ public class VarDefNumIntSignLeadingComp0 extends VarDefNum
 	private int writeSignSeparatedLeadingIntComp0AsLong(VarBufferPos buffer, long lValue)
 	{
 		int nPos = RWNumIntComp0.internalWriteAbsoluteIntComp0AsLong(buffer, lValue, buffer.m_nAbsolutePosition+1, m_nTotalSize-1);
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.prewrite(buffer.m_acBuffer, buffer.m_nAbsolutePosition, 1);
 		if(lValue >= 0)
 		{
 			buffer.m_acBuffer[buffer.m_nAbsolutePosition] = '+';
-		//	buffer.setCharAt(buffer.m_nAbsolutePosition, '+');
 		}			
 		else
 		{
 			buffer.m_acBuffer[buffer.m_nAbsolutePosition] = '-';
-			//buffer.setCharAt(buffer.m_nAbsolutePosition, '-');
 		}
+		if(BufferSpy.BUFFER_WRITE_DEBUG) BufferSpy.endwrite();
 		return nPos;
 	}
 		

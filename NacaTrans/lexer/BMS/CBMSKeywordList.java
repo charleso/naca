@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -52,6 +58,7 @@ public class CBMSKeywordList extends CKeywordList
 	public static CReservedKeyword PICIN = new CReservedKeyword(List, "PICIN") ; 
 	public static CReservedKeyword PICOUT = new CReservedKeyword(List, "PICOUT") ; 
 	public static CReservedKeyword TRAILER = new CReservedKeyword(List, "TRAILER") ; 
+	public static CReservedKeyword EXTATT = new CReservedKeyword(List, "EXTATT") ; 
 	//public static CReservedKeyword  = new CReservedKeyword(List, "") ; 
 	//public static CReservedKeyword  = new CReservedKeyword(List, "") ; 
 	//public static CReservedKeyword  = new CReservedKeyword(List, "") ; 

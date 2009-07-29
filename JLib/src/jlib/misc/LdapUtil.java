@@ -1,4 +1,10 @@
 /*
+ * JLib - Publicitas Java library v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * JLib - Publicitas Java library.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -24,6 +30,67 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import jlib.log.Log;
+
+
+/* Sample usage:
+Prerequisite: app.properties file contains LDAP infrastructure informations
+
+Sample app.properties, located in application classpath:
+ 
+##########################################
+# LDAP
+##########################################
+Ldap.server1=ldap01.consultas.ch
+Ldap.server2=ldap02.consultas.ch
+Ldap.server3=ldap03.consultas.ch
+Ldap.domain=publigroupe.net
+Ldap.rootOU="OU=FUTUR_PUBLIGROUPE,DC=Publigroupe,DC=net"
+ 
+ 
+Sample Code:
+ 
+  void doLogin(String csUser, String csPassword)
+  {
+     PropertyLoader property = new PropertyLoader();
+     String ldapServer1 = property.getProperty("Ldap.server1");
+     String ldapServer2 = property.getProperty("Ldap.server2");
+     String ldapServer3 = property.getProperty("Ldap.server3");
+     String ldapDomain = property.getProperty("Ldap.domain");
+     String ldapRootOU = property.getProperty("Ldap.rootOU");
+     
+     // login
+     String csUserDomain = csUser+"@"+ldapDomain;
+     
+     int ldapThread = 0;
+     
+     LdapUtil ldap = new LdapUtil(ldapThread);
+     ldap.addServer(++ldapThread, csUserDomain, csPassword, ldapServer1);
+     
+     if (!StringUtil.isEmpty(ldapServer2))
+        ldap.addServer(++ldapThread, csUserDomain, csPassword, ldapServer2);
+     
+     if (!StringUtil.isEmpty(ldapServer3))
+        ldap.addServer(++ldapThread, csUserDomain, csPassword, ldapServer3);
+     
+     ldap.connectOnAnyServers();
+     if (ldap.isValid())        // Authenticated
+     {
+          NamingEnumeration enumer = ldap.searchSubtree(ldapRootOU, "sAMAccountName=" + csUser) ;
+          String nameInNamespace = null;
+          if (enumer.hasMoreElements())
+          {
+              SearchResult res = (SearchResult)enumer.nextElement();
+              nameInNamespace = res.getNameInNamespace();
+          }
+          String csDisplayName = ldap.getOneAttribute(nameInNamespace, "displayName");
+          String csMail = ldap.getOneAttribute(nameInNamespace, "mail");
+          ...
+     }
+    else    // Not // Authenticated !!!
+    {
+       ...
+    }
+*/
 
 public class LdapUtil
 {

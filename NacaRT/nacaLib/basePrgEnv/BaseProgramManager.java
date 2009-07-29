@@ -1,4 +1,10 @@
 /*
+ * NacaRT - Naca RunTime for Java Transcoded Cobol programs v1.2.0.
+ *
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 Publicitas SA.
+ * Licensed under LGPL (LGPL-LICENSE.txt) license.
+ */
+/*
  * NacaRT - Naca RunTime for Java Transcoded Cobol programs.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -7,6 +13,7 @@
 package nacaLib.basePrgEnv;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -22,6 +29,7 @@ import nacaLib.exceptions.CESMReturnException;
 import nacaLib.exceptions.CGotoException;
 import nacaLib.exceptions.CGotoOtherSectionException;
 import nacaLib.exceptions.CGotoOtherSectionParagraphException;
+import nacaLib.exceptions.NacaRTException;
 import nacaLib.mapSupport.Map;
 import nacaLib.misc.KeyPressed;
 import nacaLib.program.CJMapRunnable;
@@ -30,6 +38,8 @@ import nacaLib.program.CopyManager;
 import nacaLib.program.CopyReplacing;
 import nacaLib.program.Paragraph;
 import nacaLib.program.Section;
+import nacaLib.program.Sentence;
+import nacaLib.program.SpecialName;
 import nacaLib.programPool.SharedProgramInstanceData;
 import nacaLib.programPool.SharedProgramInstanceDataCatalog;
 import nacaLib.programStructure.DataDivision;
@@ -65,11 +75,13 @@ public abstract class BaseProgramManager extends CJMapObject
 	{
 		super();
 		
+		m_nLastVarId = 0;
+				
 		setLastTimeRunBegin();
 		m_program = program;
 		m_sharedProgramInstanceData = sharedProgramInstanceData;
 		m_bInheritedSharedProgramInstanceData = bInheritedSharedProgramInstanceData;
-		m_nLastVarId = 0;
+		
 		m_sqlStatus = new CSQLStatus() ;
 		m_hashInitializeCache = new Hashtable<Integer, InitializeCache>();
 		m_hashMoveCorrespondingEntryManager = new Hashtable<Integer, MoveCorrespondingEntryManager>();
@@ -117,8 +129,9 @@ public abstract class BaseProgramManager extends CJMapObject
 				assignBufferLS(bufferLS);
 				
 				m_DataDivision.restoreFileManagerEntries(env);
-								
-				m_sharedProgramInstanceData.restoreOriginalValues(varBufferWS, m_arrEditInMap);
+					
+				m_sharedProgramInstanceData.restoreOriginalValues(varBufferWS);
+				m_sharedProgramInstanceData.restoreOriginalEdits(m_arrEditInMap);
 							
 				m_DataDivision.mapLinkageCallParameters(arrCallerCallParam, m_arrDeclaredCallArg);
 			}
@@ -168,7 +181,8 @@ public abstract class BaseProgramManager extends CJMapObject
 		else	// instance > 1
 		{
 			Log.logDebug("loadNewInstance Program="+m_program.getSimpleName() + "; NOT 1st instance");
-			m_sharedProgramInstanceData.restoreOriginalValues(varBufferWS, m_arrEditInMap);
+			m_sharedProgramInstanceData.restoreOriginalValues(varBufferWS);
+			m_sharedProgramInstanceData.restoreOriginalEdits(m_arrEditInMap);
 		}
 	}
 	
@@ -227,7 +241,7 @@ public abstract class BaseProgramManager extends CJMapObject
 		if(m_DataDivision == null)	// Check DataDivision creation
 		{
 			dataDivision();
-			m_DataDivision.grantAndSetCurrentWorkingStorageSection(m_program);
+			grantAndSetCurrentWorkingStorageSection();
 		}
 	}
 	
@@ -236,7 +250,15 @@ public abstract class BaseProgramManager extends CJMapObject
 		if(m_DataDivision == null)	// Check DataDivision creation
 			dataDivision();
 		
-		return m_DataDivision.grantAndSetCurrentWorkingStorageSection(m_program);
+		return grantAndSetCurrentWorkingStorageSection();
+	}
+	
+	private DataSection grantAndSetCurrentWorkingStorageSection()
+	{
+		DataSection dataSection = m_DataDivision.grantAndSetCurrentWorkingStorageSection(m_program);
+		// Pb m_varEIBCALEN = new VarInternalInt() ;	// Contains the total length of the parameters passed upon calling
+		
+		return dataSection;
 	}
 	
 	public DataSection linkageSection()
@@ -253,6 +275,13 @@ public abstract class BaseProgramManager extends CJMapObject
 			dataDivision();
 		
 		return m_DataDivision.grantAndSetCurrentFileSection(m_program);
+	}
+	
+	public SpecialName decimalPointIsComma()
+	{
+		if(m_decimalPointIsComma == null)	// Check DataDivision creation
+			m_decimalPointIsComma = new DecimalPointIsComma();
+		return m_decimalPointIsComma;
 	}
 	
 	public BaseProgram getProgram()
@@ -355,6 +384,14 @@ public abstract class BaseProgramManager extends CJMapObject
 						else if(csTypeName.equals("nacaLib.program.Paragraph"))
 						{
 							Paragraph para = (Paragraph)obj;
+							if(bSetPrefix)
+								para.name(csPrefixeName + csName);
+							else
+								para.name(csName);
+						}
+						else if(csTypeName.equals("nacaLib.program.Sentence"))
+						{
+							Sentence para = (Sentence)obj;
 							if(bSetPrefix)
 								para.name(csPrefixeName + csName);
 							else
@@ -523,6 +560,14 @@ public abstract class BaseProgramManager extends CJMapObject
 							else
 								para.name(csName);
 						}
+						else if(csTypeName.equals("nacaLib.program.Sentence"))
+						{
+							Sentence para = (Sentence)obj;
+							if(bSetPrefix)
+								para.name(csPrefixeName + csName);
+							else
+								para.name(csName);
+						}
 					}
 				}
 			}
@@ -541,7 +586,7 @@ public abstract class BaseProgramManager extends CJMapObject
 	}
 	
 	public void runMain()
-	{
+	{		
 		m_program.setTempCache();
 		m_currentSection = null;
 		m_currentParagraph = null;
@@ -565,7 +610,7 @@ public abstract class BaseProgramManager extends CJMapObject
 		catch (CGotoOtherSectionException e)	// goto another section
 		{
 			m_currentSection = e.m_Section;
-			gotoParagraph = null;				
+			gotoParagraph = null;
 		}
 		catch (CGotoOtherSectionParagraphException e)	// Goto a paragraph of another section
 		{
@@ -627,6 +672,11 @@ public abstract class BaseProgramManager extends CJMapObject
 		{
 			m_arrSection.add(section);
 		}
+	}
+	
+	public void addSectionToParagraphArray(Section paragraph)
+	{
+		m_arrParagraph.add(paragraph);		
 	}
 	
 	public Section addParagraphToCurrentSection(Paragraph paragraph)
@@ -738,7 +788,7 @@ public abstract class BaseProgramManager extends CJMapObject
 		int nCurrentParagraphIndex = 0;
 		while(nCurrentParagraphIndex < nNbParagraph)
 		{
-			Paragraph paragraph = m_arrParagraph.get(nCurrentParagraphIndex);
+			CJMapRunnable paragraph = m_arrParagraph.get(nCurrentParagraphIndex);
 			if(m_currentParagraph == paragraph)
 				return nCurrentParagraphIndex;
 			nCurrentParagraphIndex++;
@@ -769,22 +819,56 @@ public abstract class BaseProgramManager extends CJMapObject
 	public void perform(Section section)
 	{
 		if(section != null)
-			section.runSection();
+		//	section.runSection();	// PJD: Removed goto bug
+		// Contribution Charles O'Farell
+		{
+			m_currentSection = section;
+			Paragraph gotoParagraph = null;
+			while(m_currentSection != null)
+			{
+				try
+				{
+					m_currentSection.runSectionFromParagraph(gotoParagraph);
+					gotoParagraph = null;
+					m_currentSection = null;
+				}
+				catch (CGotoOtherSectionParagraphException e)  // Goto a paragraph of another section
+				{
+					gotoParagraph = e.m_Paragraph;
+					if(gotoParagraph != null)				// PJD Added: Reset current section to gotoParagraph's owner section
+						m_currentSection = gotoParagraph.getSectionOwner();
+					
+				}
+				catch (CGotoOtherSectionException e)  // goto another section
+				{
+					m_currentSection = e.m_Section;
+					gotoParagraph = null;        
+				}
+				catch (CESMReturnException e)
+				{
+					m_currentSection = null ;  // Force a return to CESM
+				}
+			}
+		}
 	}
 	
 	public void performThrough(Paragraph paragraphBegin, Paragraph paragraphEnd)
 	{
 		// Enum all paragraphs that are between functorBegin and functorEnd, whatever their sections
-		m_currentParagraph = paragraphBegin;
+		CJMapRunnable saveCurrentParagraph = m_currentParagraph;
+		
+		m_currentParagraph = paragraphBegin; // *CSM* Save a reference to current paragraph; saved in stack, enabling nested performThrough
 		boolean bDone = false ;
 		while(m_currentParagraph != null && !bDone)
 		{
 			try
 			{
-				m_currentParagraph.run();
+				CJMapRunnable newCurrentParagraph = m_currentParagraph.runForPerformThrough();
+				m_currentParagraph = newCurrentParagraph;
 				if (m_currentParagraph == paragraphEnd)
 				{
 					bDone = true ;
+					m_currentParagraph = saveCurrentParagraph; // *CSM* Restore the current paragraph reference member before return
 				}
 				else
 				{
@@ -802,7 +886,8 @@ public abstract class BaseProgramManager extends CJMapObject
 	private ArrayList<Var> m_arrDeclaredCallArg = null;		// Arguments declared on call
 	
 	private ArrayFixDyn<Section>  m_arrSection= new ArrayDyn<Section>();	// Array of Sections inside the procedure division
-	private ArrayFixDyn<Paragraph> m_arrParagraph = new ArrayDyn<Paragraph>();	// Array of all paragraphs, whatever their section
+	//private ArrayFixDyn<Paragraph> m_arrParagraph = new ArrayDyn<Paragraph>();	// Array of all paragraphs, whatever their section
+	private ArrayFixDyn<CJMapRunnable> m_arrParagraph = new ArrayDyn<CJMapRunnable>();	// Array of all paragraphs, whatever their section
 	
 	private CopyReplacing m_copyReplacing;
 
@@ -928,6 +1013,18 @@ public abstract class BaseProgramManager extends CJMapObject
 		
 		csText += sbText.toString(); 
 		BaseProgramLoader.logMail(csSimpleName + " - " + csTitle, csText);
+	}
+	
+	public void logMail(String csSubject, String csMessage, Throwable eThrowable)
+	{
+		TempCache tempCache = TempCacheLocator.getTLSTempCache();
+		BaseProgram prgLast = tempCache.popCurrentProgram();
+		String csClassName = "";
+		CSQLStatus sqlStatus = null;
+		if (prgLast != null)
+			csClassName = prgLast.getSimpleName();
+
+		getProgramLoader().logMail(getEnv(), csClassName, csSubject, eThrowable, m_sqlStatus, csMessage);
 	}
 	
 	public boolean getBufferPosOfVarDef(VarDefBuffer varDefBuffer, VarBufferPos varBufferPos)
@@ -1358,9 +1455,13 @@ public abstract class BaseProgramManager extends CJMapObject
 		getEnv().setKeyPressed(v);
 	}
 	
-	private VarInternalInt m_varEIBCALEN = new VarInternalInt() ;	// Contains the total length of the parameters passed upon calling
+	private VarInternalInt m_varEIBCALEN = new VarInternalInt() ;	// Contains the total length of the parameters passed upon calling // Pb private VarInternalInt m_varEIBCALEN = null;
+
 	public void determineCommareaLength(BaseEnvironment env)
 	{
+		if(m_varEIBCALEN == null)
+			return ;
+			
 		if(env == null || env.getCommarea() == null)
 		{
 			m_varEIBCALEN.set(0) ;
@@ -1378,7 +1479,8 @@ public abstract class BaseProgramManager extends CJMapObject
 	
 	protected void setCommAreaLength(int n)
 	{
-		m_varEIBCALEN.set(n);
+		if(m_varEIBCALEN != null)
+			m_varEIBCALEN.set(n);
 	}
 
 
@@ -1421,9 +1523,10 @@ public abstract class BaseProgramManager extends CJMapObject
 		if(m_arrParagraph != null)
 		{
 			int nSize = m_arrParagraph.size();
-			Paragraph arr[] = new Paragraph[nSize];
+			CJMapRunnable arr[] = new CJMapRunnable[nSize];
 			m_arrParagraph.transferInto(arr);
-			ArrayFix<Paragraph> arrFix = new ArrayFix<Paragraph>(arr);
+			//ArrayFix<Paragraph> arrFix = new ArrayFix<Paragraph>(arr);
+			ArrayFix<CJMapRunnable> arrFix = new ArrayFix<CJMapRunnable>(arr);
 			m_arrParagraph = arrFix;
 		}
 		
@@ -1500,6 +1603,10 @@ public abstract class BaseProgramManager extends CJMapObject
 //	
 //	private String m_csProgramName2 = null;
 
+	public Section getCurrentSection()
+	{
+		return m_currentSection;
+	}
 	
 	private boolean m_bNewInstance = true;
 	
@@ -1515,4 +1622,12 @@ public abstract class BaseProgramManager extends CJMapObject
 	private BaseProgramLoader m_baseProgramLoader = null;
 	// private ProgramSequencerExt m_baseProgramLoader = null;
 	private boolean m_bCompressed = false;
+	private DecimalPointIsComma m_decimalPointIsComma = null;
+	
+	public boolean getDecimalPointIsComma()
+	{
+		if(m_decimalPointIsComma != null)
+			return true;
+		return false;
+	}
 }

@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -25,6 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import parser.CIdentifier;
+import parser.COrderedIdentfier;
 import parser.Cobol.CCobolElement;
 import parser.expression.CTerminal;
 import semantic.CDataEntity;
@@ -52,6 +59,7 @@ import semantic.forms.CEntityResourceForm.CFieldRedefineDescription;
 import utils.Transcoder;
 import utils.CGlobalEntityCounter;
 import utils.NacaTransAssertException;
+import utils.modificationsReporter.Reporter;
 
 /**
  * @author U930CV
@@ -106,12 +114,13 @@ public class CWorkingEntry extends CCobolElement
 	protected CTerminal m_BlankWhenValue = null ;
 	protected boolean m_bFillAll = false ;
 	protected boolean m_bIsPointer = false ;
+	protected boolean m_bIsProcedurePointer = false;
 	protected boolean m_bIsIndex = false;
 	protected boolean m_bJustifiedRight = false ;
 	protected boolean m_bBlankWhenZero = false ;
 	protected boolean m_bSignTrailingSeparate = false ;
-	protected Vector<CIdentifier> m_arrTableSortKey = null ;
-	protected boolean m_bTableSortedAscending = false ;
+	protected Vector<COrderedIdentfier> m_arrTableSortKey = null ;
+	//protected boolean m_bTableSortedAscending = false ;
 	protected boolean m_bBinary = true ;
 	
 
@@ -121,6 +130,10 @@ public class CWorkingEntry extends CCobolElement
 	protected boolean DoParsing()
 	{
 		CBaseToken tokEntry = GetCurrentToken();
+		if(tokEntry.getLine() == 12)
+		{
+			int gg =0 ;
+		}
 		if (tokEntry.GetType() == CTokenType.NUMBER)
 		{
 			m_EntryLevel = tokEntry.GetIntValue() ;
@@ -136,16 +149,49 @@ public class CWorkingEntry extends CCobolElement
 			} 
 			m_FormalLevel = tokEntry.GetValue() ;
 			CBaseToken tokName = GetNext(); // consume PIC LEVEL
-			if (tokName.IsKeyword() && tokName.GetKeyword()==CCobolKeywordList.FILLER)
+			if (tokName.IsKeyword() && tokName.GetKeyword()==CCobolKeywordList.FILLER)	// <level> FILLER PIC ...
 			{
+				Reporter.Add("Modif_PJ", "Level not specified");
 				m_Name = "" ;
-				GetNext() ; // consume FILLER
+				GetNext() ; // consume FILLER 
+			}
+			else if (tokName.IsKeyword() && tokName.GetKeyword()==CCobolKeywordList.PIC)	// <level> PIC ...
+			{	// Filler not specified; simulate it
+				Reporter.Add("Modif_PJ", "Filler not specified");
+				m_Name = "" ;
+			}
+			else if (tokName.IsKeyword() && tokName.GetKeyword()==CCobolKeywordList.REDEFINES)	// <level> REDEFINES var ...
+			{	// Filler not specified; simulate it
+				m_Name = "" ;
 			}
 			else if (tokName.GetType() == CTokenType.IDENTIFIER)
 			{
 				m_Name = tokName.GetValue() ;
+				if(m_Name.equals("MA-CRBE"))
+				{
+					int gg = 0;
+				}
 				GetNext() ; // consume NAME
 			}
+//			else if(tokName.IsKeyword())	// PJD: Maybe using an identifier that have the same name as an identifier
+//			{
+//				m_Name = tokName.GetValue();
+//				GetNext() ; // consume NAME
+//			}
+			else if(tokName.IsKeyword())	// PJD: Maybe using an identifier that have the same name as an identifier
+			{
+				String csName = tokName.GetValue();
+				int nLine = tokEntry.getLine();
+				boolean bIsNewLine = false;
+				tokName = new CTokenIdentifier(csName, nLine, bIsNewLine) ;
+				// This token has the same name as a reserved keyword; replace it by a variable name
+				UpdateCurrentToken(tokName);
+				
+				// now tokName.GetType() == CTokenType.IDENTIFIER 
+				m_Name = tokName.GetValue() ;
+				GetNext() ; // consume NAME
+			}
+
 			if (!ParsePicOptions())
 			{
 				return false ;
@@ -203,7 +249,7 @@ public class CWorkingEntry extends CCobolElement
 				bNext = true ;
 				GetNext();
 			}
-			else if (tokPic.IsKeyword() && tokPic.GetKeyword()==CCobolKeywordList.COMP_3)
+			else if (tokPic.IsKeyword() && (tokPic.GetKeyword()==CCobolKeywordList.COMP_3 || tokPic.GetKeyword()==CCobolKeywordList.COMPUTATIONAL_3))	// PJD Added COMPUTATIONAL_3
 			{
 				m_Comp = "COMP3" ;
 				bNext = true ;
@@ -283,6 +329,12 @@ public class CWorkingEntry extends CCobolElement
 				if (tok.GetKeyword() == CCobolKeywordList.POINTER)
 				{
 					m_bIsPointer = true ;
+					tok = GetNext();
+				}
+				else if (tok.GetKeyword() == CCobolKeywordList.PROCEDURE_POINTER)	// PJD Added
+				{
+					Reporter.Add("Modif_PJ", "PROCEDURE_POINTER");
+					m_bIsProcedurePointer = true ;
 					tok = GetNext();
 				}
 				else if (tok.GetKeyword() == CCobolKeywordList.INDEX)
@@ -403,13 +455,14 @@ public class CWorkingEntry extends CCobolElement
 						}
 						else if (tokOpt.GetKeyword() == CCobolKeywordList.ASCENDING || tokOpt.GetKeyword() == CCobolKeywordList.DESCENDING)
 						{
+							boolean bTableSortedAscending = false; 
 							if (tokOpt.GetKeyword() == CCobolKeywordList.ASCENDING)
 							{
-								m_bTableSortedAscending = true ;
+								bTableSortedAscending = true ;
 							}
 							else
 							{
-								m_bTableSortedAscending = false ;
+								bTableSortedAscending = false ;
 							}
 							tokOpt = GetNext() ;
 							if (tokOpt.GetKeyword() == CCobolKeywordList.KEY)
@@ -420,13 +473,14 @@ public class CWorkingEntry extends CCobolElement
 							{
 								tokOpt = GetNext();
 							}
-							m_arrTableSortKey = new Vector<CIdentifier>() ;							
-							CIdentifier tableSortKey ;
-							tableSortKey = ReadIdentifier() ;
-							while (tableSortKey != null)
+							m_arrTableSortKey = new Vector<COrderedIdentfier>() ;							
+							CIdentifier tableSortKeyIdentifier ;
+							tableSortKeyIdentifier = ReadIdentifier() ;
+							while (tableSortKeyIdentifier != null)
 							{
-								m_arrTableSortKey.add(tableSortKey) ;
-								tableSortKey = ReadIdentifier() ;
+								COrderedIdentfier orderedIdentfier = new COrderedIdentfier(tableSortKeyIdentifier, bTableSortedAscending);
+								m_arrTableSortKey.add(orderedIdentfier) ;
+								tableSortKeyIdentifier = ReadIdentifier() ;
 							}
 						}
 						else
@@ -512,8 +566,13 @@ public class CWorkingEntry extends CCobolElement
 	protected boolean m_bEdited = false ;
 	protected boolean ParsePicItSelf()
 	{
+		if(getLine() == 463)
+		{
+			int gg = 0;
+		}
 		CBaseToken tokType = GetNext() ; // consume PIC token, expecting S9 / 9 / X / XX ...
 		String csPicType = ReadPicType() ;
+				
 		byte[] tab = csPicType.getBytes() ;
 		int nCurrentChar = 0 ;
 		char cRepeatPattern = 0 ;
@@ -613,6 +672,13 @@ public class CWorkingEntry extends CCobolElement
 				}
 				else if (c == '-' && m_Type == CWorkingPicType.NUMBER)
 				{
+					m_Length ++ ;
+					m_Format += c ;
+					m_bEdited = true ;
+				}
+				else if (c == '-' && m_Type == CWorkingPicType.DECIMAL)	// PJD Added support for negative decimal edited 
+				{
+					Reporter.Add("Modif_PJ", "Negative decimal edited");
 					m_Length ++ ;
 					m_Format += c ;
 					m_bEdited = true ;
@@ -750,6 +816,10 @@ public class CWorkingEntry extends CCobolElement
 			{
 				return true ;
 			}
+			if (tokEntry.getLine() == 98)
+			{
+				int gg = 0;
+			}
 			if (tokEntry.GetType()==CTokenType.NUMBER)
 			{
 				int level = tokEntry.GetIntValue();
@@ -883,8 +953,24 @@ public class CWorkingEntry extends CCobolElement
 					parent.AddChild(index) ;
 				}
 			}
+			if(m_arrTableSortKey != null)
+			{
+				for(int n=0; n<m_arrTableSortKey.size(); n++)
+				{
+					COrderedIdentfier orderedIdentifier = m_arrTableSortKey.get(n);
+					CIdentifier identifier = orderedIdentifier.getIdentifier();
+					boolean bAscending = orderedIdentifier.getAscending();
+					String csForwardedName = identifier.GetName();
+					eStruct.addForwardTableSortKeyIdentifier(csForwardedName, bAscending);
+				}
+			}
+				
 			if (m_Redefines != null)
 			{
+				if(m_Redefines.GetName().equals("MA-TEXTE-INFO"))
+				{
+					int gg = 0;
+				}
 				CDataEntity e = m_Redefines.GetDataReference(getLine(), factory, parent) ;
 				if (e != null)
 				{
@@ -1511,10 +1597,12 @@ public class CWorkingEntry extends CCobolElement
 	 	}
 	 	catch (NoSuchElementException ee)
 	 	{
+	 		//ee.printStackTrace();
 	 		return null ;
 	 	}
 	 	catch (ClassCastException e)
 	 	{
+	 		e.printStackTrace();
 			return GetNext(i);
 	 	}
 	 }
@@ -1532,6 +1620,7 @@ public class CWorkingEntry extends CCobolElement
 			}
 			catch (NoSuchElementException e)
 			{
+				e.printStackTrace();
 			}
 			while (le != null)
 			{
@@ -1545,6 +1634,7 @@ public class CWorkingEntry extends CCobolElement
 				}
 				catch (NoSuchElementException ee)
 				{
+					//ee.printStackTrace();
 					le = null ;
 				}
 			}

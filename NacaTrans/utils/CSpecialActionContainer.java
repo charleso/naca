@@ -1,4 +1,10 @@
 /*
+ * NacaTrans - Naca Transcoder v1.2.0.
+ *
+ * Copyright (c) 2008-2009 Publicitas SA.
+ * Licensed under GPL (GPL-LICENSE.txt) license.
+ */
+/*
  * NacaRTTests - Naca Tests for NacaRT support.
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Publicitas SA.
@@ -1031,6 +1037,37 @@ public class CSpecialActionContainer
 	/**
 	 * @param cat
 	 */
+	
+//	public void DoSimplifyFileSelect(CObjectCatalog cat, CBaseEntityFactory factory)
+//	{
+//		CEntityDataSection depSection = factory.NewEntityDataSection(0, "FileSelectSection") ;
+//		depSection.AddChild(factory.NewEntityComment(0, "***********************************************************")) ;
+//		depSection.AddChild(factory.NewEntityComment(0, "* FileSelect Section")) ;
+//		depSection.AddChild(factory.NewEntityComment(0, "***********************************************************")) ;
+//		boolean bFound = false ;
+//		for (CEntityFileSelect desc : cat.getFileSelects())
+//		{
+//			CIdentifier id = desc.getFileStatusIdentifier();
+//			CDataEntity e = id.GetDataReference(0, factory) ;
+//			int g = 0;
+////			CDataEntity var = desc.getRecordSizeDepending() ;
+////			CDataEntity var2 = findVariableVarInChildren(desc) ;
+////			if (var == null)
+////				var = var2 ;
+////			if (var != null)
+////			{
+////				CEntityFileDescriptorLengthDependency dep = factory.NewEntityFileDescriptorLengthDependency(desc.GetName()+ "_dependency") ;
+////				dep.setDependency(desc, var) ;
+////				depSection.AddChild(dep) ;
+////				bFound = true ;
+////			}
+////			else
+////			{
+////				//checkBinaryFieldsInChildren(desc) ;
+////			}
+//		}
+//	}
+	
 	public void DoSimplifyFDVariableZones(CObjectCatalog cat, CBaseEntityFactory factory)
 	{
 		CEntityDataSection depSection = factory.NewEntityDataSection(0, "DependencySection") ;
