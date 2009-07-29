@@ -483,9 +483,7 @@ public class VarDefInternalInt extends VarDefNum
 		
 	int compare(ComparisonMode mode, VarBufferPos bufferSource, VarAndEdit var2)
 	{
-		assertIfFalse(false);
-		//return var2.m_varDef.compare(var2.m_bufferPos, this, bufferSource);
-		return 0;
+		return internalCompare(m_var.getInt(), var2.getInt());
 	}
 	
 	int compare(ComparisonMode mode, VarBufferPos buffer2, VarDefNumDecComp0 varDefNum1, VarBufferPos buffer1)
