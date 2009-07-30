@@ -8,7 +8,6 @@ package nacaLib.varEx;
 
 import jlib.misc.BaseDataFile;
 import jlib.misc.BaseDataFileBuffered;
-import jlib.misc.DataFileLineReader;
 import jlib.misc.EnvironmentVar;
 import jlib.misc.LineRead;
 import jlib.misc.LittleEndingSignBinaryBufferStorage;
@@ -21,9 +20,12 @@ import nacaLib.batchOOApi.WriteBufferExt;
 
 public class FileDescriptor extends BaseFileDescriptor
 {
+	private static final int PAGE_LINES = 60;
 	private VarDefEncodingConvertibleManagerContainer m_varDefEncodingConvertibleManagerContainer = null;
 	private byte[] m_tbyHeader = null;
-
+	private Var status;
+	private int count;
+	
 	public FileDescriptor(String csLogicalName)
 	{
 		super(null, csLogicalName);
@@ -62,6 +64,12 @@ public class FileDescriptor extends BaseFileDescriptor
 		return false;
 	}	
 	
+	public FileDescriptor status(Var status)
+	{
+		this.status = status;
+		return this;
+	}
+	
 	public void inheritSettings(FileDescriptor fileDescSource)
 	{
 		m_fileManagerEntry.inheritSettings(fileDescSource.m_fileManagerEntry);
@@ -96,6 +104,27 @@ public class FileDescriptor extends BaseFileDescriptor
 	public void write()
 	{
 		writeFrom(m_varLevel01, false);
+	}
+	
+	public void writeAfter(int after)
+	{
+		after(after);
+		writeFrom(m_varLevel01, false);
+	}
+
+	private void after(int after)
+	{
+		if (after < 0)
+		{
+			after = (PAGE_LINES - (count % PAGE_LINES)) % PAGE_LINES;
+			after++;
+		}
+		after--;
+		for (int i = 0; i < after; i++)
+		{
+			m_fileManagerEntry.m_dataFile.writeWithEOL(new byte[0], 0);
+			incNbRecordWrite();
+		}
 	}
 	
 	public void writeFrom(VarBase varWorking)
@@ -184,7 +213,15 @@ public class FileDescriptor extends BaseFileDescriptor
 			else
 				m_fileManagerEntry.m_dataFile.writeWithEOL(tbyFilebuffer, nRecordSize);
 			incNbRecordWrite();
-		}		
+		}
+		if(status != null)
+			status.set("00");
+	}
+	
+	@Override
+	protected void incNbRecordWrite() {
+		count++;
+		super.incNbRecordWrite();
 	}
 	
 	public byte [] getWriteBuffer(int nMaxSize)

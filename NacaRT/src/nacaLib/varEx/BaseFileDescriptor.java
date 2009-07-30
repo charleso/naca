@@ -7,7 +7,6 @@
 package nacaLib.varEx;
 
 import jlib.misc.BaseDataFile;
-import jlib.misc.FileEndOfLine;
 import jlib.misc.RecordLengthDefinition;
 import nacaLib.base.CJMapObject;
 import nacaLib.basePrgEnv.BaseEnvironment;
@@ -16,9 +15,9 @@ import nacaLib.basePrgEnv.FileManagerEntry;
 
 public abstract class BaseFileDescriptor extends CJMapObject
 {	
-	private BaseSession m_baseSession = null;
+	protected BaseSession m_baseSession = null;
 	protected FileManagerEntry m_fileManagerEntry = null; 
-	private String m_csLogicalName = null;
+	protected String m_csLogicalName = null;
 	protected Var m_varLevel01 = null;
 	private Var m_varVariableLengthMarker = null;
 	private Var m_varLengthDependingOn = null;	// Variable declared by a FileDescriptorDepending: it gives the variable whose value give the length of the dynamic part of the record

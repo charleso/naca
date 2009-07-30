@@ -29,6 +29,8 @@ public class CJavaWriteFile extends CEntityWriteFile
 		}
 		if (m_eDataFrom != null)
 			cs = "writeFrom(" + csFile + ", " + m_eDataFrom.ExportReference(getLine()) + ") ;";
+		else if (m_after != null)
+			cs = "writeAfter(" + csFile + ", " + m_after.ExportReference(getLine()) + ") ;";
 		else
 			cs = "write(" + csFile + ") ;";
 		WriteLine(cs) ;

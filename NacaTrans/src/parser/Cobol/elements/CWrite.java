@@ -66,7 +66,7 @@ public class CWrite extends CCobolElement
 		}
 		if  (m_bWriteAfterPositioning)
 		{
-			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ WriteAfterPositioning ");
+			eWrite.SetAfter(m_NbLinesPositioning.GetDataEntity(getLine(), factory));
 		}
 		if (m_bWriteBeforePositioning)
 		{
@@ -75,10 +75,6 @@ public class CWrite extends CCobolElement
 		if (m_blocInvalidKey != null)
 		{
 			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ InvalidKeyBloc");
-		}
-		if (m_NbLinesPositioning != null)
-		{
-			Transcoder.logError(getLine(), "No semantic analysis for WriteFile/ NbLinesPositioning");
 		}
 		return eWrite;
 	}

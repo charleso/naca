@@ -5366,6 +5366,13 @@ public abstract class BaseProgram extends CJMapObject
 		fileDesc.write();
 	}
 	
+	public void writeAfter(FileDescriptor fileDesc, int after)
+	{
+		if(IsSTCheck)
+			Log.logFineDebug("writeAfter_FDA" + fileDesc.toString() + "," + after);
+		fileDesc.writeAfter(after);
+	}
+	
 	public void writeFrom(FileDescriptor fileDesc, Var varFrom)
 	{
 		if(IsSTCheck)
