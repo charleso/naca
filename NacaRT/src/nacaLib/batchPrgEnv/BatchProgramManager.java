@@ -29,7 +29,7 @@ public class BatchProgramManager extends BaseProgramManager
 		
 	public void setEnv(BaseEnvironment env)
 	{
-		m_env = (BatchEnvironment)env;
+		m_env = env;
 	}
 	
 	public void detachFromEnv()
@@ -48,5 +48,5 @@ public class BatchProgramManager extends BaseProgramManager
 			((BatchProgram)prg).prepareRunMain(m_env);
 	}
 	
-	private BatchEnvironment m_env = null; 
+	private BaseEnvironment m_env = null; 
 }
