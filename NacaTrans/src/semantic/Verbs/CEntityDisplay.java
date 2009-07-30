@@ -33,10 +33,10 @@ public abstract class CEntityDisplay extends CBaseActionEntity
 	 * @param cat
 	 * @param out
 	 */
-	public CEntityDisplay(int line, CObjectCatalog cat, CBaseLanguageExporter out, boolean b)
+	public CEntityDisplay(int line, CObjectCatalog cat, CBaseLanguageExporter out, Upon t)
 	{
 		super(line, cat, out);
-		m_bDisplyOnConsole = b ;
+		m_upon = t ;
 	}
 	public void AddItemToDisplay(CDataEntity e)
 	{
@@ -44,7 +44,7 @@ public abstract class CEntityDisplay extends CBaseActionEntity
 	}
 	
 	protected Vector<CDataEntity> m_arrItemsToDisplay = new Vector<CDataEntity>();
-	protected boolean m_bDisplyOnConsole = false ;
+	protected Upon m_upon = Upon.DEFAULT ;
 	public void Clear()
 	{
 		super.Clear() ;
@@ -59,5 +59,10 @@ public abstract class CEntityDisplay extends CBaseActionEntity
 			ignore &= e.ignore() ;
 		}
 		return ignore ;
+	}
+	
+	public static enum Upon
+	{
+		DEFAULT, CONSOLE, ENVINONMENT,
 	}
 }

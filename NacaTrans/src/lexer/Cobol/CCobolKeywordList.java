@@ -220,6 +220,8 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword DATE_WRITTEN = new CReservedKeyword(List, "DATE-WRITTEN") ; 
 	public static CReservedKeyword DATE_COMPILED = new CReservedKeyword(List, "DATE-COMPILED") ; 
 	public static CReservedKeyword ENVIRONMENT = new CReservedKeyword(List, "ENVIRONMENT") ; 
+	public static CReservedKeyword ENVIRONMENT_NAME = new CReservedKeyword(List, "ENVIRONMENT-NAME") ; 
+	public static CReservedKeyword ENVIRONMENT_VALUE = new CReservedKeyword(List, "ENVIRONMENT-VALUE") ; 
 	public static CReservedKeyword DATA = new CReservedKeyword(List, "DATA") ; 
 	public static CReservedKeyword WORKING_STORAGE = new CReservedKeyword(List, "WORKING-STORAGE") ; 
 	public static CReservedKeyword SECTION = new CReservedKeyword(List, "SECTION") ; 

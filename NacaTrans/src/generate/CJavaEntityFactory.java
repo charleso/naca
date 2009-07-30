@@ -306,6 +306,7 @@ import semantic.Verbs.CEntityStringConcat;
 import semantic.Verbs.CEntitySubtractTo;
 import semantic.Verbs.CEntitySwitchCase;
 import semantic.Verbs.CEntityWriteFile;
+import semantic.Verbs.CEntityDisplay.Upon;
 import semantic.expression.CBaseEntityExpression;
 import semantic.expression.CEntityAddress;
 import semantic.expression.CEntityAddressOf;
@@ -800,8 +801,8 @@ public class CJavaEntityFactory extends CBaseEntityFactory
 	public CEntityCICSAssign NewEntityCICSAssign(int l)	{
 		return new CJavaCICSAssign(l, m_ProgramCatalog, m_LangOutput);
 	}
-	public CEntityDisplay NewEntityDisplay(int l, boolean b)	{
-		return new CJavaDisplay(l, m_ProgramCatalog, m_LangOutput, b);
+	public CEntityDisplay NewEntityDisplay(int l, Upon t)	{
+		return new CJavaDisplay(l, m_ProgramCatalog, m_LangOutput, t);
 	}
 	public CEntityCount NewEntityCount(int l)	{
 		return new CJavaCount(l, m_ProgramCatalog, m_LangOutput);

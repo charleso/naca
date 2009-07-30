@@ -22,6 +22,7 @@ import semantic.CICS.*;
 import semantic.CICS.CEntityCICSRead.CEntityCICSReadMode;
 import semantic.SQL.*;
 import semantic.Verbs.*;
+import semantic.Verbs.CEntityDisplay.Upon;
 import semantic.expression.*;
 import semantic.expression.CEntityConstant.Value;
 import semantic.forms.*;
@@ -176,9 +177,9 @@ public class CJavaFPacEntityFactory extends CBaseEntityFactory
 	}
 
 	@Override
-	public CEntityDisplay NewEntityDisplay(int l, boolean b)
+	public CEntityDisplay NewEntityDisplay(int l, Upon t)
 	{
-		return new CFPacJavaDisplay(l, m_ProgramCatalog, m_LangOutput, b)  ;
+		return new CFPacJavaDisplay(l, m_ProgramCatalog, m_LangOutput, t)  ;
 	}
 
 	@Override

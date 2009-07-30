@@ -774,5 +774,15 @@ public abstract class BaseEnvironment extends CJMapObject implements SessionEnvi
 	private CurrentDateInfo m_dateStart = new CurrentDateInfo();
 	private CurrentDateInfo m_dateEnd  = new CurrentDateInfo();
 	private EnvironmentStatus m_envStatus = EnvironmentStatus.UNKNOWN;
-	
+	private String display;
+
+	public void setDisplay(String display)
+	{
+		this.display = display;
+	}
+
+	public String getDisplayValue()
+	{
+		return System.getProperty(display, "");
+	}
 }

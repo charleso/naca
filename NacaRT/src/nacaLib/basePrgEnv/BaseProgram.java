@@ -5615,6 +5615,13 @@ public abstract class BaseProgram extends CJMapObject
 			m_tempCache.resetTempIndex(var);
 	}
 	
+	public void displayEnv(VarAndEdit var)
+	{
+		String csMessage = var.getDottedSignedString();
+		m_BaseProgramManager.getEnv().setDisplay(csMessage);
+		resetTempIndex(var);
+	}
+	
 	protected String getLastCommandReturnCode()
 	{
 		/*
@@ -5912,6 +5919,11 @@ public abstract class BaseProgram extends CJMapObject
 		String cs = ConsoleInput.getKeyboardLine();
 		varDest.set(cs);
 	}		
+	
+	public void acceptEnv(Var varDest)
+	{
+		varDest.set(m_BaseProgramManager.getEnv().getDisplayValue());
+	}
 }
 
 

@@ -15,6 +15,7 @@ package semantic;
 import semantic.CICS.*;
 import semantic.SQL.*;
 import semantic.Verbs.*;
+import semantic.Verbs.CEntityDisplay.Upon;
 import semantic.expression.*;
 import semantic.forms.*;
 import utils.*;
@@ -84,7 +85,7 @@ public abstract class CBaseEntityFactory
 	public abstract CEntityCICSEnQ NewEntityCICSEnQ(int l) ;
 	public abstract CEntityCount NewEntityCount(int l) ;
 	public abstract CEntityInspectConverting NewEntityInspectConverting(int l) ;
-	public abstract CEntityDisplay NewEntityDisplay(int l, boolean b) ;
+	public abstract CEntityDisplay NewEntityDisplay(int l, Upon t) ;
 	public abstract CEntityCICSAssign NewEntityCICSAssign(int l) ;
 	public abstract CEntityCICSWriteQ NewEntityCICSWriteQ(int l, boolean b) ;
 	public abstract CEntityCICSReadQ NewEntityCICSReadQ(int l, boolean b) ;

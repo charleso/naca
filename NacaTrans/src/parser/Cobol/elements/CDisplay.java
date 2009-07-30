@@ -27,6 +27,7 @@ import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
 import semantic.CDataEntity;
 import semantic.Verbs.CEntityDisplay;
+import semantic.Verbs.CEntityDisplay.Upon;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
 
@@ -48,7 +49,7 @@ public class CDisplay extends CCobolElement
 	}
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		CEntityDisplay eDisp = factory.NewEntityDisplay(getLine(), m_bDisplayOnConsole);
+		CEntityDisplay eDisp = factory.NewEntityDisplay(getLine(), m_upon);
 		parent.AddChild(eDisp) ;
 		for (int i=0; i<m_arrToDisplay.size(); i++)
 		{
@@ -89,7 +90,12 @@ public class CDisplay extends CCobolElement
 			if (tok.GetKeyword()== CCobolKeywordList.CONSOLE)
 			{
 				GetNext() ;
-				m_bDisplayOnConsole = true ;
+				m_upon = Upon.CONSOLE ;
+			}
+			else if (tok.GetKeyword()== CCobolKeywordList.ENVIRONMENT_NAME)
+			{
+				GetNext() ;
+				m_upon = Upon.ENVINONMENT ;
 			}
 			else
 			{
@@ -102,7 +108,7 @@ public class CDisplay extends CCobolElement
 	protected Element ExportCustom(Document root)
 	{
 		String name = "" ;
-		if (m_bDisplayOnConsole)
+		if (m_upon == Upon.CONSOLE)
 		{
 			name = "DisplayUponConsole" ;
 		}
@@ -122,5 +128,5 @@ public class CDisplay extends CCobolElement
 	}
 
 	protected Vector<CTerminal> m_arrToDisplay = new Vector<CTerminal>() ;
-	protected boolean m_bDisplayOnConsole = false ; 
+	protected Upon m_upon = Upon.DEFAULT ; 
 }

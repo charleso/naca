@@ -24,6 +24,7 @@ import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
 import semantic.CDataEntity;
 import semantic.Verbs.CEntityAccept;
+import semantic.Verbs.CEntityAccept.AcceptMode;
 import utils.CGlobalEntityCounter;
 import utils.Transcoder;
 
@@ -47,30 +48,14 @@ public class CAccept extends CCobolElement
 		CEntityAccept eAcc = factory.NewEntityAccept(getLine()) ;
 		parent.AddChild(eAcc) ;
 		CDataEntity eVar = m_Variable.GetDataReference(getLine(), factory) ;
-		if (m_bFromDate)
-		{
-			eAcc.AcceptFromDate(eVar) ;
-		}
-		else if (m_bFromDay)
-		{
-			eAcc.AcceptFromDay(eVar) ;
-		}
-		else if (m_bFromDayOfWeek)
-		{
-			eAcc.AcceptFromDayOfWeek(eVar) ;
-		}
-		else if (m_bFromInput)
-		{
-			eAcc.AcceptFromInput(eVar) ;
-		}
-		else  if (m_bFromTime)
-		{
-			eAcc.AcceptFromTime(eVar) ;
-		}
-		else if (m_bFromVariable) 
+		if (m_From == AcceptMode.FROM_VARIABLE) 
 		{
 			CDataEntity eSource = m_Source.GetDataReference(getLine(), factory) ;
 			eAcc.AcceptFromVariable(eVar, eSource) ;
+		}
+		else if (m_From != null)
+		{
+			eAcc.AcceptFrom(m_From, eVar) ;
 		}
 		else 
 		{
@@ -98,64 +83,39 @@ public class CAccept extends CCobolElement
 			if (tok.GetKeyword() == CCobolKeywordList.DATE)
 			{
 				tok = GetNext() ;
-				m_bFromInput = false ;
-				m_bFromVariable = false ;
-				m_bFromDate = true ;
-				m_bFromTime = false ;
-				m_bFromDay = false ;
-				m_bFromDayOfWeek = false ;
+				m_From = AcceptMode.FROM_DATE ;
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.DAY)
 			{
 				tok = GetNext() ;
-				m_bFromInput = false ;
-				m_bFromVariable = false ;
-				m_bFromDate = false ;
-				m_bFromTime = false ;
-				m_bFromDay = true ;
-				m_bFromDayOfWeek = false ;
+				m_From = AcceptMode.FROM_DAY ;
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.DAY_OF_WEEK)
 			{
 				tok = GetNext() ;
-				m_bFromInput = false ;
-				m_bFromVariable = false ;
-				m_bFromDate = false ;
-				m_bFromTime = false ;
-				m_bFromDay = false ;
-				m_bFromDayOfWeek = true ;
+				m_From = AcceptMode.FROM_DAYOFWEEK ;
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.TIME)
 			{
 				tok = GetNext() ;
-				m_bFromInput = false ;
-				m_bFromVariable = false ;
-				m_bFromDate = false ;
-				m_bFromTime = true ;
-				m_bFromDay = false ;
-				m_bFromDayOfWeek = false ;
+				m_From = AcceptMode.FROM_TIME ;
 			}
 			else if (tok.GetKeyword() == CCobolKeywordList.CONSOLE)
 			{
 				tok = GetNext() ;
-				m_bFromInput = true ;
-				m_bFromVariable = false ;
-				m_bFromDate = false ;
-				m_bFromTime = false ;
-				m_bFromDay = false ;
-				m_bFromDayOfWeek = false ;
+				m_From = AcceptMode.FROM_INPUT ;
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.ENVIRONMENT_VALUE)
+			{
+				tok = GetNext() ;
+				m_From = AcceptMode.FROM_ENVIRONMENT_VALUE ;
 			}
 			else
 			{
 				m_Source = ReadIdentifier();
 				if (m_Source != null)
 				{
-					m_bFromInput = false ;
-					m_bFromVariable = true ;
-					m_bFromDate = false ;
-					m_bFromTime = false ;
-					m_bFromDay = false ;
-					m_bFromDayOfWeek = false ;
+					m_From = AcceptMode.FROM_VARIABLE ;
 				}
 				else
 				{
@@ -166,44 +126,39 @@ public class CAccept extends CCobolElement
 		}
 		else
 		{
-			m_bFromInput = true ;
-			m_bFromVariable = false ;
-			m_bFromDate = false ;
-			m_bFromTime = false ;
-			m_bFromDay = false ;
-			m_bFromDayOfWeek = false ;
+			m_From = AcceptMode.FROM_INPUT ;
 		}
 		return true ;
 	}
 	protected Element ExportCustom(Document root)
 	{
 		Element eAcc = root.createElement("Accept");
-		if (m_bFromDate)
+		if (m_From == AcceptMode.FROM_DATE)
 		{
 			Element eFrom = root.createElement("FromDate");
 			eAcc.appendChild(eFrom);
 		}
-		else if (m_bFromDay)
+		else if (m_From == AcceptMode.FROM_DAY)
 		{
 			Element eFrom = root.createElement("FromDay");
 			eAcc.appendChild(eFrom);
 		}
-		else if (m_bFromDayOfWeek)
+		else if (m_From == AcceptMode.FROM_DAYOFWEEK)
 		{
 			Element eFrom = root.createElement("FromDayOfWeek");
 			eAcc.appendChild(eFrom);
 		}
-		else if (m_bFromInput)
+		else if (m_From == AcceptMode.FROM_INPUT)
 		{
 			Element eFrom = root.createElement("FromInput");
 			eAcc.appendChild(eFrom);
 		}
-		else if (m_bFromTime)
+		else if (m_From == AcceptMode.FROM_TIME)
 		{
 			Element eFrom = root.createElement("FromTime");
 			eAcc.appendChild(eFrom);
 		}
-		else if (m_bFromVariable)
+		else if (m_From == AcceptMode.FROM_VARIABLE)
 		{
 			Element eFrom = root.createElement("From");
 			eAcc.appendChild(eFrom);
@@ -217,10 +172,6 @@ public class CAccept extends CCobolElement
 	
 	protected CIdentifier m_Variable = null ; 
 	protected CIdentifier m_Source = null;
-	protected boolean m_bFromInput = false ;
-	protected boolean m_bFromVariable = false ;
-	protected boolean m_bFromDate = false ;
-	protected boolean m_bFromTime = false ;
-	protected boolean m_bFromDay = false ;
-	protected boolean m_bFromDayOfWeek = false ;
+	protected AcceptMode m_From ;
+	
 }

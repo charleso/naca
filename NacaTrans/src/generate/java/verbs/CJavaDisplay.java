@@ -32,16 +32,20 @@ public class CJavaDisplay extends CEntityDisplay
 	 * @param out
 	 * @param b
 	 */
-	public CJavaDisplay(int line, CObjectCatalog cat, CBaseLanguageExporter out, boolean b)
+	public CJavaDisplay(int line, CObjectCatalog cat, CBaseLanguageExporter out, Upon t)
 	{
-		super(line, cat, out, b);
+		super(line, cat, out, t);
 	}
 	protected void DoExport()
 	{
 		String cs = "" ;
-		if (m_bDisplyOnConsole)
+		if (m_upon == Upon.CONSOLE)
 		{
 			cs = "console().display(" ;
+		}
+		else if(m_upon == Upon.ENVINONMENT)
+		{
+			cs = "displayEnv(";
 		}
 		else
 		{

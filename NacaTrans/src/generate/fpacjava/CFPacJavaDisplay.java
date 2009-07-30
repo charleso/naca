@@ -24,9 +24,9 @@ public class CFPacJavaDisplay extends CEntityDisplay
 	 * @param out
 	 * @param b
 	 */
-	public CFPacJavaDisplay(int line, CObjectCatalog cat, CBaseLanguageExporter out, boolean b)
+	public CFPacJavaDisplay(int line, CObjectCatalog cat, CBaseLanguageExporter out, Upon t)
 	{
-		super(line, cat, out, b);
+		super(line, cat, out, t);
 	}
 
 	/**

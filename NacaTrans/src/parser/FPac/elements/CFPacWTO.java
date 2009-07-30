@@ -23,6 +23,7 @@ import semantic.CSubStringAttributReference;
 import semantic.CDataEntity.CDataEntityType;
 import semantic.Verbs.CEntityConvertReference;
 import semantic.Verbs.CEntityDisplay;
+import semantic.Verbs.CEntityDisplay.Upon;
 import semantic.expression.CBaseEntityExpression;
 import utils.Transcoder;
 import utils.FPacTranscoder.OperandDescription;
@@ -68,7 +69,7 @@ public class CFPacWTO extends CFPacElement
 	@Override
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		CEntityDisplay disp = factory.NewEntityDisplay(getLine(), true) ;
+		CEntityDisplay disp = factory.NewEntityDisplay(getLine(), Upon.CONSOLE) ;
 		CDataEntity e = m_termToDisplay.GetDataEntity(getLine(), factory) ;
 		CDataEntity toDisp = null ;
 		if (e.GetDataType() == CDataEntityType.ADDRESS)

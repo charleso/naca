@@ -13,14 +13,15 @@ import utils.CObjectCatalog;
 
 public abstract class CEntityAccept extends CBaseActionEntity
 {
-	protected enum AcceptMode
+	public enum AcceptMode
 	{
 		FROM_INPUT,
 		FROM_DATE,
 		FROM_DAY,
 		FROM_DAYOFWEEK,
 		FROM_TIME,
-		FROM_VARIABLE
+		FROM_VARIABLE,
+		FROM_ENVIRONMENT_VALUE,
 	}
 	
 	public CEntityAccept(int line, CObjectCatalog cat, CBaseLanguageExporter out)
@@ -32,33 +33,9 @@ public abstract class CEntityAccept extends CBaseActionEntity
 	protected CDataEntity m_eSource = null ;
 	protected AcceptMode m_eMode ;
 
-	public void AcceptFromDate(CDataEntity var)
+	public void AcceptFrom(AcceptMode mode, CDataEntity var)
 	{
-		m_eMode = AcceptMode.FROM_DATE ;
-		m_eVariable = var ;		
-	}
-
-	public void AcceptFromDay(CDataEntity var)
-	{
-		m_eMode = AcceptMode.FROM_DAY ;
-		m_eVariable = var ;		
-	}
-
-	public void AcceptFromDayOfWeek(CDataEntity var)
-	{
-		m_eMode = AcceptMode.FROM_DAYOFWEEK ;
-		m_eVariable = var ;		
-	}
-
-	public void AcceptFromInput(CDataEntity var)
-	{
-		m_eMode = AcceptMode.FROM_INPUT;
-		m_eVariable = var ;		
-	}
-
-	public void AcceptFromTime(CDataEntity var)
-	{
-		m_eMode = AcceptMode.FROM_TIME;
+		m_eMode = mode ;
 		m_eVariable = var ;		
 	}
 

@@ -39,6 +39,9 @@ public class CJavaAccept extends CEntityAccept
 			case FROM_TIME:
 				cs = "getTimeBatch()" ;
 				break ;
+			case FROM_ENVIRONMENT_VALUE:
+				WriteLine("acceptEnv(" + m_eVariable.ExportReference(getLine()) + ");") ;
+				return ;
 			case FROM_VARIABLE:
 				cs = m_eSource.ExportReference(getLine()) ;
 				break ;
