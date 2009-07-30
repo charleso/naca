@@ -22,6 +22,8 @@ import org.w3c.dom.Element;
 
 import parser.CIdentifier;
 import parser.Cobol.CCobolElement;
+import parser.expression.CStringTerminal;
+import parser.expression.CTerminal;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
 import semantic.CEntityFileSelect;
@@ -49,7 +51,7 @@ public class CFileSelect extends CCobolElement
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
 		CEntityFileSelect eFS = factory.NewEntityFileSelect(m_FileReference.GetName()) ;
-		eFS.setFileName(m_FileName.GetDataReference(getLine(), factory)) ;
+		eFS.setFileName(m_FileName.GetDataEntity(getLine(), factory)) ;
 		
 		if (m_bAccessModeDynamic)
 		{
@@ -118,9 +120,19 @@ public class CFileSelect extends CCobolElement
 			Transcoder.logError(tok.getLine(), "Expecting ASSIGN");
 			return false ;
 		}
+		if (tok.GetKeyword() == CCobolKeywordList.DISK)
+		{
+			tok = GetNext() ;
+		}
+		if (tok.GetType() == CTokenType.DOT)
+		{
+			m_FileName = new CStringTerminal(m_FileReference.GetName());
+			GetNext();
+			return true;
+		}
 		
 		// file name in computer file system
-		m_FileName = ReadIdentifier();
+		m_FileName = ReadTerminal();
 		if (m_FileName == null)
 		{
 			Transcoder.logError(tok.getLine(), "Expecting identifier");
@@ -207,6 +219,10 @@ public class CFileSelect extends CCobolElement
 				{
 					tok = GetNext() ;
 				}
+				if (tok.GetKeyword() == CCobolKeywordList.LINE)
+				{
+					tok = GetNext() ;
+				}
 				if (tok.GetKeyword() == CCobolKeywordList.SEQUENTIAL)
 				{
 					GetNext() ;
@@ -287,7 +303,7 @@ public class CFileSelect extends CCobolElement
 	}
 	
 	protected CIdentifier m_FileReference = null ;
-	protected CIdentifier m_FileName = null ;
+	protected CTerminal m_FileName = null ;
 	protected CIdentifier m_RecordKey = null ;
 	protected CIdentifier m_FileStatus = null ;
 	protected boolean m_bOrganizationSequential = false ;

@@ -6,7 +6,6 @@
  */
 package nacaLib.varEx;
 
-import jlib.misc.EnvironmentVar;
 import nacaLib.basePrgEnv.BaseEnvironment;
 import nacaLib.basePrgEnv.BaseSession;
 import nacaLib.basePrgEnv.FileManagerEntry;
@@ -25,9 +24,7 @@ public class VarFileDescriptor extends FileDescriptor {
 	}
 
 	private String getVarName() {
-		m_csLogicalName = var.getString().trim();
-		EnvironmentVar.registerProgramVar(m_csLogicalName, m_csLogicalName);
-		return m_csLogicalName;
+		return m_csLogicalName = var.getString().trim();
 	}
 
 	@Override

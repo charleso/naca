@@ -14,7 +14,6 @@ import jlib.misc.DataFileLineReader;
 import jlib.misc.DataFileReadWrite;
 import jlib.misc.DataFileWrite;
 import jlib.misc.EnvironmentVar;
-import jlib.misc.FileEndOfLine;
 import jlib.misc.JVMReturnCodeManager;
 import jlib.misc.LittleEndingSignBinaryBufferStorage;
 import jlib.misc.LogicalFileDescriptor;
@@ -66,11 +65,10 @@ public class FileManagerEntry extends CJMapObject
 				String csPhysicalDesc = EnvironmentVar.getParamValue(csLogicalName);
 				if(StringUtil.isEmpty(csPhysicalDesc))
 					csPhysicalDesc = EnvironmentVar.getParamValue("File_" + csLogicalName);
-				if(csPhysicalDesc != null && !StringUtil.isEmpty(csPhysicalDesc))
-				{
-					m_logicalFileDescriptor = new LogicalFileDescriptor(csLogicalName, csPhysicalDesc);
-					baseSession.putLogicalFileDescriptor(csLogicalName, m_logicalFileDescriptor);
-				}
+				if(csPhysicalDesc == null || StringUtil.isEmpty(csPhysicalDesc))
+					csPhysicalDesc = csLogicalName;
+				m_logicalFileDescriptor = new LogicalFileDescriptor(csLogicalName, csPhysicalDesc);
+				baseSession.putLogicalFileDescriptor(csLogicalName, m_logicalFileDescriptor);
 			}
 		}
 		if(m_logicalFileDescriptor != null)

@@ -213,6 +213,7 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword GOTO = new CReservedKeyword(List, "GOTO") ; 
 	public static CReservedKeyword GO = new CReservedKeyword(List, "GO") ; 
 	public static CReservedKeyword TO = new CReservedKeyword(List, "TO") ; 
+	public static CReservedKeyword DISK = new CReservedKeyword(List, "DISK") ; 
 	public static CReservedKeyword IDENTIFICATION = new CReservedKeyword(List, "IDENTIFICATION") ; 
 	public static CReservedKeyword ID = new CReservedKeyword(List, "ID") ; 
 	public static CReservedKeyword DIVISION = new CReservedKeyword(List, "DIVISION") ; 

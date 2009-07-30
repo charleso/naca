@@ -497,6 +497,7 @@ public class Transcoder
 					}
 					catch(Throwable e)
 					{
+						e.printStackTrace();
 						logError(fileName, ms_nLastLine, e.getMessage());
 					}
 					Transcoder.popTranscodedUnit();

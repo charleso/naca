@@ -85,6 +85,14 @@ public class VarSectionDeclaration extends VarDeclarationInMap
 		return fileDef;
 	}
 	
+	public FileDescriptor file(String varName)
+	{
+		DataSectionFile fileSection = fileSection();
+		FileDescriptor fileDef = new FileDescriptor(m_ProgramManager.getEnv(), varName);
+		fileSection.setCurrentFileDef(fileDef);
+		return fileDef;
+	}
+	
 	public FileDescriptor filePath(String csPhysicalName)
 	{
 		DataSectionFile fileSection = fileSection();
