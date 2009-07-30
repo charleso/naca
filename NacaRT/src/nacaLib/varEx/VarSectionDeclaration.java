@@ -22,7 +22,6 @@ package nacaLib.varEx;
 import jlib.log.Log;
 import nacaLib.basePrgEnv.BaseProgram;
 import nacaLib.basePrgEnv.BaseProgramManager;
-import nacaLib.program.Section;
 import nacaLib.programStructure.DataSectionFile;
 import nacaLib.programStructure.Division;
 import nacaLib.sqlSupport.SQLCursor;
@@ -78,10 +77,10 @@ public class VarSectionDeclaration extends VarDeclarationInMap
 		return sqlCursor; 
 	}
 	
-	public FileDescriptor file(String csName)
+	public FileDescriptor file(Var varName)
 	{
 		DataSectionFile fileSection = fileSection();
-		FileDescriptor fileDef = new FileDescriptor(m_ProgramManager.getEnv(), csName);
+		FileDescriptor fileDef = new VarFileDescriptor(m_ProgramManager.getEnv(), varName);
 		fileSection.setCurrentFileDef(fileDef);
 		return fileDef;
 	}

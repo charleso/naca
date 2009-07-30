@@ -21,18 +21,13 @@ public class CJavaFileDescriptor extends CEntityFileDescriptor
 	@Override
 	protected void DoExport()
 	{
-		String file = "" ;
-		if (m_FileSelect != null)
-		{
-			file = m_FileSelect.GetFileName() ;
-			int npos = file.lastIndexOf('-') ;
-			if (npos > 0)
-			{
-				file = file.substring(npos+1) ;
-			}
-		}
-		String cs = "FileDescriptor " + FormatIdentifier(GetDisplayName()) + " = declare.file(\""+file+"\")";
+		String file = m_FileSelect.GetFileName().ExportReference(getLine()) ;
+		String cs = "FileDescriptor " + FormatIdentifier(GetDisplayName()) + " = declare.file("+file+")";
 		WriteWord(cs) ;
+		if (m_FileSelect.getFileStatus() != null)
+		{
+			WriteWord(".status("+m_FileSelect.getFileStatus().ExportReference(getLine())+")");
+		}
 //		if (m_RecSizeDependingOn != null)
 //		{
 //			WriteWord(".lengthDependingOn("+m_RecSizeDependingOn.ExportReference(getLine())+")") ;

@@ -51,14 +51,23 @@ public class CEntityFileSelect extends CBaseLanguageEntity
 		m_eAccessmode = eMode ;	
 	}
 	protected AccessMode m_eAccessmode = null ;
-	public void setFileName(String string)
+	public void setFileName(CDataEntity fileName)
 	{
-		m_csFileName = string ;		
+		m_csFileName = fileName ;		
 	}
-	protected String m_csFileName = "" ;
-	public String GetFileName()
+	protected CDataEntity m_csFileName ;
+	public CDataEntity GetFileName()
 	{
 		return m_csFileName ;
+	}
+	protected CDataEntity m_FileStatus;
+	public void setFileStatus(CDataEntity fileStatus)
+	{
+		m_FileStatus = fileStatus;
+	}
+	public CDataEntity getFileStatus()
+	{
+		return m_FileStatus;
 	}
 
 }

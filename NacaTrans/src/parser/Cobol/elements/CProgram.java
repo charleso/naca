@@ -739,7 +739,7 @@ public class CProgram extends CCommentContainer
 //	}
 	protected void DoSemanticAnalysisForChildren(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
-		ListIterator i = m_children.listIterator() ;
+		ListIterator<CBaseElement> i = m_children.listIterator() ;
 		CCobolElement le = null ;
 		try
 		{	
@@ -749,30 +749,23 @@ public class CProgram extends CCommentContainer
 		{
 		}
 
-		CBaseLanguageEntity eVariableSection = null ;
-		CBaseLanguageEntity eLinkage = null ;
-		CBaseLanguageEntity eFileSection = null ;
+		CBaseLanguageEntity eVariableSection = m_eWorking.DoSemanticAnalysis(parent, factory) ;
+		CBaseLanguageEntity eLinkage = m_eLinkage.DoSemanticAnalysis(parent, factory) ;
 		while (le != null)
 		{
 			if (le == m_eFile)
 			{
-				eVariableSection = m_eWorking.DoSemanticAnalysis(parent, factory);
-				if (m_eLinkage != null)
-					eLinkage = m_eLinkage.DoSemanticAnalysis(parent, factory) ;
-				eFileSection = le.DoSemanticAnalysis(parent, factory) ;
-				parent.AddChild(eFileSection) ;
+				// Ignore
 			}
-			else if (le == m_eWorking && eFileSection != null)
+			else if (le == m_eWorking)
 			{
 				parent.AddChild(eVariableSection) ;
-//				if (m_eLinkage == null)
-//					parent.AddChild(eFileSection) ;
 			}
-			else if (le == m_eLinkage && eFileSection != null)
+			else if (le == m_eLinkage)
 			{
 				parent.AddChild(eLinkage) ;
-//				parent.AddChild(eFileSection) ;
-//				addDependencySection(parent) ;
+				if(m_eFile != null)
+					parent.AddChild(m_eFile.DoSemanticAnalysis(parent, factory)) ;
 			}
 			else
 			{

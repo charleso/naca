@@ -22,11 +22,6 @@ public class CJavaSortedFileDescriptor extends CEntitySortedFileDescriptor
 	@Override
 	protected void DoExport()
 	{
-		String file = "" ;
-		if (m_FileSelect != null)
-		{
-			file = m_FileSelect.GetFileName() ;
-		}
 		//String cs = "SORT " + FormatIdentifier(GetDisplayName()) + " = sortDefine(\""+file+"\").record(" ;
 		//cs +=  FormatIdentifier(GetRecordName()) + ");" ;
 		String cs = "SortDescriptor " + FormatIdentifier(GetDisplayName()) + " = declare.sort() ;" ;

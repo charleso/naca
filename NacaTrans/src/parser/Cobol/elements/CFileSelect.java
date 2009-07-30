@@ -49,7 +49,7 @@ public class CFileSelect extends CCobolElement
 	protected CBaseLanguageEntity DoCustomSemanticAnalysis(CBaseLanguageEntity parent, CBaseEntityFactory factory)
 	{
 		CEntityFileSelect eFS = factory.NewEntityFileSelect(m_FileReference.GetName()) ;
-		eFS.setFileName(m_FileName.GetName()) ;
+		eFS.setFileName(m_FileName.GetDataReference(getLine(), factory)) ;
 		
 		if (m_bAccessModeDynamic)
 		{
@@ -75,7 +75,7 @@ public class CFileSelect extends CCobolElement
 		
 		if (m_FileStatus != null)
 		{
-			Transcoder.logWarn(getLine(), "No semantic analysis for FileSelect / File Status");
+			eFS.setFileStatus(m_FileStatus.GetDataReference(getLine(), factory));
 		}
 		if (m_RecordKey != null)
 		{
