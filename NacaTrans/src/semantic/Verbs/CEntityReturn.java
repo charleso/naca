@@ -34,9 +34,9 @@ public abstract class CEntityReturn extends CBaseActionEntity
 		super(l, cat, out);
 	}
 
-	public void SetStopProgram()
+	public void SetStopProgram(int returning)
 	{
-		m_bStopAllStackCalls = true;
+		m_bStopAllStackCalls = returning;
 	}
 	
 	public void SetOnlyReturnFromProcedure()
@@ -44,7 +44,7 @@ public abstract class CEntityReturn extends CBaseActionEntity
 		m_bonlyLeaveParagraph = true;
 	}
 	
-	protected boolean m_bStopAllStackCalls = false ;
+	protected int m_bStopAllStackCalls = -1 ;
 	protected boolean m_bonlyLeaveParagraph = false ;
 	public boolean ignore()
 	{

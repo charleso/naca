@@ -12,10 +12,12 @@ public class CStopRunException extends NacaRTException
 {
 	private static final long serialVersionUID = 1L;
 	private BaseProgramManager m_programManager = null;
+	private final int m_returning;
 	
-	public CStopRunException(BaseProgramManager programManager)
+	public CStopRunException(BaseProgramManager programManager, int returning)
 	{
 		m_programManager = programManager;
+		m_returning = returning;
 	}
 	
 	public String getMessage()

@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 
 import parser.CIdentifier;
 import parser.Cobol.CCobolElement;
+import parser.expression.CTerminal;
 import semantic.CBaseEntityFactory;
 import semantic.CBaseLanguageEntity;
 import semantic.Verbs.CEntityReturn;
@@ -51,7 +52,9 @@ public class CStop extends CCobolElement
 		if (m_Ref == null)
 		{
 			CEntityReturn eStop = factory.NewEntityReturn(getLine());
-			eStop.SetStopProgram() ;
+			int returning = m_Returning == null ? 0 : Integer
+					.parseInt(m_Returning.GetValue());
+			eStop.SetStopProgram(returning);
 			parent.AddChild(eStop);
 			return eStop ;
 		}
@@ -75,9 +78,14 @@ public class CStop extends CCobolElement
 		tok = GetNext();
 		if (tok.GetKeyword() == CCobolKeywordList.RUN)
 		{
-			GetNext();
+			tok = GetNext();
 			CGlobalEntityCounter.GetInstance().CountCobolVerb("STOP_RUN") ;
 			m_Ref = null;
+			if (tok.GetKeyword() == CCobolKeywordList.RETURNING)
+			{
+				GetNext();
+				m_Returning = ReadTerminal();
+			}
 		}
 		else 
 		{
@@ -105,4 +113,5 @@ public class CStop extends CCobolElement
 	}
 	
 	protected CIdentifier m_Ref = null ; // if NULL => STOP RUN ;
+	protected CTerminal m_Returning = null ;
 }

@@ -3483,11 +3483,15 @@ public abstract class BaseProgram extends CJMapObject
 	 */
 	protected void stopRun() throws CGotoException	// Exit the application
 	{
+		stopRun(0);
+	}
+	
+	protected void stopRun(int returning) throws CGotoException
+	{
 		if(IsSTCheck)
 			Log.logFineDebug("stopRun:");
 
-		CStopRunException e = new CStopRunException(getProgramManager());
-		throw e;
+		throw new CStopRunException(getProgramManager(), returning);
 	}	
 	
 	

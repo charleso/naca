@@ -188,6 +188,7 @@ public class CCobolKeywordList extends CKeywordList
 	public static CReservedKeyword END_STRING = new CReservedKeyword(List, "END-STRING") ; 
 	public static CReservedKeyword RUN = new CReservedKeyword(List, "RUN") ; 
 	public static CReservedKeyword STOP = new CReservedKeyword(List, "STOP") ; 
+	public static CReservedKeyword RETURNING = new CReservedKeyword(List, "RETURNING") ; 
 	public static CReservedKeyword MULTIPLY = new CReservedKeyword(List, "MULTIPLY") ; 
 	public static CReservedKeyword REMAINDER = new CReservedKeyword(List, "REMAINDER") ; 
 	public static CReservedKeyword GIVING = new CReservedKeyword(List, "GIVING") ; 

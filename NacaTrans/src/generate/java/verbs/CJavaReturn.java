@@ -39,9 +39,9 @@ public class CJavaReturn extends CEntityReturn
 	 */
 	protected void DoExport()
 	{
-		if (m_bStopAllStackCalls)
+		if (m_bStopAllStackCalls >= 0)
 		{
-			WriteLine("stopRun();") ;
+			WriteLine("stopRun(" + m_bStopAllStackCalls +  ");") ;
 		}
 		else if (m_bonlyLeaveParagraph)
 		{
