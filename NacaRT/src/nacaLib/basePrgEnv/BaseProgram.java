@@ -4685,6 +4685,11 @@ public abstract class BaseProgram extends CJMapObject
 		setSubString(varDest, nOffsetPosition.m_d.intValue(), nNbChar, csValue);
 	}
 	
+	protected void setSubString(VarAndEdit varDest, Var varPos, String varValue)
+	{
+		setSubString(varDest, varPos.getInt(), varValue);
+	}
+	
 	protected void setSubString(VarAndEdit varDest, int nOffsetPosition, String varValue)
 	{
 		setSubString(varDest, nOffsetPosition, varDest.getVarDef().getLength(), varValue);
