@@ -134,7 +134,15 @@ public class CFileDescriptor extends CCobolElement
 			{
 				tok = GetNext() ;
 			}
-			if (tok.GetKeyword() == CCobolKeywordList.RECORD)
+			if (tok.GetKeyword() == CCobolKeywordList.VALUE)
+			{
+				tok = GetNext() ; // Of
+				tok = GetNext() ; // FILE-ID
+				tok = GetNext() ; // Is
+				tok = GetNext() ; // TODO IGNORE?
+				tok = GetNext() ; // DOT
+			}
+			else if (tok.GetKeyword() == CCobolKeywordList.RECORD)
 			{
 				tok = GetNext() ;
 				if (tok.GetKeyword() == CCobolKeywordList.CONTAINS)
