@@ -278,7 +278,7 @@ public class CWorkingEntry extends CCobolElement
 				{
 					tok = GetNext();
 				}
-				if (tok.GetConstant() == CCobolConstantList.ZERO)
+				if (tok.GetConstant() == CCobolConstantList.ZERO || tok.GetConstant() == CCobolConstantList.ZEROS || tok.GetConstant() == CCobolConstantList.ZEROES)
 				{
 					tok = GetNext();
 					m_bBlankWhenZero = true ;
