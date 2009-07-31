@@ -367,6 +367,15 @@ public class CWorkingEntry extends CCobolElement
 					m_BlankWhenValue = ReadTerminal() ;
 				}
 			}
+			else if (tokPic.GetKeyword() == CCobolKeywordList.IS)
+			{
+				bNext = false ;
+				if(GetNext().GetKeyword() == CCobolKeywordList.EXTERNAL)
+				{
+					Transcoder.logWarn(getLine(), "External variable not supported");
+					GetNext();
+				}
+			}
 			else if (tokPic.IsKeyword() && tokPic.GetKeyword()==CCobolKeywordList.OCCURS)
 			{
 				bNext = true ;
