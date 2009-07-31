@@ -86,6 +86,10 @@ public class CReturn extends CCobolElement
 		m_SortFile = ReadIdentifier();
 		
 		tok = GetCurrentToken();
+		if (tok.GetKeyword() == CCobolKeywordList.RECORD)
+		{
+			tok = GetNext();
+		}
 		if (tok.GetKeyword() == CCobolKeywordList.INTO)
 		{
 			tok = GetNext();
