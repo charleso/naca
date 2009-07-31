@@ -35,7 +35,7 @@ public abstract class CEntityFileDescriptor extends CBaseLanguageEntity
 
 	public CDataEntity GetRecord()
 	{
-		if (m_lstChildren.getFirst() != null)
+		if (!m_lstChildren.isEmpty() && m_lstChildren.getFirst() != null)
 		{
 			CDataEntity le = FindFirstDataEntityAtLevel(1) ;
 			if (le != null)
