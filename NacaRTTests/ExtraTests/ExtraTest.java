@@ -54,6 +54,10 @@ public class ExtraTest extends TestCase {
 		_test("goto");
 	}
 
+	public void testGoto2() {
+		_test("goto2");
+	}
+
 	public void testAfter() {
 		_test("after");
 	}

@@ -158,32 +158,12 @@ public class Section extends CJMapRunnable
 				if(isLogFlow)
 					Log.logDebug("Run section: "+m_Program.getSimpleName()+"."+toString());
 				run();		// Run the code directly written into the section, not included in a paragraph
+				setNextParagraphCurrent();  
 			}
-			else
-			{
-				if(isLogFlow)
-					Log.logDebug("Run paragraph: "+m_Program.getSimpleName()+"."+m_currentParagraph.toString());
-				m_currentParagraph.run();
-			}
-				
-			setNextParagraphCurrent();  
 		}
 		catch (CGotoException e)
 		{
-			Paragraph gotoParagraph = e.m_Paragraph;
-			if(gotoParagraph != null)	// goto a paragraph
-			{
-				m_currentParagraph = e.m_Paragraph;
-			}
-			else
-			{
-				Section gotoSection = e.m_Section;
-				if(gotoSection != null)
-				{
-					CGotoOtherSectionException eGotoOtherSection = new CGotoOtherSectionException(gotoSection);
-					throw eGotoOtherSection;
-				}
-			}
+			handleGotoException(e);
 		}
 		
 		while(m_currentParagraph != null)	// Loop while we have sone paragraph to execute
@@ -198,30 +178,35 @@ public class Section extends CJMapRunnable
 			}
 			catch (CGotoException e)
 			{
-				Paragraph gotoParagraph = e.m_Paragraph;
-				if(gotoParagraph != null)	// goto a paragraph
-				{
-					boolean b = isParagraphInCurrentSection(gotoParagraph);
-					if(b)	// the section that owns the paragrph where we goto is the current one
-					{
-						m_currentParagraph = e.m_Paragraph;
-					}
-					else 
-					{
-						CGotoOtherSectionParagraphException eGotoOtherSectionPara = new CGotoOtherSectionParagraphException(gotoParagraph);
-						throw eGotoOtherSectionPara;
-					}
-				}
-				else
-				{
-					Section gotoSection = e.m_Section;
-					if(gotoSection != null)
-					{
-						CGotoOtherSectionException eGotoOtherSection = new CGotoOtherSectionException(gotoSection);
-						throw eGotoOtherSection;
-					}
-				}
+				handleGotoException(e);
 			} 
+		}
+	}
+	
+	private void handleGotoException(CGotoException e)
+	{
+		Paragraph gotoParagraph = e.m_Paragraph;
+		if(gotoParagraph != null)	// goto a paragraph
+		{
+			boolean b = isParagraphInCurrentSection(gotoParagraph);
+			if(b)	// the section that owns the paragrph where we goto is the current one
+			{
+				m_currentParagraph = e.m_Paragraph;
+			}
+			else 
+			{
+				CGotoOtherSectionParagraphException eGotoOtherSectionPara = new CGotoOtherSectionParagraphException(gotoParagraph);
+				throw eGotoOtherSectionPara;
+			}
+		}
+		else
+		{
+			Section gotoSection = e.m_Section;
+			if(gotoSection != null)
+			{
+				CGotoOtherSectionException eGotoOtherSection = new CGotoOtherSectionException(gotoSection);
+				throw eGotoOtherSection;
+			}
 		}
 	}
 	
